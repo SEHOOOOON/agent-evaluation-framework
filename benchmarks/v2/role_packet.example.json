@@ -1,0 +1,26 @@
+{
+  "case_id": "ROLE-PREVIEW-SYNTHETIC",
+  "trial_id": "T001",
+  "agent_id": "A2",
+  "target_version": "SYNTHETIC-NOT-LIVE",
+  "sources": {
+    "context": {
+      "request": "대상 장비에 설정 온도 18도를 적용하면 장비 카드에 18도가 표시되어야 한다. 알림 변경은 요청하지 않았다.",
+      "analysis": "설정 온도 적용과 카드 표시만 검증한다. 목표 값과 관찰 대상은 확정되어 있다.",
+      "existing_tc": "이 합성 예시의 카탈로그에는 해당 온도 적용을 검증하는 기존 TC가 없다.",
+      "reference": "사용자 TC 기준: 대상·준비, 재현 가능한 조작 순서, 조작에 대응하는 관찰 위치·시점·값을 명시한다. 상태 변경 후 복원과 복원 성공을 확인한다. 무관한 알림·색상을 추가하지 않는다."
+    },
+    "artifact": {
+      "candidate_tc": {
+        "preconditions": ["중앙 관제 화면에서 시험할 장비를 확인하고 초기 설정 온도를 기록한다."],
+        "steps": ["대상 장비 카드를 선택한다.", "제어 패널의 설정 온도에 18도를 입력한다.", "적용 버튼을 누른다."],
+        "expected_results": [{"after_step": 3, "statement": "대상 장비 카드에 설정 온도 18도가 표시된다."}],
+        "restore": ["기록한 초기 설정 온도를 입력하고 적용한다.", "적용 후 장비 카드의 설정 온도가 기록한 초기값과 같은지 확인한다."]
+      },
+      "status": "설계 초안이며 실행 또는 공식 등록을 완료했다는 뜻이 아니다."
+    }
+  },
+  "rubric": [{"criterion_id": "PREVIEW-ONLY", "objective": "명령에 --role-rubric을 붙여 역할별 전체 기준으로 교체", "pass_condition": "이 항목은 연결 설명용이며 품질 평가를 하지 않는다."}],
+  "code_checks": [],
+  "oracle_status": "DRAFT"
+}

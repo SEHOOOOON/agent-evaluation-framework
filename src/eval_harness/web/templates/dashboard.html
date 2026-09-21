@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Agent 1~4의 저장 평가 결과와 미평가 범위를 확인하는 로컬 대시보드">
+  <title>QA Agent Evaluation Control Center</title>
+  <link rel="stylesheet" href="/static/dashboard.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">본문 바로가기</a>
+  <header class="topbar">
+    <a class="brand" href="#main"><span class="brand-mark">QA</span><strong>Agent Evaluation</strong><span class="project-tag">PROJECT 02</span></a>
+    <span class="local-label"><i aria-hidden="true"></i> 로컬 · 읽기 전용 검토</span>
+  </header>
+  <main id="main">
+    <section class="page-heading">
+      <div><p class="eyebrow">프로젝트 1 수행 품질 검토</p><h1>결과에서 근거까지, 한눈에</h1><p class="lead">Agent별 결과와 단계 간 연결을 확인합니다. 제품 시험 결과와 Agent 평가는 구분합니다.</p></div>
+      <div class="plan-label"><span class="status pending">전체 검증 미완료</span><span>연결 구현 · 제한 실행 기록</span></div>
+    </section>
+    <div class="workspace-tabs" role="tablist" aria-label="검토 모드">
+      <button id="mode-recorded" role="tab" aria-selected="true" aria-controls="recordedPanel" tabindex="0">저장 결과 검토</button>
+      <button id="mode-flow" role="tab" aria-selected="false" aria-controls="flowPanel" tabindex="-1">전체 실행 기록</button>
+      <button id="mode-self" role="tab" aria-selected="false" aria-controls="selfPanel" tabindex="-1">평가기 자체 검증</button>
+    </div>
+    <section id="recordedPanel" role="tabpanel" aria-labelledby="mode-recorded">
+      <div class="report-toolbar">
+        <div><span class="context-label">저장 기록 기반</span><span class="muted">새 Agent 실행이 아닙니다.</span></div>
+        <label for="reviewSelect">평가 기록 <select id="reviewSelect" disabled><option>불러오는 중…</option></select></label>
+        <button id="reviewRefresh" class="secondary" type="button">새로고침</button>
+      </div>
+      <p id="reviewAlert" class="app-alert" role="alert" hidden></p>
+      <div id="reviewEmpty" class="empty-state" hidden><h2>아직 저장된 평가가 없습니다</h2><p>V2 저장 기록을 검사한 뒤 이곳에서 결과를 확인할 수 있습니다.</p><code>python -m eval_harness run-v2 --target ../qa-agent-pipeline-v2</code><p>이 명령은 새 모델을 호출하지 않습니다.</p></div>
+      <div id="reviewContent" hidden>
+        <section class="metrics" aria-label="선택한 저장 평가 요약">
+          <article><span>검토한 사례</span><strong id="reviewCaseCount">—</strong><small>서로 다른 과거 요청</small></article>
+          <article><span>위반 발견</span><strong id="reviewFailCount" class="negative">—</strong><small>자동 검사상 불일치 사례</small></article>
+          <article><span>검토 필요</span><strong id="reviewPendingCount">—</strong><small>의미·정답 확인이 남은 사례</small></article>
+          <article><span>평가 오류</span><strong id="reviewErrorCount">—</strong><small>완료로 처리하지 않은 사례</small></article>
+        </section>
+        <div class="section-head"><div><h2>사례별 평가 현황</h2><p>상태를 선택하면 해당 역할의 검사 근거가 아래에 열립니다.</p></div><span class="muted small">부분 확인 ≠ Agent 통과</span></div>
+        <div class="matrix-wrap" role="region" aria-label="사례별 Agent 평가 표" tabindex="0">
+          <table class="matrix"><thead><tr><th scope="col">검토 사례</th><th scope="col">Agent 1<small>요구사항 분석</small></th><th scope="col">Agent 2<small>TC 설계</small></th><th scope="col">Agent 3<small>계획·코드·시험</small></th><th scope="col">Agent 4<small>분석·보고</small></th><th scope="col">전체 연결<small>인계·범위·승인</small></th><th scope="col">사례 판정</th></tr></thead><tbody id="reviewMatrix"></tbody></table>
+        </div>
+        <div class="matrix-foot"><span id="reviewSourceState"></span><span>미평가를 통과로 집계하지 않습니다.</span></div>
+        <section class="inspection" aria-labelledby="inspectionTitle">
+          <div class="inspection-head"><div><p id="reviewCaseId" class="eyebrow"></p><h2 id="inspectionTitle"></h2><p id="reviewRunId" class="muted small"></p></div><span id="reviewCaseStatus" class="status"></span></div>
+          <div id="reviewIssues" class="issues"></div>
+          <nav id="reviewRoles" class="role-tabs" aria-label="평가 역할 선택"></nav>
+          <div class="role-summary"><div><h3 id="reviewRoleTitle"></h3><p id="reviewRoleDescription"></p></div><span id="reviewRoleCount" class="muted small"></span></div>
+          <div id="reviewCriteria" class="criteria-list"></div>
+          <p class="review-note">표시된 판정은 저장 당시의 평가입니다. 현재 코드의 재실행 결과나 사람의 최종 승인이 아닙니다.</p>
+        </section>
+      </div>
+      <details class="scope-details"><summary>현재 확인 범위와 다음 작업</summary><div class="scope-grid"><div><h3>지금 확인 가능</h3><p>저장 사례의 역할별 검사·미평가·문제 근거를 조회합니다. 새 호출과 원본 변경은 없습니다.</p></div><div><h3>다음 검증</h3><p>A1~4 전체 연결 구현 → 승인 후 실제 1회 리허설·사람 교정 → 고정 조건 5회 비교. 단독 시험은 원인 분석용입니다.</p></div></div></details>
+    </section>
+    <section id="flowPanel" role="tabpanel" aria-labelledby="mode-flow" hidden>
+      <div class="report-toolbar"><div><span class="context-label">A1~4 회차별 확인</span><span class="muted">무과금 검증과 실제 실행을 구분합니다.</span></div>
+        <label for="flowSelect">실행 기록 <select id="flowSelect" disabled><option>불러오는 중…</option></select></label>
+        <button id="flowRefresh" class="secondary" type="button">새로고침</button></div>
+      <p id="flowAlert" class="app-alert" role="alert" hidden></p>
+      <div id="flowBody"></div>
+      <p class="review-note">새 실행은 승인된 CLI에서만 시작합니다. 화면을 열거나 새로고침해도 API를 호출하지 않습니다. 실행 완료와 품질 합격은 다릅니다.</p>
+    </section>
+    <section id="selfPanel" role="tabpanel" aria-labelledby="mode-self" hidden>
+      <div class="self-intro"><div><h2>평가기 자체 검증</h2><p>정상·오류 기준본으로 검사기의 탐지 동작을 확인합니다. V2 Agent의 실제 성능이 아닙니다.</p></div><span id="sourceName" class="muted small">기준본 연결 중</span></div>
+      <p id="appAlert" class="app-alert hidden" role="alert"></p>
+    <section class="runbar" aria-label="평가기 검증 실행 설정">
+      <div class="runbar-title"><p class="eyebrow">EVALUATOR VALIDATION</p><strong>평가기 탐지·오탐 확인</strong></div>
+      <label>검증 Profile
+        <select id="suite"><option value="project1-audit">Evaluator Self-test · 현재 Snapshot</option></select>
+        <small id="benchmarkDescription">Project1 저장 산출물로 탐지 동작을 확인합니다.</small>
+      </label>
+      <label>모드<select id="mode"><option value="fixture">Fixture · 읽기 전용</option></select></label>
+      <label>Trial<select id="trials"><option value="1">1회</option></select></label>
+      <label>대상 버전<input id="targetVersion" value="project1-current" maxlength="80"></label>
+      <button id="runButton" class="primary">평가기 검증 실행</button>
+    </section>
+
+    <section class="run-summary" aria-live="polite">
+      <div class="summary-main">
+        <p class="eyebrow">LATEST EVALUATOR RUN</p>
+        <strong id="runId" class="mono">실행 전</strong>
+        <span id="runStatus" class="status idle">IDLE</span>
+      </div>
+      <dl class="check-summary">
+        <div><dt>PASS</dt><dd id="passCount">0</dd></div>
+        <div><dt>FAIL</dt><dd id="failCount">0</dd></div>
+        <div><dt>ABSTAIN</dt><dd id="abstainCount">0</dd></div>
+        <div><dt>N/A</dt><dd id="naCount">0</dd></div>
+        <div><dt>FINDING</dt><dd id="findingCount">0</dd></div>
+      </dl>
+      <div class="gate-box">
+        <p class="eyebrow">EVALUATOR DECISION</p>
+        <strong id="gateDecision">PENDING</strong>
+        <p id="gateSummary">검증을 실행하면 평가기가 알려진 오류를 탐지하는지 표시합니다.</p>
+        <a id="reportLink" class="text-link hidden" target="_blank" rel="noopener">정적 리포트 열기</a>
+      </div>
+      <div class="truth-strip" aria-label="실행 진실성 정보">
+        <span>AGENT EXECUTED <strong id="sutExecuted">FALSE</strong></span>
+        <span>STABILITY MEASURED <strong id="stabilityEvaluated">FALSE</strong></span>
+        <span>SOURCE UNCHANGED <strong id="sourceUnchanged">PENDING</strong></span>
+      </div>
+    </section>
+
+    <section class="pipeline-shell">
+      <div class="section-head">
+        <div><p class="eyebrow">RULE COVERAGE REVIEW</p><h2>구성요소별 규칙 검사</h2></div>
+        <p>현재는 평가기 검증 결과입니다. Live 단계에서는 같은 구조에 Case·Trial·Rule 지표가 연결됩니다.</p>
+      </div>
+      <div id="stepper" class="stepper" aria-label="평가 단계"></div>
+      <div class="stage-grid">
+        <article class="stage-overview">
+          <div class="stage-heading">
+            <div><p id="stageStep" class="eyebrow">STEP 01</p><h2 id="stageName">Agent 1 · 요구사항 규칙</h2><p id="stageMode" class="muted">실행 후 결과를 확인할 수 있습니다.</p></div>
+            <span id="stageStatus" class="status idle">IDLE</span>
+          </div>
+          <div class="checkpoint-row"><span id="checkpointName">Checkpoint 1</span><strong id="checkpointStatus">PENDING</strong></div>
+          <p id="modeNote" class="mode-note">화면은 JSON 판정을 표시하며 자체적으로 결과를 계산하지 않습니다.</p>
+        </article>
+
+        <article class="detail-panel">
+          <nav class="tabs" role="tablist" aria-label="단계 상세 탭">
+            <button id="tab-checks" role="tab" aria-controls="detailContent" aria-selected="true" tabindex="0" data-tab="checks" class="active">Rule Check</button>
+            <button id="tab-findings" role="tab" aria-controls="detailContent" aria-selected="false" tabindex="-1" data-tab="findings">Finding</button>
+            <button id="tab-inputs" role="tab" aria-controls="detailContent" aria-selected="false" tabindex="-1" data-tab="inputs">입력·출력</button>
+            <button id="tab-evidence" role="tab" aria-controls="detailContent" aria-selected="false" tabindex="-1" data-tab="evidence">근거</button>
+          </nav>
+          <div id="detailContent" class="detail-content empty-state" role="tabpanel" aria-labelledby="tab-checks" tabindex="0"><p>평가기 검증을 실행하면 규칙별 판정과 근거가 표시됩니다.</p></div>
+        </article>
+      </div>
+    </section>
+
+
+      <details class="scope-details"><summary>평가기 실행 기록</summary><ol id="timeline"><li class="muted">아직 기록이 없습니다.</li></ol></details>
+    </section>
+  </main>
+  <dialog id="artifactDialog" aria-labelledby="artifactTitle">
+    <div class="dialog-head"><div><p class="eyebrow">READ-ONLY ARTIFACT</p><h2 id="artifactTitle">Artifact</h2></div><button id="closeDialog" aria-label="닫기">×</button></div>
+    <pre id="artifactContent"></pre>
+  </dialog>
+
+  <footer><span>QA Agent Evaluation · 결과와 근거를 분리하지 않습니다.</span><span>호출 기록과 전체 품질 검증을 구분합니다.</span></footer>
+  <script src="/static/dashboard.js" defer></script>
+  <script src="/static/recorded.js" defer></script>
+  <script src="/static/flows.js" defer></script>
+</body>
+</html>

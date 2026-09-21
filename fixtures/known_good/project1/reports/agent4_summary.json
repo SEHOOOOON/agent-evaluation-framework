@@ -1,0 +1,26 @@
+{
+  "run_id": "RUN-GOOD-001",
+  "source_execution_run_id": "RUN-GOOD-001",
+  "checkpoint4": {
+    "status": "VALIDATED",
+    "external_reporting_allowed": true
+  },
+  "execution": {
+    "result": "PASSED",
+    "release_decision": "PASS"
+  },
+  "pytest_summary": {
+    "total": 2,
+    "error": 0,
+    "failed": 0,
+    "skipped": 0,
+    "passed": 2
+  },
+  "qa_classification_summary": {
+    "none": 2
+  },
+  "results": [
+    {"run_id": "RUN-GOOD-001", "tc_id": "TC-MODE-001", "result": "passed", "qa_classification": "none"},
+    {"run_id": "RUN-GOOD-001", "tc_id": "TC-INT-002", "result": "passed", "qa_classification": "none"}
+  ]
+}

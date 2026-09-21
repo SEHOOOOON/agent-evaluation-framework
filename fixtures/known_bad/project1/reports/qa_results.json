@@ -1,0 +1,24 @@
+[
+  {
+    "run_id": "RUN-FIXTURE-001",
+    "tc_id": "TC-MODE-001",
+    "result": "passed",
+    "failure_reason": "",
+    "evidence_path": ""
+  },
+  {
+    "run_id": "RUN-FIXTURE-001",
+    "tc_id": "TC-PIPE-003",
+    "result": "failed",
+    "failure_reason": "자동화 코드 문제",
+    "evidence_path": ""
+  },
+  {
+    "run_id": "RUN-FIXTURE-001",
+    "tc_id": "TC-PIPE-004",
+    "result": "skipped",
+    "failure_reason": "조건 부족으로 미실행",
+    "evidence_path": ""
+  }
+]
+

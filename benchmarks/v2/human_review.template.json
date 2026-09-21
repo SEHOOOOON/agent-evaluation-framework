@@ -1,0 +1,10 @@
+{
+  "schema_version": "1.0",
+  "status": "TEMPLATE_NOT_REVIEWED",
+  "reviewer": null,
+  "reviews": [
+    {"case_id": "V2-001", "verdict": null, "reason": null, "evidence_refs": [], "rubric_questions": ["기존 강풍 TC 재사용은 충분한가", "중풍 TC 단계·기대결과·복원은 적절한가"]},
+    {"case_id": "V2-002", "verdict": null, "reason": null, "evidence_refs": [], "rubric_questions": ["불일치 후보라는 분류에 동의하는가", "제품 결함 확정과 구분했는가"]},
+    {"case_id": "V2-003", "verdict": null, "reason": null, "evidence_refs": [], "rubric_questions": ["미정 색상을 제외하는 범위가 적절한가", "요청 전체 완료로 과장하지 않았는가"]}
+  ]
+}

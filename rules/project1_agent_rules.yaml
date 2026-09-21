@@ -1,0 +1,221 @@
+schema_version: project1-rule-catalog/v1
+catalog_version: RULES-v0.3
+title: Project1 Agent Quality Rules
+description: >-
+  프로젝트 1에서 이미 정의한 Prompt, 3-Tier QA 기준, Checkpoint 규칙과
+  실행·보고 정책을 프로젝트 2의 평가 기준으로 고정한 카탈로그입니다.
+source_documents:
+  - id: P1-A1-PROMPT
+    path: docs/prompts/agent1_requirement_analyst.md
+  - id: P1-A2-PROMPT
+    path: docs/prompts/agent2_tc_designer.md
+  - id: P1-CP2-PROMPT
+    path: docs/prompts/checkpoint2_tc_reviewer.md
+  - id: P1-3TIER
+    path: docs/architecture/agent2_3tier_qa_criteria.md
+  - id: P1-ARCH
+    path: docs/architecture/QA_PIPELINE_ARCHITECTURE.md
+
+rules:
+  - rule_id: A1-CLASSIFY-001
+    target: agent_1
+    title: 확정·추정·정보 부족 분리
+    severity: critical
+    evaluator: deterministic_reference
+    description: 입력 내용을 confirmed_facts, inferred_facts, information_gaps로 구분한다.
+  - rule_id: A1-GROUND-001
+    target: agent_1
+    title: 확정 정보의 근거 연결
+    severity: critical
+    evaluator: deterministic_reference
+    description: 모든 확정 정보는 승인된 Requirement, Domain Rule 또는 유효한 Existing TC 근거를 가진다.
+  - rule_id: A1-NO-INVENT-001
+    target: agent_1
+    title: 근거 없는 정책 확정 금지
+    severity: critical
+    evaluator: deterministic_reference
+    description: 색상, 문구, 초기화 값, 갱신 주기 등 입력에 없는 내용을 확정 정보로 만들지 않는다.
+  - rule_id: A1-GAP-EXPECTED-001
+    target: agent_1
+    title: 추정·정보 부족의 기대결과 사용 금지
+    severity: critical
+    evaluator: deterministic_reference
+    description: 추정 정보와 정보 부족을 Agent 2의 Expected Result 근거로 전달하지 않는다.
+  - rule_id: A1-ROLE-001
+    target: agent_1
+    title: Agent 1 역할 경계 준수
+    severity: high
+    evaluator: deterministic_rubric
+    description: UI, TC 절차, Playwright 코드, 최종 PASS/FAIL 또는 릴리즈 결정을 생성하지 않는다.
+  - rule_id: A1-CONTRACT-001
+    target: agent_1
+    title: YAML Data Contract 준수
+    severity: high
+    evaluator: deterministic_schema
+    description: 프로젝트 1 Prompt에 정의된 필수 필드, Enum과 참조 ID 구조를 준수한다.
+  - rule_id: A1-VIEW-DATA-001
+    target: agent_1
+    title: Markdown과 YAML 1대1 무결성
+    severity: high
+    evaluator: deterministic
+    description: Markdown의 Fact, Inference, Gap 개수와 ID가 YAML 배열과 일치한다.
+  - rule_id: A1-RECOMMEND-001
+    target: agent_1
+    title: Proceed 권고의 근거 일치
+    severity: high
+    evaluator: deterministic_reference
+    description: Proceed, Partial Proceed, Hold가 테스트 가능 범위와 Blocking Gap에 맞는다.
+  - rule_id: A1-INTEGRATION-001
+    target: agent_1
+    title: 통합 검증 필요성의 범위 준수
+    severity: medium
+    evaluator: deterministic_rubric
+    description: 통합 필요성과 불변 위험까지만 제안하고 구체 Step이나 장비 번호를 확정하지 않는다.
+
+  - rule_id: A2-THREETIER-001
+    target: agent_2
+    title: 3-Tier 기준 적용 및 추적
+    severity: high
+    evaluator: deterministic_reference
+    description: 각 TC가 적용한 공통, 중앙제어 도메인, 기능별 기준을 명시한다.
+  - rule_id: A2-GROUND-001
+    target: agent_2
+    title: 확정 정보만 기대결과로 사용
+    severity: critical
+    evaluator: deterministic_reference
+    description: Expected Result가 Agent 1의 confirmed_facts 또는 승인된 Domain Rule에 연결된다.
+  - rule_id: A2-NO-INVENT-001
+    target: agent_2
+    title: 추측성 기대결과 생성 금지
+    severity: critical
+    evaluator: deterministic_reference
+    description: 입력 근거에 없는 UI 색상, 문구, 값과 동작을 기대결과로 확정하지 않는다.
+  - rule_id: A2-EXCLUDE-001
+    target: agent_2
+    title: 정보 부족 검증 제외
+    severity: critical
+    evaluator: deterministic_reference
+    description: 추정 정보와 Gap을 excluded_assertions로 격리한다.
+  - rule_id: A2-CONTRACT-001
+    target: agent_2
+    title: TC Data Contract 준수
+    severity: high
+    evaluator: deterministic_schema
+    description: tc_category, traceability, state, assert, cleanup과 review 필드를 포함한다.
+  - rule_id: A2-INDEPEND-001
+    target: agent_2
+    title: 테스트 독립성
+    severity: high
+    evaluator: deterministic_rubric
+    description: Initial State, Setup, Cleanup, 고정 테스트 데이터가 있고 이전 TC 결과에 의존하지 않는다.
+  - rule_id: A2-ASSERT-001
+    target: agent_2
+    title: 판정 가능한 구체 Assert
+    severity: critical
+    evaluator: deterministic_rubric
+    description: 정상 처리 같은 모호한 문장 대신 구체 값 또는 논리식을 사용한다.
+  - rule_id: A2-DOUBLE-001
+    target: agent_2
+    title: Double-Assert 정책 준수
+    severity: high
+    evaluator: deterministic_reference
+    description: UI와 내부 상태 동시 변경은 둘 다 검증하고 예외는 사유와 정책을 기록한다.
+  - rule_id: A2-INVARIANT-001
+    target: agent_2
+    title: 비대상 장비와 필드 불변 검증
+    severity: critical
+    evaluator: deterministic_reference
+    description: Integration TC가 대상 변경과 비대상 상태 보존을 함께 검증한다.
+  - rule_id: A2-DUPLICATE-001
+    target: agent_2
+    title: 의미상 동일 TC 중복 방지
+    severity: medium
+    evaluator: deterministic
+    description: Preconditions, Action, UI, Device 기대결과가 모두 같은 TC를 병합한다.
+
+  - rule_id: CP2-AMBIGUITY-001
+    target: checkpoint_2
+    title: 모호한 기대결과 차단
+    severity: critical
+    evaluator: deterministic_rubric
+    description: 판정 불가능한 Expected Result를 승인하지 않는다.
+  - rule_id: CP2-HALLUCINATION-001
+    target: checkpoint_2
+    title: 근거 없는 기대결과 차단
+    severity: critical
+    evaluator: deterministic_reference
+    description: 요구사항에 없는 기대결과 또는 정보 부족 오용을 Rejected나 Requirement Review Needed로 판정한다.
+  - rule_id: CP2-TRACE-001
+    target: checkpoint_2
+    title: 상위 산출물 추적성 검증
+    severity: critical
+    evaluator: deterministic_reference
+    description: TC의 Requirement ID, Source Evidence, QA Criterion이 Agent 1 근거에 존재하는지 검사한다.
+  - rule_id: CP2-AUTOMATION-001
+    target: checkpoint_2
+    title: 자동화 가능한 Assert 검증
+    severity: critical
+    evaluator: deterministic_rubric
+    description: 추가 해석 없이 코드 변수와 값으로 매핑 가능한지 확인한다.
+  - rule_id: CP2-CONTROL-001
+    target: checkpoint_2
+    title: 9대 품질 기준과 판정 임계치 준수
+    severity: high
+    evaluator: deterministic_reference
+    description: Critical, Major, Minor 위반을 정의된 판정 상태로 변환하고 2회 후 Human Review 정책을 지킨다.
+
+  - rule_id: A3-APPROVED-001
+    target: agent_3
+    title: 승인된 TC만 실행
+    severity: critical
+    evaluator: deterministic
+    description: 실행 대상이 승인된 TC와 ID로 연결된다.
+  - rule_id: A3-RUN-001
+    target: agent_3
+    title: 단일 Source Run과 결과 ID 무결성
+    severity: critical
+    evaluator: deterministic
+    description: 한 실행 결과에 여러 Run이 섞이지 않고 TC ID와 Test ID가 고유하다.
+  - rule_id: A3-EVIDENCE-001
+    target: agent_3
+    title: 상태와 증거 연결
+    severity: high
+    evaluator: deterministic
+    description: 결과, 실행 시각, 소요 시간과 지원되는 증거가 같은 Run에 연결된다.
+  - rule_id: A3-REPEAT-001
+    target: agent_3
+    title: 동일 조건 반복 실행 안정성
+    severity: high
+    evaluator: aggregate
+    description: 동일 초기 상태와 환경에서 실제 Outcome 변동과 Flaky 여부를 평가한다.
+
+  - rule_id: A4-ROW-001
+    target: agent_4
+    title: Agent 3 원본 결과 보존
+    severity: critical
+    evaluator: deterministic
+    description: Agent 4가 원본 테스트 상태와 결과 행을 변경하지 않는다.
+  - rule_id: A4-COUNT-001
+    target: agent_4
+    title: 결과·분류 집계 정합성
+    severity: critical
+    evaluator: deterministic
+    description: 원본 행 수, Pytest 상태 수, 5가지 분류 수가 일치한다.
+  - rule_id: A4-CP4-001
+    target: checkpoint_4
+    title: 불일치 시 외부 보고 차단
+    severity: critical
+    evaluator: deterministic
+    description: Checkpoint 4가 BLOCKED이면 외부 보고와 최종 승인으로 진행하지 않는다.
+  - rule_id: A4-RELEASE-001
+    target: agent_4
+    title: 릴리즈 판정 정책 준수
+    severity: critical
+    evaluator: deterministic
+    description: 실패, 미실행, 요구사항 확인 또는 CP4 차단이 있으면 Release PASS를 반환하지 않는다.
+  - rule_id: A4-REPEAT-001
+    target: agent_4
+    title: 동일 입력 반복 결과 안정성
+    severity: high
+    evaluator: aggregate
+    description: 동일 정규화 입력에 대한 집계와 Release 판정이 반복 실행에서 일치한다.

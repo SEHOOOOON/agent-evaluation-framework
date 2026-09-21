@@ -1,0 +1,79 @@
+schema_version: evaluator-self-test/v1
+fixture_type: synthetic_recorded_trials
+agent_executed: false
+description: >-
+  아래 기록은 실제 Agent 성능 결과가 아니라 규칙 준수율·안정성·환각률 집계기가
+  정상적으로 실패를 탐지하는지 확인하기 위한 합성 Evaluator Self-test 데이터입니다.
+
+trials:
+  - trial_id: SELF-A1-001-T1
+    case_id: CASE-A1-GAP-001
+    agent_id: agent_1
+    core_outcome: {recommendation: Partial Proceed, confirmed_fact_count: 2, gap_count: 3}
+    rule_results:
+      - {rule_id: A1-CLASSIFY-001, status: PASS, severity: critical}
+      - {rule_id: A1-NO-INVENT-001, status: PASS, severity: critical}
+      - {rule_id: A1-GAP-EXPECTED-001, status: PASS, severity: critical}
+      - {rule_id: A1-RECOMMEND-001, status: PASS, severity: high}
+    unsupported_claims: []
+    critical_violations: []
+
+  - trial_id: SELF-A1-001-T2
+    case_id: CASE-A1-GAP-001
+    agent_id: agent_1
+    core_outcome: {recommendation: Partial Proceed, confirmed_fact_count: 2, gap_count: 3}
+    rule_results:
+      - {rule_id: A1-CLASSIFY-001, status: PASS, severity: critical}
+      - {rule_id: A1-NO-INVENT-001, status: PASS, severity: critical}
+      - {rule_id: A1-GAP-EXPECTED-001, status: PASS, severity: critical}
+      - {rule_id: A1-RECOMMEND-001, status: PASS, severity: high}
+    unsupported_claims: []
+    critical_violations: []
+
+  - trial_id: SELF-A1-001-T3
+    case_id: CASE-A1-GAP-001
+    agent_id: agent_1
+    core_outcome: {recommendation: Proceed, confirmed_fact_count: 3, gap_count: 2}
+    rule_results:
+      - {rule_id: A1-CLASSIFY-001, status: PASS, severity: critical}
+      - {rule_id: A1-NO-INVENT-001, status: FAIL, severity: critical}
+      - {rule_id: A1-GAP-EXPECTED-001, status: FAIL, severity: critical}
+      - {rule_id: A1-RECOMMEND-001, status: FAIL, severity: high}
+    unsupported_claims: ["알람 카드는 빨간색으로 표시된다"]
+    critical_violations: [A1-NO-INVENT-001]
+
+  - trial_id: SELF-A2-001-T1
+    case_id: CASE-A2-INVARIANT-001
+    agent_id: agent_2
+    core_outcome: {decision: Approved, tc_count: 2, invariant_assertion: true}
+    rule_results:
+      - {rule_id: A2-THREETIER-001, status: PASS, severity: high}
+      - {rule_id: A2-INDEPEND-001, status: PASS, severity: high}
+      - {rule_id: A2-DOUBLE-001, status: PASS, severity: high}
+      - {rule_id: A2-INVARIANT-001, status: PASS, severity: critical}
+    unsupported_claims: []
+    critical_violations: []
+
+  - trial_id: SELF-A2-001-T2
+    case_id: CASE-A2-INVARIANT-001
+    agent_id: agent_2
+    core_outcome: {decision: Approved, tc_count: 2, invariant_assertion: true}
+    rule_results:
+      - {rule_id: A2-THREETIER-001, status: PASS, severity: high}
+      - {rule_id: A2-INDEPEND-001, status: PASS, severity: high}
+      - {rule_id: A2-DOUBLE-001, status: PASS, severity: high}
+      - {rule_id: A2-INVARIANT-001, status: PASS, severity: critical}
+    unsupported_claims: []
+    critical_violations: []
+
+  - trial_id: SELF-A2-001-T3
+    case_id: CASE-A2-INVARIANT-001
+    agent_id: agent_2
+    core_outcome: {decision: Approved, tc_count: 2, invariant_assertion: false}
+    rule_results:
+      - {rule_id: A2-THREETIER-001, status: PASS, severity: high}
+      - {rule_id: A2-INDEPEND-001, status: PASS, severity: high}
+      - {rule_id: A2-DOUBLE-001, status: PASS, severity: high}
+      - {rule_id: A2-INVARIANT-001, status: FAIL, severity: critical}
+    unsupported_claims: []
+    critical_violations: [A2-INVARIANT-001]

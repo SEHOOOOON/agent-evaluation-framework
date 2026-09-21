@@ -1,0 +1,24 @@
+[
+  {
+    "run_id": "RUN-GOOD-001",
+    "tc_id": "TC-MODE-001",
+    "test_id": "test_mode_001",
+    "description": "단일 장비 모드 전환",
+    "result": "passed",
+    "failure_reason": "",
+    "executed_at": "2026-08-09T12:00:00+09:00",
+    "duration": 1.2,
+    "evidence_path": ""
+  },
+  {
+    "run_id": "RUN-GOOD-001",
+    "tc_id": "TC-INT-002",
+    "test_id": "test_int_002",
+    "description": "복수 장비 일괄 제어와 비대상 상태 유지",
+    "result": "passed",
+    "failure_reason": "",
+    "executed_at": "2026-08-09T12:00:02+09:00",
+    "duration": 1.8,
+    "evidence_path": ""
+  }
+]

@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "qa-agent-evaluation-framework"
+version = "0.3.0"
+description = "Rule compliance, stability and hallucination evaluation for the Project1 QA agents"
+requires-python = ">=3.10"
+dependencies = [
+  "fastapi>=0.110,<1",
+  "pydantic>=2.6,<3",
+  "PyYAML>=6,<7",
+  "uvicorn>=0.27,<1",
+]
+
+[project.optional-dependencies]
+judge = ["openai>=2,<3"]
+test = [
+  "httpx2>=2.5,<3",
+  "pytest>=8,<10",
+]
+
+[project.scripts]
+agent-eval = "eval_harness.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+eval_harness = [
+  "web/static/*.css",
+  "web/static/*.js",
+  "web/templates/*.html",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+addopts = "-q"

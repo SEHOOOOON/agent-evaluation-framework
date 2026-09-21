@@ -1,0 +1,21 @@
+{
+  "case_id": "SYNTHETIC-JUDGE-PREVIEW",
+  "trial_id": "T001",
+  "agent_id": "A2",
+  "target_version": "SYNTHETIC-NOT-A-LIVE-RUN",
+  "sources": {
+    "request": {"text": "평가기 연결 확인용 합성 예시입니다. 대상 장비에 설정 온도 18도를 적용하면 장비 카드에 18도가 표시되어야 합니다."},
+    "tc": {
+      "preconditions": ["중앙 관제 화면에서 시험할 장비를 확인한다."],
+      "steps": ["대상 장비 카드를 선택한다.", "제어 패널의 설정 온도에 18도를 입력한다.", "적용 버튼을 누른다."],
+      "expected_results": [{"statement": "대상 장비 카드에 설정 온도 18도가 표시된다.", "verify_after_step": "적용 버튼을 누른다."}]
+    },
+    "reference": {"detail_rule": "사용자 TC 기준: 재현 가능한 조작 순서와 조작에 대응하는 관찰 위치·시점·기대값을 명시한다. 예시의 제품별 숫자나 색상을 다른 요구사항에 복사하지 않는다."}
+  },
+  "rubric": [
+    {"criterion_id": "A2-DETAIL", "objective": "조작과 기대결과 상세도", "pass_condition": "조작 순서를 재현할 수 있고 기대결과의 관찰 위치·값·시점이 명확하다."},
+    {"criterion_id": "A2-GROUND", "objective": "요구사항 충실성", "pass_condition": "요청 온도와 표시 위치를 바꾸거나 요청에 없는 알림·색상 등 기대결과를 추가하지 않는다."}
+  ],
+  "code_checks": [{"rule": "SYNTHETIC-ONLY", "status": "NOT_EVALUATED", "reason": "연결 확인용 예시이며 실제 코드 검사 결과가 아니다."}],
+  "oracle_status": "DRAFT"
+}

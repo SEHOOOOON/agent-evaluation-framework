@@ -1,0 +1,29 @@
+{
+  "run_id": "RUN-FIXTURE-001",
+  "checkpoint4": {
+    "status": "VALIDATED",
+    "external_reporting_allowed": true
+  },
+  "execution": {
+    "result": "FAILED",
+    "release_decision": "HOLD"
+  },
+  "pytest_summary": {
+    "total": 3,
+    "error": 0,
+    "failed": 1,
+    "passed": 1,
+    "skipped": 1
+  },
+  "qa_classification_summary": {
+    "automation_issue": 1,
+    "not_executed": 1,
+    "none": 1
+  },
+  "results": [
+    {"tc_id": "TC-MODE-001", "result": "passed", "qa_classification": "none"},
+    {"tc_id": "TC-PIPE-003", "result": "failed", "failure_reason": "자동화 코드 문제", "qa_classification": "automation_issue"},
+    {"tc_id": "TC-PIPE-004", "result": "skipped", "failure_reason": "조건 부족으로 미실행", "qa_classification": "not_executed"}
+  ]
+}
+
