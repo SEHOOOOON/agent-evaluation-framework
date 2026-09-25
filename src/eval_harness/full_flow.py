@@ -26,7 +26,7 @@ from .detailed_rubric import role_items, VERSION as RUBRIC_VERSION
 from .openai_judge import JudgePacket, encode, preview as judge_preview, evaluate as judge_evaluate, scan_payload
 from .v2_recorded import child, digest, read, write, target_pin, inventory, execution_rows
 
-VERSION = "full-flow-0.1"
+VERSION = "full-flow-0.2"
 ROLES = ("A1", "A2", "A3", "A4")
 
 
@@ -107,12 +107,13 @@ def make_preview(target: Path, spec: FlowSpec, config_root: Path):
         "judge_destination": "https://api.openai.com/v1/responses",
         "generation_sdk_retries": 0, "judge_sdk_retries": 0,
         "checkpoint_rewrites": "P1 existing bounded policy; every parse attempt is charged",
+        "p1_call_budget_includes": ["generation", "checkpoint rewrites", "grounding reviews"],
         "external_publish": False, "official_registration": False,
         "maximum_api_attempts": spec.generation_calls_total + spec.judge_calls_total,
         "scope": "A1-A4 + checkpoint artifacts + partial E2E code checks",
         "transmission": {
             "generation": ["request", "related SRS", "existing TC catalog", "actual upstream outputs",
-                           "limited UI observation", "checkpoint repair feedback"],
+                           "limited UI observation", "checkpoint repair feedback", "grounding review inputs"],
             "judge": ["request/SRS", "independent oracle", "user TC writing criteria",
                       "role outputs", "request/repair traces", "plan/code", "neutral execution/report"],
             "excluded": ["credentials", "absolute local paths", "full HTML", "screenshots", "trace archives"],

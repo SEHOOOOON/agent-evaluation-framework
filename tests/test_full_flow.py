@@ -9,6 +9,7 @@ from pydantic import BaseModel
 
 from eval_harness.full_flow import FlowSpec, make_preview, run_flow, clean_environment
 from eval_harness.flow_worker import MeteredResponses, generation_client
+from eval_harness.flow_worker import bind_model_clients
 from eval_harness.v2_recorded import write, read, digest
 
 
@@ -245,6 +246,51 @@ def test_meter_budget_ids_errors_and_exact_input(tmp_path):
         meter.parse(**kwargs)
     assert len(calls) == 1 and len(ledger["attempts"]) == 1
     assert read(tmp_path / "calls/001/request.json")["payload"]["input"] == kwargs["input"]
+    assert ledger["fatal"] == "GENERATION_BUDGET_EXHAUSTED"
+
+
+def test_missing_reviewer_contract_stops_before_client_use(tmp_path):
+    calls = []
+    class Agent:
+        def __init__(self, *, model=None, client=None): calls.append(client)
+    execution = SimpleNamespace(OpenAIAgent1=Agent, OpenAIAgent2=Agent, OpenAIAgent3=Agent)
+    with pytest.raises(ValueError, match="Unsupported P1"):
+        bind_model_clients(execution, object(), tmp_path, {}, {})
+    assert calls == []
+    assert execution.OpenAIAgent1 is Agent
+
+
+def test_actual_p1_generation_and_review_share_one_budget(tmp_path, monkeypatch):
+    import os
+    import importlib
+    target = os.environ.get("QA_P1_TEST_ROOT")
+    if not target:
+        pytest.skip("Set QA_P1_TEST_ROOT to the fixed P1 working tree for cross-repository validation")
+    monkeypatch.syspath_prepend(str(Path(target) / "src"))
+    execution = importlib.import_module("qa_pipeline_execution")
+    for name in ("OpenAIAgent1", "OpenAIAgent2", "OpenAIAgent3", "OpenAIGroundingReviewer"):
+        monkeypatch.setattr(execution, name, getattr(execution, name))
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    calls = []
+    def parse(**kwargs):
+        calls.append(kwargs)
+        schema = kwargs["text_format"]
+        value = {"items": []} if schema.__name__ == "GroundingReview" else {"text": "offline"}
+        return SimpleNamespace(id=f"offline-{len(calls)}", status="completed",
+                               output_parsed=schema.model_validate(value), usage=None)
+    ledger = {"attempts": [], "fatal": None}
+    config = dict(seen_response_ids=[], generation_limit=6, generation_max_output_tokens=12000)
+    bind_model_clients(execution, SimpleNamespace(responses=SimpleNamespace(parse=parse)), tmp_path, ledger, config)
+    for stage in (1, 2, 3):
+        agent = getattr(execution, f"OpenAIAgent{stage}")(model="offline")
+        agent.client.responses.parse(model="offline", store=False, input=[], text_format=Payload)
+        execution.OpenAIGroundingReviewer(model="offline").review(
+            {"stage": f"AGENT{stage}", "items": [], "source_documents": []})
+    assert [(r["role"], r["purpose"]) for r in ledger["attempts"]] == [
+        (role, purpose) for role in ("A1", "A2", "A3") for purpose in ("generation", "grounding")]
+    with pytest.raises(RuntimeError, match="budget"):
+        execution.OpenAIGroundingReviewer(model="offline").review({"stage": "AGENT1"})
+    assert len(calls) == len(ledger["attempts"]) == 6
     assert ledger["fatal"] == "GENERATION_BUDGET_EXHAUSTED"
 
 

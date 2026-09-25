@@ -5,6 +5,7 @@ import argparse
 from collections import Counter
 from datetime import datetime, timezone
 import importlib
+import inspect
 import json
 import os
 from pathlib import Path
@@ -16,10 +17,11 @@ from .v2_recorded import digest, read, write
 
 
 class MeteredResponses:
-    def __init__(self, client, role, work, ledger, limit, seen, max_output_tokens=12000):
+    def __init__(self, client, role, work, ledger, limit, seen, max_output_tokens=12000, purpose="generation"):
         self.client, self.role, self.work = client, role, work
         self.ledger, self.limit, self.seen = ledger, limit, seen
         self.max_output_tokens = max_output_tokens
+        self.purpose = purpose
 
     def persist(self):
         write(self.work / "call_ledger.json", self.ledger)
@@ -41,9 +43,9 @@ class MeteredResponses:
             raise ValueError("Generation payload too large")
         seq = len(self.ledger["attempts"]) + 1
         folder = self.work / "calls" / f"{seq:03d}"
-        write(folder / "request.json", {"role": self.role, "attempt": seq, "payload": payload})
+        write(folder / "request.json", {"role": self.role, "purpose": self.purpose, "attempt": seq, "payload": payload})
         write(folder / "schema.json", schema)
-        item = {"attempt": seq, "role": self.role, "status": "STARTED",
+        item = {"attempt": seq, "role": self.role, "purpose": self.purpose, "status": "STARTED",
                 "request_sha256": digest(folder / "request.json"),
                 "sdk_retries": 0, "server_completion": "UNKNOWN",
                 "started_at": datetime.now(timezone.utc).isoformat()}
@@ -98,6 +100,41 @@ def generation_client(key, work, ledger, *, transport=None):
                                            follow_redirects=False, event_hooks={"request": [on_request]}))
 
 
+def bind_model_clients(execution, client, work, ledger, config):
+    """Inject all supported P1 clients before the first metered request."""
+    names = ("OpenAIAgent1", "OpenAIAgent2", "OpenAIAgent3", "OpenAIGroundingReviewer")
+    originals = {name: getattr(execution, name, None) for name in names}
+    if any(cls is None or not {"model", "client"} <= set(inspect.signature(cls).parameters)
+           for cls in originals.values()):
+        raise ValueError("Unsupported P1 model client contract; no requests sent")
+    seen = set(config["seen_response_ids"])
+
+    def metered(role, purpose):
+        return SimpleNamespace(responses=MeteredResponses(
+            client, role, work, ledger, config["generation_limit"], seen,
+            config["generation_max_output_tokens"], purpose=purpose))
+
+    for role in ("A1", "A2", "A3"):
+        original = originals["OpenAIAgent" + role[-1]]
+        def factory(*, model=None, _class=original, _client=metered(role, "generation")):
+            return _class(model=model, client=_client)
+        setattr(execution, "OpenAIAgent" + role[-1], factory)
+
+    class Reviewer:
+        def __init__(self, *, model=None):
+            self.model = model
+
+        def review(self, payload):
+            stages = {"AGENT1": "A1", "AGENT2": "A2", "AGENT3": "A3"}
+            role = stages.get(payload.get("stage"))
+            if role is None:
+                raise ValueError("Unsupported grounding stage; no requests sent")
+            return originals["OpenAIGroundingReviewer"](
+                model=self.model, client=metered(role, "grounding")).review(payload)
+
+    execution.OpenAIGroundingReviewer = Reviewer
+
+
 def execute_trial(work: Path, config: dict, *, client=None):
     copy = work / "p1"
     if not copy.is_dir() or not (copy / "src/qa_pipeline_orchestrator.py").is_file():
@@ -117,16 +154,7 @@ def execute_trial(work: Path, config: dict, *, client=None):
     os.chdir(copy)
     execution = importlib.import_module("qa_pipeline_execution")
     pipeline = importlib.import_module("qa_pipeline_orchestrator")
-    seen = set(config["seen_response_ids"])
-    for role in ("A1", "A2", "A3"):
-        name = "OpenAIAgent" + role[-1]
-        original = getattr(execution, name)
-        metered = SimpleNamespace(responses=MeteredResponses(
-            client, role, work, ledger, config["generation_limit"], seen,
-            config["generation_max_output_tokens"]))
-        def factory(*, model=None, _class=original, _client=metered):
-            return _class(model=model, client=_client)
-        setattr(execution, name, factory)
+    bind_model_clients(execution, client, work, ledger, config)
     stages = {}
     candidate_entries = []
     def wrap_stage(name, original):

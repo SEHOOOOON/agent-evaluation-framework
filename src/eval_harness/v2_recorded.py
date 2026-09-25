@@ -33,7 +33,7 @@ class Case(BaseModel):
     split: Literal["development", "calibration", "holdout"] = "development"
     oracle_status: Literal["DRAFT", "HUMAN_REVIEWED"] = "DRAFT"
     expected_counts: dict[str, int]
-    expected_recommendation: Literal["PASS", "HUMAN_REVIEW", "BLOCKED"]
+    expected_recommendation: Literal["PASS", "HUMAN_REVIEW", "HOLD", "BLOCKED"]
     expected_gap_count: int = Field(ge=0)
     expected_finding_categories: list[str]
     require_step_links: bool = False

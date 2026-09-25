@@ -7,7 +7,7 @@ from pathlib import Path
 import pytest
 from fastapi.testclient import TestClient
 
-from eval_harness.fixtures import _stage_state, now_iso
+from eval_harness.fixtures import _stage_state, now_iso, evaluate_agent2, evaluate_agent4, _yaml_block
 from eval_harness.models import (
     CheckResult,
     CheckStatus,
@@ -148,3 +148,37 @@ def test_sse_replays_terminal_event(known_bad_root: Path, runs_root: Path) -> No
     assert response.status_code == 200
     assert "run_completed" in response.text
     assert manifest.run_id in response.text
+
+
+@pytest.mark.parametrize("tc_id", ["TC-INT-002", "ANY-CHANGED-ID"])
+@pytest.mark.parametrize("excluded", [[], ["검증 제외"], ["unrelated wording"]])
+def test_silent_invariant_omission_never_passes(known_good_root, tmp_path, monkeypatch, tc_id, excluded):
+    import yaml
+    import eval_harness.fixtures as module
+    data = _yaml_block(module._read_text(known_good_root, "agent2"))
+    data["test_cases"][0].update(tc_id=tc_id, unchanged_state_assertions=[], excluded_assertions=excluded)
+    monkeypatch.setattr(module, "_read_text", lambda *args: "```yaml\n" + yaml.safe_dump(data) + "```")
+    stage = evaluate_agent2(known_good_root, ArtifactStore(tmp_path / "run"))
+    assert stage.status == StageStatus.REVIEW
+    check = next(c for c in stage.checks if c.criterion_id == "A2-INVARIANT-001")
+    assert check.status == CheckStatus.ABSTAIN
+    assert check.actual["needs_applicability_review"] == [tc_id]
+
+
+@pytest.mark.parametrize("first,second", [("passed", "failed"), ("passed", "skipped"), ("passed", "error")])
+def test_report_counts_and_gate_use_original_rows(tmp_path, monkeypatch, first, second):
+    import eval_harness.fixtures as module
+    rows = [dict(tc_id="X", result=first, run_id="R"), dict(tc_id="Y", result=second, run_id="R")]
+    values = {
+        "agent3": rows,
+        "agent4": dict(results=rows, source_execution_run_id="R", execution={"release_decision": "PASS"},
+                       pytest_summary=dict(total=2, passed=2, failed=0, skipped=0, error=0)),
+        "checkpoint4": dict(run_id="R", status="VALIDATED", errors=[], external_reporting_allowed=True),
+    }
+    monkeypatch.setattr(module, "_read_text", lambda root, key: json.dumps(values[key]))
+    stage = evaluate_agent4(tmp_path, ArtifactStore(tmp_path / "run"))
+    checks = {c.criterion_id: c.status for c in stage.checks}
+    assert checks["A4-COUNT-001"] == CheckStatus.FAIL
+    assert checks["A4-GATE-001"] == CheckStatus.FAIL
+    assert checks["A4-ROW-001"] == CheckStatus.PASS
+    assert stage.status == StageStatus.FAIL

@@ -286,44 +286,42 @@ def evaluate_agent2(source_root: Path, store: ArtifactStore) -> StageResult:
                 )
             )
 
-        int_case = next(
-            (case for case in test_cases if isinstance(case, dict) and case.get("tc_id") == "TC-INT-002"),
-            None,
-        )
-        excluded = (int_case or {}).get("excluded_assertions") or []
-        unchanged = (int_case or {}).get("unchanged_state_assertions") or []
-        approved = (int_case or {}).get("review_status") == "Approved"
-        excludes_invariant = any("비대상 장비" in str(item) for item in excluded)
-        invariant_ok = bool(int_case) and not (approved and excludes_invariant and not unchanged)
+        approved_cases = [case for case in test_cases if isinstance(case, dict)
+                          and case.get("review_status") == "Approved"]
+        # Presence only: no TC-name or wording oracle, and no inference that every
+        # TC must modify other devices. Empty evidence needs applicability review.
+        missing_invariants = [case.get("tc_id") for case in approved_cases
+            if not isinstance(case.get("unchanged_state_assertions"), list)
+            or not case["unchanged_state_assertions"]
+            or any(not isinstance(item, str) or not item.strip()
+                   for item in case["unchanged_state_assertions"])]
+        invariant_status = (CheckStatus.ABSTAIN if missing_invariants else
+                            CheckStatus.PASS if approved_cases else CheckStatus.NOT_APPLICABLE)
         checks.append(
             CheckResult(
                 criterion_id="A2-INVARIANT-001",
-                title="다중 장비 제어의 비대상 장비 불변성",
-                status=CheckStatus.PASS if invariant_ok else CheckStatus.FAIL,
+                title="승인 TC의 불변 검증 근거 유무",
+                status=invariant_status,
                 severity=Severity.CRITICAL,
                 reason=(
-                    "핵심 오염 위험을 Assert 범위에 포함했습니다."
-                    if invariant_ok
-                    else "비대상 장비 불변 검증을 제외한 TC가 Approved 상태입니다."
+                    "검증 항목의 존재만 확인합니다. 의미 충분성은 별도 검토 대상입니다."
+                    if not missing_invariants
+                    else "불변 검증 근거가 비어 있습니다. 필요한 검사 누락인지 정당한 비적용인지 확인해야 합니다."
                 ),
-                expected={"approved_tc_must_verify_non_target_devices": True},
-                actual={
-                    "review_status": (int_case or {}).get("review_status"),
-                    "unchanged_state_assertions": unchanged,
-                    "excluded_assertions": excluded,
-                },
+                expected={"empty_evidence_is_not_automatic_pass": True},
+                actual={"approved_count": len(approved_cases), "needs_applicability_review": missing_invariants},
                 evidence_refs=[raw_ref],
             )
         )
-        if not invariant_ok:
+        if missing_invariants:
             findings.append(
                 Finding(
                     finding_id="FIND-A2-002",
                     criterion_id="A2-INVARIANT-001",
-                    title="핵심 오염 위험 검증 제외 후 승인",
+                    title="승인 TC의 불변 검증 적용 여부 확인 필요",
                     severity=Severity.CRITICAL,
-                    reason="TC-INT-002가 비대상 장비(4~16) Snapshot 비교를 제외했지만 Approved로 기록됐습니다.",
-                    recommended_action="비대상 장비 불변 Assert를 구현하거나 TC를 Partial/Hold 상태로 전환합니다.",
+                    reason=f"검증 근거가 비어 있는 승인 TC: {missing_invariants}",
+                    recommended_action="독립 기준에서 검증 필요 여부를 확인하고, 필요한 근거 또는 비적용 사유를 검토합니다.",
                     evidence_refs=[raw_ref],
                 )
             )
@@ -578,9 +576,16 @@ def evaluate_agent4(source_root: Path, store: ArtifactStore) -> StageResult:
 
     pytest_summary = summary.get("pytest_summary") or {}
     results = summary.get("results") or []
-    total = int(pytest_summary.get("total", -1))
-    component_total = sum(int(pytest_summary.get(key, 0)) for key in ("passed", "failed", "skipped", "error"))
-    counts_ok = total == len(results) == component_total
+    states = ("passed", "failed", "skipped", "error")
+    source_valid = (bool(source_results)
+                    and all(isinstance(item, dict) and item.get("result") in states for item in source_results))
+    source_counts = Counter(item["result"] for item in source_results) if source_valid else Counter()
+    total = pytest_summary.get("total")
+    counts_valid = all(type(pytest_summary.get(key)) is int and pytest_summary[key] >= 0
+                       for key in ("total", *states))
+    component_total = sum(pytest_summary[key] for key in states) if counts_valid else None
+    counts_ok = (source_valid and counts_valid and total == len(results) == len(source_results) == component_total
+                 and all(pytest_summary[key] == source_counts[key] for key in states))
     checks.append(
         CheckResult(
             criterion_id="A4-COUNT-001",
@@ -589,7 +594,8 @@ def evaluate_agent4(source_root: Path, store: ArtifactStore) -> StageResult:
             severity=Severity.CRITICAL,
             reason="요약 수치와 결과 행 수가 일치합니다." if counts_ok else "요약 수치와 결과 행 수가 다릅니다.",
             expected={"total_equals_result_rows_and_components": True},
-            actual={"total": total, "result_rows": len(results), "component_total": component_total},
+            actual={"total": total, "result_rows": len(results), "component_total": component_total,
+                    "source_counts": dict(source_counts)},
             evidence_refs=[summary_ref],
         )
     )
@@ -676,8 +682,8 @@ def evaluate_agent4(source_root: Path, store: ArtifactStore) -> StageResult:
     )
 
     release = (summary.get("execution") or {}).get("release_decision")
-    non_pass = int(pytest_summary.get("failed", 0)) + int(pytest_summary.get("skipped", 0)) + int(pytest_summary.get("error", 0))
-    gate_ok = release == ("HOLD" if non_pass else "PASS")
+    non_pass = sum(source_counts[key] for key in states if key != "passed")
+    gate_ok = source_valid and release == ("HOLD" if non_pass else "PASS")
     checks.append(
         CheckResult(
             criterion_id="A4-GATE-001",

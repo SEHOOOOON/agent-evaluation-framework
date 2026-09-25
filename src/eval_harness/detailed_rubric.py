@@ -1,7 +1,7 @@
 """Task-specific, source-aware rubric. Defines questions, not an automatic semantic oracle."""
 from copy import deepcopy
 
-VERSION = "role-rubric-2.0"
+VERSION = "role-rubric-2.1"
 SOURCE_NOTES = {
     "conference": "사용자 세션5 영상 전체 자동전사·화면 대조: 10:20 입력/도구/재시도/검증, 18~19분 예외 사례, 24~27분 허위 완료/대안/평가 오류.",
     "workshop": "https://github.com/devkimchi/foundry-evaluation-engineering-demo/blob/main/docs/01-portal-demo-runbook.md",
@@ -10,12 +10,12 @@ SOURCE_NOTES = {
 }
 
 
-def criterion(owner, cid, parent, title, applies, evidence, success, failure, positive, negative):
+def criterion(owner, cid, parent, title, applies, evidence, success, failure, positive, negative, *, new_plan=False):
     return dict(owner=owner, criterion_id=cid, parent_id=parent, objective=title,
                 applicability=applies, evidence_requirements=evidence,
                 pass_condition=success, fail_condition=failure,
                 review_condition="필수 근거가 없거나 상충하면 REVIEW. 미기재를 금지로, 선언을 실행 증거로 취급하지 않음.",
-                positive_example=positive, negative_example=negative)
+                positive_example=positive, negative_example=negative, requires_new_plan=new_plan)
 
 
 # Common / role / E2E boundaries match agent_rubric.CRITERIA. TC detail is independently graded.
@@ -94,17 +94,17 @@ CRITERIA = [
         "AI 계획 생성 시.", ["context", "artifact"],
         "TC의 대상·조작 순서·기대값·판정 시점·복원 확인이 계획에 보존됨.",
         "필수 assertion을 삭제하거나 값을 바꾸거나 설정 전후 순서를 뒤집음.",
-        "TC의 적용 직후 검증을 계획에서도 해당 적용 직후에 연결함.", "실패를 없애려고 18도 기대값을 16도로 변경함."),
+        "TC의 적용 직후 검증을 계획에서도 해당 적용 직후에 연결함.", "실패를 없애려고 18도 기대값을 16도로 변경함.", new_plan=True),
     criterion("A3", "A3-02", "A3-02", "화면 요소·행동 선택과 지원 범위",
         "UI 관찰에 기반한 계획 생성. 관찰 목록은 제품 동작 검증 결과가 아님.", ["context", "artifact", "inventory"],
         "관찰된 요소와 허용 행동을 TC 목적에 맞게 선택하고 필요한 표시·활성 상태를 구분함. 지원 밖 동작은 명확히 표시함.",
         "없는 선택자를 추측하거나 비대상 장비를 조작하거나 관찰만으로 제품 시험 성공을 주장함.",
-        "관찰된 대상 장비의 적용 버튼을 선택함.", "존재하지 않는 버튼을 상상해 계획에 넣음."),
+        "관찰된 대상 장비의 적용 버튼을 선택함.", "존재하지 않는 버튼을 상상해 계획에 넣음.", new_plan=True),
     criterion("A3", "A3-03", "A3-03", "계획·코드 일치와 수정 범위 보존",
         "결정론적 코드 생성 및 기술적 수정 시. 재작성 이력이 없으면 이를 만들지 않음.", ["context", "artifact", "trace"],
         "검사된 계획이 코드로 보존됨. 수정 시 지적된 기술 문제를 고치되 정상 단계·기대값·검증을 유지하고 한도를 지킴.",
         "선택자 수정 중 기대값을 바꾸거나 검증을 삭제하거나 한도를 넘겨 재시도함.",
-        "대상 선택 오류만 수정하고 기존 온도 검증은 유지함.", "통과할 때까지 허용 횟수 밖 호출을 반복함."),
+        "대상 선택 오류만 수정하고 기존 온도 검증은 유지함.", "통과할 때까지 허용 횟수 밖 호출을 반복함.", new_plan=True),
     criterion("A3", "A3-04", "A3-04", "실제 시험·복원·증거와 완료 주장",
         "시험 완료를 보고할 때. 제품 실패를 정확히 기록한 것은 Agent 실패와 다름.", ["context", "artifact", "execution"],
         "주장이 실제 실행·관찰·복원·증거와 일치함. 실패·환경 문제·미실행을 보존하고 수행하지 않은 일을 완료라고 하지 않음.",
@@ -150,7 +150,7 @@ CRITERIA = [
 ]
 
 FIELDS = ("criterion_id", "objective", "pass_condition", "fail_condition", "applicability",
-          "review_condition", "evidence_requirements", "parent_id")
+          "review_condition", "evidence_requirements", "parent_id", "requires_new_plan")
 
 
 def role_items(agent_id):
@@ -168,18 +168,44 @@ def apply_role_profile(packet):
     return JudgePacket.model_validate(data)
 
 
+def new_plan_not_required(packet):
+    """Cross-check the collected branch with upstream design, not AI prose."""
+    artifact = packet.sources.get("artifact", {})
+    context = packet.sources.get("context", {})
+    if packet.agent_id != "A3" or not isinstance(artifact, dict) or not isinstance(context, dict):
+        return False
+    selection = artifact.get("selection", {})
+    upstream = context.get("upstream", {})
+    design = upstream.get("agent2_test_design.json", {}) if isinstance(upstream, dict) else {}
+    if not isinstance(design, dict):
+        return False
+    # P1's Pydantic field name and its documented JSON serialization alias.
+    existing = design.get("관련_기존_TC", design.get("related_existing_tests"))
+    if ("관련_기존_TC" in design and "related_existing_tests" in design
+            and design["관련_기존_TC"] != design["related_existing_tests"]):
+        return False
+    return (artifact.get("new_plan") == "NOT_REQUIRED_OR_EXCLUDED"
+            and set(artifact) == {"new_plan", "selection", "execution"}
+            and isinstance(selection, dict) and selection.get("status") == "NOT_REQUIRED"
+            and all(selection.get(key) == [] for key in ("selected_tc_ids", "planned_tc_ids", "candidates"))
+            and design.get("test_cases") == []
+            and isinstance(existing, list) and bool(existing))
+
+
 def coverage(packet):
     if packet.rubric_profile == VERSION:
         if [item.model_dump() for item in packet.rubric] != role_items(packet.agent_id):
             raise ValueError("Role rubric is missing, altered, reordered or for a different agent")
     result = []
+    no_plan = new_plan_not_required(packet)
     for item in packet.rubric:
         missing = [key for key in item.evidence_requirements
                    if key not in packet.sources or packet.sources[key] in (None, "", [], {})
                    or not isinstance(packet.sources[key], (str, list, dict))
                    or isinstance(packet.sources[key], str) and not packet.sources[key].strip()]
+        not_applicable = item.requires_new_plan and no_plan
         result.append(dict(criterion_id=item.criterion_id, parent_id=item.parent_id,
-                           status="MISSING_EVIDENCE" if missing else "READY_FOR_REVIEW",
+                           status="NOT_APPLICABLE" if not_applicable else "MISSING_EVIDENCE" if missing else "READY_FOR_REVIEW",
                            missing_sources=missing))
     return dict(profile=packet.rubric_profile, criteria=result,
                 scope="ROLE_ONLY" if packet.rubric_profile == VERSION else "CUSTOM_SUBSET",

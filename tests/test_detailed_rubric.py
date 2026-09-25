@@ -124,6 +124,52 @@ def test_cli_role_preview_is_keyless_and_network_free(capsys, monkeypatch):
     assert sum(bool(r["missing_sources"]) for r in rows) == 2
 
 
+def reuse_packet():
+    p = apply_role_profile(packet("A3"))
+    p.sources["context"]["upstream"] = {"agent2_test_design.json": {
+        "test_cases": [], "related_existing_tests": [{"tc_id": "ARBITRARY-EXISTING"}]}}
+    selection = dict(status="NOT_REQUIRED", selected_tc_ids=[], planned_tc_ids=[], candidates=[])
+    p.sources["artifact"] = dict(new_plan="NOT_REQUIRED_OR_EXCLUDED", selection=selection,
+                                  execution={"regression_results": [{"status": "PASSED"}]})
+    p.sources["trace"] = {"selection": selection}
+    p.sources["execution"] = {"regression_results": [{"status": "PASSED"}]}
+    p.sources["inventory"] = {}
+    return p
+
+
+@pytest.mark.parametrize("serialized_alias", [False, True])
+def test_reuse_plan_na_keeps_execution_requirements(serialized_alias):
+    p = reuse_packet()
+    if serialized_alias:
+        design = p.sources["context"]["upstream"]["agent2_test_design.json"]
+        design["관련_기존_TC"] = design.pop("related_existing_tests")
+    na = {r.criterion_id: "NOT_APPLICABLE" for r in p.rubric if r.requires_new_plan}
+    assert len(na) == 3
+    assert validate_judgment(p, response(p, na))
+    rows = {r["criterion_id"]: r for r in coverage(p)["criteria"]}
+    assert rows["A3-02"]["status"] == "NOT_APPLICABLE"
+    assert rows["A3-04"]["status"] == "READY_FOR_REVIEW"
+    with pytest.raises(ValueError):
+        validate_judgment(p, response(p, dict(na, **{"A3-01": "PASS"})))
+    p.sources.pop("execution")
+    with pytest.raises(ValueError):
+        validate_judgment(p, response(p, dict(na, **{"A3-04": "PASS"})))
+
+
+@pytest.mark.parametrize("mutation", ["candidate", "selected", "excluded", "missing_selection", "empty_reuse", "conflicting_alias"])
+def test_no_plan_claim_cannot_hide_missing_inventory(mutation):
+    p = reuse_packet()
+    design = p.sources["context"]["upstream"]["agent2_test_design.json"]
+    if mutation == "candidate": design["test_cases"] = [{"tc_id": "OTHER"}]
+    if mutation == "selected": p.sources["artifact"]["selection"]["selected_tc_ids"] = ["OTHER"]
+    if mutation == "excluded": p.sources["artifact"]["selection"]["status"] = "NOT_AUTOMATABLE"
+    if mutation == "missing_selection": p.sources["artifact"].pop("selection")
+    if mutation == "empty_reuse": design["related_existing_tests"] = []
+    if mutation == "conflicting_alias": design["관련_기존_TC"] = []
+    with pytest.raises(ValueError):
+        validate_judgment(p, response(p, {"A3-02": "NOT_APPLICABLE"}))
+
+
 def test_development_gap_pair_requires_only_requested_missing_information():
     dataset = yaml.safe_load((ROOT / "benchmarks/development/agent_behavior_cases.yaml").read_text(encoding="utf-8"))
     cases = {case["case_id"]: case for case in dataset["cases"]}

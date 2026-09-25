@@ -115,6 +115,32 @@ def test_timeout_not_retried_and_secret_exception_not_saved(tmp_path):
     assert "secret-value" not in (out/"result.json").read_text(encoding="utf-8")
 
 
+@pytest.mark.parametrize("mutation,code", [("quote", "UNVERIFIED_QUOTE"),
+    ("path", "INVALID_EVIDENCE_PATH"), ("missing", "CRITERION_SET_MISMATCH")])
+def test_rejected_response_is_preserved_without_becoming_a_verdict(tmp_path, mutation, code):
+    value = judgment()
+    if mutation == "quote": value["judgments"][0]["evidence"][0]["quote"] = "invented"
+    if mutation == "path": value["judgments"][0]["evidence"][0]["path"] = ["missing"]
+    if mutation == "missing": value["judgments"] = []
+    result, client, out = execute(tmp_path, value=value)
+    assert result["status"] == "ERROR" and result["judgments"] == []
+    assert result["validation_error"]["code"] == code
+    assert json.loads((out / "received_response.json").read_text(encoding="utf-8")) == value
+    assert len(client.calls) == 1
+
+
+@pytest.mark.parametrize("unsafe", ["Bearer fake-private-value", "C:/Users/private/document", "x" * 120_001],
+                         ids=["credential", "absolute-path", "oversized"])
+def test_unsafe_or_oversized_received_response_is_not_persisted(tmp_path, unsafe):
+    value = judgment()
+    value["judgments"][0]["reason"] = unsafe
+    result, _, out = execute(tmp_path, value=value)
+    assert result["status"] == "ERROR"
+    assert result["response_diagnostic"] == "OMITTED_UNSAFE_OR_OVERSIZED"
+    assert not (out / "received_response.json").exists()
+    assert unsafe not in (out / "result.json").read_text(encoding="utf-8")
+
+
 def test_real_client_constructor_fixed_origin_no_retries(monkeypatch):
     import sys
     from eval_harness.openai_judge import new_client

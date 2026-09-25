@@ -6,7 +6,7 @@
 |---|---|---|---|
 | [IMP-001](IMP-001-redundant-srs-revision.md) | 이미 반영된 SRS에 동일한 수정안 제출 | P1 작성 지침·개정 검사 보완 | 실제 응답 1건에서 개선 확인 / 전체 흐름은 다른 문제로 중단 |
 | [IMP-002](IMP-002-compound-condition-links.md) | 복합 조건을 선택한 TC 전체에 연결하지 않음 | 작성 지침·읽기 전용 연결 진단 보완 | 실제 연결·TC 실행·CP4 통과 1건 / Judge 평가 미완료 |
-| [IMP-003](IMP-003-judge-rejection-diagnostics.md) | 평가 모델 응답 거부 시 상세 진단 근거 미보존 | 원인 확정 및 안전한 진단 기록 보완 필요 | P2 Judge ERROR / 미해결 |
+| [IMP-003](IMP-003-judge-rejection-diagnostics.md) | 평가 모델 응답 거부 시 상세 진단 근거 미보존 | 안전한 응답 사본·거부 코드 보존 | 로컬 보완 / 과거 원인 미확정 / 새 Live 미검증 |
 
 ## 기록 원칙
 

@@ -7,6 +7,15 @@ import pytest
 from eval_harness.v2_recorded import Case, child, digest, evaluate, load_cases, normalized_counts, write
 
 
+def test_hold_is_a_supported_product_recommendation():
+    case = dict(case_id="V2-999", run_id="RUN-20260925-123456-ABCDEF", title="hold",
+                expected_counts={"EXECUTION_ERROR": 1}, expected_recommendation="HOLD",
+                expected_gap_count=0, expected_finding_categories=[], human_review_topics=["restore failure"])
+    assert Case.model_validate(case).expected_recommendation == "HOLD"
+    case["expected_recommendation"] = "UNKNOWN"
+    with pytest.raises(ValueError): Case.model_validate(case)
+
+
 def sample(root, *, failed=False):
     root.mkdir(parents=True, exist_ok=True)
     write(root/'request.json', {'request': 'Apply MED; show medium.'})
