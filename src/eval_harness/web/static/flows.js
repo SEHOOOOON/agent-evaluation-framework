@@ -3,6 +3,7 @@
   const el=id=>document.getElementById(id);
   const esc=value=>String(value??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");
   const states={COMPLETED:"수행 완료",PARTIAL:"일부 수행",BLOCKED:"진행 차단",NOT_EXECUTED:"미실행",ERROR:"오류",LIMIT_REACHED:"호출 한도 중단",STARTED:"진행 중",RUNNING:"진행 중",STOPPED:"중단",NOT_EVALUATED:"미평가",PASS:"검사 통과",FAIL:"위반 발견",REVIEW:"검토 필요",JUDGE_BUDGET_EXHAUSTED:"평가 호출 미배정 또는 한도 소진",SAFETY_STOP:"안전 중단으로 미평가"};
+  states.WAITING_FOR_USER="사용자 확인 대기";
   const label=value=>states[value]||value||"미기록";
   const stopReasons={JUDGE_PREFLIGHT_FAILED:"평가 자료의 크기·안전성 확인 중 문제가 있어 AI 평가를 시작하지 않았습니다. 프로젝트1의 시험 실패를 뜻하지 않습니다.",EVIDENCE_CHANGED_DURING_REVIEW:"평가 준비 또는 평가 중 원본 기록이 바뀌어 중단했습니다.",JUDGE_ERROR:"AI 평가 중 오류가 발생했습니다. 프로젝트1의 시험 결과와 구분해 확인하세요."};
   let ticket=0;
@@ -32,6 +33,7 @@
       ${d.trials.map(t=>`<details class="scope-details"><summary>${esc(t.trial)}회차 · 검사 근거와 평가 상태</summary><div class="evidence-rows">${t.new_plan_not_required?"<p>기존 TC 재사용: 신규 계획 생성은 해당 없음. 기존 테스트 실행은 별도로 확인합니다.</p>":""}
       ${t.checks.map(c=>`<div class="evidence-row"><code>${esc(c.rule)}</code><span>${esc(label(c.status))}</span><p>${esc(c.reason)}</p></div>`).join("")}
       ${t.reason?`<p>${esc(t.reason)}</p>`:""}
+      ${(t.questions||[]).map(q=>`<p>확인 질문: ${esc(q)}</p>`).join("")}
       ${Object.entries(t.judges).map(([r,j])=>`<p>${esc(r)} 평가: ${esc(label(j.status))} · ${esc(label(j.reason))}</p>`).join("")}</div>${scores(t.scorecard)}</details>`).join("")}`;
     } catch(error){if(current===ticket)alert(error.message);}
   }

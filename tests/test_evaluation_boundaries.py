@@ -544,8 +544,11 @@ def test_all_stage_context_and_status_records_reach_owner(tmp_path, layout):
         write(parent / f"agent{role}_grounding_review.json", {"verdict": "FAIL", "reason": f"최종 검토 {role}"})
         write(parent / f"agent{role}_error.json", {"stage": role, "message": "원본 오류"})
     reference_context = {"catalog": [{"tc_id": "TC-BASE", "covered_behaviors": ["기본 TC 범위"]}],
-                         "compiler_recovery_facts": {"owner": "executor", "restoration": "before preparation"}}
+                         "compiler_recovery_facts": {"owner": "executor", "restoration": "before preparation"},
+                         "execution_interface": {"actionability": "실행 시점에 확인", "value": False},
+                         "compiler_plan_facts": {"target_device_id": 4, "description": "실행 성공 증거가 아님"}}
     write(run / "agent2_grounding_input_attempt_2.json", {"context": {**reference_context, "not_role_input": "excluded"}, "items": ["excluded duplicate body"]})
+    write(folder / "agent3_grounding_input_attempt_1.json", {"context": reference_context, "items": ["excluded duplicate body"]})
     spec = FlowSpec(case_id="TRANSFER", request="request.json", oracle="oracle.json", generation_model="offline", judge_model="offline")
     packets = collect_packets(run, tmp_path, spec,
         {"request": read(run / "request.json"), "oracle": {"status": "DRAFT"}, "target_commit": "local"}, [])
@@ -564,6 +567,10 @@ def test_all_stage_context_and_status_records_reach_owner(tmp_path, layout):
             assert record["retained_reference_context"] == reference_context
             assert "items" not in record and "not_role_input" not in record["retained_reference_context"]
             assert record["raw_artifact_sha256"] == digest(run / "agent2_grounding_input_attempt_2.json")
+        if role == "A3":
+            record = trace[prefix + "agent3_grounding_input_attempt_1.json"]
+            assert record["retained_reference_context"] == reference_context
+            assert "items" not in record
         assert source["trace"]["evidence_delivery"]["actual_model_requests"] == "UNAVAILABLE_NOT_PROOF_OF_NO_CALL"
         preview(packets[role], "offline")
     a3 = _expanded_source(packets["A3"].sources)

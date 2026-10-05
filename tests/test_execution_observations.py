@@ -21,6 +21,28 @@ def sample(value="HEAT", actual=None):
     return case, plan, event, identity
 
 
+@pytest.mark.parametrize("actual,expected", [
+    (True, 1), (1, True), (False, 0), (True, True), (None, False),
+    (21, 21.0), ("21", 21), ("HEAT", "heat"), ("MED", "MED"),
+    ({"locked": 1}, {"locked": True}), ({"setTemp": 21}, {"setTemp": 21.0}),
+    ({"values": [True, 21]}, {"values": [1, 21.0]}), ([False, 21], [False, 21.0])])
+def test_p1_emitted_comparator_agrees_with_independent_p2_grader(actual, expected):
+    import ast
+    import os
+    from pathlib import Path
+    from eval_harness.execution_observations import equal
+    root = os.environ.get("QA_P1_TEST_ROOT")
+    if not root:
+        pytest.skip("Set QA_P1_TEST_ROOT for cross-project offline comparison")
+    tree = ast.parse((Path(root) / "src/qa_pipeline_agent3.py").read_text(encoding="utf-8-sig"))
+    helper = next(ast.literal_eval(node.value) for node in tree.body
+                  if isinstance(node, ast.Assign) and any(isinstance(t, ast.Name)
+                     and t.id == "_TYPED_VALUE_COMPARISON_HELPER" for t in node.targets))
+    scope = {}
+    exec(helper, scope)
+    assert scope["_qa_values_equal"](actual, expected) == equal(actual, expected)
+
+
 def log_of(event, end):
     return OBSERVED + json.dumps(event) + "\n" + COMPLETE + json.dumps(end)
 

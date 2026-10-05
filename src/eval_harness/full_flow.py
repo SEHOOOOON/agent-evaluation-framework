@@ -27,7 +27,7 @@ from .openai_judge import JudgePacket, encode, preview as judge_preview, evaluat
 from .v2_recorded import (child, digest, read, write, target_pin, inventory, execution_rows,
                           finding_matches_execution, report_counts_match, handoff_checks)
 
-VERSION = "full-flow-0.12"
+VERSION = "full-flow-0.13"
 ROLES = ("A1", "A2", "A3", "A4")
 
 
@@ -174,6 +174,43 @@ def run_worker(work: Path, config: dict):
     if proc.returncode != 0:
         result.update(status="ERROR", reason="WORKER_PROCESS_ERROR")
     return result
+
+
+def waiting_user_notice(run: Path, worker: dict) -> dict | None:
+    """Display a hash-linked P1 pause; never override execution or grading."""
+    if worker.get("status") != "BLOCKED" or worker.get("stages") != {"agent1": 2}:
+        return None
+    try:
+        names = ("orchestrator_manifest.json", "run_manifest.json",
+                 "checkpoint1.json", "agent1_change_analysis.json")
+        paths = [safe_evidence_path(run, name) for name in names]
+        if any(p.stat().st_size > 2_000_000 for p in paths):
+            return None
+        orchestrator, manifest, checkpoint, analysis = [read(p) for p in paths]
+        if not all(isinstance(value, dict) for value in (orchestrator, manifest, checkpoint, analysis)):
+            return None
+        if not (
+            orchestrator.get("run_id") == manifest.get("run_id") == run.name
+            and orchestrator.get("status") == "STOPPED"
+            and orchestrator.get("stopped_at") == "agent1"
+            and orchestrator.get("stage_exit_codes") == {"agent1": 2}
+            and manifest.get("stage") == "AGENT_1_CP1"
+            and manifest.get("status") == checkpoint.get("status") == "PASS"
+            and manifest.get("handoff_status") == checkpoint.get("handoff_status") == "PAUSE"
+            and analysis.get("decision") == "WAITING_FOR_USER"
+            and orchestrator.get("agent1_manifest_sha256") == digest(paths[1])
+            and manifest.get("checkpoint1_sha256") == digest(paths[2])
+            and manifest.get("agent1_analysis_sha256") == digest(paths[3])
+        ):
+            return None
+        questions = analysis.get("user_questions")
+        if not isinstance(questions, list) or not questions or any(
+            not isinstance(q, str) or not q.strip() for q in questions
+        ):
+            return None
+        return {"status": "WAITING_FOR_USER", "questions": questions}
+    except (ValueError, OSError, TypeError):
+        return None
 
 
 def stage_states(run: Path, worker: dict):
@@ -739,7 +776,9 @@ def collect_packets(run, work, spec, plan, checks):
                 # Retain the catalog/fixed executor facts without sending the
                 # much larger review instructions and duplicated output body.
                 context = value.get("context", {}) if isinstance(value, dict) else {}
-                retained = {field: context[field] for field in ("catalog", "compiler_recovery_facts") if field in context}
+                retained = {field: context[field] for field in (
+                    "catalog", "compiler_recovery_facts", "execution_interface", "compiler_plan_facts")
+                    if field in context}
                 value = {"payload_omitted": "GROUNDING_BODY_NOT_ROLE_GENERATION",
                          "raw_artifact_sha256": digest(run / key)}
                 if retained:
@@ -825,7 +864,7 @@ def collect_packets(run, work, spec, plan, checks):
             "인용은 참조가 가리키는 실제 값의 source_id와 path를 사용합니다. "
             "parsed_json은 실제 요청 JSON의 파싱 값이며 원본 문자열 해시는 raw_utf8_sha256입니다. "
             "payload_omitted인 근거 검토 요청은 본문 대신 원본 파일 해시·호출 메타데이터를 제공합니다. "
-            "저장 검토 입력의 기존 TC 목록과 실행기 복원 사실만 retained_reference_context로 원문 보존하며, 검토 지침과 중복 본문은 제외합니다. "
+            "저장 검토 입력의 기존 TC 목록·실행기 복원 사실·실행 인터페이스·계획 사실은 retained_reference_context로 원문 보존하며, 검토 지침과 중복 본문은 제외합니다. 이 설명은 실제 실행 성공 증거가 아닙니다. "
             "모델 호출 기록과 Checkpoint·재작성·검토 결과는 유지하지만 제외된 요청 본문의 의미 평가는 하지 않습니다. "
             "원본 요청 바이트와 중복 없는 모든 증거 값은 로컬 압축 증거에 보존됩니다."
         )
@@ -919,6 +958,7 @@ def run_flow(target, spec, config_root, output_root, approval_sha256, *, worker=
             run = copy / "runs" / run_id
             row["roles"], row["new_plan_not_required"] = stage_states(run, outcome)
             row["execution"] = outcome
+            row["waiting_for_user"] = waiting_user_notice(run, outcome)
             row["status"] = outcome["status"]
             row["generation_attempts"] = len(attempts)
             row["generation_http_attempts"] = len(ledger.get("http_requests", []))

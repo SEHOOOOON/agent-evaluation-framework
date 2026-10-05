@@ -59,12 +59,19 @@ def flow_summary(root, name):
         budget_stop = row.get("execution", {}).get("reason") == "GENERATION_BUDGET_EXHAUSTED"
         raw_status = row["status"]
         roles = row.get("roles", {})
+        notice = row.get("waiting_for_user") or {}
+        waiting = (raw_status == "BLOCKED" and not budget_stop
+                   and roles.get("A1") == "BLOCKED"
+                   and all(roles.get(role) == "NOT_EXECUTED" for role in ("A2", "A3", "A4"))
+                   and notice.get("status") == "WAITING_FOR_USER")
         result["trials"].append({
             "trial": row["trial"], "raw_status": public_text(raw_status, 80),
             "scorecard": scorecard,
-            "status": "LIMIT_REACHED" if budget_stop and raw_status == "ERROR" else public_text(raw_status, 80),
-            "reason": "호출 한도 도달로 재작성을 중단했습니다. 앞선 검사 결과와 초안은 원본 증거에 보존됩니다." if budget_stop else "",
+            "status": "WAITING_FOR_USER" if waiting else "LIMIT_REACHED" if budget_stop and raw_status == "ERROR" else public_text(raw_status, 80),
+            "reason": "사용자 답변이 필요해 시험을 시작하지 않았습니다." if waiting else "호출 한도 도달로 재작성을 중단했습니다. 앞선 검사 결과와 초안은 원본 증거에 보존됩니다." if budget_stop else "",
+            "questions": [public_text(q) for q in notice.get("questions", []) if isinstance(q, str)][:20] if waiting else [],
             "roles": {role: "LIMIT_REACHED" if budget_stop and roles.get(role) == "ERROR"
+                      else "WAITING_FOR_USER" if waiting and role == "A1"
                       else public_text(roles.get(role, "NOT_EXECUTED"), 80)
                       for role in ("A1", "A2", "A3", "A4")},
             "new_plan_not_required": row.get("new_plan_not_required", False) is True,

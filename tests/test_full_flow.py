@@ -790,6 +790,76 @@ def test_added_official_asset_blocks_further_trials(flow_setup):
     assert result["trials"][1]["status"] == "NOT_EXECUTED"
 
 
+@pytest.fixture
+def waiting_run(tmp_path):
+    run = tmp_path / "RUN-WAITING"
+    write(run / "agent1_change_analysis.json", {"decision": "WAITING_FOR_USER", "user_questions": ["새 하한은 몇 도인가요?"]})
+    write(run / "checkpoint1.json", {"status": "PASS", "handoff_status": "PAUSE"})
+    write(run / "run_manifest.json", {
+        "run_id": run.name, "stage": "AGENT_1_CP1", "status": "PASS", "handoff_status": "PAUSE",
+        "checkpoint1_sha256": digest(run / "checkpoint1.json"),
+        "agent1_analysis_sha256": digest(run / "agent1_change_analysis.json")})
+    write(run / "orchestrator_manifest.json", {
+        "run_id": run.name, "status": "STOPPED", "stopped_at": "agent1", "stage_exit_codes": {"agent1": 2},
+        "agent1_manifest_sha256": digest(run / "run_manifest.json")})
+    return run
+
+
+@pytest.mark.parametrize("fault", [None, "worker_error", "next_stage", "run", "stage", "checkpoint",
+                                  "handoff", "analysis", "questions", "missing", "hash", "shape"])
+def test_waiting_notice_requires_verified_pause(waiting_run, fault):
+    from eval_harness.full_flow import waiting_user_notice, stage_states
+    run = waiting_run
+    worker = {"status": "BLOCKED", "stages": {"agent1": 2}}
+    if fault == "worker_error": worker["status"] = "ERROR"
+    if fault == "next_stage": worker["stages"]["agent2"] = 2
+    changes = {
+        "run": ("orchestrator_manifest.json", "run_id", "OTHER"),
+        "stage": ("orchestrator_manifest.json", "stopped_at", "agent2"),
+        "checkpoint": ("checkpoint1.json", "status", "FAIL"),
+        "handoff": ("run_manifest.json", "handoff_status", "CONTINUE"),
+        "analysis": ("agent1_change_analysis.json", "decision", "CONTINUE"),
+        "questions": ("agent1_change_analysis.json", "user_questions", []),
+        "hash": ("orchestrator_manifest.json", "agent1_manifest_sha256", "0" * 64)}
+    if fault in changes:
+        filename, key, value = changes[fault]
+        write(run / filename, {**read(run / filename), key: value})
+        if fault in {"checkpoint", "handoff", "analysis", "questions"}:
+            # Consistent hashes must not make a semantically different stop a pause.
+            write(run / "run_manifest.json", {**read(run / "run_manifest.json"),
+                  "checkpoint1_sha256": digest(run / "checkpoint1.json"),
+                  "agent1_analysis_sha256": digest(run / "agent1_change_analysis.json")})
+            write(run / "orchestrator_manifest.json", {**read(run / "orchestrator_manifest.json"),
+                  "agent1_manifest_sha256": digest(run / "run_manifest.json")})
+    if fault == "missing": (run / "checkpoint1.json").unlink()
+    if fault == "shape": write(run / "checkpoint1.json", [])
+    before = {p.name: p.read_bytes() for p in run.iterdir()}
+    notice = waiting_user_notice(run, worker)
+    assert (notice is not None) == (fault is None)
+    if notice:
+        assert notice["questions"] == ["새 하한은 몇 도인가요?"]
+    assert stage_states(run, worker)[0]["A1"] == "BLOCKED"  # raw stage outcome remains unchanged
+    assert before == {p.name: p.read_bytes() for p in run.iterdir()}
+
+
+@pytest.mark.parametrize("status", ["BLOCKED", "ERROR", "COMPLETED"])
+def test_waiting_dashboard_does_not_change_saved_outcome(waiting_run, tmp_path, status):
+    from eval_harness.full_flow import waiting_user_notice, stage_states
+    from eval_harness.web.flows import flow_summary
+    worker = {"status": "BLOCKED", "stages": {"agent1": 2}}
+    row = {"trial": 1, "status": status, "roles": stage_states(waiting_run, worker)[0],
+           "waiting_for_user": waiting_user_notice(waiting_run, worker)}
+    name = "FLOW-20261005-000000-abcdef"
+    path = tmp_path / name / "result.json"
+    write(path, {"mode": "TEST_DOUBLE", "trials": [row]})
+    before = path.read_bytes()
+    view = flow_summary(tmp_path, name)["trials"][0]
+    assert view["raw_status"] == status
+    assert view["status"] == ("WAITING_FOR_USER" if status == "BLOCKED" else status)
+    assert bool(view["questions"]) == (status == "BLOCKED")
+    assert before == path.read_bytes()
+
+
 def test_partial_candidate_execution_not_reported_as_skipped(tmp_path):
     from eval_harness.full_flow import stage_states
     write(tmp_path / "agent3_selection.json", {"status": "SELECTED"})
