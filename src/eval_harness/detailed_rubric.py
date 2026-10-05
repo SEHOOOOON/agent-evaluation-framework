@@ -1,7 +1,19 @@
 """Task-specific, source-aware rubric. Defines questions, not an automatic semantic oracle."""
 from copy import deepcopy
 
-VERSION = "role-rubric-2.1"
+VERSION = "role-rubric-2.5"
+SCORE_VERSION = "score-0-5-v2"
+SCORE_VERSIONS = {"score-0-5-v1", SCORE_VERSION}
+PYTHON_CRITERIA = {"A3-03", "A4-01", "A4-03", "E04"}
+
+
+def evaluation_method(cid):
+    """Ownership, not a claim that every required piece of evidence exists."""
+    if cid in PYTHON_CRITERIA:
+        return "PYTHON"
+    if cid.startswith("A1-") or cid == "A2-01" or cid.startswith("TC-R"):
+        return "AI"
+    return "HYBRID"
 SOURCE_NOTES = {
     "conference": "사용자 세션5 영상 전체 자동전사·화면 대조: 10:20 입력/도구/재시도/검증, 18~19분 예외 사례, 24~27분 허위 완료/대안/평가 오류.",
     "workshop": "https://github.com/devkimchi/foundry-evaluation-engineering-demo/blob/main/docs/01-portal-demo-runbook.md",
@@ -75,15 +87,16 @@ CRITERIA = [
         "어디에서 어떤 값·상태를 관찰하는지 명확하고 통과/실패를 판정할 수 있음.",
         "'정상 동작', '결과와 일치'만 있고 관찰 대상과 기준이 없음.",
         "대상 장비 카드의 설정 온도가 요청 값으로 표시됨.", "변경 내용이 정상적으로 반영됨."),
-    criterion("A2", "TC-R05", "A2-02", "TC 필요한 정상·경계·예외 범위",
-        "요구사항과 관련 있는 조건만 적용. 모든 TC에 온도 경계를 강요하지 않음.", ["context", "artifact"],
-        "확정 조건별 필요한 정상·경계·예외를 신규/재사용 TC로 충족하며 중복 없이 추적함.",
-        "범위 변경인데 정상값만 확인하거나 무관한 경계·예외를 추가함.",
-        "범위 변경의 하한·상한과 명시된 범위 밖 처리 조건을 대조함.", "읽기 전용 표시 요청에 온도 범위 시험을 일률적으로 추가함."),
-    criterion("A2", "TC-R06", "A2-04", "TC 기대결과의 요구사항 근거",
-        "모든 기대결과. 사용자 예시의 제품별 값·색상을 다른 요청에 복사하지 않음.", ["context", "artifact"],
-        "기대값·관찰 항목이 이번 요청의 확정 범위와 근거에 연결되며 상세도를 위해 새 제품 동작을 만들지 않음.",
-        "없는 알림·색상·값을 추가하거나 관련 SRS 전체를 새 시험 범위로 간주함.",
+    criterion("A2", "TC-R05", "A2-02", "TC 요청 조건의 검증 범위 충족",
+        "확정된 요청 조건과 TC의 검사 범위를 대조할 때 적용. 상태 전환·조회만 있는 요청도 평가 대상이며 수치 범위·경계·예외가 없다는 이유로 비적용하지 않음. 조건을 확인할 자료가 부족하면 REVIEW.", ["context", "artifact"],
+        "요청 조건 각각을 신규/재사용 TC의 검사와 대조해 필수 확인이 모두 포함되고 불필요한 범위 확대가 없음. 정상 전환만 요청했으면 그 전환과 필요한 관찰로 충족하며, 범위 제한 요청이면 필요한 경계·명시된 범위 밖 처리도 확인함.",
+        "요청된 전환·표시·내부값 등 필수 확인을 빠뜨리거나, 범위 제한에 필요한 경계·명시된 예외 처리를 누락하거나, 무관한 시험을 추가함.",
+        "모드 변경 후 패널·카드·내부값 확인 요청에 세 검사를 모두 연결함. 허용 범위 변경 요청이면 하한·상한과 명시된 범위 밖 처리도 연결함.",
+        "패널·카드·내부값 확인 요청에 패널 검사만 작성함. 또는 조회만 요청했는데 무관한 온도 경계 시험을 추가함."),
+    criterion("A2", "TC-R06", "A2-04", "TC·SRS 개정안의 요구사항 근거",
+        "모든 기대결과와 SRS 개정안. 기존 기준 안의 시험에 개정을 강요하지 않음.", ["context", "artifact"],
+        "기대값·관찰 항목이 요청에 근거함. SRS 개정이 필요하면 전체 인수기준 셀에 변경과 미변경 조건을 보존함.",
+        "없는 동작·값을 추가하거나 SRS 전체를 시험 범위로 확대함. 불필요한 개정 또는 개정안의 미변경 조건 누락.",
         "온도 표시 요구에 맞춰 카드의 온도 표시만 검증함.", "온도 표시 요구에 알림이 녹색이어야 한다는 기대결과를 추가함."),
     criterion("A2", "TC-R07", "A2-05", "TC 독립 실행·복원 성공 확인",
         "상태 변경 TC는 복원 필요. 읽기 전용이면 근거를 들어 해당 없음 가능.", ["context", "artifact"],
@@ -91,7 +104,7 @@ CRITERIA = [
         "복원 조작만 있고 성공 확인이 없거나 내부 코드값을 화면 표시와 혼동함.",
         "초기 풍량으로 복원한 뒤 해당 화면 표시와 필요한 내부값을 각각 확인함.", "복원한다는 문장만 있고 무엇으로 성공을 판단할지 없음."),
     criterion("A3", "A3-01", "A3-01", "TC에서 계획까지 조작·판정 의미 보존",
-        "AI 계획 생성 시.", ["context", "artifact"],
+        "새 자동화 계획이 있을 때. AI 생성 또는 A2 execution_spec의 결정론적 연결 모두 포함하며 A3 모델 호출이 없다는 이유로 감점하지 않음.", ["context", "artifact"],
         "TC의 대상·조작 순서·기대값·판정 시점·복원 확인이 계획에 보존됨.",
         "필수 assertion을 삭제하거나 값을 바꾸거나 설정 전후 순서를 뒤집음.",
         "TC의 적용 직후 검증을 계획에서도 해당 적용 직후에 연결함.", "실패를 없애려고 18도 기대값을 16도로 변경함.", new_plan=True),
@@ -100,11 +113,11 @@ CRITERIA = [
         "관찰된 요소와 허용 행동을 TC 목적에 맞게 선택하고 필요한 표시·활성 상태를 구분함. 지원 밖 동작은 명확히 표시함.",
         "없는 선택자를 추측하거나 비대상 장비를 조작하거나 관찰만으로 제품 시험 성공을 주장함.",
         "관찰된 대상 장비의 적용 버튼을 선택함.", "존재하지 않는 버튼을 상상해 계획에 넣음.", new_plan=True),
-    criterion("A3", "A3-03", "A3-03", "계획·코드 일치와 수정 범위 보존",
-        "결정론적 코드 생성 및 기술적 수정 시. 재작성 이력이 없으면 이를 만들지 않음.", ["context", "artifact", "trace"],
-        "검사된 계획이 코드로 보존됨. 수정 시 지적된 기술 문제를 고치되 정상 단계·기대값·검증을 유지하고 한도를 지킴.",
-        "선택자 수정 중 기대값을 바꾸거나 검증을 삭제하거나 한도를 넘겨 재시도함.",
-        "대상 선택 오류만 수정하고 기존 온도 검증은 유지함.", "통과할 때까지 허용 횟수 밖 호출을 반복함.", new_plan=True),
+    criterion("A3", "A3-03", "A3-03", "계획과 실제 검사 기록의 일치",
+        "신규 TC 본시험의 구조화 관찰 기록이 있을 때 프로그램으로 대조. 코드 생성기 구현은 별도 로컬 회귀검사. 과거·중단·지원하지 않는 기록은 REVIEW.", ["context", "artifact", "execution"],
+        "같은 실행의 TC 검사 번호·계획·기록된 대상·기대값·연결 시점·관찰값·시험 결과가 일치함. 제품 불일치를 정확히 기록한 경우도 충족함.",
+        "완료 기록에서 검사를 누락·추가하거나 대상·기대값·순서를 바꾸거나 관찰값과 다른 결과를 보고함.",
+        "계획의 기대값과 다른 관찰값을 제품 불일치로 정확히 보고함.", "관찰값이 기대값과 다른데 시험 통과라고 기록함.", new_plan=True),
     criterion("A3", "A3-04", "A3-04", "실제 시험·복원·증거와 완료 주장",
         "시험 완료를 보고할 때. 제품 실패를 정확히 기록한 것은 Agent 실패와 다름.", ["context", "artifact", "execution"],
         "주장이 실제 실행·관찰·복원·증거와 일치함. 실패·환경 문제·미실행을 보존하고 수행하지 않은 일을 완료라고 하지 않음.",
@@ -112,17 +125,17 @@ CRITERIA = [
         "기대값 불일치를 실패 증거와 함께 보고함.", "실행하지 않은 후보를 PASS로 보고함."),
     criterion("A4", "A4-01", "A4-01", "원본 실행 행과 집계 정확성",
         "규칙 기반 Agent 4 보고를 평가할 때.", ["context", "artifact", "execution"],
-        "원본 행과 상태별 합계가 일치하고 실패·미실행·평가 오류를 통과에 합산하지 않음.",
+        "원본 행과 상태별·제품·환경·고정 사례 합계가 일치하고 실패·미실행·평가 오류를 통과에 합산하지 않음.",
         "실패 행을 통과에 넣거나 누락·중복으로 집계를 바꿈.",
         "실행 3건을 통과 2건·실패 1건으로 보고함.", "실패 1건을 빼고 전체 통과라고 보고함."),
     criterion("A4", "A4-02", "A4-02", "중립 증거에 따른 원인 분류",
-        "분류 대상에 대한 독립 원인 기준이 필요. 제품 결함 후보와 확정을 구분.", ["context", "artifact", "execution"],
+        "원본에 실패·정보 부족·환경/코드 오류·미실행·증거 부족 신호가 있거나 보고가 원인을 주장할 때 적용. 원본도 모두 정상이고 원인 주장도 없을 때만 비적용. 신호 확인 자료가 부족하면 REVIEW. 독립 원인 기준과 제품 결함 후보/확정을 구분.", ["context", "artifact", "execution"],
         "실제 신호에 따라 제품 불일치 후보·요구사항 부족·환경·코드·미실행을 구분하고 불확실하면 단정하지 않음.",
         "평가 API 오류를 제품 결함으로 보거나 기존 분류 라벨만 보고 정답이라고 함.",
         "연결 실패는 환경 문제로 구분하고 미관찰 제품 결과는 확정하지 않음.", "브라우저 실행 실패를 제품 온도 결함으로 확정함."),
     criterion("A4", "A4-03", "A4-03", "보고 대상·상태·증거 추적",
         "실행 결과를 분석 및 보고에 연결할 때.", ["context", "artifact", "execution"],
-        "각 판단의 TC/실행 ID, 상태, 로그·화면 증거가 같은 대상·실행을 가리킴.",
+        "각 판단의 TC/실행 ID, 요구사항·출처, 상태, 로그·화면 증거가 같은 대상·실행을 가리킴.",
         "다른 TC의 실패 화면이나 과거 실행 증거를 현재 결과에 연결함.",
         "실패 TC와 동일 실행의 화면·로그를 보고서에 연결함.", "TC-B 보고에 TC-A의 화면을 붙임."),
     criterion("A4", "A4-04", "A4-04", "미확인 범위·후속 행동·승인 구분",
@@ -153,18 +166,156 @@ FIELDS = ("criterion_id", "objective", "pass_condition", "fail_condition", "appl
           "review_condition", "evidence_requirements", "parent_id", "requires_new_plan")
 
 
+def scoring_anchors(cid):
+    """Per-criterion anchors; scores never replace evidence or a violation verdict."""
+    row = next(r for r in CRITERIA if r["criterion_id"] == cid)
+    return {
+        "5": row["pass_condition"] + " 필요한 근거 전체로 확인됨.",
+        "4": row["objective"] + ": 핵심 통과 조건은 충족. 결과·재현성·안전에 영향 없는 설명상의 경미한 부족만 있음.",
+        "3": row["objective"] + ": 핵심 일부는 충족하지만 중요한 누락이 확인되어 보완 전에는 전체 충족으로 볼 수 없음.",
+        "2": row["objective"] + ": 일부만 맞고 주요 조건 여러 개가 누락·불일치함.",
+        "1": row["objective"] + ": 관련 내용은 있으나 핵심 기준 대부분 미충족으로 목적 달성이 어려움.",
+        "0": row["fail_condition"] + " 핵심 목적에 반하는 결과 또는 실제 수행 범위 전체의 불충족이 확인됨.",
+    }
+
+
+def score_is_valid(score, verdict, profile):
+    if verdict in {"REVIEW", "NOT_APPLICABLE"}:
+        return score is None
+    if type(score) is not int:
+        return False
+    return ((verdict == "PASS" and score in (4, 5)) or
+            (verdict == "FAIL" and score in
+             ((0, 1, 2, 3, 4) if profile == "score-0-5-v1" else (0, 1, 2, 3))))
+
+
+def score_summary(judgments):
+    """A score is descriptive, not an approval. Unknown scores are excluded."""
+    values = [j["score"] for j in judgments if j.get("verdict") in {"PASS", "FAIL"}
+              and type(j.get("score")) is int and 0 <= j["score"] <= 5]
+    na = sum(j.get("verdict") == "NOT_APPLICABLE" for j in judgments)
+    return dict(score_100=round(sum(values) / (5 * len(values)) * 100, 1) if values else None,
+                average_5=round(sum(values) / len(values), 2) if values else None,
+                evaluated=len(values), not_applicable=na,
+                unevaluated=len(judgments) - len(values) - na, total=len(judgments),
+                violations=[j["criterion_id"] for j in judgments if j.get("verdict") == "FAIL"])
+
+
+def scoring_versions(judges, python_result=None):
+    """Audit recorded versions; never infer missing historical metadata from today's code."""
+    versions = {key: set() for key in ("score_profiles", "rubric_versions", "judge_versions", "judge_models")}
+    missing = []
+    sources = [(role, result, False) for role, result in judges.items()
+               if role in {"A1", "A2", "A3", "A4", "E2E"}]
+    if python_result:
+        sources.append(("PYTHON", python_result, True))
+    for role, result, is_python in sources:
+        if result.get("status") != "COMPLETED" or result.get("scoring_profile") not in SCORE_VERSIONS:
+            continue
+        versions["score_profiles"].add(result["scoring_profile"])
+        rubric = result.get("rubric_version")
+        if not rubric:
+            recorded_coverage = result.get("rubric_coverage")
+            profile = recorded_coverage.get("profile") if isinstance(recorded_coverage, dict) else None
+            rubric = profile if isinstance(profile, str) and profile.startswith("role-rubric-") else None
+        fields = {"rubric_versions": rubric}
+        if not is_python:
+            fields.update(judge_versions=result.get("evaluator_version"), judge_models=result.get("judge_model"))
+        if any(not isinstance(value, str) or not value.strip() for value in fields.values()):
+            missing.append(role)
+        for key, value in fields.items():
+            if isinstance(value, str) and value.strip():
+                versions[key].add(value)
+    mixed = any(len(values) > 1 for values in versions.values())
+    note = ("평가 기준·평가자·모델 또는 점수 버전이 달라 묶음 평균을 만들지 않습니다. 항목별 원본 점수는 유지합니다."
+            if mixed else "과거 결과의 버전 정보가 부족해 반복 평균 비교를 보류합니다. 표시된 항목 평균은 기록 설명용입니다."
+            if missing else "기록된 평가 버전이 같습니다. 입력·제품·시작 상태 고정은 전체 흐름 기록에서 별도로 확인합니다.")
+    return dict(**{key: sorted(values) for key, values in versions.items()},
+                missing_version_roles=sorted(missing), mixed=mixed,
+                comparison_ready=bool(versions["score_profiles"]) and not mixed and not missing,
+                note=note)
+
+
+def full_scorecard(judges, python_result=None):
+    """26 unique criteria. Common criteria use the lowest role score, never count four times."""
+    rows = []
+    for item in CRITERIA:
+        cid = item["criterion_id"]
+        owners = ("A1", "A2", "A3", "A4") if item["owner"] == "COMMON" else (item["owner"],)
+        candidates = []
+        use_python = bool(python_result and cid in PYTHON_CRITERIA and
+                          any(j.get("criterion_id") == cid for j in python_result.get("judgments", [])))
+        for owner in owners:
+            result = (python_result if use_python
+                      else judges.get(owner, {}))
+            if result.get("status") != "COMPLETED" or result.get("scoring_profile") not in SCORE_VERSIONS:
+                continue
+            matches = [j for j in result.get("judgments", []) if j.get("criterion_id") == cid]
+            if len(matches) == 1:
+                candidate = matches[0]
+                score, verdict = candidate.get("score"), candidate.get("verdict")
+                valid = score_is_valid(score, verdict, result["scoring_profile"])
+                if valid:
+                    candidates.append(candidate)
+        violations = [j for j in candidates if j.get("verdict") == "FAIL"]
+        scored = [j for j in candidates if type(j.get("score")) is int and 0 <= j["score"] <= 5]
+        complete = len(candidates) == len(owners)
+        value = min(j["score"] for j in scored) if complete and len(scored) == len(owners) else None
+        verdict = ("FAIL" if violations else "NOT_APPLICABLE"
+                   if complete and all(j.get("verdict") == "NOT_APPLICABLE" for j in candidates)
+                   else "PASS" if value is not None and all(j.get("verdict") == "PASS" for j in candidates)
+                   else "REVIEW")
+        rows.append(dict(criterion_id=cid, owner=item["owner"], title=item["objective"],
+                         evaluation_method=("PYTHON" if use_python
+                                            else "AI" if candidates else "NOT_EVALUATED"),
+                         planned_method=evaluation_method(cid),
+                         score=value, verdict=verdict,
+                         reason=" / ".join(j.get("reason", "") for j in candidates)
+                         if complete else "평가 근거 또는 역할별 채점이 아직 없음",
+                         evidence=[e for j in candidates for e in j.get("evidence", [])]))
+    versions = scoring_versions(judges, python_result)
+    profiles = versions["score_profiles"]
+    summary = score_summary(rows)
+    groups = {owner: score_summary([r for r in rows if r["owner"] == owner])
+              for owner in ("COMMON", "A1", "A2", "A3", "A4", "E2E")}
+    if versions["mixed"]:
+        # Preserve original row scores, counts and FAIL warnings; suppress only mixed averages.
+        for totals in (summary, *groups.values()):
+            totals.update(score_100=None, average_5=None)
+    return dict(profile=profiles[0] if len(profiles) == 1 else "MIXED_OR_UNSCORED",
+                versions=versions, criteria=rows, summary=summary, groups=groups)
+
+
+def repeat_scores(cards):
+    """Compare only the same rated/NA set within a pinned flow; not semantic consistency."""
+    signatures = [(c["profile"], tuple(tuple(c.get("versions", {}).get(key, [])) for key in
+                         ("score_profiles", "rubric_versions", "judge_versions", "judge_models")),
+                         tuple((r["criterion_id"], r["score"] is not None,
+                         r["verdict"] == "NOT_APPLICABLE") for r in c["criteria"])) for c in cards]
+    values = [c["summary"]["score_100"] for c in cards]
+    comparable = (len(cards) >= 2 and len(set(signatures)) == 1
+                  and cards[0]["profile"] in SCORE_VERSIONS and all(v is not None for v in values)
+                  and all(c.get("versions", {}).get("comparison_ready") is True for c in cards))
+    return dict(comparable=comparable, trials=len(cards),
+                mean=round(sum(values) / len(values), 1) if comparable else None,
+                minimum=min(values) if comparable else None,
+                note="같은 채점 범위의 점수 비교이며 의미 일관성·반복 안정성 입증은 아님"
+                if comparable else "2회 미만·미평가·채점 범위/버전 차이 또는 버전 정보 부족으로 평균·최저점 비교 보류")
+
+
 def role_items(agent_id):
-    if agent_id not in {"A1", "A2", "A3", "A4"}:
-        raise ValueError("A role profile requires A1, A2, A3 or A4")
+    if agent_id not in {"A1", "A2", "A3", "A4", "E2E"}:
+        raise ValueError("A role profile requires A1, A2, A3, A4 or E2E")
     return [{key: deepcopy(row[key]) for key in FIELDS} for row in CRITERIA
-            if row["owner"] in {"COMMON", agent_id}]
+            if row["owner"] in ({"E2E"} if agent_id == "E2E" else {"COMMON", agent_id})]
 
 
 def apply_role_profile(packet):
     """Returns a new packet. Does not collect files, mutate the source or call a model."""
     from .openai_judge import JudgePacket
     data = packet.model_dump()
-    data.update(rubric_profile=VERSION, rubric=role_items(packet.agent_id))
+    rubric = [r for r in role_items(packet.agent_id) if r["criterion_id"] not in PYTHON_CRITERIA]
+    data.update(rubric_profile=VERSION, rubric=rubric)
     return JudgePacket.model_validate(data)
 
 
@@ -194,7 +345,7 @@ def new_plan_not_required(packet):
 
 def coverage(packet):
     if packet.rubric_profile == VERSION:
-        if [item.model_dump() for item in packet.rubric] != role_items(packet.agent_id):
+        if [item.model_dump() for item in packet.rubric] != [r for r in role_items(packet.agent_id) if r["criterion_id"] not in PYTHON_CRITERIA]:
             raise ValueError("Role rubric is missing, altered, reordered or for a different agent")
     result = []
     no_plan = new_plan_not_required(packet)
@@ -208,5 +359,5 @@ def coverage(packet):
                            status="NOT_APPLICABLE" if not_applicable else "MISSING_EVIDENCE" if missing else "READY_FOR_REVIEW",
                            missing_sources=missing))
     return dict(profile=packet.rubric_profile, criteria=result,
-                scope="ROLE_ONLY" if packet.rubric_profile == VERSION else "CUSTOM_SUBSET",
+                scope=("E2E_ONLY" if packet.agent_id == "E2E" else "ROLE_ONLY") if packet.rubric_profile == VERSION else "CUSTOM_SUBSET",
                 note="자료 키의 존재 검사이며 충분성·진실성·의미 합격이 아님. E2E는 별도 평가 필요.")

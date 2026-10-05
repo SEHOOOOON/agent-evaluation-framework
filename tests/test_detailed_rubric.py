@@ -8,7 +8,7 @@ import yaml
 
 from eval_harness.agent_rubric import CRITERIA as PARENTS
 from eval_harness.detailed_rubric import CRITERIA, VERSION, apply_role_profile, coverage, role_items
-from eval_harness.openai_judge import JudgePacket, evaluate, preview, validate_judgment
+from eval_harness.openai_judge import JudgePacket, evaluate, evidence_catalog, preview, validate_judgment
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -42,7 +42,48 @@ def test_catalog_covers_existing_23_parents_and_user_tc_seven():
         assert row["evidence_requirements"]
 
 
-@pytest.mark.parametrize("agent,count", [("A1", 6), ("A2", 10), ("A3", 6), ("A4", 6)])
+def test_applicability_distinguishes_normal_coverage_from_root_cause_classification():
+    rows = {row['criterion_id']: row for row in CRITERIA}
+    assert '상태 전환·조회만 있는 요청도 평가 대상' in rows['TC-R05']['applicability']
+    assert '자료가 부족하면 REVIEW' in rows['TC-R05']['applicability']
+    scope = rows['A4-02']['applicability']
+    assert '보고가 원인을 주장할 때 적용' in scope
+    assert '원본도 모두 정상이고 원인 주장도 없을 때만 비적용' in scope
+    assert '신호 확인 자료가 부족하면 REVIEW' in scope
+    # Applicability is a question for the judge, not an automatic PASS override.
+    assert len(CRITERIA) == 26
+
+
+@pytest.mark.parametrize("request_text,checks", [
+    ("풍량 변경 후 패널·카드·내부값 확인", ["패널", "카드", "내부값"]),
+    ("풍량 변경 후 패널·카드·내부값 확인", ["패널"]),
+    ("온도 18~30도 허용, 범위 밖 값은 적용되지 않아야 함", ["18", "30", "17 차단", "31 차단"]),
+    ("온도 18~30도 허용, 범위 밖 값은 적용되지 않아야 함", ["24"]),
+    ("장비 카드의 현재 잠금 상태만 조회", ["카드 잠금", "무관한 온도 변경"]),
+])
+def test_scope_rubric_reaches_judge_without_rewriting_case_or_exposing_answers(request_text, checks):
+    # Transport/contract regression only: these assertions do not grade TC semantics.
+    p = apply_role_profile(packet())
+    p.scoring_profile = "score-0-5-v2"
+    p.sources = {"context": {"request": request_text}, "artifact": {"checks": checks}}
+    original = deepcopy(p.sources)
+    sent = json.loads(preview(p, "configured-model")["request"]["input"][1]["content"])
+    row = next(r for r in sent["rubric"] if r["criterion_id"] == "TC-R05")
+    canonical = next(r for r in CRITERIA if r["criterion_id"] == "TC-R05")
+    for key in ("objective", "applicability", "pass_condition", "fail_condition", "review_condition"):
+        assert row[key] == canonical[key]
+    assert sent["criterion_examples"]["TC-R05"] == dict(
+        positive=canonical["positive_example"], negative=canonical["negative_example"])
+    assert '정상 전환만 요청했으면' in row['pass_condition']
+    assert '필요한 경계' in row['fail_condition']
+    assert '패널 검사만' in sent['criterion_examples']['TC-R05']['negative']
+    assert sent["sources"] == evidence_catalog(p)[0]
+    assert p.sources == original
+    assert "expected_verdict" not in sent and "expected_score" not in sent
+    assert sent["rubric_profile"] == VERSION
+
+
+@pytest.mark.parametrize("agent,count", [("A1", 6), ("A2", 10), ("A3", 5), ("A4", 4)])
 def test_role_profile_only_selects_own_and_common_criteria(agent, count):
     original = packet(agent)
     old = original.model_dump()
@@ -144,7 +185,7 @@ def test_reuse_plan_na_keeps_execution_requirements(serialized_alias):
         design = p.sources["context"]["upstream"]["agent2_test_design.json"]
         design["관련_기존_TC"] = design.pop("related_existing_tests")
     na = {r.criterion_id: "NOT_APPLICABLE" for r in p.rubric if r.requires_new_plan}
-    assert len(na) == 3
+    assert len(na) == 2
     assert validate_judgment(p, response(p, na))
     rows = {r["criterion_id"]: r for r in coverage(p)["criteria"]}
     assert rows["A3-02"]["status"] == "NOT_APPLICABLE"
@@ -189,7 +230,7 @@ def test_role_item_results_do_not_mutate_the_catalog():
 
 
 def test_invalid_role_rejected():
-    with pytest.raises(ValueError): role_items("E2E")
+    with pytest.raises(ValueError): role_items("UNKNOWN")
 
 
 @pytest.mark.parametrize("invalid_pass", [False, True])
@@ -197,6 +238,13 @@ def test_full_role_result_preserves_coverage_and_missing_evidence_contract(tmp_p
     p = apply_role_profile(packet())
     calls = []
     data = response(p, {"C01": "PASS"} if invalid_pass else None)
+    from eval_harness.openai_judge import evidence_catalog
+    _, catalog, fingerprint = evidence_catalog(p)
+    for row in data['judgments']:
+        evidence = row.pop('evidence')
+        row['evidence_ids'] = [next(key for key, value in catalog.items()
+            if value['source_id'] == item['source_id'] and value['path'] == item['path']) for item in evidence]
+    data['packet_sha256'] = fingerprint
     def parse(**kwargs):
         calls.append(kwargs)
         return SimpleNamespace(id="resp-synthetic", status="completed", output_parsed=data)
@@ -215,4 +263,4 @@ def test_full_role_result_preserves_coverage_and_missing_evidence_contract(tmp_p
 def test_documentation_lists_every_criterion_and_role_counts():
     document = (ROOT / "docs/12_DETAILED_RUBRIC.md").read_text(encoding="utf-8")
     assert all(f"| {row['criterion_id']} |" in document for row in CRITERIA)
-    assert "A1 6개, A2 10개, A3 6개, A4 6개" in document
+    assert "A1 6개, A2 10개, A3 5개, A4 4개" in document

@@ -52,6 +52,173 @@ def fake_judge(packet, model, approval, output):
     return out
 
 
+@pytest.fixture
+def guidance_run(tmp_path):
+    run = tmp_path / "p1/runs/RUN-20261005-000000-ABCDEF"
+    write(run / "checkpoint4.json", {"checkpoint": "CP4", "status": "PASS"})
+    write(run / "final_report.json", {"run_id": run.name, "recommendation": "PASS",
+          "checkpoint4_sha256": digest(run / "checkpoint4.json")})
+    (run / "srs_snapshot.md").write_text("원문 기준", encoding="utf-8")
+    write(run / "slack_payload.json", {"text": run.name, "blocks": [
+        {"text": {"text": "결과를 검토하고 등록 여부를 결정하세요. 자동 시험은 공식 승인이 아닙니다."}}]})
+    write(run / "notion_payload.json", {"records": [{"run_id": run.name, "result": "PASSED"}]})
+    write(run / "external_reporting.json", {
+        "run_id": run.name, "mode": "DRY_RUN",
+        "final_report_sha256": digest(run / "final_report.json"),
+        "checkpoint4_sha256": digest(run / "checkpoint4.json"),
+        **{channel: {"status": "PREVIEW", "payload_file": channel + "_payload.json",
+                     "payload_sha256": digest(run / (channel + "_payload.json"))}
+           for channel in ("slack", "notion")}})
+    return run
+
+
+def guidance_packet(run):
+    from eval_harness.full_flow import collect_packets
+    spec = FlowSpec(case_id="GUIDANCE", request="request.json", oracle="oracle.json",
+                    generation_model="offline", judge_model="offline")
+    return collect_packets(run, run.parents[2], spec,
+        {"request": {}, "oracle": {"status": "DRAFT"}, "target_commit": "test"}, [])["A4"]
+
+
+@pytest.mark.parametrize("mode,status,recommendation", [
+    ("DRY_RUN", "PREVIEW", "PASS"), ("LIVE", "SENT", "HOLD"), ("LIVE", "FAILED", "HUMAN_REVIEW")])
+def test_guidance_preserves_content_and_recorded_delivery(guidance_run, mode, status, recommendation):
+    run = guidance_run
+    report = read(run / "final_report.json")
+    report["recommendation"] = recommendation
+    write(run / "final_report.json", report)
+    record = read(run / "external_reporting.json")
+    record.update(mode=mode, final_report_sha256=digest(run / "final_report.json"))
+    record["slack"]["status"] = status
+    write(run / "external_reporting.json", record)
+    packet = guidance_packet(run)
+    support = packet.sources["artifact"]["user_guidance"]
+    assert support["mode"] == mode
+    assert support["channels"]["slack"]["status_as_recorded"] == status
+    assert support["channels"]["slack"]["content"] == read(run / "slack_payload.json")
+    assert support["channels"]["notion"]["content"] == read(run / "notion_payload.json")
+    assert packet.sources["artifact"]["final_report.json"] == report
+    assert "수신을 독립 확인한 것이 아닙니다" in packet.sources["trace"]["evaluation_boundary"]
+    from eval_harness.openai_judge import preview
+    assert preview(packet, "offline")["maximum_calls"] == 1
+
+
+@pytest.mark.parametrize("fault", ["record_run", "report_run", "checkpoint_kind", "report_cp_link", "report_hash",
+    "checkpoint_hash", "payload_hash", "missing_payload", "path_escape", "wrong_file", "slack_run", "notion_run"])
+def test_guidance_rejects_unlinked_or_tampered_evidence(guidance_run, fault):
+    from eval_harness.full_flow import user_guidance_support
+    run = guidance_run
+    record = read(run / "external_reporting.json")
+    if fault == "record_run":
+        record["run_id"] = "OLD-RUN"
+    elif fault in ("report_hash", "checkpoint_hash"):
+        record["final_report_sha256" if fault == "report_hash" else "checkpoint4_sha256"] = "0" * 64
+    elif fault in ("report_run", "checkpoint_kind"):
+        name, field = ("final_report.json", "final_report_sha256") if fault == "report_run" else ("checkpoint4.json", "checkpoint4_sha256")
+        write(run / name, {"run_id": "OLD-RUN", "checkpoint": "CP3"})
+        record[field] = digest(run / name)
+    elif fault == "report_cp_link":
+        report = read(run / "final_report.json")
+        report["checkpoint4_sha256"] = "0" * 64
+        write(run / "final_report.json", report)
+        record["final_report_sha256"] = digest(run / "final_report.json")
+    elif fault == "payload_hash":
+        record["slack"]["payload_sha256"] = "0" * 64
+    elif fault == "missing_payload":
+        (run / "slack_payload.json").unlink()
+    elif fault in ("path_escape", "wrong_file"):
+        record["slack"]["payload_file"] = "../secret.json" if fault == "path_escape" else "final_report.json"
+    else:
+        channel = "slack" if fault == "slack_run" else "notion"
+        write(run / (channel + "_payload.json"), {"text": "OLD-RUN"} if channel == "slack" else
+              {"records": [{"run_id": "OLD-RUN"}]})
+        record[channel]["payload_sha256"] = digest(run / (channel + "_payload.json"))
+    write(run / "external_reporting.json", record)
+    with pytest.raises(ValueError):
+        user_guidance_support(run)
+
+
+def test_guidance_missing_record_or_uncreated_channel_is_not_agent_fail(guidance_run):
+    run = guidance_run
+    record = read(run / "external_reporting.json")
+    record["notion"] = {"status": "SKIPPED"}
+    write(run / "external_reporting.json", record)
+    packet = guidance_packet(run)
+    assert packet.sources["artifact"]["user_guidance"]["channels"]["notion"] == {
+        "status_as_recorded": "SKIPPED", "payload_available": False, "reason": "NO_PAYLOAD_REFERENCE"}
+    (run / "external_reporting.json").unlink()
+    packet = guidance_packet(run)
+    assert packet.sources["artifact"]["user_guidance"]["status"] == "UNAVAILABLE"
+    assert not packet.code_checks
+
+
+@pytest.mark.parametrize("channel", ["slack", "notion"])
+@pytest.mark.parametrize("record_exists", [True, False])
+def test_delivery_inventory_only_claims_linked_payloads(guidance_run, channel, record_exists):
+    run = guidance_run
+    record = read(run / "external_reporting.json")
+    record[channel] = {"status": "SKIPPED"}
+    if record_exists:
+        write(run / "external_reporting.json", record)
+    else:
+        (run / "external_reporting.json").unlink()
+    packet = guidance_packet(run)
+    files = packet.sources["trace"]["evidence_delivery"]["json_files"]
+    assert files[channel + "_payload.json"] == "LOCAL_ONLY_NOT_ROLE_INPUT"
+    if record_exists:
+        other = "slack" if channel == "notion" else "notion"
+        assert files[other + "_payload.json"] == "ROLE_INPUT"
+
+
+@pytest.mark.parametrize("fault", [None, "legacy", "srs_hash", "request_hash", "srs_file",
+                                   "request_file", "missing_request", "linked_srs"])
+def test_collector_checks_saved_input_links_without_requiring_legacy_hashes(guidance_run, monkeypatch, fault):
+    run = guidance_run
+    write(run / "request.json", {})
+    manifest = {"run_id": run.name, "request_file": "request.json",
+                "srs_snapshot_file": "srs_snapshot.md",
+                "request_sha256": digest(run / "request.json"),
+                "srs_sha256": digest(run / "srs_snapshot.md")}
+    if fault in ("srs_hash", "request_hash"):
+        manifest["srs_sha256" if fault == "srs_hash" else "request_sha256"] = "0" * 64
+    elif fault in ("srs_file", "request_file"):
+        manifest["srs_snapshot_file" if fault == "srs_file" else "request_file"] = "other.md"
+    elif fault == "missing_request":
+        (run / "request.json").unlink()
+    elif fault == "linked_srs":
+        original = Path.is_symlink
+        monkeypatch.setattr(Path, "is_symlink", lambda p: p == run / "srs_snapshot.md" or original(p))
+    if fault != "legacy":
+        write(run / "run_manifest.json", manifest)
+    if fault not in (None, "legacy"):
+        with pytest.raises(ValueError):
+            guidance_packet(run)
+    else:
+        packet = guidance_packet(run)
+        links = packet.sources["context"]["saved_input_links"]
+        assert set(links) == {"request.json", "srs_snapshot.md"}
+        assert {item["status"] for item in links.values()} == {
+            "UNVERIFIED_NO_SAVED_HASH" if fault == "legacy" else "HASH_VERIFIED"}
+        assert packet.sources["context"]["request"] == {}
+        assert packet.sources["context"]["srs"] == "원문 기준"
+
+
+@pytest.mark.parametrize("fault", ["secret", "oversize", "html", "absolute_path"])
+def test_guidance_keeps_transmission_safety_limits(guidance_run, fault):
+    from eval_harness.openai_judge import preview, MAX_JUDGE_PAYLOAD_BYTES
+    run = guidance_run
+    contents = {"secret": "OPENAI_API_KEY=" + "sk-" + "x" * 40,
+                "oversize": "x" * (MAX_JUDGE_PAYLOAD_BYTES + 1),
+                "html": "<!DOCTYPE html><html><body>private</body></html>",
+                "absolute_path": "C:\\private\\secret.txt"}
+    write(run / "slack_payload.json", {"text": run.name, "blocks": [contents[fault]]})
+    record = read(run / "external_reporting.json")
+    record["slack"]["payload_sha256"] = digest(run / "slack_payload.json")
+    write(run / "external_reporting.json", record)
+    with pytest.raises(ValueError):
+        preview(guidance_packet(run), "offline")
+
+
 def worker_for(branch="normal", received=None):
     def worker(work, config):
         if received is not None:
@@ -72,7 +239,7 @@ def worker_for(branch="normal", received=None):
             return dict(status="BLOCKED", reason="CP1_BLOCK", stages={"agent1": 2})
         if branch == "transport":
             return dict(status="ERROR", reason="GENERATION_RESPONSE_ERROR", stages=stages)
-        write(run / "agent2_test_design.json", {"test_cases": []})
+        write(run / "agent2_test_design.json", {"test_cases": [], "제외된_정보_부족": []})
         write(run / "agent3_selection.json", {"status": "NOT_REQUIRED" if branch == "reuse" else "SELECTED"})
         write(run / "agent3_run_summary.json", {"status": "PASS"})
         stages.update(agent2=0, execute=0, agent4=0)
@@ -82,11 +249,15 @@ def worker_for(branch="normal", received=None):
                 write(run / f"agent3_candidates/TC-{n}/agent3_automation_plan.json", {"tc_id": f"TC-{n}"})
                 write(run / f"agent3_candidates/TC-{n}/ui_observation.json", {"selectors": ["#apply"]})
         status = "ASSERTION_FAILED" if branch == "product_fail" else "PASSED"
-        bundle = {"candidate_results": [], "regression_results": [{"tc_id": "TC1", "status": status}]}
+        bundle = {"candidate_results": [], "regression_results": [{"tc_id": "TC1", "status": status, "source": "EXISTING_REGRESSION"}],
+                  "제외된_정보_부족": [], "최종_확인_사항": []}
         write(run / "validation_execution.json", bundle)
-        write(run / "agent4_analysis.json", {"validation_execution_sha256": digest(run / "validation_execution.json")})
+        write(run / "agent4_analysis.json", dict(validation_execution_sha256=digest(run / "validation_execution.json"),
+              total_results=1, status_counts={status:1}, product_result_count=1, environment_result_count=0,
+              pipeline_fixture_result_count=0, 최종_확인_사항=[], 제외된_정보_부족=[]))
         write(run / "final_report.json", dict(total_results=1, status_counts={status: 1},
-              analysis_sha256=digest(run / "agent4_analysis.json"), 최종_확인_사항=[], 제외된_정보_부족=[]))
+              analysis_sha256=digest(run / "agent4_analysis.json"), product_result_count=1, environment_result_count=0,
+              pipeline_fixture_result_count=0, 최종_확인_사항=[], 제외된_정보_부족=[]))
         if branch == "asset_change":
             (work / "p1/docs/01_PRODUCT_SRS.md").write_text("changed", encoding="utf-8")
         return dict(status="COMPLETED", stages=stages)
@@ -125,7 +296,7 @@ def test_five_fresh_full_trials_and_each_role_judge(flow_setup):
     assert len({str(work) for work, _ in recorded}) == 5
     assert len({t["run_id"] for t in result["trials"]}) == 5
     assert result["quality_assessment"] == "REVIEW_REQUIRED"
-    for role, count in (("A1", 6), ("A2", 10), ("A3", 6), ("A4", 6)):
+    for role, count in (("A1", 6), ("A2", 10), ("A3", 5), ("A4", 4)):
         assert result["trials"][0]["judges"][role]["rubric_count"] == count
     assert "independent_oracle" in read(root / "trial-1/A2/packet.json")["sources"]["context"]
     # Independent oracle is never copied into the generator workspace.
@@ -177,6 +348,96 @@ def test_judge_error_not_agent_failure(flow_setup):
     assert result["trials"][0]["judges"]["A1"]["status"] == "ERROR"
     assert result["trials"][0]["assessment"] == "REVIEW"
     assert result["judge_attempts"] == 0
+
+
+def test_preflight_stop_is_visible_without_changing_p1_result(flow_setup, monkeypatch):
+    import eval_harness.full_flow as flow
+    from eval_harness.web.flows import flow_summary
+    collect = flow.collect_packets
+    def oversized(*args):
+        packets = collect(*args)
+        from eval_harness.openai_judge import MAX_JUDGE_PAYLOAD_BYTES
+        packets["A3"].sources["trace"]["probe"] = "x" * MAX_JUDGE_PAYLOAD_BYTES
+        return packets
+    monkeypatch.setattr(flow, "collect_packets", oversized)
+    root, result = execute(flow_setup, worker_for())
+    view = flow_summary(root.parent, root.name)
+    assert view["status"] == "STOPPED"
+    assert view["stop_reason"] == "JUDGE_PREFLIGHT_FAILED"
+    assert view["trials"][0]["status"] == "COMPLETED"
+    assert result["judge_attempts"] == 0
+    script = (Path(flow.__file__).parent / "web/static/flows.js").read_text(encoding="utf-8")
+    assert "esc(stopReasons[d.stop_reason]||label(d.stop_reason))" in script
+    assert "프로젝트1 실행 상태" in script
+
+
+@pytest.mark.parametrize("fault", ["oversized", "sensitive"])
+def test_all_selected_packets_preflight_before_any_judge(flow_setup, monkeypatch, fault):
+    import eval_harness.full_flow as flow
+    collect = flow.collect_packets
+    called = []
+    def bad_later_packet(*args):
+        packets = collect(*args)
+        from eval_harness.openai_judge import MAX_JUDGE_PAYLOAD_BYTES
+        packets["A3"].sources["trace"]["probe"] = "x" * MAX_JUDGE_PAYLOAD_BYTES if fault == "oversized" else "C:/private/path"
+        return packets
+    def judge(packet, *args):
+        called.append(packet.agent_id)
+        return fake_judge(packet, *args)
+    monkeypatch.setattr(flow, "collect_packets", bad_later_packet)
+    _, result = execute(flow_setup, worker_for(), judge=judge)
+    assert called == []
+    assert result["judge_slots_used"] == result["judge_attempts"] == 0
+    assert result["stop_reason"] == "JUDGE_PREFLIGHT_FAILED"
+    assert result["trials"][0]["judges"]["A3"]["status"] == "ERROR"
+    assert result["trials"][0]["assessment"] == "REVIEW"
+
+
+@pytest.mark.parametrize("budget", [0, 1])
+def test_unselected_packets_do_not_block_limited_judge_budget(flow_setup, monkeypatch, budget):
+    import eval_harness.full_flow as flow
+    collect = flow.collect_packets
+    called = []
+    def oversized_unselected(*args):
+        packets = collect(*args)
+        from eval_harness.openai_judge import MAX_JUDGE_PAYLOAD_BYTES
+        packets["A3"].sources["trace"]["probe"] = "x" * MAX_JUDGE_PAYLOAD_BYTES
+        return packets
+    def judge(packet, *args):
+        called.append(packet.agent_id)
+        return fake_judge(packet, *args)
+    monkeypatch.setattr(flow, "collect_packets", oversized_unselected)
+    spec = flow_setup[2].model_copy(update={"judge_calls_total": budget})
+    _, result = execute(flow_setup, worker_for(), spec=spec, judge=judge)
+    assert called == (["A1"] if budget else [])
+    assert result["stop_reason"] is None
+    assert result["trials"][0]["judges"]["A3"]["reason"] == "JUDGE_BUDGET_EXHAUSTED"
+
+
+def test_all_previews_exist_before_first_judge(flow_setup):
+    def judge(packet, model, approval, output):
+        assert all((output.parent / role / "preview.json").is_file() for role in ("A1", "A2", "A3", "A4"))
+        return fake_judge(packet, model, approval, output)
+    _, result = execute(flow_setup, worker_for(), judge=judge)
+    assert result["status"] == "COMPLETED"
+    assert result["judge_attempts"] == 4
+
+
+def test_evidence_changed_during_preparation_stops_before_judge(flow_setup, monkeypatch):
+    import eval_harness.full_flow as flow
+    collect = flow.collect_packets
+    def changed_after_collection(run, *args):
+        packets = collect(run, *args)
+        (run / "srs_snapshot.md").write_text("changed", encoding="utf-8")
+        return packets
+    called = []
+    def judge(*args):
+        called.append(True)
+        return fake_judge(*args)
+    monkeypatch.setattr(flow, "collect_packets", changed_after_collection)
+    _, result = execute(flow_setup, worker_for(), judge=judge)
+    assert called == []
+    assert result["stop_reason"] == "EVIDENCE_CHANGED_DURING_REVIEW"
 
 
 def test_changed_inputs_stop_next_trial(flow_setup):
@@ -249,6 +510,31 @@ def test_meter_budget_ids_errors_and_exact_input(tmp_path):
     assert ledger["fatal"] == "GENERATION_BUDGET_EXHAUSTED"
 
 
+@pytest.mark.parametrize("unsafe", [False, True])
+def test_meter_scans_json_content_without_rewriting_or_spending_on_rejection(tmp_path, unsafe):
+    calls = []
+    def parse(**kwargs):
+        calls.append(kwargs)
+        return SimpleNamespace(id="offline-json-scan", status="completed",
+                               output_parsed=Payload(text="original"), usage=None)
+    ledger = {"attempts": [], "fatal": None}
+    meter = MeteredResponses(SimpleNamespace(responses=SimpleNamespace(parse=parse)), "A2",
+                             tmp_path, ledger, 1, set())
+    content = json.dumps({"instructions": "Execution/review responsibilities for new runs:\nKeep original values.",
+                          "detail": r"C:\new\file" if unsafe else "STOP"})
+    kwargs = dict(model="test", input=[{"role": "user", "content": content}], store=False, text_format=Payload)
+    if unsafe:
+        with pytest.raises(ValueError):
+            meter.parse(**kwargs)
+        assert calls == ledger["attempts"] == []
+        assert not (tmp_path / "calls").exists()
+    else:
+        assert meter.parse(**kwargs).output_parsed.text == "original"
+        assert calls[0]["input"] == kwargs["input"]
+        assert len(ledger["attempts"]) == 1
+        assert read(tmp_path / "calls/001/request.json")["payload"]["input"] == kwargs["input"]
+
+
 def test_missing_reviewer_contract_stops_before_client_use(tmp_path):
     calls = []
     class Agent:
@@ -275,21 +561,24 @@ def test_actual_p1_generation_and_review_share_one_budget(tmp_path, monkeypatch)
     def parse(**kwargs):
         calls.append(kwargs)
         schema = kwargs["text_format"]
-        value = {"items": []} if schema.__name__ == "GroundingReview" else {"text": "offline"}
+        value = {"items": []} if "items" in schema.model_fields else {"text": "offline"}
         return SimpleNamespace(id=f"offline-{len(calls)}", status="completed",
                                output_parsed=schema.model_validate(value), usage=None)
     ledger = {"attempts": [], "fatal": None}
     config = dict(seen_response_ids=[], generation_limit=6, generation_max_output_tokens=12000)
     bind_model_clients(execution, SimpleNamespace(responses=SimpleNamespace(parse=parse)), tmp_path, ledger, config)
+    def review_input(stage):
+        return {"stage": stage, "items": [], "source_documents": [
+            {"source_id": "REQ-001", "text": "로컬 호출 예산 검증용 원문"}]}
     for stage in (1, 2, 3):
         agent = getattr(execution, f"OpenAIAgent{stage}")(model="offline")
         agent.client.responses.parse(model="offline", store=False, input=[], text_format=Payload)
         execution.OpenAIGroundingReviewer(model="offline").review(
-            {"stage": f"AGENT{stage}", "items": [], "source_documents": []})
+            review_input(f"AGENT{stage}"))
     assert [(r["role"], r["purpose"]) for r in ledger["attempts"]] == [
         (role, purpose) for role in ("A1", "A2", "A3") for purpose in ("generation", "grounding")]
     with pytest.raises(RuntimeError, match="budget"):
-        execution.OpenAIGroundingReviewer(model="offline").review({"stage": "AGENT1"})
+        execution.OpenAIGroundingReviewer(model="offline").review(review_input("AGENT1"))
     assert len(calls) == len(ledger["attempts"]) == 6
     assert ledger["fatal"] == "GENERATION_BUDGET_EXHAUSTED"
 
@@ -386,6 +675,107 @@ def test_compacted_evidence_is_lossless():
     raw = json.dumps(repeated)
     projected = request_evidence({"payload": {"input": [{"role": "user", "content": raw}]}})
     assert projected["payload"]["input"][0]["content"]["parsed_json"] == repeated
+
+
+@pytest.mark.parametrize("field,value,wrong", [
+    ("status", "STOP", "OPERATION"), ("mode", "HEAT", "FAN"),
+    ("fanSpeed", "HIGH", "LOW"), ("setTemp", 21, 27),
+    ("locked", True, False),
+])
+@pytest.mark.parametrize("variant", ["normal", "missing_confirmation", "wrong_expected"])
+def test_core_evidence_is_direct_without_hiding_or_repairing_errors(field, value, wrong, variant):
+    """Check what reaches the judge, not a live model's grading accuracy."""
+    from eval_harness.full_flow import compact_evidence
+    confirmation = [dict(result_id="ER-X", basis="OBSERVED_BASELINE",
+                         source_text="복원 뒤 같은 관찰 위치의 원래값과 비교한다. " * 24)]
+    tc = dict(expected={field: value}, restore_confirmations=confirmation,
+              description="전달 원문을 그대로 보존하는 합성 시험 설명. " * 32)
+    plan = deepcopy(tc)
+    if variant == "missing_confirmation":
+        plan["restore_confirmations"] = []
+    elif variant == "wrong_expected":
+        plan["expected"][field] = wrong
+    source = dict(context={"upstream": tc}, artifact={"plan": plan},
+                  trace={"saved_attempt": deepcopy(plan)})
+    before = deepcopy(source)
+    compact = compact_evidence(source)
+    assert source == before
+    assert compact["context"] == source["context"]
+    assert compact["artifact"] == source["artifact"]
+    expected_reference = ["context", "upstream"] if variant == "normal" else ["artifact", "plan"]
+    assert compact["trace"]["saved_attempt"] == {"evidence_reference": expected_reference}
+    # Never repair a flawed plan by copying the correct upstream contract.
+    assert compact["artifact"]["plan"]["restore_confirmations"] == ([] if variant == "missing_confirmation" else confirmation)
+    assert compact["artifact"]["plan"]["expected"][field] == (wrong if variant == "wrong_expected" else value)
+
+
+@pytest.mark.parametrize("purpose", ["grounding", "generation", "unknown", None])
+def test_only_grounding_request_body_is_omitted(purpose):
+    from eval_harness.full_flow import request_evidence
+    call = dict(role="A2", attempt=2, payload={"input": [{"role": "user", "content": "unchanged body"}]})
+    if purpose is not None:
+        call["purpose"] = purpose
+    original = deepcopy(call)
+    result = request_evidence(call, "a" * 64)
+    assert call == original
+    assert result["role"] == "A2" and result["attempt"] == 2
+    if purpose == "grounding":
+        assert "payload" not in result
+        assert result["raw_request_sha256"] == "a" * 64
+        assert result["payload_omitted"] == "GROUNDING_BODY_NOT_ROLE_GENERATION"
+    else:
+        assert result == call
+
+
+def test_grounding_body_cannot_be_omitted_without_original_hash():
+    from eval_harness.full_flow import request_evidence
+    with pytest.raises(ValueError, match="original file hash"):
+        request_evidence(dict(purpose="grounding", payload={"input": []}))
+
+
+def test_large_grounding_body_preserves_call_and_rejection_records(flow_setup):
+    import zipfile
+    from eval_harness.openai_judge import JudgePacket, preview
+    base = worker_for("reuse")
+    def worker(work, config):
+        outcome = base(work, config)
+        run = work / "p1/runs" / config["run_id"]
+        write(work / "calls/001/request.json", dict(role="A2", purpose="generation", attempt=2,
+              payload={"input": [{"role": "user", "content": "Required generation input"}]}))
+        write(work / "calls/002/request.json", dict(role="A2", purpose="grounding", attempt=3,
+              payload={"input": [{"role": "user", "content": "long review body " * 9000}]}))
+        ledger = read(work / "call_ledger.json")
+        ledger["attempts"].append(dict(role="A2", purpose="grounding", attempt=3, status="RECEIVED",
+              request_sha256=digest(work / "calls/002/request.json"), response_id="review-response"))
+        write(work / "call_ledger.json", ledger)
+        write(run / "agent2_grounding_review_attempt_1.json", {"verdict": "UNSUPPORTED", "reason": "Missing requested check"})
+        write(run / "agent2_grounding_input_attempt_1.json", {"input": "long saved review input " * 9000})
+        write(run / "agent2_grounding_input_attempt_notes.json", {"input": "Unrecognized artifact is not silently omitted"})
+        write(run / "checkpoint2_attempt_1.json", {"status": "FAIL"})
+        return outcome
+    root, state = execute(flow_setup, worker)
+    packet = JudgePacket.model_validate(read(root / "trial-1/A2/packet.json"))
+    trace = packet.sources["trace"]
+    assert trace["actual_model_requests"][0]["payload"]["input"][0]["content"] == "Required generation input"
+    omitted = trace["actual_model_requests"][1]
+    assert "payload" not in omitted
+    assert trace["model_call_records"][-1]["status"] == "RECEIVED"
+    assert trace["model_call_records"][-1]["request_sha256"] == omitted["raw_request_sha256"]
+    assert trace["checkpoints_and_attempts"]["agent2_grounding_review_attempt_1.json"]["verdict"] == "UNSUPPORTED"
+    assert trace["checkpoints_and_attempts"]["checkpoint2_attempt_1.json"]["status"] == "FAIL"
+    assert trace["checkpoints_and_attempts"]["agent2_grounding_input_attempt_notes.json"]["input"] == "Unrecognized artifact is not silently omitted"
+    archived_input = trace["checkpoints_and_attempts"]["agent2_grounding_input_attempt_1.json"]
+    assert "input" not in archived_input and archived_input["payload_omitted"]
+    assert preview(packet, "test-judge")
+    trial = state["trials"][0]
+    work = Path(trial["workspace"])
+    raw = work / "calls/002/request.json"
+    raw_input = work / "p1/runs" / trial["run_id"] / "agent2_grounding_input_attempt_1.json"
+    assert archived_input["raw_artifact_sha256"] == digest(raw_input)
+    assert raw.stat().st_size > 120_000
+    with zipfile.ZipFile(root / trial["evidence_archive"]) as z:
+        assert z.read("calls/002/request.json") == raw.read_bytes()
+        assert z.read(f"p1/runs/{trial['run_id']}/agent2_grounding_input_attempt_1.json") == raw_input.read_bytes()
 
 
 def test_added_official_asset_blocks_further_trials(flow_setup):

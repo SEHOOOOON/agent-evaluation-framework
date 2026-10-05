@@ -70,7 +70,7 @@ NIST AI RMF는 평가 세트·측정 방식·도구·한계의 문서화, 반복
 - Agent 1은 Fact·Gap·Proceed, Agent 2는 TC·Assert·승인을 핵심 Signature로 비교
 - 환각을 unsupported confirmed claim으로 구체화
 - Critical 위반은 평균 점수로 상쇄하지 않음
-- V2 A3는 모델 계획·결정론적 컴파일·실제 시험을 나눠 평가하고, A4는 규칙 기반 집계·분류·보고를 평가
+- V2 A3는 A2 실행 정의의 화면 연결·결정론적 컴파일·실제 시험을 나눠 평가하고 과거 모델 계획 경로는 구분한다. A4는 규칙 기반 집계·분류·보고를 평가
 - 제품 Release와 Evaluation Gate를 분리
 
 95% 준수율, 90% 안정성과 Case별 3·5회 Trial은 업계 표준이 아니라 초기 합성 경로 정책입니다. 현재 전체 흐름은 시나리오별 5회 시도이며 초기 수치 Gate를 최종 합격 기준으로 승계하지 않습니다.

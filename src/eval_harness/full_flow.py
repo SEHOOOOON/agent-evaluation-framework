@@ -5,7 +5,6 @@ call budget. A fresh working copy is not an OS security sandbox.
 """
 from __future__ import annotations
 
-from collections import Counter
 from datetime import datetime, timezone
 from hashlib import sha256
 import json
@@ -22,11 +21,13 @@ import zipfile
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from .detailed_rubric import role_items, VERSION as RUBRIC_VERSION
+from .detailed_rubric import role_items, VERSION as RUBRIC_VERSION, SCORE_VERSION, PYTHON_CRITERIA
+from .execution_observations import grade_run as grade_execution_observations
 from .openai_judge import JudgePacket, encode, preview as judge_preview, evaluate as judge_evaluate, scan_payload
-from .v2_recorded import child, digest, read, write, target_pin, inventory, execution_rows
+from .v2_recorded import (child, digest, read, write, target_pin, inventory, execution_rows,
+                          finding_matches_execution, report_counts_match, handoff_checks)
 
-VERSION = "full-flow-0.2"
+VERSION = "full-flow-0.12"
 ROLES = ("A1", "A2", "A3", "A4")
 
 
@@ -103,6 +104,8 @@ def make_preview(target: Path, spec: FlowSpec, config_root: Path):
         "runtime_hashes": selected, "evaluator_hashes": p2_pin(),
         "oracle": oracle, "request": request, "srs_sha256": selected["docs/01_PRODUCT_SRS.md"],
         "rubric_version": RUBRIC_VERSION,
+        "scoring_profile": SCORE_VERSION,
+        "python_criteria": sorted(PYTHON_CRITERIA),
         "generation_destination": "https://api.openai.com/v1/responses",
         "judge_destination": "https://api.openai.com/v1/responses",
         "generation_sdk_retries": 0, "judge_sdk_retries": 0,
@@ -115,8 +118,8 @@ def make_preview(target: Path, spec: FlowSpec, config_root: Path):
             "generation": ["request", "related SRS", "existing TC catalog", "actual upstream outputs",
                            "limited UI observation", "checkpoint repair feedback", "grounding review inputs"],
             "judge": ["request/SRS", "independent oracle", "user TC writing criteria",
-                      "role outputs", "request/repair traces", "plan/code", "neutral execution/report"],
-            "excluded": ["credentials", "absolute local paths", "full HTML", "screenshots", "trace archives"],
+                      "role outputs", "request/repair traces", "plan", "neutral execution/report"],
+            "excluded": ["credentials", "absolute local paths", "full HTML", "screenshots", "trace archives", "automation source code"],
         },
         "limitations": [
             "Downstream exact payloads depend on this run; each is scanned before sending.",
@@ -211,29 +214,25 @@ def local_checks(run: Path, source_unchanged: bool, copy_unchanged: bool):
             files[name] = read(run / name)
     report = files.get("final_report.json")
     execution = files.get("validation_execution.json")
-    a1 = files.get("agent1_change_analysis.json")
     if not report or not execution:
         add("E01.COMPLETION", "NOT_EVALUATED", "최종 실행·보고 자료 미도달; 완료로 판단하지 않음")
         return checks
     rows = execution_rows(execution)
-    actual = Counter(row["status"] for row in rows)
-    count_ok = report.get("total_results") == len(rows) and all(
-        report.get("status_counts", {}).get(key, 0) == actual.get(key, 0)
-        for key in set(actual) | set(report.get("status_counts", {}))
-    )
-    add("A4.COUNTS", "PASS" if count_ok else "FAIL", "실행 행을 독립 재집계해 보고 합계와 대조")
     analysis = files.get("agent4_analysis.json", {})
+    count_status = "PASS"
+    for output in (analysis, report):
+        try:
+            if not report_counts_match(rows, output):
+                count_status = "FAIL"
+        except (KeyError, ValueError, TypeError, AttributeError):
+            if count_status != "FAIL":
+                count_status = "NOT_EVALUATED"
+    add("A4.COUNTS", count_status, "실행 행의 상태·전체·제품·환경·고정 사례 수량을 분석·보고와 독립 대조")
     add("C01.REPORT_CHAIN", "PASS" if (
         analysis.get("validation_execution_sha256") == digest(run / "validation_execution.json")
         and report.get("analysis_sha256") == digest(run / "agent4_analysis.json")
     ) else "FAIL", "실제 실행→분석→최종 보고의 파일 해시 연결")
-    if a1 is not None:
-        gaps = a1.get("information_gaps", [])
-        questions = a1.get("user_questions", [])
-        add("E02.GAPS", "PASS" if all(x in report.get("제외된_정보_부족", []) for x in gaps) else "FAIL",
-            "분석의 미정 항목이 최종 보고에 보존됐는지 대조")
-        add("E03.QUESTIONS", "PASS" if all(x in report.get("최종_확인_사항", []) for x in questions) else "FAIL",
-            "사용자 확인 질문 원문이 최종 보고에 보존됐는지 대조")
+    checks.extend(handoff_checks(files))
     add("E01.SEMANTIC_COVERAGE", "NOT_EVALUATED",
         "요청 전체의 의미상 검증 충분성과 Checkpoint 과잉 차단은 독립 사람 정답 대조 필요")
     add("A4.CAUSE_ACCURACY", "NOT_EVALUATED",
@@ -284,7 +283,8 @@ def comparison_snapshot(run):
         data = read(a2)
         values["A2"] = {"test_cases": stable(data.get("test_cases", [])),
                         "selected_existing_ids": sorted(x["tc_id"] for x in data.get("관련_기존_TC", []))}
-    plans = sorted(run.glob("agent3_candidates/*/agent3_automation_plan.json"))
+    plans = [safe_evidence_path(run, p.relative_to(run).as_posix())
+             for p in sorted(run.rglob("agent3_automation_plan.json"))]
     if plans:
         values["A3"] = [stable(read(p)) for p in plans]
     report = run / "final_report.json"
@@ -313,14 +313,21 @@ def judge_projection(value, workspace, omissions, pointer=""):
 
 
 def compact_evidence(source):
-    """Lossless value deduplication. References point to earlier source paths."""
+    """Keep comparison inputs/output direct; deduplicate repeated trace evidence.
+
+    Context and artifact are the material being compared, not an alternate
+    implementation of it. Never hide their values behind transport references.
+    Other source roots may reference the same exact earlier value. No content
+    is rewritten, removed, or converted into a verdict by this projection.
+    """
     seen = {}
     def visit(value, path):
         encoded = encode(value)
+        direct = bool(path and path[0] in {"context", "artifact"})
         if len(encoded.encode("utf-8")) >= 512:
-            if encoded in seen:
+            if encoded in seen and not direct:
                 return {"evidence_reference": seen[encoded]}
-            seen[encoded] = path
+            seen.setdefault(encoded, path)
         if isinstance(value, dict):
             return {k: visit(v, path + [k]) for k, v in value.items()}
         if isinstance(value, list):
@@ -329,9 +336,16 @@ def compact_evidence(source):
     return visit(source, [])
 
 
-def request_evidence(call):
+def request_evidence(call, raw_sha256=None):
     """Expose JSON user inputs as values; raw request bytes stay in the ZIP."""
     result = json.loads(encode(call))
+    if result.get("purpose") == "grounding":
+        if raw_sha256 is None:
+            raise ValueError("Grounding request omission requires its original file hash")
+        result.pop("payload", None)
+        result.update(payload_omitted="GROUNDING_BODY_NOT_ROLE_GENERATION",
+                      raw_request_sha256=raw_sha256)
+        return result
     for message in result.get("payload", {}).get("input", []):
         content = message.get("content") if isinstance(message, dict) else None
         if isinstance(content, str) and content.lstrip().startswith(("{", "[")):
@@ -343,15 +357,339 @@ def request_evidence(call):
     return result
 
 
+def python_scores(run, checks):
+    """Read-only fact grades, independent of the target's PASS declarations.
+
+    E04 remains unscored without a real approval lifecycle. An observed asset
+    violation is still a failure. Missing evidence is never a fabricated pass.
+    """
+    grades = {cid: dict(criterion_id=cid, score=None, verdict="REVIEW",
+                       reason="독립 확인에 필요한 실행·승인 근거 부족", evidence=[])
+              for cid in sorted(PYTHON_CRITERIA)}
+    grades["A3-03"] = grade_execution_observations(run)
+
+    def assign(cid, ok, reason):
+        grades[cid].update(score=5 if ok else 0, verdict="PASS" if ok else "FAIL", reason=reason)
+
+    if any(c["rule"] == "E04.ASSET_PROTECTION" and c["status"] == "FAIL" for c in checks):
+        assign("E04", False, "승인 없는 평가 실행 중 고정 자산 변경이 확인됨")
+    try:
+        execution = read(child(run, "validation_execution.json"))
+        report = read(child(run, "final_report.json"))
+        analysis = read(child(run, "agent4_analysis.json"))
+        rows = execution_rows(execution)
+        ids = [r.get("test_id", r.get("tc_id")) for r in rows]
+        unique = all(isinstance(i, str) and i for i in ids) and len(ids) == len(set(ids))
+        count_ok = True
+        for output in (analysis, report):
+            try:
+                if not report_counts_match(rows, output):
+                    count_ok = False
+            except (KeyError, ValueError, TypeError, AttributeError):
+                if count_ok is not False:
+                    count_ok = None
+        if count_ok is not None:
+            assign("A4-01", count_ok, "원본 실행 행의 중복·상태·제품·환경·고정 사례 합계를 독립 대조")
+        grades["A4-01"]["evidence"] = [dict(file="validation_execution.json", sha256=digest(run / "validation_execution.json")),
+                                            dict(file="final_report.json", sha256=digest(run / "final_report.json"))]
+        # Absent fields are unobserved, not equivalent to an empty findings list.
+        findings = report["검토_항목"]
+        analysis_findings = analysis["검토_항목"]
+        if not isinstance(findings, list) or not isinstance(analysis_findings, list):
+            raise ValueError("Invalid findings")
+        same_run = execution["run_id"] == analysis["run_id"] == report["run_id"] == run.name
+        linked = (same_run and unique and findings == analysis_findings
+                  and all(finding_matches_execution(f, rows, execution.get("status")) for f in findings)
+                  and analysis.get("validation_execution_sha256") == digest(run / "validation_execution.json")
+                  and report.get("analysis_sha256") == digest(run / "agent4_analysis.json"))
+        if not linked:
+            assign("A4-03", False, "Run·TC·상태 또는 실행→보고 연결 불일치")
+        for row in rows:
+            files, hashes = row.get("evidence_files"), row.get("evidence_sha256")
+            if files is None or hashes is None:
+                raise ValueError("Evidence manifest missing")
+            if not isinstance(files, list) or not isinstance(hashes, dict):
+                raise ValueError("Evidence manifest malformed")
+            if row["status"] != "SKIPPED" and not files:
+                raise ValueError("Execution evidence absent")
+            for name in files:
+                path = safe_evidence_path(run, name)
+                linked = linked and path.is_file() and digest(path) == hashes.get(name)
+                if not linked:
+                    assign("A4-03", False, "실행→보고 연결 또는 참조 증거 파일 해시 불일치")
+        assign("A4-03", linked, "Run·TC·상태·분류 근거 연결과 참조 파일 해시를 대조; 화면 내용의 의미 판정은 아님")
+        grades["A4-03"]["evidence"] = [dict(file="agent4_analysis.json", sha256=digest(run / "agent4_analysis.json"))]
+    except (OSError, ValueError, KeyError, TypeError, AttributeError):
+        # Retain facts already established; unavailable portions stay REVIEW.
+        pass
+    return dict(status="COMPLETED", mode="PYTHON", scoring_profile=SCORE_VERSION, rubric_version=RUBRIC_VERSION,
+                judgments=list(grades.values()))
+
+
+def safe_evidence_path(root, name):
+    path = child(root, name)
+    original = root / name
+    if any(p.is_symlink() for p in [original, *original.parents] if p.is_relative_to(root)):
+        raise ValueError("Linked evidence")
+    return path
+
+
+def execution_support(run, work, execution, *, code_references=(), trial_documents=(), include_code=True):
+    """Only referenced, hash-verified logs/code; no HTML/images or silent cuts."""
+    result = {"files": {}, "omissions": []}
+    remaining = 40_000
+    references = {}
+    try:
+        rows = execution_rows(execution)
+    except (ValueError, TypeError, AttributeError):
+        rows = []
+        if not trial_documents:
+            result["omissions"].append("실행 행 없음/해석 불가")
+
+    def include(path, label, expected):
+        # Path equality handles Windows case aliases too. Never use a display
+        # label as file identity, and do not allocate bytes until all references
+        # to the file have been checked. Original labels stay in source records.
+        references.setdefault(path.resolve(), []).append((label, expected))
+
+    def log_reference(base, name, expected):
+        path = safe_evidence_path(base, name)
+        label = path.relative_to(run.resolve()).as_posix()
+        if path.suffix.lower() != ".txt":
+            result["omissions"].append(dict(file=label, reason="UNSUPPORTED_LOG_TYPE"))
+            return
+        include(path, label, expected)
+
+    code_roots = [work / "p1/approved_assets", work / "p1/product_baseline/tests"]
+    code_files = [p for root in code_roots for p in root.rglob("*.py")
+                  if not p.is_symlink() and p.stat().st_size <= 200_000]
+    for row in rows:
+        # Only the stdout/stderr actually named by this execution row.
+        hashes = row.get("evidence_sha256", {})
+        for key in ("stdout_file", "stderr_file"):
+            name = row.get(key)
+            if not name:
+                continue
+            log_reference(run, name, hashes.get(name))
+        name = row.get("test_file")
+        if not name:
+            continue
+        path = safe_evidence_path(run, name)
+        if path.suffix.lower() != ".py":
+            result["omissions"].append(dict(file=name, reason="UNSUPPORTED_CODE_TYPE"))
+            continue
+        if path.is_file():
+            include(path, path.relative_to(run.resolve()).as_posix(), row.get("test_sha256"))
+        else:
+            matches = [p for p in code_files if digest(safe_evidence_path(work / "p1", p.relative_to(work / "p1").as_posix()))
+                       == row.get("test_sha256")]
+            if matches:
+                p = matches[0]  # Identical bytes; no TC-title or scenario-specific matching.
+                include(p, "pinned/" + p.relative_to(work / "p1").as_posix(), row["test_sha256"])
+            else:
+                result["omissions"].append(dict(file=name, reason="PINNED_CODE_HASH_NOT_FOUND"))
+    # A trial can exist without the final validation bundle. Its own hashes
+    # establish log identity, not final acceptance or successful execution.
+    for key, trial, manifest in trial_documents:
+        trial_path = safe_evidence_path(run, key)
+        folder = trial_path.parent
+        tc_id = manifest.get("tc_id") or (folder.name if folder != run.resolve() else None)
+        if not tc_id:
+            result["omissions"].append(dict(file=key, reason="TRIAL_TARGET_UNAVAILABLE"))
+            continue
+        evidence_dir = safe_evidence_path(folder / "evidence", tc_id)
+        hashes = trial.get("evidence_sha256", {})
+        linked = True
+        if manifest:
+            name = manifest.get("trial_file")
+            linked = bool(name and safe_evidence_path(folder, name) == trial_path
+                          and manifest.get("trial_sha256") == digest(trial_path))
+            if not linked:
+                result["omissions"].append(dict(file=key, reason="TRIAL_LINK_UNVERIFIED"))
+        for field in ("stdout_file", "stderr_file"):
+            name = trial.get(field)
+            if not name:
+                continue
+            log_reference(evidence_dir, name, hashes.get(name) if linked else None)
+            if manifest:
+                log_reference(evidence_dir, name, manifest.get("trial_evidence_sha256", {}).get(name)
+                              if linked else None)
+
+    # Final generation manifests can supply code before validation execution.
+    # They establish file identity, not proof that the code ran or passed.
+    for name, expected in code_references:
+        path = safe_evidence_path(run, name)
+        if path.suffix.lower() != ".py":
+            result["omissions"].append(dict(file=name, reason="UNSUPPORTED_CODE_TYPE"))
+            continue
+        include(path, path.relative_to(run.resolve()).as_posix(), expected)
+
+    # Fixed ordering makes selection independent of execution-row ordering.
+    groups = sorted(references.items(), key=lambda item: min(label for label, _ in item[1]))
+    for path, refs in groups:
+        label = min(label for label, _ in refs)
+        try:
+            with path.open("rb") as handle:
+                data = handle.read(24_001)
+            observed = digest(path) if len(data) > 24_000 else sha256(data).hexdigest()
+            if any(not expected or observed != expected for _, expected in refs):
+                raise ValueError("Hash mismatch or absent")
+            if path.suffix.lower() == ".py" and not include_code:
+                result["files"][label] = dict(sha256=observed, bytes=path.stat().st_size,
+                                               delivery="LOCAL_ONLY_CODE")
+                continue
+            size = len(data)
+            if size > min(24_000, remaining):
+                result["omissions"].append(dict(file=label, reason="SIZE_LIMIT", sha256=observed))
+                continue
+            text = data.decode("utf-8").replace("\r\n", "\n").replace("\r", "\n")
+            result["files"][label] = dict(sha256=observed, content=text)
+            remaining -= size
+        except (OSError, ValueError, UnicodeError):
+            result["omissions"].append(dict(file=label, reason="MISSING_OR_UNVERIFIED"))
+    return result
+
+
+def human_review_support(run):
+    """The generated review document is guidance, not a human approval."""
+    name = "사람_최종_검토_manifest.json"
+    path = safe_evidence_path(run, name)
+    if not path.is_file():
+        return {"status": "UNAVAILABLE", "reason": "NO_REVIEW_DOCUMENT_MANIFEST"}
+    manifest = read(path)
+    if manifest.get("run_id") != run.name or manifest.get("stage") != "HUMAN_FINAL_REVIEW_DOCUMENT":
+        raise ValueError("Human review document identity mismatch")
+    if manifest.get("document_file") != "사람_최종_검토.md":
+        raise ValueError("Unsupported human review document")
+    for filename, field in (("final_report.json", "final_report_sha256"),
+                            ("validation_execution.json", "validation_execution_sha256"),
+                            (manifest["document_file"], "document_sha256")):
+        source = safe_evidence_path(run, filename)
+        if not source.is_file() or not manifest.get(field) or digest(source) != manifest[field]:
+            raise ValueError("Human review document source missing or unverified")
+    source = safe_evidence_path(run, manifest["document_file"])
+    if source.stat().st_size > 24_000:
+        return {"status": "UNAVAILABLE", "reason": "SIZE_LIMIT", "file": source.name,
+                "sha256": manifest["document_sha256"]}
+    return {"status": "LINKED_DOCUMENT_NOT_APPROVAL", "file": source.name,
+            "sha256": manifest["document_sha256"], "content": source.read_text(encoding="utf-8")}
+
+
+def user_guidance_support(run):
+    """Collect linked report previews, never publish or infer user receipt."""
+    record_path = safe_evidence_path(run, "external_reporting.json")
+    if not record_path.is_file():
+        return {"status": "UNAVAILABLE", "reason": "NO_EXTERNAL_REPORTING_RECORD"}
+    record = read(record_path)
+    if not isinstance(record, dict) or record.get("run_id") != run.name:
+        raise ValueError("User guidance run mismatch")
+    for name, field in (("final_report.json", "final_report_sha256"),
+                        ("checkpoint4.json", "checkpoint4_sha256")):
+        path = safe_evidence_path(run, name)
+        if not path.is_file() or not record.get(field) or digest(path) != record[field]:
+            raise ValueError("User guidance report/checkpoint link unverified")
+    report = read(safe_evidence_path(run, "final_report.json"))
+    checkpoint = read(safe_evidence_path(run, "checkpoint4.json"))
+    if report.get("run_id") != run.name or checkpoint.get("checkpoint") != "CP4":
+        raise ValueError("User guidance report run/checkpoint mismatch")
+    # CP4 has no run_id in P1's contract; the final report binds it by hash.
+    if report.get("checkpoint4_sha256") != record["checkpoint4_sha256"]:
+        raise ValueError("User guidance checkpoint differs from final report")
+    result = {"status": "LINKED_RECORD", "run_id": run.name,
+              "record_sha256": digest(record_path), "mode": record.get("mode"),
+              "final_report_sha256": record["final_report_sha256"],
+              "checkpoint4_sha256": record["checkpoint4_sha256"],
+              "channels": {}}
+    for channel in ("slack", "notion"):
+        item = record.get(channel) or {}
+        if not isinstance(item, dict):
+            raise ValueError("Invalid user guidance channel record")
+        entry = {"status_as_recorded": item.get("status"), "payload_available": False}
+        result["channels"][channel] = entry
+        name = item.get("payload_file")
+        if not name:
+            entry["reason"] = "NO_PAYLOAD_REFERENCE"
+            continue
+        # Only known report output types, not an arbitrary file named in a record.
+        if name != channel + "_payload.json":
+            raise ValueError("Unsupported user guidance payload reference")
+        path = safe_evidence_path(run, name)
+        if not path.is_file() or not item.get("payload_sha256") or digest(path) != item["payload_sha256"]:
+            raise ValueError("User guidance payload missing or unverified")
+        payload = read(path)
+        if not isinstance(payload, dict):
+            raise ValueError("Invalid user guidance payload")
+        if channel == "notion":
+            rows = payload.get("records")
+            if not isinstance(rows, list) or any(not isinstance(row, dict) or row.get("run_id") != run.name for row in rows):
+                raise ValueError("User guidance Notion run mismatch")
+        elif run.name not in encode(payload):
+            raise ValueError("User guidance Slack run missing")
+        entry.update(payload_available=True, file=name, sha256=item["payload_sha256"], content=payload)
+    return result
+
+
 def collect_packets(run, work, spec, plan, checks):
     """Select role evidence; do not feed evaluator material back into P1."""
-    docs = {p.relative_to(run).as_posix(): read(p) for p in sorted(run.rglob("*.json"))
-            if p.stat().st_size < 2_000_000 and not p.is_symlink()}
+    docs = {}
+    for original in sorted(run.rglob("*.json")):
+        key = original.relative_to(run).as_posix()
+        path = safe_evidence_path(run, key)
+        # Do not turn an oversized/linked final artifact into 'not executed'.
+        if path.stat().st_size >= 2_000_000:
+            raise ValueError("Evaluation JSON read budget exceeded: " + key)
+        docs[key] = read(path)
+    if "request.json" in docs and docs["request.json"] != plan["request"]:
+        raise ValueError("Evaluation request differs from saved P1 request")
+    for key, value in docs.items():
+        if isinstance(value, dict) and "run_id" in value and value["run_id"] != run.name:
+            raise ValueError("Evaluation artifact belongs to another Run: " + key)
+    # Compare with the saved run, never today's SRS or an inferred replacement.
+    # Legacy evidence without hashes remains readable, explicitly unverified.
+    manifest = docs.get("run_manifest.json", {})
+    input_links = {}
+    for name, file_field, hash_field in (
+        ("request.json", "request_file", "request_sha256"),
+        ("srs_snapshot.md", "srs_snapshot_file", "srs_sha256"),
+    ):
+        path = safe_evidence_path(run, name)
+        if file_field in manifest and manifest[file_field] != name:
+            raise ValueError("Saved input file reference mismatch: " + name)
+        sha = digest(path) if path.is_file() else None
+        if ((hash_field in manifest and (not sha or manifest[hash_field] != sha))
+                or (file_field in manifest and not sha)):
+            raise ValueError("Saved input missing or unverified: " + name)
+        input_links[name] = {
+            "status": "HASH_VERIFIED" if hash_field in manifest else
+                      "UNVERIFIED_NO_SAVED_HASH" if sha else "UNAVAILABLE_NOT_SAVED",
+            "sha256": sha,
+        }
+    srs_path = safe_evidence_path(run, "srs_snapshot.md")
+    # The catalog used by A2, not today's possibly changed official registry.
+    catalog_name = "approved_regression_catalog.json"
+    catalog_hash = docs.get("agent2_manifest.json", {}).get("approved_regression_catalog_sha256")
+    if catalog_hash and (catalog_name not in docs or digest(safe_evidence_path(run, catalog_name)) != catalog_hash):
+        raise ValueError("Saved regression catalog missing or unverified")
     calls = []
     for path in sorted((work / "calls").glob("*/request.json")):
-        calls.append(request_evidence(read(path)))
+        calls.append(request_evidence(read(path), digest(path)))
+    ledger_path = work / "call_ledger.json"
+    ledger = read(ledger_path) if ledger_path.is_file() else {}
     tc_reference = (Path(__file__).resolve().parents[2] / "benchmarks/v2/TC_REFERENCE.md").read_text(encoding="utf-8")
     packets = {}
+    code_references = []
+    for key, manifest in docs.items():
+        if Path(key).name != "agent3_manifest.json" or not manifest.get("candidate_file"):
+            continue
+        candidate_dir = Path(key).parent / "candidates"
+        name = manifest["candidate_file"]
+        safe_evidence_path(run / candidate_dir, name)
+        code_references.append(((candidate_dir / name).as_posix(), manifest.get("candidate_sha256")))
+    support = execution_support(run, work, docs.get("validation_execution.json", {}),
+                                include_code=False,
+                                code_references=code_references,
+                                trial_documents=[(key, value, docs.get((Path(key).parent / "agent3_manifest.json").as_posix(), {}))
+                                                 for key, value in docs.items() if Path(key).name == "agent3_trial.json"])
     for role in ROLES:
         artifact_keys = {"A1": ["agent1_change_analysis.json"],
                          "A2": ["agent2_test_design.json"],
@@ -374,11 +712,42 @@ def collect_packets(run, work, spec, plan, checks):
                         "selection": docs.get("agent3_selection.json", {}),
                         "execution": docs["validation_execution.json"]}
         if not artifact:
+            # Eligibility/selection/error is an output too, but not a plan.
+            artifact = {key: value for key, value in docs.items()
+                        if Path(key).name in {f"agent{role[-1]}_error.json", f"agent{role[-1]}_eligibility.json",
+                                             f"agent{role[-1]}_selection.json", f"agent{role[-1]}_run_summary.json"}}
+            if artifact:
+                output_state = "STATUS_ONLY_NO_FINAL_ARTIFACT"
+        if not artifact:
             continue
         role_calls = [call for call in calls if call["role"] == role]
+        checkpoint_docs = {}
+        review_input_prefix = f"agent{role[-1]}_grounding_input_attempt_"
+        for key, value in docs.items():
+            basename = Path(key).name
+            shared = {"orchestrator_manifest.json"}
+            if role in ("A1", "A2"):
+                shared.add("run_manifest.json")
+            if role in ("A3", "A4"):
+                shared.add("validation_manifest.json")
+            if not (basename.startswith((f"checkpoint{role[-1]}", f"agent{role[-1]}_"))
+                    or key in shared):
+                continue
+            stem = Path(key).stem
+            if stem.startswith(review_input_prefix) and stem.removeprefix(review_input_prefix).isdigit():
+                # These are P1's saved reference inputs, not review judgments.
+                # Retain the catalog/fixed executor facts without sending the
+                # much larger review instructions and duplicated output body.
+                context = value.get("context", {}) if isinstance(value, dict) else {}
+                retained = {field: context[field] for field in ("catalog", "compiler_recovery_facts") if field in context}
+                value = {"payload_omitted": "GROUNDING_BODY_NOT_ROLE_GENERATION",
+                         "raw_artifact_sha256": digest(run / key)}
+                if retained:
+                    value["retained_reference_context"] = retained
+            checkpoint_docs[key] = value
         source = {
             "context": {"request": plan["request"], "independent_oracle": plan["oracle"],
-                        "srs": (run / "srs_snapshot.md").read_text(encoding="utf-8"),
+                        "srs": srs_path.read_text(encoding="utf-8"), "saved_input_links": input_links,
                         "upstream": {key: docs[key] for key in (
                             ("agent1_change_analysis.json",) if role == "A2" else
                             ("agent2_test_design.json",) if role == "A3" else
@@ -386,36 +755,86 @@ def collect_packets(run, work, spec, plan, checks):
                         ) if key in docs}},
             "artifact": artifact,
             "trace": {"output_state": output_state,
-                      "actual_model_requests": role_calls, "checkpoints_and_attempts": {
-                key: value for key, value in docs.items()
-                if (f"checkpoint{role[-1]}" in key or f"agent{role[-1]}_" in key)
-                and ("attempt" in key or "checkpoint" in key or "manifest" in key)
-            }},
+                      "model_call_records": [item for item in ledger.get("attempts", []) if item.get("role") == role],
+                      "actual_model_requests": role_calls, "checkpoints_and_attempts": checkpoint_docs},
         }
         if role == "A2":
             source["context"]["user_tc_reference"] = tc_reference
+        if role in ("A2", "A3"):
+            source["context"]["existing_tc_catalog"] = {
+                "status": "HASH_VERIFIED" if catalog_hash else "UNVERIFIED" if catalog_name in docs else "UNAVAILABLE",
+                "file": catalog_name, "sha256": catalog_hash,
+                "content": docs.get(catalog_name),
+                "scope": "해당 실행 당시 승인 TC 스냅샷; 현재 공식 자산이나 전체 기본 TC 목록이 아님"}
+        if role == "A4":
+            source["artifact"]["user_guidance"] = user_guidance_support(run)
+            source["artifact"]["human_review_document"] = human_review_support(run)
+            source["trace"]["evaluation_boundary"] = (
+                "최종 보고 JSON과 같은 실행의 user_guidance 안내를 함께 평가하세요. "
+                "PREVIEW/DRY_RUN은 작성된 안내이지 외부 발송·수신·공식 승인 증거가 아닙니다. "
+                "status_as_recorded는 원본 전송 기록이며 이 평가기가 수신을 독립 확인한 것이 아닙니다. "
+                "안내 자료가 없으면 전체 사용자 안내가 없다고 단정하지 말고 해당 판단을 보류하세요. "
+                "확인 목록이 비어 있다는 사실만으로 감점하지 말고 실제 누락 조건/후속 행동을 대조하세요. "
+                "P2 평가 결과에 대한 사람 검토와 P1 시험 결과의 자산 승인 절차를 구분하세요.")
         if role == "A3":
             source["inventory"] = {key: v for key, v in docs.items() if key.endswith("ui_observation.json")}
-            source["trace"]["compiled_code"] = {
-                p.relative_to(run).as_posix(): p.read_text(encoding="utf-8")
-                for p in sorted(run.glob("agent3_candidates/*/candidates/*.py"))}
+            source["trace"]["code_artifacts"] = {
+                name: entry for name, entry in support["files"].items()
+                if Path(name).suffix.lower() == ".py"}
+            source["trace"]["evaluation_boundary"] = (
+                "자동 생성 코드 본문은 AI 평가 입력이 아닙니다. A3-03은 프로그램이 계획과 구조화 관찰 기록을 대조합니다. "
+                "코드가 전송되지 않았다는 이유로 실행 확인이 없다고 단정하지 마세요. "
+                "AI는 제공된 TC·계획·실행 증거의 의미와 주장 범위만 평가하며, 확인할 증거가 없으면 보류합니다.")
         if role in ("A3", "A4"):
             source["execution"] = {key: v for key, v in docs.items()
                                    if key.endswith("agent3_trial.json") or key == "validation_execution.json"}
+            if source["execution"]:
+                source["execution"]["verified_support"] = support
+            else:
+                source["trace"]["execution_support_unavailable"] = support["omissions"]
         omitted = []
+        # Explicit delivery inventory: new/unmapped JSON cannot disappear
+        # silently. This is availability metadata, never a PASS/FAIL grader.
+        selected = set(artifact_keys) & docs.keys() | set(artifact) & docs.keys() | set(checkpoint_docs)
+        selected |= set(source["context"]["upstream"])
+        selected |= set(source.get("inventory", {})) | set(source.get("execution", {}))
+        selected.add("request.json")
+        if role in ("A2", "A3"):
+            selected.add(catalog_name)
+        if role == "A4":
+            selected.update(entry["file"] for entry in
+                            source["artifact"]["user_guidance"].get("channels", {}).values()
+                            if entry.get("payload_available"))
+        source["trace"]["evidence_delivery"] = {
+            "json_files": {key: ("SELECTED_REFERENCE_CONTEXT" if isinstance(checkpoint_docs.get(key), dict)
+                                  and checkpoint_docs[key].get("retained_reference_context") else
+                                  "HASH_ONLY_REVIEW_INPUT" if isinstance(checkpoint_docs.get(key), dict)
+                                  and checkpoint_docs[key].get("payload_omitted") else
+                                  "VERIFIED_GUIDANCE_PROJECTION" if role == "A4" and key in {
+                                      "external_reporting.json", "사람_최종_검토_manifest.json"} else
+                                  "ROLE_INPUT" if key in selected else "LOCAL_ONLY_NOT_ROLE_INPUT")
+                           for key in docs},
+            "actual_model_requests": "CAPTURED" if role_calls else "UNAVAILABLE_NOT_PROOF_OF_NO_CALL",
+            "boundary": "파일 포함은 평가 완료가 아닙니다. 코드 본문·HTML·이미지·Trace ZIP·승인 이력은 로컬 보존 자료이며 AI 의미 평가 입력이 아닙니다. 기존 TC 목록은 당시 승인 자산 범위이며 전체 기본 TC 목록이라고 추정하지 않습니다."}
         source = judge_projection(source, work, omitted)
         source["trace"]["metadata_path_replacements"] = omitted
         source = compact_evidence(source)
         source["reference_protocol"] = (
-            "evidence_reference는 sources 루트에서 시작하는 동일 내용의 최초 위치입니다. "
+            "context와 artifact는 직접 대조할 원문이며 참조로 대체하지 않습니다. "
+            "다른 자료의 evidence_reference는 sources 루트에서 시작하는 동일 내용의 최초 위치입니다. "
             "인용은 참조가 가리키는 실제 값의 source_id와 path를 사용합니다. "
             "parsed_json은 실제 요청 JSON의 파싱 값이며 원본 문자열 해시는 raw_utf8_sha256입니다. "
+            "payload_omitted인 근거 검토 요청은 본문 대신 원본 파일 해시·호출 메타데이터를 제공합니다. "
+            "저장 검토 입력의 기존 TC 목록과 실행기 복원 사실만 retained_reference_context로 원문 보존하며, 검토 지침과 중복 본문은 제외합니다. "
+            "모델 호출 기록과 Checkpoint·재작성·검토 결과는 유지하지만 제외된 요청 본문의 의미 평가는 하지 않습니다. "
             "원본 요청 바이트와 중복 없는 모든 증거 값은 로컬 압축 증거에 보존됩니다."
         )
         packet = JudgePacket(
             case_id=spec.case_id, trial_id=run.name, agent_id=role,
-            target_version=plan["target_commit"], sources=source, rubric=role_items(role),
-            rubric_profile=RUBRIC_VERSION, oracle_status=plan["oracle"]["status"],
+            target_version=plan["target_commit"], sources=source,
+            rubric=[r for r in role_items(role) if r["criterion_id"] not in PYTHON_CRITERIA],
+            rubric_profile=RUBRIC_VERSION,
+            oracle_status=plan["oracle"]["status"], scoring_profile=SCORE_VERSION,
             code_checks=[c for c in checks if c["rule"].startswith((role + ".", "C01."))],
         )
         packets[role] = packet
@@ -517,15 +936,36 @@ def run_flow(target, spec, config_root, output_root, approval_sha256, *, worker=
             if outcome["status"] == "ERROR":
                 result["stop_reason"] = outcome.get("reason", "EXECUTION_ERROR")
             row["judges"] = {}
-            for role, packet in collect_packets(run, work, spec, plan, row["checks"]).items():
+            row["python_evaluation"] = python_scores(run, row["checks"])
+            packets = collect_packets(run, work, spec, plan, row["checks"])
+            prepared = {}
+            available_slots = spec.judge_calls_total - result["judge_slots_used"]
+            preflight_failed = False
+            # Prepare the entire selected evaluation batch before any paid
+            # judge. Unselected roles stay unscored, not preparation failures.
+            for index_in_batch, (role, packet) in enumerate(packets.items()):
                 destination = root / f"trial-{index + 1}" / role
                 write(destination / "packet.json", packet.model_dump())
+                if index_in_batch >= available_slots:
+                    row["judges"][role] = {"status": "NOT_EVALUATED", "reason": "JUDGE_BUDGET_EXHAUSTED"}
+                    continue
+                if result["stop_reason"]:
+                    row["judges"][role] = {"status": "NOT_EVALUATED", "reason": "SAFETY_STOP"}
+                    continue
                 try:
                     preview = judge_preview(packet, spec.judge_model)
                     write(destination / "preview.json", preview)
-                    if result["judge_slots_used"] >= spec.judge_calls_total:
-                        row["judges"][role] = {"status": "NOT_EVALUATED", "reason": "JUDGE_BUDGET_EXHAUSTED"}
-                        continue
+                    prepared[role] = (packet, preview, destination)
+                except Exception as exc:
+                    row["judges"][role] = {"status": "ERROR", "reason": type(exc).__name__}
+                    preflight_failed = True
+            if preflight_failed:
+                result["stop_reason"] = "JUDGE_PREFLIGHT_FAILED"
+            if inventory(run) != row["artifact_hashes"]:
+                result["stop_reason"] = "EVIDENCE_CHANGED_DURING_REVIEW"
+                row["status"] = "ERROR"
+            for role, (packet, preview, destination) in prepared.items():
+                try:
                     if result["stop_reason"]:
                         row["judges"][role] = {"status": "NOT_EVALUATED", "reason": "SAFETY_STOP"}
                         continue
@@ -551,6 +991,7 @@ def run_flow(target, spec, config_root, output_root, approval_sha256, *, worker=
                 row["status"] = "ERROR"
             row["assessment"] = (
                 "ISSUES_FOUND" if any(c["status"] == "FAIL" for c in row["checks"])
+                or any(j["verdict"] == "FAIL" for j in row["python_evaluation"]["judgments"])
                 or any(j.get("assessment") == "ISSUES_FOUND" for j in row["judges"].values())
                 else "REVIEW"
             )
@@ -558,6 +999,8 @@ def run_flow(target, spec, config_root, output_root, approval_sha256, *, worker=
             row.update(status="ERROR", reason=type(exc).__name__)
             result["stop_reason"] = "INCOMPLETE_OR_UNSAFE_TRIAL"
         finally:
+            from .detailed_rubric import full_scorecard
+            row["scorecard"] = full_scorecard(row.get("judges", {}), row.get("python_evaluation"))
             if work:
                 # Archive original bytes without rewriting P1 manifests or their paths.
                 try:
@@ -583,5 +1026,8 @@ def run_flow(target, spec, config_root, output_root, approval_sha256, *, worker=
         } for role in ROLES},
     }
     result["api_request_attempts"] = 0 if test_mode else result["generation_attempts"] + result["judge_attempts"]
+    from .detailed_rubric import full_scorecard, repeat_scores
+    result["score_comparison"] = repeat_scores([
+        full_scorecard(t.get("judges", {}), t.get("python_evaluation")) for t in result["trials"]])
     write(root / "result.json", result)
     return root

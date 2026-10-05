@@ -5,6 +5,66 @@ from pathlib import Path
 import pytest
 
 from eval_harness.v2_recorded import Case, child, digest, evaluate, load_cases, normalized_counts, write
+from eval_harness.v2_recorded import source_quote_grounded
+from eval_harness.v2_recorded import finding_matches_execution
+
+
+def test_run_level_insufficient_evidence_is_not_a_fictional_test():
+    f = {"category": "INSUFFICIENT_EVIDENCE", "test_id": None, "status": None, "evidence_files": []}
+    environment = [{"test_id": "ENV", "source": "ENVIRONMENT_PRECHECK", "status": "PASSED"}]
+    assert finding_matches_execution(f, environment)
+    assert not finding_matches_execution(f, [])
+    assert not finding_matches_execution(f, [{"test_id": "UNKNOWN", "source": "UNKNOWN", "status": "PASSED"}])
+    assert not finding_matches_execution(dict(f, category="PRODUCT_MISMATCH_CANDIDATE"), environment)
+    assert not finding_matches_execution(dict(f, evidence_files=["invented"]), environment)
+    assert not finding_matches_execution(dict(f, status="PASSED"), environment)
+    assert not finding_matches_execution(f, [{"test_id":"TC", "source":"NEW_AUTOMATION_CANDIDATE", "status":"PASSED"}])
+
+
+@pytest.mark.parametrize("quote,expected", [
+    ("Select HIGH | Verify label", True),
+    ("Verify label | Select HIGH", True),
+    ("Select HIGH | invented", False),
+    ("Select HIGH |", False),
+    ("Select LOW | Verify label", False),
+    ("old LOW", False),
+])
+def test_request_excerpt_contract(quote, expected):
+    request = {"after_value": "Select HIGH", "acceptance_notes": ["Verify label"], "before_value": "old LOW"}
+    c = {"source_type": "CHANGE_REQUEST", "source_text": quote}
+    assert source_quote_grounded(c, request, {}, "", {"task_boundary_contract": "1.3"}) == expected
+
+
+def test_literal_pipe_and_starting_value_authority():
+    c = {"source_type": "CHANGE_REQUEST", "source_text": "A | B"}
+    assert source_quote_grounded(c, {"after_value": "A | B"}, {}, "", {})
+    c["source_text"] = "old LOW"
+    request = {"before_value": "old LOW", "target_requirement_id": "REQ-FAN-001"}
+    a = {"requirement_effects": [{"requirement_id": "REQ-FAN-001", "relation": "VERIFY"}]}
+    assert source_quote_grounded(c, request, a, "", {"task_boundary_contract": "1.3"})
+    assert not source_quote_grounded(c, request, a, "", {"task_boundary_contract": "1.2"})
+
+
+@pytest.mark.parametrize("quote,ids,expected", [
+    ("Select fan | label HIGH", ["REQ-FAN-001"], True),
+    ("label HIGH | Select fan", ["REQ-FAN-001"], True),
+    ("Select fan | invented", ["REQ-FAN-001"], False),
+    ("Select fan |", ["REQ-FAN-001"], False),
+    ("label HIGH", ["REQ-TEMP-001"], False),
+    ("label HIGH", ["REQ-FAN-001", "REQ-TEMP-001"], False),
+    ("label HIGH", ["REQ-UNKNOWN-001"], False),
+])
+def test_srs_excerpts_respect_linked_requirements(quote, ids, expected):
+    srs = "| REQ-FAN-001 | Select fan | label HIGH |\n| REQ-TEMP-001 | Select temperature | limit 30 |"
+    c = {"source_type": "SRS", "source_text": quote, "requirement_ids": ids}
+    assert source_quote_grounded(c, {}, {}, srs, {"srs_quote_contract": "1.0"}) == expected
+
+
+def test_joined_quotes_not_silently_enabled_for_legacy_or_wrong_source():
+    c = {"source_type": "CHANGE_REQUEST", "source_text": "Select HIGH | Verify label"}
+    assert not source_quote_grounded(c, {"after_value": "Select HIGH", "reason": "Verify label"}, {}, "", {})
+    c["source_text"] = "SRS only"
+    assert not source_quote_grounded(c, {"after_value": "Select HIGH"}, {}, "SRS only", {"task_boundary_contract": "1.3"})
 
 
 def test_hold_is_a_supported_product_recommendation():
@@ -21,19 +81,22 @@ def sample(root, *, failed=False):
     write(root/'request.json', {'request': 'Apply MED; show medium.'})
     (root/'srs_snapshot.md').write_text('REQ-FAN-001 supports fan.', encoding='utf-8')
     write(root/'agent1_change_analysis.json', {'confirmed_conditions': [
-        {'condition_id': 'COND-001', 'source_text': 'Apply MED; show medium.'}], 'information_gaps': []})
+        {'condition_id': 'COND-001', 'source_text': 'Apply MED; show medium.'}], 'information_gaps': [], 'user_questions': []})
     write(root/'agent2_test_design.json', {'test_cases': [
         {'tc_id': 'TC-CAND-001', 'preconditions': ['ready'], 'steps': ['apply'], 'source_condition_ids': ['COND-001'],
-         'expected_results': [{'statement':'medium', 'source_condition_ids':['COND-001'], 'verify_after_step':'apply'}]}]})
+         'expected_results': [{'statement':'medium', 'source_condition_ids':['COND-001'], 'verify_after_step':'apply'}]}], '제외된_정보_부족': []})
     (root/'trial.txt').write_text('Actual neutral observation',encoding='utf-8')
     (root/'test_candidate.py').write_text('def test_candidate():\n    assert True\n',encoding='utf-8')
     status='ASSERTION_FAILED' if failed else 'PASSED'
     row={'test_id':'TC-CAND-001','status':status,'exit_code':1 if failed else 0,
-         'source':'NEW_AUTOMATION_CANDIDATE','evidence_files':['trial.txt'], 'evidence_sha256':{'trial.txt':digest(root/'trial.txt')},
+         'source':'NEW_AUTOMATION_CANDIDATE','requirement_ids':['REQ-FAN-001'], 'evidence_files':['trial.txt'], 'evidence_sha256':{'trial.txt':digest(root/'trial.txt')},
          'test_file':'test_candidate.py','test_sha256':digest(root/'test_candidate.py')}
-    write(root/'validation_execution.json', {'candidate_result':row,'candidate_results':[row], 'regression_results':[]})
+    write(root/'validation_execution.json', {'candidate_result':row,'candidate_results':[row], 'regression_results':[], '제외된_정보_부족':[], '최종_확인_사항':[]})
     report={'total_results':1,'status_counts':{status:1},'recommendation':'HUMAN_REVIEW' if failed else 'PASS',
-            '검토_항목':[{'category':'PRODUCT_MISMATCH_CANDIDATE', 'test_id':row['test_id'], 'status':status, 'evidence_files':row['evidence_files']}] if failed else [],'제외된_정보_부족':[]}
+            'product_result_count':1,'environment_result_count':0,'pipeline_fixture_result_count':0,
+            '검토_항목':[{'category':'PRODUCT_MISMATCH_CANDIDATE', 'test_id':row['test_id'], 'source':row['source'],
+                        'requirement_ids':row['requirement_ids'], 'status':status, 'evidence_files':row['evidence_files']}] if failed else [],
+            '제외된_정보_부족':[],'최종_확인_사항':[]}
     write(root/'agent4_analysis.json',dict(report, validation_execution_sha256=digest(root/'validation_execution.json')))
     write(root/'final_report.json',dict(report, analysis_sha256=digest(root/'agent4_analysis.json')))
     write(root/'run_manifest.json',{'request_sha256':digest(root/'request.json'),'srs_sha256':digest(root/'srs_snapshot.md'),'agent1_analysis_sha256':digest(root/'agent1_change_analysis.json')})
@@ -57,6 +120,45 @@ def refresh_links(root):
     edit(root,'agent2_manifest.json',lambda x:x.update(source_run_manifest_sha256=digest(root/'run_manifest.json'),agent2_design_sha256=digest(root/'agent2_test_design.json')))
     edit(root,'agent4_analysis.json',lambda x:x.update(validation_execution_sha256=digest(root/'validation_execution.json')))
     edit(root,'final_report.json',lambda x:x.update(analysis_sha256=digest(root/'agent4_analysis.json')))
+
+
+@pytest.mark.parametrize('scenario', ['normal', 'hold', 'mismatch', 'false_success'])
+def test_representative_reporting_outcomes(tmp_path, scenario):
+    case = sample(tmp_path, failed=scenario == 'mismatch')
+    if scenario in {'hold', 'false_success'}:
+        execution = json.loads((tmp_path/'validation_execution.json').read_text(encoding='utf-8'))
+        env = dict(execution['candidate_result'], test_id='ENV', source='ENVIRONMENT_PRECHECK',
+                   status='EXECUTION_ERROR', exit_code=1)
+        skipped = dict(env, test_id='TC-REG', source='EXISTING_REGRESSION', status='SKIPPED',
+                       exit_code=None, evidence_files=[], evidence_sha256={})
+        write(tmp_path/'validation_execution.json', dict(status='BLOCKED', candidate_result=None,
+              candidate_results=[], environment_precheck=env, regression_results=[skipped],
+              제외된_정보_부족=[], 최종_확인_사항=[]))
+        counts = {'EXECUTION_ERROR': 1, 'SKIPPED': 1}
+        finding = dict(category='INSUFFICIENT_EVIDENCE', test_id=None, status=None, evidence_files=[])
+        for name in ('agent4_analysis.json', 'final_report.json'):
+            edit(tmp_path, name, lambda x:x.update(total_results=2, status_counts=counts,
+                 product_result_count=1, environment_result_count=1,
+                 recommendation='PASS' if scenario == 'false_success' else 'HOLD',
+                 검토_항목=[finding]))
+        case = case.model_copy(update=dict(expected_counts=counts, expected_recommendation='HOLD',
+                              expected_finding_categories=['INSUFFICIENT_EVIDENCE']))
+        refresh_links(tmp_path)
+    result = evaluate(tmp_path, case)
+    assert result['status'] == ('FAIL' if scenario == 'false_success' else 'REVIEW')
+    failures = [c['rule'] for c in result['checks'] if c['status'] != 'PASS']
+    assert failures == (['A4.RECOMMENDATION'] if scenario == 'false_success' else [])
+
+
+def test_run_level_hold_requires_matching_execution_records():
+    finding = dict(category='INSUFFICIENT_EVIDENCE', test_id=None, status=None, evidence_files=[])
+    env = dict(test_id='ENV', source='ENVIRONMENT_PRECHECK', status='EXECUTION_ERROR')
+    reg = dict(test_id='TC-REG', source='EXISTING_REGRESSION', status='SKIPPED')
+    assert finding_matches_execution(finding, [env, reg], 'BLOCKED')
+    assert not finding_matches_execution(finding, [env, reg], 'COMPLETED')
+    assert not finding_matches_execution(finding, [dict(env, status='PASSED'), reg], 'BLOCKED')
+    assert not finding_matches_execution(finding, [env, dict(reg, status='PASSED')], 'BLOCKED')
+    assert finding_matches_execution(finding, [dict(reg, test_id='TC-PIPE-001', status='PASSED')])
 
 
 @pytest.mark.parametrize('mutation,rule',[
@@ -112,6 +214,25 @@ def test_reuse_only_does_not_require_new_design(tmp_path):
     write(tmp_path/'validation_execution.json',execution)
     refresh_links(tmp_path)
     assert evaluate(tmp_path,case)['status']=='REVIEW'
+
+
+@pytest.mark.parametrize('stage', ['agent2_test_design.json', 'validation_execution.json', 'agent4_analysis.json', 'final_report.json'])
+@pytest.mark.parametrize('lost', [False, True])
+def test_saved_and_full_flow_use_the_same_nonempty_handoff_contract(tmp_path, stage, lost):
+    from eval_harness.full_flow import local_checks
+    case = sample(tmp_path).model_copy(update={'expected_gap_count':1})
+    edit(tmp_path, 'agent1_change_analysis.json', lambda x:x.update(information_gaps=['target color unknown'], user_questions=['Which target color?']))
+    for name in ('agent2_test_design.json', 'validation_execution.json', 'agent4_analysis.json', 'final_report.json'):
+        edit(tmp_path, name, lambda x:x.update(제외된_정보_부족=['target color unknown'],
+              최종_확인_사항=['사용자 확인 요청: Which target color?', 'CP1: legitimate extra note']))
+    if lost:
+        edit(tmp_path, stage, lambda x:x.update(제외된_정보_부족=[]))
+    refresh_links(tmp_path)
+    recorded = evaluate(tmp_path, case)
+    expected = 'FAIL' if lost else 'PASS'
+    assert next(c for c in recorded['checks'] if c['rule']=='E2E.GAPS_RETAINED')['status'] == expected
+    assert next(c for c in local_checks(tmp_path, True, True) if c['rule']=='E02.GAPS')['status'] == expected
+    assert next(c for c in recorded['checks'] if c['rule']=='E2E.QUESTIONS_RETAINED')['status'] == 'PASS'
 
 
 @pytest.mark.parametrize('bad_manifest',[[], None])

@@ -61,6 +61,7 @@ def parser() -> argparse.ArgumentParser:
     judge.add_argument("--packet", type=Path, required=True)
     judge.add_argument("--model", required=True)
     judge.add_argument("--role-rubric", action="store_true", help="담당 Agent의 전체 세부 기준을 적용합니다. 근거 누락은 Preview에 표시합니다.")
+    judge.add_argument("--score-rubric", action="store_true", help="기존 26항목의 0~5점 기준을 적용합니다. 과거 결과를 환산하지 않습니다.")
     judge.add_argument("--execute", action="store_true")
     judge.add_argument("--approval-sha256")
     judge.add_argument("--output",type=Path,default=Path(__file__).resolve().parents[2]/"evaluation-runs")
@@ -109,6 +110,9 @@ def main(argv: list[str] | None = None) -> int:
             if args.role_rubric:
                 from .detailed_rubric import apply_role_profile
                 packet=apply_role_profile(packet)
+            if args.score_rubric:
+                from .detailed_rubric import SCORE_VERSION
+                packet=JudgePacket.model_validate({**packet.model_dump(), "scoring_profile": SCORE_VERSION})
             if not args.execute:
                 print(json.dumps(preview(packet,args.model),ensure_ascii=False,indent=2))
                 return 0

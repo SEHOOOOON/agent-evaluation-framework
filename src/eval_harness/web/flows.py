@@ -2,6 +2,7 @@
 import re
 from ..v2_recorded import child, read
 from .recorded import public_text
+from ..detailed_rubric import full_scorecard, repeat_scores
 
 FLOW_ID = re.compile(r"FLOW-\d{8}-\d{6}-[a-f0-9]{6}\Z")
 
@@ -42,13 +43,25 @@ def flow_summary(root, name):
         "mode", "status", "planned_trials", "generation_attempts", "judge_attempts",
         "api_request_attempts", "quality_assessment", "stop_reason")}
     result["id"] = name
+    result["stop_reason"] = public_text(data.get("stop_reason") or "", 160)
     result["trials"] = []
+    comparison_cards = []
     for row in rows:
+        scorecard = full_scorecard(row.get("judges", {}), row.get("python_evaluation"))
+        comparison_cards.append(dict(scorecard))
+        # Compare exact recorded metadata privately; expose only controlled explanatory flags.
+        scorecard["versions"] = {key: scorecard["versions"][key] for key in
+                                ("mixed", "comparison_ready", "missing_version_roles", "note")}
+        # No raw paths or evidence bodies are exposed on the dashboard.
+        for criterion in scorecard["criteria"]:
+            criterion["reason"] = public_text(criterion["reason"])
+            criterion.pop("evidence", None)
         budget_stop = row.get("execution", {}).get("reason") == "GENERATION_BUDGET_EXHAUSTED"
         raw_status = row["status"]
         roles = row.get("roles", {})
         result["trials"].append({
             "trial": row["trial"], "raw_status": public_text(raw_status, 80),
+            "scorecard": scorecard,
             "status": "LIMIT_REACHED" if budget_stop and raw_status == "ERROR" else public_text(raw_status, 80),
             "reason": "호출 한도 도달로 재작성을 중단했습니다. 앞선 검사 결과와 초안은 원본 증거에 보존됩니다." if budget_stop else "",
             "roles": {role: "LIMIT_REACHED" if budget_stop and roles.get(role) == "ERROR"
@@ -61,4 +74,5 @@ def flow_summary(root, name):
                               "reason": public_text(j.get("reason", j.get("assessment", "")))}
                        for role, j in row.get("judges", {}).items() if role in {"A1", "A2", "A3", "A4"}},
         })
+    result["score_comparison"] = repeat_scores(comparison_cards)
     return result

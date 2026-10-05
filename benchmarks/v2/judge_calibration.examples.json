@@ -1,0 +1,197 @@
+{
+  "version": "judge-calibration-draft-4",
+  "oracle_status": "DRAFT",
+  "author": "Codex",
+  "human_reviewed": false,
+  "purpose": "평가 기준 해석을 비교할 개발 예시. 실제 모델 결과나 사람 승인 정답이 아님.",
+  "cases": [
+    {
+      "case_id": "ORDER-SPLIT",
+      "criterion_id": "TC-R02",
+      "pair": "ORDER-EQUIVALENT",
+      "sources": {"context": "필터 설정 화면이 열려 있다. 기간을 오늘로 바꾸고 적용하는 순서를 평가한다.", "artifact": {"steps": ["기간에서 오늘을 선택한다.", "적용 버튼을 누른다."]}},
+      "expected_verdict": "PASS",
+      "reason": "필요한 선택과 적용 순서가 명확하다."
+    },
+    {
+      "case_id": "ORDER-SINGLE",
+      "criterion_id": "TC-R02",
+      "pair": "ORDER-EQUIVALENT",
+      "sources": {"context": "필터 설정 화면이 열려 있다. 기간을 오늘로 바꾸고 적용하는 순서를 평가한다.", "artifact": {"steps": ["기간에서 오늘을 선택한 뒤 적용 버튼을 누른다."]}},
+      "expected_verdict": "PASS",
+      "reason": "한 문장이지만 두 동작의 대상과 순서가 분리된 예시와 같다."
+    },
+    {
+      "case_id": "ORDER-AMBIGUOUS",
+      "criterion_id": "TC-R02",
+      "pair": "ORDER-EQUIVALENT",
+      "sources": {"context": "필터 설정 화면이 열려 있다. 기간을 오늘로 바꾸고 적용하는 순서를 평가한다.", "artifact": {"steps": ["적당한 기간으로 바꾼다."]}},
+      "expected_verdict": "FAIL",
+      "reason": "선택할 값과 필수 적용 동작이 빠져 있다. 줄 수 때문이 아니다."
+    },
+    {
+      "case_id": "RESTORE-ACTION-ONLY",
+      "criterion_id": "TC-R07",
+      "pair": "RESTORE-COMPLETENESS",
+      "sources": {"context": "변경하는 기간 필터 TC의 전체 복원 명세를 평가한다. 시험 전에 원래 기간을 기록했다.", "artifact": {"restore_steps": ["기록한 원래 기간을 선택하고 적용한다."]}},
+      "expected_verdict": "FAIL",
+      "reason": "전체 명세에 복원 성공을 무엇으로 확인하는지 없다."
+    },
+    {
+      "case_id": "RESTORE-CHECKED",
+      "criterion_id": "TC-R07",
+      "pair": "RESTORE-COMPLETENESS",
+      "sources": {"context": "변경하는 기간 필터 TC의 전체 복원 명세를 평가한다. 시험 전에 원래 기간을 기록했다.", "artifact": {"restore_steps": ["기록한 원래 기간을 선택하고 적용한다.", "기간 표시가 시험 전 기록한 값과 같은지 확인한다."]}},
+      "expected_verdict": "PASS",
+      "reason": "복원 동작과 필요한 화면 표시의 복원 성공 확인이 모두 있다. 요청하지 않은 내부 검사를 강요하지 않는다."
+    },
+    {
+      "case_id": "RESTORE-EXCERPT",
+      "criterion_id": "TC-R07",
+      "pair": "RESTORE-COMPLETENESS",
+      "sources": {"context": "전체 명세는 제공되지 않았고 복원 명세의 첫 줄만 발췌했다.", "artifact": {"excerpt": "기록한 원래 기간을 선택하고 적용한다."}},
+      "expected_verdict": "REVIEW",
+      "reason": "일부 발췌만으로 확인 절차가 전체 명세에도 없다고 단정할 수 없다."
+    },
+    {
+      "case_id": "RESTORE-SPEC-VS-CODE",
+      "criterion_id": "TC-R07",
+      "pair": "RESTORE-COMPLETENESS",
+      "sources": {"context": "평가 대상은 전체 TC 복원 명세다. 코드에 확인이 있어도 설명 품질은 별도로 본다.", "artifact": {"restore_steps": ["기록한 원래 기간을 선택하고 적용한다."]}, "implementation": "restore_period(original); assert displayed_period() == original"},
+      "expected_verdict": "FAIL",
+      "reason": "설계 설명에는 성공 확인이 없지만 코드에는 있다. 코드 확인 누락이나 실제 시험 실패로 확대하지 않는다."
+    },
+    {
+      "case_id": "ANALYSIS-PRESERVED", "criterion_id": "A1-01", "pair": "REQUEST-VALUE",
+      "sources": {"context": "난방 상태에서 온도를 27도에서 21도로 변경한다. 27도는 시작값이며 목표값은 21도다.", "artifact": {"mode": "난방", "initial": 27, "target": 21}},
+      "expected_verdict": "PASS", "expected_score": 5,
+      "reason": "시작값·목표값과 모드의 역할이 원문과 같다."
+    },
+    {
+      "case_id": "ANALYSIS-REVERSED", "criterion_id": "A1-01", "pair": "REQUEST-VALUE",
+      "sources": {"context": "난방 상태에서 온도를 27도에서 21도로 변경한다. 27도는 시작값이며 목표값은 21도다.", "artifact": {"mode": "난방", "initial": 21, "target": 27}},
+      "expected_verdict": "FAIL", "expected_score": 0,
+      "reason": "변경 방향을 반대로 해석해 요청의 핵심 목적과 어긋난다."
+    },
+    {
+      "case_id": "ANALYSIS-UNREQUESTED-GAP", "criterion_id": "A1-02", "pair": "NECESSARY-GAP",
+      "sources": {"context": "카드에 현재 풍량을 표시한다. 알림 변경은 요청하지 않았다.", "artifact": {"decision": "보류", "question": "알림 색상을 알려주세요."}},
+      "expected_verdict": "FAIL", "expected_score": 0,
+      "reason": "요청 밖 알림 색상을 필수 정보로 만들어 정상 요청을 막았다."
+    },
+    {
+      "case_id": "ANALYSIS-REQUIRED-GAP", "criterion_id": "A1-02", "pair": "NECESSARY-GAP",
+      "sources": {"context": "알림 색상을 변경한다. 목표 색상은 제공하지 않았다.", "artifact": {"decision": "보완 대기", "question": "변경할 알림 색상을 알려주세요."}},
+      "expected_verdict": "PASS", "expected_score": 5,
+      "reason": "실제 요청을 수행하는 데 필요한 정보만 질문했다."
+    },
+    {
+      "case_id": "TC-EXPECTED-SUPPORTED", "criterion_id": "TC-R06", "pair": "EXPECTED-GROUNDING",
+      "sources": {"context": "운전을 정지로 변경하면 제어패널과 카드에 정지, 내부 전원에 STOP이 표시돼야 한다.", "artifact": {"expected": ["패널 정지", "카드 정지", "내부 전원 STOP"]}},
+      "expected_verdict": "PASS", "expected_score": 5,
+      "reason": "각 관찰 대상과 값이 요구사항에 있다."
+    },
+    {
+      "case_id": "TC-EXPECTED-INVENTED", "criterion_id": "TC-R06", "pair": "EXPECTED-GROUNDING",
+      "sources": {"context": "운전을 정지로 변경하면 제어패널과 카드에 정지, 내부 전원에 STOP이 표시돼야 한다. 알림 요구사항은 없다.", "artifact": {"expected": ["패널 정지", "카드 정지", "내부 전원 STOP", "초록색 완료 알림"]}},
+      "expected_verdict": "FAIL", "expected_score": 3,
+      "reason": "세 기대값은 맞지만 근거 없는 알림 검사를 추가해 필수 보완이 필요하다."
+    },
+    {
+      "case_id": "EXECUTION-PRODUCT-FAIL-REPORTED", "criterion_id": "A3-04", "pair": "PRODUCT-VS-AGENT",
+      "sources": {"context": "잠금 후 증가 버튼이 비활성인지 시험한다. 복원은 잠금 해제와 표시·내부 잠금값 확인이다.", "artifact": {"claim": "버튼이 활성이라 제품 불일치 후보. 잠금 해제 복원 확인 완료."}, "execution": {"button_enabled": true, "status": "ASSERTION_FAILED", "restored_ui": "해제", "restored_internal_lock": false}},
+      "expected_verdict": "PASS", "expected_score": 5,
+      "reason": "제품 실패를 정확하게 보고했고 복원 관찰 증거도 있다. 제품 FAIL을 Agent FAIL로 바꾸지 않는다."
+    },
+    {
+      "case_id": "EXECUTION-FALSE-SUCCESS", "criterion_id": "A3-04", "pair": "PRODUCT-VS-AGENT",
+      "sources": {"context": "잠금 후 증가 버튼이 비활성인지 시험한다.", "artifact": {"claim": "시험 통과, 복원 완료"}, "execution": {"status": "NOT_EXECUTED", "reason": "브라우저 시작 실패"}},
+      "expected_verdict": "FAIL", "expected_score": 0,
+      "reason": "실행하지 않은 일을 완료했다고 주장했다."
+    },
+    {
+      "case_id": "REPORT-CAUSE-UNCERTAIN", "criterion_id": "A4-02", "pair": "CAUSE-EVIDENCE",
+      "sources": {"context": "온도 표시를 확인하는 테스트다.", "artifact": {"category": "실행 환경 확인 필요", "reason": "브라우저 시작 실패로 제품 상태 미관찰"}, "execution": {"stage": "browser_launch", "status": "EXECUTION_ERROR", "observed_temperature": null}},
+      "expected_verdict": "PASS", "expected_score": 5,
+      "reason": "실행 환경 문제와 미관찰 제품 상태를 구분했다."
+    },
+    {
+      "case_id": "REPORT-CAUSE-OVERCLAIM", "criterion_id": "A4-02", "pair": "CAUSE-EVIDENCE",
+      "sources": {"context": "온도 표시를 확인하는 테스트다.", "artifact": {"category": "제품 온도 결함 확정"}, "execution": {"stage": "browser_launch", "status": "EXECUTION_ERROR", "observed_temperature": null}},
+      "expected_verdict": "FAIL", "expected_score": 0,
+      "reason": "제품을 관찰하지 못했는데 제품 결함으로 확정했다."
+    },
+    {
+      "case_id": "GAP-PRESERVED", "criterion_id": "E02", "pair": "GAP-HANDOFF",
+      "sources": {"context": "온도 표시와 알림 색상 변경 요청 중 색상은 미정이다.", "artifact": {"final_gaps": ["목표 알림 색상 미정"]}, "trace": {"analysis_gaps": ["목표 알림 색상 미정"], "design_gaps": ["목표 알림 색상 미정"]}},
+      "expected_verdict": "PASS", "expected_score": 5,
+      "reason": "빈 목록이 아닌 실제 미정 항목이 최종 보고까지 유지된다."
+    },
+    {
+      "case_id": "GAP-DROPPED", "criterion_id": "E02", "pair": "GAP-HANDOFF",
+      "sources": {"context": "온도 표시와 알림 색상 변경 요청 중 색상은 미정이다.", "artifact": {"final_gaps": []}, "trace": {"analysis_gaps": ["목표 알림 색상 미정"], "design_gaps": ["목표 알림 색상 미정"]}},
+      "expected_verdict": "FAIL", "expected_score": 0,
+      "reason": "유일한 미정 항목이 보고에서 사라졌다."
+    },
+    {
+      "case_id": "SRS-UNCHANGED-PRESERVED", "criterion_id": "TC-R06", "pair": "SRS-REPLACEMENT",
+      "sources": {"context": {"srs": "허용 범위 16~30도. 적용 뒤 카드에 설정 온도를 표시한다.", "request": "허용 하한만 18도로 변경한다."}, "artifact": {"srs_proposal": "허용 범위 18~30도. 적용 뒤 카드에 설정 온도를 표시한다."}},
+      "expected_verdict": "PASS", "expected_score": 5,
+      "reason": "전체 인수기준 셀에서 변경한 범위와 미변경 표시 조건을 함께 보존했다."
+    },
+    {
+      "case_id": "SRS-UNCHANGED-DROPPED", "criterion_id": "TC-R06", "pair": "SRS-REPLACEMENT",
+      "sources": {"context": {"srs": "허용 범위 16~30도. 적용 뒤 카드에 설정 온도를 표시한다.", "request": "허용 하한만 18도로 변경한다."}, "artifact": {"srs_proposal": "허용 범위 18~30도."}},
+      "expected_verdict": "FAIL", "expected_score": 3,
+      "reason": "범위는 바르게 바꿨지만 전체 셀 대체에서 미변경 표시 조건이 사라진다."
+    },
+    {
+      "case_id": "SRS-EXISTING-POLICY-NO-AMENDMENT", "criterion_id": "TC-R06", "pair": "SRS-AMENDMENT-NECESSITY",
+      "sources": {"context": {"srs": "설정 온도 16~30도를 허용한다.", "request": "난방에서 27도로 준비하고 21도로 변경되는지 확인한다."}, "artifact": {"expected": "적용 뒤 설정 온도 21도", "srs_proposals": []}},
+      "expected_verdict": "PASS", "expected_score": 5,
+      "reason": "기존 허용 범위 안의 시험이므로 새로운 정책 개정을 만들 필요가 없다."
+    },
+    {
+      "case_id": "SRS-UNNECESSARY-AMENDMENT", "criterion_id": "TC-R06", "pair": "SRS-AMENDMENT-NECESSITY",
+      "sources": {"context": {"srs": "설정 온도 16~30도를 허용한다.", "request": "난방에서 27도로 준비하고 21도로 변경되는지 확인한다."}, "artifact": {"expected": "적용 뒤 설정 온도 21도", "srs_proposal": "설정 온도 21도만 허용한다."}},
+      "expected_verdict": "FAIL", "expected_score": 0,
+      "reason": "시험의 목표값을 제품의 유일한 허용값으로 바꿔 원래 정책을 훼손했다."
+    },
+    {
+      "case_id": "NORMAL-SCOPE-COMPLETE", "criterion_id": "TC-R05", "pair": "NORMAL-SCOPE",
+      "sources": {"context": {"request": "풍량을 약풍에서 자동으로 바꾸고 적용 뒤 패널·카드·내부값을 확인한다. 추가 경계 시험은 요청하지 않았다."}, "artifact": {"operations": ["자동 풍량 선택", "적용"], "checks": ["패널 자동 풍량", "카드 자동 풍량", "내부 fanSpeed=AUTO"]}},
+      "expected_verdict": "PASS", "expected_score": 5,
+      "reason": "요청된 정상 범위를 모두 확인한다. 수치 경계가 없다고 이 항목 전체를 비적용할 수는 없다."
+    },
+    {
+      "case_id": "NORMAL-SCOPE-MISSING", "criterion_id": "TC-R05", "pair": "NORMAL-SCOPE",
+      "sources": {"context": {"request": "풍량을 약풍에서 자동으로 바꾸고 적용 뒤 패널·카드·내부값을 확인한다. 추가 경계 시험은 요청하지 않았다."}, "artifact": {"operations": ["자동 풍량 선택", "적용"], "checks": ["패널 자동 풍량"]}},
+      "expected_verdict": "FAIL", "expected_score": 3,
+      "reason": "정상 범위만 요청했어도 카드·내부값이라는 필수 검사가 빠졌다. 비적용으로 면제하지 않는다."
+    },
+    {
+      "case_id": "CAUSE-NO-SIGNAL", "criterion_id": "A4-02", "pair": "CAUSE-APPLICABILITY",
+      "sources": {"context": "난방 모드 변경 시험이다. 정보 부족은 없다.", "artifact": {"status": "PASS", "findings": [], "causal_claims": []}, "execution": {"status": "PASSED", "restore_status": "RESTORED", "evidence_complete": true}},
+      "expected_verdict": "NOT_APPLICABLE", "expected_score": null,
+      "reason": "원본이 정상이고 분류할 신호나 원인 주장도 없다. 정상 집계 확인을 실패 원인 분류 능력 5점으로 세지 않는다."
+    },
+    {
+      "case_id": "CAUSE-HIDDEN-FAILURE", "criterion_id": "A4-02", "pair": "CAUSE-APPLICABILITY",
+      "sources": {"context": "난방 모드 변경 시험이다. 정보 부족은 없다.", "artifact": {"status": "PASS", "findings": [], "causal_claims": []}, "execution": {"status": "ASSERTION_FAILED", "expected": "HEAT", "observed": "FAN", "restore_status": "RESTORED", "evidence_complete": true}},
+      "expected_verdict": "FAIL", "expected_score": 0,
+      "reason": "보고에 분류 항목이 없더라도 원본에 불일치가 있다. 비적용이 아니라 원인 분류 누락·거짓 성공이다."
+    },
+    {
+      "case_id": "STRUCTURED-RESTORE-PRESERVED", "criterion_id": "A3-01", "pair": "STRUCTURED-RESTORE",
+      "sources": {"context": {"tc": {"expected": "내부 locked=true", "restore_confirmations": [{"result_id": "ER-LOCK", "basis": "OBSERVED_BASELINE"}]}}, "artifact": {"plan": {"expected": "내부 locked=true", "restore_confirmations": [{"result_id": "ER-LOCK", "basis": "OBSERVED_BASELINE"}]}}},
+      "expected_verdict": "PASS", "expected_score": 5,
+      "reason": "같은 ER 읽기 위치를 원래값과 비교하는 복원 명세가 그대로 있다. 별도 고정 복원 기대값을 강요하지 않는다."
+    },
+    {
+      "case_id": "STRUCTURED-RESTORE-DROPPED", "criterion_id": "A3-01", "pair": "STRUCTURED-RESTORE",
+      "sources": {"context": {"tc": {"expected": "내부 locked=true", "restore_confirmations": [{"result_id": "ER-LOCK", "basis": "OBSERVED_BASELINE"}]}}, "artifact": {"plan": {"expected": "내부 locked=true", "restore_confirmations": []}}},
+      "expected_verdict": "FAIL", "expected_score": 3,
+      "reason": "TC의 필수 복원 확인이 계획에서 실제로 사라졌다. 제품 기대값이 맞아도 누락을 면제하지 않는다."
+    }
+  ]
+}

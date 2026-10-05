@@ -22,7 +22,7 @@ from .scenario_oracle import Expectation, evaluate_expectations
 
 ROOT = Path(__file__).resolve().parents[2]
 STATUSES = {"PASSED", "ASSERTION_FAILED", "EXECUTION_ERROR", "TIMEOUT", "SKIPPED"}
-VERSION = "v2-recorded-0.4"
+VERSION = "v2-recorded-0.7"
 
 
 class Case(BaseModel):
@@ -129,6 +129,68 @@ def execution_rows(execution: dict) -> list[dict]:
     return rows
 
 
+def report_counts_match(rows, report):
+    """Recount totals and P1's product/environment/fixture partition independently."""
+    ids = [row.get("test_id", row.get("tc_id")) for row in rows]
+    if any(not isinstance(i, str) or not i for i in ids) or len(ids) != len(set(ids)):
+        return False
+    sources = {"ENVIRONMENT_PRECHECK", "NEW_AUTOMATION_CANDIDATE", "EXISTING_REGRESSION"}
+    if any(row["source"] not in sources for row in rows):
+        raise ValueError("Unsupported execution source")
+    environment = sum(row["source"] == "ENVIRONMENT_PRECHECK" for row in rows)
+    fixtures = sum(row["source"] != "ENVIRONMENT_PRECHECK" and i.startswith("TC-PIPE-")
+                   for row, i in zip(rows, ids))
+    expected = dict(total_results=len(rows), environment_result_count=environment,
+                    pipeline_fixture_result_count=fixtures,
+                    product_result_count=len(rows) - environment - fixtures)
+    return (all(type(report[key]) is int and report[key] == value for key, value in expected.items())
+            and normalized_counts(report["status_counts"]) ==
+            normalized_counts(dict(Counter(row["status"] for row in rows))))
+
+
+def handoff_checks(files):
+    """Shared saved/live checks. Preserve text; accept only P1's explicit wrappers."""
+    def texts(document, key, alias=None):
+        value = document[key] if key in document else document[alias] if alias else document[key]
+        if alias and key in document and alias in document and document[key] != document[alias]:
+            raise ValueError("Conflicting handoff aliases")
+        if not isinstance(value, list) or any(not isinstance(s, str) or not s.strip() for s in value):
+            raise ValueError("Unsupported handoff text list")
+        return value
+
+    def gaps():
+        a1 = files["agent1_change_analysis.json"]
+        expected = texts(a1, "information_gaps")
+        stages = [texts(files[name], "제외된_정보_부족", "excluded_information_gaps") for name in (
+            "agent2_test_design.json", "validation_execution.json", "agent4_analysis.json", "final_report.json")]
+        if "excluded_information_gaps" in a1:
+            stages.append(texts(a1, "excluded_information_gaps"))
+        return all(sorted(stage) == sorted(expected) for stage in stages)
+
+    def questions():
+        expected = set(texts(files["agent1_change_analysis.json"], "user_questions"))
+        prefix = "사용자 확인 요청: "
+        for name in ("validation_execution.json", "agent4_analysis.json", "final_report.json"):
+            notes = texts(files[name], "최종_확인_사항", "final_review_notes")
+            actual = {note[len(prefix):] if note.startswith(prefix) else note for note in notes
+                      if note.startswith(prefix) or note in expected}
+            if actual != expected:
+                return False
+        return True
+
+    results = []
+    for rule, compare, reason in (
+        ("E02.GAPS", gaps, "정보 부족 원문을 A1·A2·실행·분석·최종 보고에서 대조"),
+        ("E03.QUESTIONS", questions, "질문 원문과 명시적 접두어를 실행·분석·보고에서 대조; CP 추가 안내는 구분"),
+    ):
+        try:
+            status = "PASS" if compare() else "FAIL"
+        except (KeyError, TypeError, ValueError, AttributeError):
+            status = "NOT_EVALUATED"
+        results.append(dict(rule=rule, status=status, reason=reason))
+    return results
+
+
 def string_values(value):
     if isinstance(value, str):
         yield value
@@ -150,6 +212,82 @@ def text_list(value):
     return isinstance(value, list) and bool(value) and all(isinstance(s, str) and s.strip() for s in value)
 
 
+def source_quote_grounded(condition, request, analysis, srs, manifest):
+    """Independent provenance check, not semantic approval or P1 PASS reuse."""
+    compact = lambda value: re.sub(r"\s+", "", value)
+    quote = condition.get("source_text")
+    if not isinstance(quote, str) or not quote.strip():
+        return False
+    source_type = condition.get("source_type")
+    # Historical untyped artifacts retain their original contiguous check.
+    if source_type is None:
+        return compact(quote) in compact("\n".join(string_values(request)) + "\n" + srs)
+    if source_type == "CHANGE_REQUEST":
+        fields = [request.get(key, "") for key in ("after_value", "description", "reason")]
+        fields += request.get("acceptance_notes", [])
+        if manifest.get("task_boundary_contract") == "1.3" and any(
+            item.get("requirement_id") == request.get("target_requirement_id")
+            and item.get("relation") == "VERIFY" for item in analysis.get("requirement_effects", [])
+        ):
+            fields.append(request.get("before_value", ""))
+        fields = [field for field in fields if isinstance(field, str) and field.strip()]
+        if any(compact(quote) in compact(field) for field in fields):
+            return True  # Includes a literal pipe inside one original field.
+        if manifest.get("task_boundary_contract") not in {"1.2", "1.3"}:
+            return False
+        parts = [part.strip() for part in quote.split("|")]
+        return all(parts) and all(any(compact(part) in compact(field) for field in fields) for part in parts)
+    if source_type == "SRS":
+        rows = {}
+        for line in srs.splitlines():
+            cells = [cell.strip() for cell in line.strip().strip("|").split("|")]
+            if cells and re.fullmatch(r"REQ-[A-Z0-9-]+", cells[0]):
+                if len(cells) != 3 or cells[0] in rows:
+                    raise ValueError("Unsupported or duplicate SRS requirement row")
+                rows[cells[0]] = cells[1:]
+        ids = condition.get("requirement_ids", [])
+        if not ids or any(key not in rows for key in ids):
+            return False
+        parts = [part.strip() for part in quote.split("|")] if manifest.get("srs_quote_contract") == "1.0" else [quote]
+        if not all(parts):
+            return False
+        matches = [[any(compact(part) in compact(field) for field in rows[key]) for key in ids] for part in parts]
+        return all(any(row) for row in matches) and all(any(row[i] for row in matches) for i in range(len(ids)))
+    return False
+
+
+def finding_matches_execution(finding, rows, execution_status=None):
+    """A run-level lack of product evidence must not invent a failed TC."""
+    by_id = {row["test_id"]: row for row in rows}
+    if finding.get("test_id") is None:
+        known_sources = {"ENVIRONMENT_PRECHECK", "NEW_AUTOMATION_CANDIDATE", "EXISTING_REGRESSION"}
+        no_product = all(row.get("source") == "ENVIRONMENT_PRECHECK"
+                         or row["test_id"].startswith("TC-PIPE-") for row in rows)
+        blocked_environment = (
+            execution_status == "BLOCKED"
+            and any(row.get("source") == "ENVIRONMENT_PRECHECK"
+                    and row.get("status") in {"ASSERTION_FAILED", "EXECUTION_ERROR", "TIMEOUT"} for row in rows)
+            and all(row.get("status") == "SKIPPED" for row in rows
+                    if row.get("source") == "EXISTING_REGRESSION")
+        )
+        return (
+            finding.get("category") == "INSUFFICIENT_EVIDENCE"
+            and finding.get("status") is None
+            and finding.get("evidence_files") == []
+            and bool(rows)
+            and all(row.get("source") in known_sources for row in rows)
+            and (no_product or blocked_environment)
+        )
+    row = by_id.get(finding["test_id"])
+    if row is None or finding.get("status") != row["status"] or finding.get("evidence_files") != row.get("evidence_files"):
+        return False
+    row_ids, finding_ids = row["requirement_ids"], finding["requirement_ids"]
+    if any(not isinstance(ids, list) or any(not isinstance(i, str) or not i for i in ids)
+           for ids in (row_ids, finding_ids)):
+        raise ValueError("Unsupported requirement linkage")
+    return finding["source"] == row["source"] and sorted(finding_ids) == sorted(row_ids)
+
+
 def evaluate(run: Path, case: Case) -> dict:
     checks = []
     def check(rule, ok, explanation, critical=True):
@@ -163,7 +301,8 @@ def evaluate(run: Path, case: Case) -> dict:
         report = read(child(run, "final_report.json"))
         if any(not isinstance(value, dict) for value in (request, a1, a2, execution, analysis, report)):
             raise ValueError("Artifact must be a JSON object")
-        source_text = "\n".join(string_values(request)) + "\n" + child(run, "srs_snapshot.md").read_text(encoding="utf-8")
+        srs = child(run, "srs_snapshot.md").read_text(encoding="utf-8")
+        source_manifest = read(child(run, "run_manifest.json"))
         for manifest_name, links in (
             ("run_manifest.json", {"request_sha256":"request.json", "srs_sha256":"srs_snapshot.md", "agent1_analysis_sha256":"agent1_change_analysis.json"}),
             ("agent2_manifest.json", {"source_run_manifest_sha256":"run_manifest.json", "agent2_design_sha256":"agent2_test_design.json"}),
@@ -172,11 +311,10 @@ def evaluate(run: Path, case: Case) -> dict:
             if not isinstance(manifest, dict):
                 raise ValueError("Manifest must be a JSON object")
             check("CHAIN." + manifest_name, all(manifest.get(key) == digest(child(run, name)) for key, name in links.items()), "저장 Manifest와 실제 입력·출력 파일 해시 대조. Checkpoint 판정을 정답으로 쓰지 않음")
-        compact = lambda text: re.sub(r"\s+", "", text)
         conditions = object_list(a1["confirmed_conditions"])
         condition_ids = [c["condition_id"] for c in conditions]
         check("A1.CONDITION_IDS", bool(conditions) and len(condition_ids) == len(set(condition_ids)), "확정 조건 ID의 누락·중복 검사")
-        check("A1.SOURCE_QUOTES", all(c.get("source_text") and compact(c["source_text"]) in compact(source_text) for c in conditions), "인용 근거가 요청 또는 당시 SRS에 실제 존재하는지 검사. 의미 일치는 별도 검토")
+        check("A1.SOURCE_QUOTES", all(source_quote_grounded(c, request, a1, srs, source_manifest) for c in conditions), "저장 계약에 따른 원문 구절·출처 유형·연결 SRS 근거 검사. 결합 의미는 별도 검토")
         test_cases = object_list(a2["test_cases"])
         ids = [tc["tc_id"] for tc in test_cases]
         check("A2.UNIQUE_TC", len(ids) == len(set(ids)), "TC ID 중복 검사. 기존 TC 재사용 적절성은 별도 검토")
@@ -211,21 +349,20 @@ def evaluate(run: Path, case: Case) -> dict:
                 except SyntaxError:
                     syntax_ok = False
                 check(prefix + ".COMPILE", syntax_ok, "후보 Python 구문 검사. 실제 브라우저 재실행은 하지 않음")
-        check("A4.COUNTS", counts == normalized_counts(analysis["status_counts"]) == normalized_counts(report["status_counts"]) and len(rows) == analysis["total_results"] == report["total_results"], "실행 행에서 독립 재집계한 수치를 보고서와 대조")
+        check("A4.COUNTS", report_counts_match(rows, analysis) and report_counts_match(rows, report), "실행 행에서 상태·전체·제품·환경·고정 사례 수량을 독립 재집계")
         check("A4.CHAIN", analysis.get("validation_execution_sha256") == digest(child(run, "validation_execution.json")) and report.get("analysis_sha256") == digest(child(run, "agent4_analysis.json")), "실행 → 분류 → 보고의 저장 근거 해시 대조")
         check("A4.ORACLE_COUNTS", counts == normalized_counts(case.expected_counts), "사전 작성한 사례별 예상 실행 분포와 대조")
         check("A4.RECOMMENDATION", report["recommendation"] == analysis["recommendation"] == case.expected_recommendation, "제품 실패/정보 부족을 올바르게 사람 검토로 보낼 수 있음")
         findings = object_list(report.get("검토_항목", []))
         analysis_findings = object_list(analysis.get("검토_항목", []))
-        by_id = {r["test_id"]: r for r in rows}
-        check("A4.FINDING_LINK", findings == analysis_findings and all(f.get("test_id") in by_id and f.get("status") == by_id[f["test_id"]]["status"] and f.get("evidence_files") == by_id[f["test_id"]].get("evidence_files") for f in findings), "분석·보고의 검토 항목과 실제 테스트 ID·상태·증거 연결 대조")
+        check("A4.FINDING_LINK", findings == analysis_findings and all(finding_matches_execution(f, rows, execution.get("status")) for f in findings), "시험별 근거와 제품 결과 없음·환경 차단의 실행 단위 근거 부족을 대조. 보류 정답 여부는 사례 기준과 별도 비교")
         check("A4.FINDINGS", sorted(f["category"] for f in findings) == sorted(case.expected_finding_categories), "사례별 예상 분류와 대조. 독립 원인 정확도 측정은 아님")
         check("E2E.GAPS", len(report.get("제외된_정보_부족", [])) == case.expected_gap_count, "정보 부족을 보고에서 누락하지 않았는지 확인")
-        gaps = a1.get("information_gaps", [])
-        gap_lists = [gaps, execution.get("제외된_정보_부족", []), analysis.get("제외된_정보_부족", []), report.get("제외된_정보_부족", [])]
-        if any(not isinstance(items, list) or any(not isinstance(s, str) for s in items) for items in gap_lists):
-            raise ValueError("Unsupported gap schema")
-        check("E2E.GAPS_RETAINED", all(sorted(items) == sorted(gaps) for items in gap_lists), "정보 부족의 개수뿐 아니라 원문 내용이 실행·분석·보고까지 보존됨")
+        for retained in handoff_checks(dict(zip(("agent1_change_analysis.json", "agent2_test_design.json",
+                "validation_execution.json", "agent4_analysis.json", "final_report.json"),
+                (a1, a2, execution, analysis, report)))):
+            retained["rule"] = {"E02.GAPS": "E2E.GAPS_RETAINED", "E03.QUESTIONS": "E2E.QUESTIONS_RETAINED"}[retained["rule"]]
+            checks.append(dict(retained, critical=True))
         if len({e.rule for e in case.expectations}) != len(case.expectations):
             raise ValueError("Duplicate scenario rule")
         checks.extend(evaluate_expectations(run, case.expectations))
@@ -285,7 +422,7 @@ def run_recorded(target: Path, dataset: Path, output_root: Path) -> Path:
                "source_unchanged": unchanged, "case_count": len(cases), "counts": dict(Counter(r["status"] for r in results)),
                "critical_failures": sum(c["status"] == "FAIL" and c["critical"] for r in results for c in r["checks"]),
                "evaluator_errors": sum(c["status"] == "ERROR" for r in results for c in r["checks"]),
-               "results": results, "limitations": ["과거 3개 사례는 독립 표본이나 동일 버전 성능 비교가 아님", "사람 정답 검토 및 LLM Judge 미실행", "승인 권한·의미 충실성·Selector 적절성의 전체 검증은 미구현"]}
+               "results": results, "limitations": ["저장 사례는 독립 반복 표본이나 동일 버전 성능 비교가 아님", "사람 정답 검토 및 LLM Judge 미실행", "승인 권한·의미 충실성·Selector 적절성의 전체 검증은 미구현"]}
     write(out / "result.json", payload)
     rows = "".join(f'<tr><td>{escape(r["case_id"])}</td><td>{escape(r["title"])}</td><td>{r["status"]}</td><td>{sum(c["status"] == "FAIL" for c in r["checks"])}</td></tr>' for r in results)
     details = "".join('<h2>'+escape(r['case_id']+' · '+r['title'])+'</h2><p>사람이 확인할 내용</p><ul>'+''.join('<li>'+escape(q)+'</li>' for q in r['human_review_topics'])+'</ul><details><summary>자동 검사 근거 펼치기</summary><ul>'+''.join('<li>'+escape(c['rule']+' · '+c['status']+' · '+c['reason'])+'</li>' for c in r['checks'])+'</ul></details>' for r in results)

@@ -17,7 +17,7 @@ CRITERIA = [
     ("A2", "A2-03", "사용자 정답지 수준의 조작·기대결과 상세도", ("A2.*.DETAIL", "A2.*.TIMING"), True, False),
     ("A2", "A2-04", "기대값의 요구사항 근거", ("A2.*.TRACE",), True, True),
     ("A2", "A2-05", "독립 실행·복원 성공 확인", (), True, False),
-    ("A3", "A3-01", "AI 계획의 대상·조작·기대값·판정 시점 보존", ("EXEC.DESIGN_LINK",), True, True),
+    ("A3", "A3-01", "TC 실행 연결의 대상·조작·기대값·판정 시점 보존", ("EXEC.DESIGN_LINK",), True, True),
     ("A3", "A3-02", "UI 요소의 적절성과 지원 행동 판단", (), True, True),
     ("A3", "A3-03", "컴파일러의 계획 보존과 코드 유효성", ("EXEC.*.CODE_HASH", "EXEC.*.COMPILE"), True, True),
     ("A3", "A3-04", "실행 결과·복원·필수 증거의 충분성", ("EXEC.*.EXIT", "EXEC.*.EVIDENCE"), True, True),
