@@ -1,0 +1,82 @@
+{
+  "trial_id": "T009",
+  "case_id": "S09",
+  "iteration": 1,
+  "plan_sha256": "feb1c9a3df9d038bc510fd28e98deea51de9d5ec8ed0f25f273944e477df56dc",
+  "actual": {
+    "outcome": "PASS",
+    "browser_executed": true,
+    "restore": "RESTORED",
+    "evidence_complete": true
+  },
+  "grades": [
+    {
+      "criterion_id": "A3-03",
+      "verdict": "PASS",
+      "score": 5,
+      "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+      "evidence": []
+    }
+  ],
+  "error": null,
+  "protected_unchanged": true,
+  "duration_seconds": 10.625,
+  "evidence": [
+    {
+      "file": "T009/candidate.py",
+      "sha256": "e480a6237b4d1874fd1e4eb0790be0a96959156e4cc356428dd0f40f7b58f4a1"
+    },
+    {
+      "file": "T009/checkpoint.json",
+      "sha256": "d4d0c1076848973043cafa2cfbc7961546a90546af67ad0c48a04419e35fe877"
+    },
+    {
+      "file": "T009/eligibility.json",
+      "sha256": "83b875509ff85a6d43a04c20248ff261285d302a6a3f9ada736db11e6604dff8"
+    },
+    {
+      "file": "T009/facts.json",
+      "sha256": "50e346163bfa34629b2f81e82e4dd0f81caf6686260fdfe0d000aec05e8d0dd4"
+    },
+    {
+      "file": "T009/p2-grades.json",
+      "sha256": "7274c8c8efd6378421918a9abd6721dbfaf873c95da48932f212cbde1798bd5e"
+    },
+    {
+      "file": "T009/plan.json",
+      "sha256": "bbf6c734dfbaeaf6db82f7ec42bf1f64e34a92c93770bd71b05cc2142fe34620"
+    },
+    {
+      "file": "T009/runner.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "T009/static-checks.json",
+      "sha256": "eea555e6360d64b7a5fc80c31969fba6b0c5f69374d014329dc9ca019cdc74a4"
+    },
+    {
+      "file": "T009/tc.json",
+      "sha256": "5d10d19056ea9d60147acb6af47039e872db469a55a6137feb54d5a757ea4098"
+    },
+    {
+      "file": "T009/trial.json",
+      "sha256": "fcac0fc6c3db0d7bf1b6520b3e250214c6619a0f197b0ad4135eab66590f2c39"
+    },
+    {
+      "file": "T009/evidence/trial-final.png",
+      "sha256": "35cf01e3a70da7c5ffc61e84ca358209872f432cc072726fd07df127dcd0c0f2"
+    },
+    {
+      "file": "T009/evidence/trial-stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "T009/evidence/trial-stdout.txt",
+      "sha256": "859cd610e1238295c591dd7ea7f59fe17d54e3e519d9f549477b0da3eb468a3c"
+    },
+    {
+      "file": "T009/evidence/trial-trace.zip",
+      "sha256": "0b19bfdc1283f2ef8b530687be9468698ec7fb4993c9ddd78a335fac995d6d5b"
+    }
+  ]
+}

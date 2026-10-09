@@ -1,0 +1,187 @@
+{
+  "kind": "PUBLIC_EXTRACT_NOT_FULL_TRACE",
+  "trial_id": "T079",
+  "sources": [
+    {
+      "source_file": "T079/runs/RUN-20261006-124032-11E19F/evidence/TC-CAND-001/trial-stdout.txt",
+      "sha256": "b0736ba04048cb286356dd9d1d0bd7a95ee2683cb42444af4c33cce2972d85a7"
+    },
+    {
+      "source_file": "T079/runs/RUN-20261006-124032-11E19F/validation_evidence/TC-ENV-000/stdout.txt",
+      "sha256": "b7c5c302309a78ac26ae9a4d127b1cb85368a2cf2a23b2439d975d706f805b90"
+    }
+  ],
+  "initial_state_records": [
+    {
+      "state": {
+        "status": "STOP",
+        "mode": "COOL",
+        "fanSpeed": "LOW",
+        "setTemp": 24,
+        "locked": false
+      },
+      "ui": {
+        "status": {
+          "#det-power-on-btn": false,
+          "#det-power-off-btn": true
+        },
+        "mode": {
+          "#det-mode-auto": false,
+          "#det-mode-cool": true,
+          "#det-mode-heat": false,
+          "#det-mode-fan": false,
+          "#det-mode-dry": false
+        },
+        "fanSpeed": {
+          "#det-fan-low": true,
+          "#det-fan-med": false,
+          "#det-fan-high": false,
+          "#det-fan-auto": false
+        },
+        "locked": {
+          "#det-lock-on-btn": false,
+          "#det-lock-off-btn": true
+        },
+        "temperature": "24.0°C",
+        "temperature_enabled": [
+          true,
+          true
+        ],
+        "card_classes": [
+          "ac-device-card",
+          "mode-cool",
+          "state-stop"
+        ],
+        "card_values": [
+          "❄️ 냉방",
+          "약풍",
+          "24.0°C"
+        ],
+        "card_locked": false
+      }
+    }
+  ],
+  "assertions": [
+    {
+      "version": "assertion-observations-1.0",
+      "run_id": "RUN-20261006-124032-11E19F",
+      "tc_id": "TC-CAND-001",
+      "target_device_id": 1,
+      "assertion": {
+        "result_id": "ER-001",
+        "observation_layer": "UI",
+        "strategy": "CONTROLLER_UI_FIELDS_EQUALS",
+        "selector": ".detail-panel",
+        "expected_number": null,
+        "expected_text": null,
+        "expected_value": null,
+        "expected_fields": [
+          {
+            "field_name": "mode",
+            "expected_value": "DRY"
+          }
+        ],
+        "after_action_id": "ACT-005"
+      },
+      "actual": {
+        "mode": "DRY"
+      },
+      "matched": true
+    },
+    {
+      "version": "assertion-observations-1.0",
+      "run_id": "RUN-20261006-124032-11E19F",
+      "tc_id": "TC-CAND-001",
+      "target_device_id": 1,
+      "assertion": {
+        "result_id": "ER-002",
+        "observation_layer": "UI",
+        "strategy": "CONTROLLER_UI_FIELDS_EQUALS",
+        "selector": "#device-card-1",
+        "expected_number": null,
+        "expected_text": null,
+        "expected_value": null,
+        "expected_fields": [
+          {
+            "field_name": "mode",
+            "expected_value": "DRY"
+          }
+        ],
+        "after_action_id": "ACT-005"
+      },
+      "actual": {
+        "mode": "DRY"
+      },
+      "matched": true
+    },
+    {
+      "version": "assertion-observations-1.0",
+      "run_id": "RUN-20261006-124032-11E19F",
+      "tc_id": "TC-CAND-001",
+      "target_device_id": 1,
+      "assertion": {
+        "result_id": "ER-003",
+        "observation_layer": "INTERNAL_STATE",
+        "strategy": "INTERNAL_DEVICE_FIELDS_EQUALS",
+        "selector": "window.__vccs.devices",
+        "expected_number": null,
+        "expected_text": null,
+        "expected_value": null,
+        "expected_fields": [
+          {
+            "field_name": "mode",
+            "expected_value": "DRY"
+          }
+        ],
+        "after_action_id": "ACT-005"
+      },
+      "actual": {
+        "mode": "DRY"
+      },
+      "matched": true
+    },
+    {
+      "version": "assertion-observations-1.0",
+      "run_id": "RUN-20261006-124032-11E19F",
+      "tc_id": "TC-CAND-001",
+      "target_device_id": 1,
+      "assertion": {
+        "result_id": "ER-004",
+        "observation_layer": "UI",
+        "strategy": "CONTROLS_DISABLED",
+        "selector": "#det-temp-down-btn",
+        "expected_number": null,
+        "expected_text": null,
+        "expected_value": null,
+        "expected_fields": [],
+        "after_action_id": "ACT-005"
+      },
+      "actual": [
+        false,
+        false
+      ],
+      "matched": true
+    },
+    {
+      "version": "assertion-observations-1.0",
+      "run_id": "RUN-20261006-124032-11E19F",
+      "tc_id": "TC-CAND-001",
+      "target_device_id": 1,
+      "assertion": {
+        "result_id": "ER-005",
+        "observation_layer": "UI",
+        "strategy": "DISABLED_TEMPERATURE_TEXT",
+        "selector": "#det-temp-display",
+        "expected_number": null,
+        "expected_text": "---",
+        "expected_value": null,
+        "expected_fields": [],
+        "after_action_id": "ACT-005"
+      },
+      "actual": "---",
+      "matched": true
+    }
+  ],
+  "restore_success_marker_present": true,
+  "limitation": "구조화 관찰·복원 표시만 발췌. 전체 코드/로그/Trace와 독립 제품 정확도 증명은 아님."
+}

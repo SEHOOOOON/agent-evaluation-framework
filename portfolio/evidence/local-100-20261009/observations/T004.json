@@ -1,0 +1,116 @@
+{
+  "kind": "PUBLIC_EXTRACT_NOT_FULL_TRACE",
+  "trial_id": "T004",
+  "sources": [
+    {
+      "source_file": "T004/evidence/trial-stdout.txt",
+      "sha256": "afc8553a1f3db0c07a8b57e26cb4877a60bab66d5be51f163625758a92c69a7a"
+    }
+  ],
+  "initial_state_records": [
+    {
+      "state": {
+        "status": "STOP",
+        "mode": "COOL",
+        "fanSpeed": "LOW",
+        "setTemp": 24,
+        "locked": false
+      },
+      "ui": {
+        "status": {
+          "#det-power-on-btn": false,
+          "#det-power-off-btn": true
+        },
+        "mode": {
+          "#det-mode-auto": false,
+          "#det-mode-cool": true,
+          "#det-mode-heat": false,
+          "#det-mode-fan": false,
+          "#det-mode-dry": false
+        },
+        "fanSpeed": {
+          "#det-fan-low": true,
+          "#det-fan-med": false,
+          "#det-fan-high": false,
+          "#det-fan-auto": false
+        },
+        "locked": {
+          "#det-lock-on-btn": false,
+          "#det-lock-off-btn": true
+        },
+        "temperature": "24.0°C",
+        "temperature_enabled": [
+          true,
+          true
+        ],
+        "card_classes": [
+          "ac-device-card",
+          "mode-cool",
+          "state-stop"
+        ],
+        "card_values": [
+          "❄️ 냉방",
+          "약풍",
+          "24.0°C"
+        ],
+        "card_locked": false
+      }
+    }
+  ],
+  "assertions": [
+    {
+      "version": "assertion-observations-1.0",
+      "run_id": "T004",
+      "tc_id": "TC-CAND-090",
+      "target_device_id": 1,
+      "assertion": {
+        "result_id": "ER-090",
+        "observation_layer": "UI",
+        "strategy": "CONTROLLER_UI_FIELDS_EQUALS",
+        "selector": "#device-card-1",
+        "expected_number": null,
+        "expected_text": null,
+        "expected_value": null,
+        "expected_fields": [
+          {
+            "field_name": "mode",
+            "expected_value": "DRY"
+          }
+        ],
+        "after_action_id": "ACT-005"
+      },
+      "actual": {
+        "mode": "DRY"
+      },
+      "matched": true
+    },
+    {
+      "version": "assertion-observations-1.0",
+      "run_id": "T004",
+      "tc_id": "TC-CAND-090",
+      "target_device_id": 1,
+      "assertion": {
+        "result_id": "ER-091",
+        "observation_layer": "INTERNAL_STATE",
+        "strategy": "INTERNAL_DEVICE_FIELDS_EQUALS",
+        "selector": "window.__vccs.devices",
+        "expected_number": null,
+        "expected_text": null,
+        "expected_value": null,
+        "expected_fields": [
+          {
+            "field_name": "mode",
+            "expected_value": "DRY"
+          }
+        ],
+        "after_action_id": "ACT-005"
+      },
+      "actual": {
+        "mode": "DRY"
+      },
+      "matched": true
+    }
+  ],
+  "restore_success_marker_present": true,
+  "limitation": "구조화 관찰·복원 표시만 발췌. 전체 코드/로그/Trace와 독립 제품 정확도 증명은 아님."
+}

@@ -1,0 +1,36 @@
+{
+  "trial_id": "T052",
+  "case_id": "S12",
+  "iteration": 3,
+  "plan_sha256": "feb1c9a3df9d038bc510fd28e98deea51de9d5ec8ed0f25f273944e477df56dc",
+  "actual": {
+    "outcome": "NOT_AUTOMATABLE",
+    "browser_executed": false
+  },
+  "grades": [],
+  "error": null,
+  "protected_unchanged": true,
+  "duration_seconds": 0.141,
+  "evidence": [
+    {
+      "file": "T052/eligibility.json",
+      "sha256": "dbe1c2a7dbd18ad629fa78e0a621e2e863a3975837ecff0cd94d2c4ae6cafe0a"
+    },
+    {
+      "file": "T052/facts.json",
+      "sha256": "1cdad404be8fa6343d348d2f1f8705b538c81f367177e4ebff984634b6dce341"
+    },
+    {
+      "file": "T052/p2-grades.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "file": "T052/runner.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "T052/tc.json",
+      "sha256": "c59a616356d43128b4af53f23ba1fc00e1cc0565598041227340ed015da26279"
+    }
+  ]
+}
