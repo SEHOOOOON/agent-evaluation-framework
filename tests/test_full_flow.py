@@ -1,7 +1,9 @@
 from copy import deepcopy
 import json
+import os
 from pathlib import Path
 import subprocess
+import sys
 from types import SimpleNamespace
 
 import pytest
@@ -20,6 +22,7 @@ def flow_setup(tmp_path):
     for name, text in {
         "src/qa_pipeline_orchestrator.py": "# integration test target",
         "docs/01_PRODUCT_SRS.md": "설정 온도는 18~30도",
+        "docs/basic_tc_details.json": "{}",
         "product_baseline/virtual-controller.html": "<html>local test</html>",
         "product_baseline/pytest.ini": "[pytest]",
         "product_baseline/tests/conftest.py": "# harness",
@@ -318,6 +321,198 @@ def test_preview_no_transmission_and_bound_models(flow_setup):
     with pytest.raises(ValueError, match="approval"):
         run_flow(target, changed, config, output, info["approval_sha256"],
                  worker=worker_for(), judge=fake_judge)
+
+
+def test_preview_pins_basic_tc_details(flow_setup):
+    target, config, spec, _ = flow_setup
+    hashes = make_preview(target, spec, config)["plan"]["runtime_hashes"]
+    assert hashes["docs/basic_tc_details.json"] == digest(target / "docs/basic_tc_details.json")
+
+
+def test_missing_tracked_basic_details_blocks_before_execution(flow_setup):
+    target, config, spec, output = flow_setup
+    subprocess.run(["git", "-C", str(target), "rm", "--cached", "docs/basic_tc_details.json"],
+                   check=True, capture_output=True)
+    subprocess.run(["git", "-C", str(target), "-c", "user.name=Test", "-c",
+                    "user.email=test@example.invalid", "commit", "-m", "missing input fixture"],
+                   check=True, capture_output=True)
+    with pytest.raises(ValueError, match="Required runtime inputs"):
+        make_preview(target, spec, config)
+    assert not output.exists()
+
+
+def test_basic_details_changed_after_preview_rejects_old_approval(flow_setup):
+    target, config, spec, output = flow_setup
+    approval = make_preview(target, spec, config)["approval_sha256"]
+    write(target / "docs/basic_tc_details.json", {"changed": True})
+    def forbidden(*args):
+        pytest.fail("Changed inputs must not reach a worker or judge")
+    with pytest.raises(ValueError, match="tracked changes"):
+        run_flow(target, spec, config, output, approval, worker=forbidden, judge=forbidden)
+    assert not output.exists()
+
+
+@pytest.mark.parametrize("already_started", [False, True])
+def test_input_preflight_failure_is_not_an_agent_asset_grade(flow_setup, already_started):
+    def worker(work, config):
+        write(work / "p1/docs/basic_tc_details.json", {"broken": True})
+        write(work / "call_ledger.json", {"attempts": [
+            {"role": "A1", "status": "RECEIVED", "response_id": "local-fake"}
+        ] if already_started else []})
+        return {"status": "ERROR", "reason": "RUNTIME_INPUT_PREFLIGHT_FAILED",
+                "stages": {"agent1": 0} if already_started else {}}
+    root, result = execute(flow_setup, worker)
+    row = result["trials"][0]
+    if already_started:
+        # A label alone must not hide changes made after generation started.
+        assert "E04" in row["scorecard"]["summary"]["violations"]
+    else:
+        assert row["scorecard"]["summary"]["evaluated"] == 0
+        assert all(state == "NOT_EXECUTED" for state in row["roles"].values())
+        assert row["runtime_input_integrity"] == {"source_unchanged": True, "copy_unchanged": False}
+        assert result["generation_attempts"] == result["judge_attempts"] == 0
+        from eval_harness.web.flows import flow_summary
+        view = flow_summary(root.parent, root.name)
+        assert view["stop_reason"] == "RUNTIME_INPUT_PREFLIGHT_FAILED"
+        assert view["trials"][0]["scorecard"]["summary"]["evaluated"] == 0
+        script = (Path(__file__).resolve().parents[1] / "src/eval_harness/web/static/flows.js").read_text(encoding="utf-8")
+        assert "stopReasons.RUNTIME_INPUT_PREFLIGHT_FAILED=" in script
+
+
+@pytest.mark.parametrize("fault", [None, "missing", "invalid_json", "invalid_catalog"])
+def test_worker_reads_catalog_before_constructing_client(tmp_path, monkeypatch, fault):
+    from eval_harness import flow_worker
+    copy = tmp_path / "p1"
+    write(copy / "docs/basic_tc_details.json", {})
+    entry = copy / "src/qa_pipeline_orchestrator.py"
+    entry.parent.mkdir()
+    entry.write_text("# local fixture", encoding="utf-8")
+    if fault == "missing":
+        (copy / "docs/basic_tc_details.json").unlink()
+    elif fault == "invalid_json":
+        (copy / "docs/basic_tc_details.json").write_text("{", encoding="utf-8")
+    order = []
+    def load_catalog(root):
+        assert root == copy / "approved_assets"
+        order.append("catalog")
+        read(copy / "docs/basic_tc_details.json")
+        if fault == "invalid_catalog":
+            raise ValueError("private diagnostic must not enter worker result")
+        return (), {}
+    def new_client(*args):
+        order.append("client")
+        assert order == ["catalog", "client"]
+        return object()
+    def pipeline_stop(args):
+        order.append("pipeline")
+        return 2
+    pipeline = SimpleNamespace(run_pipeline=pipeline_stop,
+        **{"run_" + role: lambda args: 0 for role in ("agent1", "agent2", "agent3")})
+    modules = {"qa_pipeline_execution": SimpleNamespace(load_approved_regression_catalog=load_catalog),
+               "qa_pipeline_orchestrator": pipeline}
+    monkeypatch.setattr(flow_worker.importlib, "import_module", modules.__getitem__)
+    monkeypatch.setattr(flow_worker, "generation_client", new_client)
+    monkeypatch.setattr(flow_worker, "bind_model_clients", lambda *args: None)
+    monkeypatch.setattr(sys, "path", list(sys.path))
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setenv("OPENAI_API_KEY", "offline-fixture")
+    config = dict(run_id="RUN-local", generation_model="offline", request="request.json",
+                  product_timeout_seconds=30)
+    result = flow_worker.execute_trial(tmp_path, config)
+    assert read(tmp_path / "call_ledger.json")["attempts"] == []
+    preflight = read(tmp_path / "runtime_input_preflight.json")
+    if fault:
+        assert order == ["catalog"]
+        assert preflight["status"] == "ERROR"
+        assert result["reason"] == "RUNTIME_INPUT_PREFLIGHT_FAILED"
+        assert result["stages"] == {}
+        assert "private diagnostic" not in json.dumps(result)
+    else:
+        assert order == ["catalog", "client", "pipeline"]
+        assert preflight == {"status": "READY"}
+        assert result["reason"] == "PIPELINE_STOP"
+
+
+@pytest.mark.parametrize("fault", [None, "missing", "source_hash", "approved_hash"])
+def test_actual_p1_copy_preflight_without_api(tmp_path, fault):
+    target_name = os.environ.get("QA_P1_TEST_ROOT")
+    if not target_name:
+        pytest.skip("Set QA_P1_TEST_ROOT for the actual isolated P1 copy regression")
+    target = Path(target_name)
+    config_root = Path(__file__).resolve().parents[1] / "benchmarks/v2"
+    spec = FlowSpec.model_validate(read(config_root / "full_flow.example.json")).model_copy(
+        update={"judge_calls_total": 0})
+    preview = make_preview(target, spec, config_root)
+    expected_counts = {
+        "approved": len(read(target / "approved_assets/registry.json")["assets"]),
+        "baseline": len(read(target / "docs/basic_tc_details.json")["cases"]),
+    }
+    probes = []
+    def worker(work, config):
+        copy = work / "p1"
+        if fault == "missing":
+            (copy / "docs/basic_tc_details.json").unlink(missing_ok=True)
+        elif fault == "source_hash":
+            details = read(copy / "docs/basic_tc_details.json")
+            details["source_sha256"] = "0" * 64
+            write(copy / "docs/basic_tc_details.json", details)
+        elif fault == "approved_hash":
+            registry = read(copy / "approved_assets/registry.json")
+            asset = registry["assets"][0]
+            (copy / "approved_assets" / asset["test_case_file"]).write_text("{}", encoding="utf-8")
+        write(work / "probe_config.json", config)
+        # Fresh process: no original-worktree modules can mask a missing copy input.
+        code = """
+import socket, sys
+from pathlib import Path
+from eval_harness.v2_recorded import read, write
+from eval_harness import flow_worker
+work = Path(sys.argv[1])
+sys.path.insert(0, str(work / 'p1/src'))
+def forbidden(*args, **kwargs):
+    raise AssertionError('No network or paid client in this local probe')
+socket.socket.connect = forbidden
+socket.socket.connect_ex = forbidden
+flow_worker.generation_client = forbidden
+import qa_pipeline_execution as execution
+import qa_pipeline_orchestrator as pipeline
+assert Path(execution.__file__).resolve().is_relative_to(work / 'p1')
+original = execution.load_approved_regression_catalog
+def catalog(root):
+    approved, snapshot = original(root)
+    write(work / 'catalog_probe.json', {'approved': len(approved),
+        'baseline': len(snapshot['baseline_details']['cases'])})
+    return approved, snapshot
+execution.load_approved_regression_catalog = catalog
+def stop_before_model(args):
+    write(work / 'pipeline_reached.json', {'reached': True})
+    return 2
+pipeline.run_pipeline = stop_before_model
+flow_worker.execute_trial(work, read(work / 'probe_config.json'), client=object())
+"""
+        completed = subprocess.run([sys.executable, "-B", "-c", code, str(work)],
+            cwd=work, env=clean_environment(), capture_output=True, text=True, encoding="utf-8", timeout=60)
+        assert completed.returncode == 0, completed.stderr
+        result = read(work / "worker_result.json")
+        assert read(work / "call_ledger.json")["attempts"] == []
+        if fault:
+            assert result["reason"] == "RUNTIME_INPUT_PREFLIGHT_FAILED"
+            assert result["stages"] == {}
+            assert not (work / "pipeline_reached.json").exists()
+        else:
+            assert (work / "pipeline_reached.json").exists()
+            assert read(work / "catalog_probe.json") == expected_counts
+        probes.append(result)
+        return result
+    def forbidden_judge(*args):
+        pytest.fail("Preflight-only test must not invoke a judge")
+    root = run_flow(target, spec, config_root, tmp_path / "output", preview["approval_sha256"],
+                    worker=worker, judge=forbidden_judge)
+    assert len(probes) == 1  # run_flow preserves worker exceptions; don't silently pass.
+    result = read(root / "result.json")
+    assert result["generation_attempts"] == result["judge_attempts"] == 0
+    assert result["trials"][0]["scorecard"]["summary"]["evaluated"] == 0
+    assert make_preview(target, spec, config_root) == preview  # source assets unchanged
 
 
 def test_five_fresh_full_trials_and_each_role_judge(flow_setup):
@@ -710,6 +905,53 @@ def test_compacted_evidence_is_lossless():
     raw = json.dumps(repeated)
     projected = request_evidence({"payload": {"input": [{"role": "user", "content": raw}]}})
     assert projected["payload"]["input"][0]["content"]["parsed_json"] == repeated
+
+
+@pytest.mark.parametrize("repeat", [1, 2])
+def test_embedded_request_text_factors_exact_core_strings_losslessly(repeat):
+    from eval_harness.full_flow import compact_evidence
+    text = "원래 TC의 조작과 기대결과를 그대로 보존한다. " * 30
+    content = "[생성 입력]\n" + (text + "\n다음 자료\n") * repeat
+    source = {"context": {"tc": text}, "artifact": {"different": text + "변경"},
+              "trace": {"request": content, "unique_instruction": "별도 지침을 유지한다."}}
+    before = deepcopy(source)
+    compact = compact_evidence(source)
+    factored = compact["trace"]["request"]
+    assert isinstance(factored, dict) and "evidence_text_parts" in factored
+    rebuilt = ""
+    for part in factored["evidence_text_parts"]:
+        if isinstance(part, str):
+            rebuilt += part
+        else:
+            target = compact
+            for key in part["evidence_reference"]:
+                target = target[int(key)] if isinstance(target, list) else target[key]
+            assert isinstance(target, str)
+            rebuilt += target
+    from hashlib import sha256
+    assert rebuilt == content
+    assert factored["raw_utf8_sha256"] == sha256(content.encode()).hexdigest()
+    assert compact["context"] == source["context"] and compact["artifact"] == source["artifact"]
+    assert compact["trace"]["unique_instruction"] == source["trace"]["unique_instruction"]
+    assert source == before
+    assert len(json.dumps(compact, ensure_ascii=False)) < len(json.dumps(source, ensure_ascii=False))
+
+
+@pytest.mark.parametrize("unsafe", ["sk-", "Bearer ", "C:/", "<script>"])
+def test_embedded_text_never_hides_sensitive_boundary(unsafe):
+    from eval_harness.full_flow import compact_evidence
+    text = "A" * 600
+    source = {"context": {"value": text}, "artifact": {}, "trace": {"request": unsafe + text}}
+    with pytest.raises(ValueError, match="Secret, local path, or HTML"):
+        compact_evidence(source)
+
+
+def test_small_or_nonidentical_embedded_text_is_not_factored():
+    from eval_harness.full_flow import compact_evidence
+    text = "한" * 160  # UTF-8 below the existing 512-byte threshold.
+    source = {"context": {"small": text, "large": "A" * 600}, "artifact": {},
+              "trace": {"short": "입력 " + text, "changed": "입력 " + "A" * 599 + "B"}}
+    assert compact_evidence(source) == source
 
 
 @pytest.mark.parametrize("field,value,wrong", [

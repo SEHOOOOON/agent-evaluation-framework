@@ -48,6 +48,33 @@ def test_recorded_projection_is_read_only(tmp_path):
     assert report["cases"][0]["groups"]["A4"]["status"] == "NOT_EVALUATED"
 
 
+@pytest.mark.parametrize('missing', ['user_questions', '제외된_정보_부족'])
+def test_actual_producer_unmeasured_result_is_readable(tmp_path, known_bad_root, missing):
+    from test_v2_recorded import sample as source_sample, edit, refresh_links
+    from eval_harness.v2_recorded import evaluate
+    from eval_harness.agent_rubric import summarize_roles
+    source = tmp_path / 'source'
+    case = source_sample(source)
+    name = 'agent1_change_analysis.json' if missing == 'user_questions' else 'agent2_test_design.json'
+    edit(source, name, lambda value: value.pop(missing))
+    refresh_links(source)
+    row = evaluate(source, case)
+    assert any(c['status'] == 'NOT_EVALUATED' for c in row['checks'])
+    row['agent_evaluation'] = summarize_roles(row['checks'])
+    data = sample()
+    data['results'] = [row]
+    data['counts'] = {row['status']: 1}
+    report_root = tmp_path / 'reports'
+    path = save(report_root, data)
+    original = path.read_bytes()
+    with TestClient(create_app(known_bad_root, report_root)) as client:
+        assert client.get('/api/recorded-reviews').status_code == 200
+        response = client.get(f'/api/recorded-reviews/{RID}')
+    assert response.status_code == 200
+    assert any(c['status'] == 'NOT_EVALUATED' for c in response.json()['cases'][0]['checks'])
+    assert path.read_bytes() == original
+
+
 @pytest.mark.parametrize("mutation", [
     lambda d: d.update(target_executed=True),
     lambda d: d.update(stability_measured=True),

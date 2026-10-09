@@ -2,7 +2,7 @@
 from fnmatch import fnmatchcase
 from html import escape
 
-VERSION = "agent-rubric-1.1"
+VERSION = "agent-rubric-1.2"
 # owner, ID, objective, automatic evidence patterns, semantic review needed, critical risk
 # Korean labels are deliberately kept separate from execution rule IDs.
 CRITERIA = [
@@ -23,7 +23,7 @@ CRITERIA = [
     ("A3", "A3-04", "실행 결과·복원·필수 증거의 충분성", ("EXEC.*.EXIT", "EXEC.*.EVIDENCE"), True, True),
     ("A4", "A4-01", "원본 실행 행의 집계 정확성", ("EXEC.UNIQUE_ROWS", "A4.COUNTS", "A4.ORACLE_COUNTS"), False, True),
     ("A4", "A4-02", "중립 증거에 따른 원인 분류 정확성", ("A4.FINDINGS",), True, True),
-    ("A4", "A4-03", "분류 대상·상태·증거의 연결", ("A4.FINDING_LINK",), False, True),
+    ("A4", "A4-03", "분류 대상·상태·증거의 연결", ("A4.FINDING_LINK", "CHAIN.RUN_ID"), False, True),
     ("A4", "A4-04", "결함 단정 방지와 권고·사람 승인 구분", ("A4.RECOMMENDATION",), True, True),
     ("E2E", "E01", "조건부터 실제 시험까지 전체 추적·완료 범위", ("EXEC.DESIGN_LINK",), True, True),
     ("E2E", "E02", "정보 부족 원문의 단계 간 보존", ("E2E.GAPS", "E2E.GAPS_RETAINED"), False, True),
@@ -53,7 +53,8 @@ def summarize_roles(checks):
         states = {c["status"] for c in matched}
         complete = all(any(fnmatchcase(c["rule"], p) for c in matched) for p in patterns)
         status = ("FAIL" if "FAIL" in states else "ERROR" if "ERROR" in states
-                  else "NOT_EVALUATED" if not matched else "PARTIAL" if semantic or not complete else "CHECKED")
+                  else "NOT_EVALUATED" if not matched or states == {"NOT_EVALUATED"}
+                  else "PARTIAL" if semantic or not complete or "NOT_EVALUATED" in states else "CHECKED")
         groups[owner].append({"criterion_id": cid, "objective": objective, "status": status,
                               "critical_risk": critical, "meaning_review_required": semantic,
                               "evidence_rules": [c["rule"] for c in matched], "score": None})

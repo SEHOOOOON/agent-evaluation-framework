@@ -81,7 +81,7 @@ def read_report(root: Path, report_id: str):
             raise ValueError("Invalid checks")
         projected_checks, check_ids = [], set()
         for check in checks:
-            if not isinstance(check, dict) or check.get("status") not in {"PASS", "FAIL", "ERROR"}:
+            if not isinstance(check, dict) or check.get("status") not in {"PASS", "FAIL", "ERROR", "NOT_EVALUATED"}:
                 raise ValueError("Invalid check")
             rule = public_text(check.get("rule"), 200)
             if rule in check_ids:

@@ -22,7 +22,7 @@ from .scenario_oracle import Expectation, evaluate_expectations
 
 ROOT = Path(__file__).resolve().parents[2]
 STATUSES = {"PASSED", "ASSERTION_FAILED", "EXECUTION_ERROR", "TIMEOUT", "SKIPPED"}
-VERSION = "v2-recorded-0.7"
+VERSION = "v2-recorded-0.8"
 
 
 class Case(BaseModel):
@@ -303,6 +303,10 @@ def evaluate(run: Path, case: Case) -> dict:
             raise ValueError("Artifact must be a JSON object")
         srs = child(run, "srs_snapshot.md").read_text(encoding="utf-8")
         source_manifest = read(child(run, "run_manifest.json"))
+        identity_files = dict(zip(
+            ("request.json", "agent1_change_analysis.json", "agent2_test_design.json",
+             "validation_execution.json", "agent4_analysis.json", "final_report.json"),
+            (request, a1, a2, execution, analysis, report)))
         for manifest_name, links in (
             ("run_manifest.json", {"request_sha256":"request.json", "srs_sha256":"srs_snapshot.md", "agent1_analysis_sha256":"agent1_change_analysis.json"}),
             ("agent2_manifest.json", {"source_run_manifest_sha256":"run_manifest.json", "agent2_design_sha256":"agent2_test_design.json"}),
@@ -310,7 +314,18 @@ def evaluate(run: Path, case: Case) -> dict:
             manifest = read(child(run, manifest_name))
             if not isinstance(manifest, dict):
                 raise ValueError("Manifest must be a JSON object")
+            identity_files[manifest_name] = manifest
             check("CHAIN." + manifest_name, all(manifest.get(key) == digest(child(run, name)) for key, name in links.items()), "저장 Manifest와 실제 입력·출력 파일 해시 대조. Checkpoint 판정을 정답으로 쓰지 않음")
+        mismatch = any("run_id" in value and value["run_id"] != case.run_id
+                       for value in identity_files.values())
+        mismatch |= run.name.startswith("RUN-") and run.name != case.run_id
+        # Older artifacts can lack IDs; absence is not evidence of a mismatch.
+        required_ids = ("run_manifest.json", "agent2_manifest.json",
+                        "validation_execution.json", "agent4_analysis.json", "final_report.json")
+        missing = any("run_id" not in identity_files[name] for name in required_ids)
+        checks.append(dict(rule="CHAIN.RUN_ID", critical=True,
+            status="FAIL" if mismatch else "NOT_EVALUATED" if missing else "PASS",
+            reason="사례·실행 폴더·산출물의 명시된 Run ID 대조. 과거 자료의 ID 미기록은 미평가"))
         conditions = object_list(a1["confirmed_conditions"])
         condition_ids = [c["condition_id"] for c in conditions]
         check("A1.CONDITION_IDS", bool(conditions) and len(condition_ids) == len(set(condition_ids)), "확정 조건 ID의 누락·중복 검사")

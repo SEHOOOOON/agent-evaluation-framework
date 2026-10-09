@@ -28,7 +28,7 @@ from .openai_judge import (JudgePacket, encode, preview as judge_preview, evalua
 from .v2_recorded import (child, digest, read, write, target_pin, inventory, execution_rows,
                           finding_matches_execution, report_counts_match, handoff_checks)
 
-VERSION = "full-flow-0.13"
+VERSION = "full-flow-0.15"
 ROLES = ("A1", "A2", "A3", "A4")
 
 
@@ -58,7 +58,8 @@ def p2_pin():
 
 def selected_files(target, request, pin):
     required = {
-        "docs/01_PRODUCT_SRS.md", "product_baseline/virtual-controller.html",
+        "docs/01_PRODUCT_SRS.md", "docs/basic_tc_details.json",
+        "product_baseline/virtual-controller.html",
         "product_baseline/pytest.ini", "product_baseline/tests/conftest.py",
         "product_baseline/tests/test_controller.py", "approved_assets/registry.json",
         request,
@@ -390,12 +391,48 @@ def compact_evidence(source):
     is rewritten, removed, or converted into a verdict by this projection.
     """
     seen = {}
+    direct_text = {}
+
+    def factor_text(value):
+        # Mixed prose/JSON requests can embed an exact core value. Keep literal
+        # separators and order; never normalize, summarize or infer equivalence.
+        parts = [value]
+        for text, target in sorted(direct_text.items(), key=lambda item: -len(item[0])):
+            next_parts = []
+            for part in parts:
+                if not isinstance(part, str) or text not in part:
+                    next_parts.append(part)
+                    continue
+                fragments = part.split(text)
+                for index, fragment in enumerate(fragments):
+                    if index:
+                        next_parts.append({"evidence_reference": target})
+                    if fragment:
+                        next_parts.append(fragment)
+            parts = next_parts
+        if all(isinstance(part, str) for part in parts):
+            return value
+        projected = {"evidence_text_parts": parts,
+                     "raw_utf8_sha256": sha256(value.encode("utf-8")).hexdigest()}
+        if len(encode(projected).encode("utf-8")) >= len(encode(value).encode("utf-8")):
+            return value
+        # Otherwise a secret/path split across fragments could evade the final scan.
+        scan_payload(value)
+        return projected
+
     def visit(value, path):
         encoded = encode(value)
         direct = bool(path and path[0] in {"context", "artifact"})
         if len(encoded.encode("utf-8")) >= 512:
             if encoded in seen and not direct:
                 return {"evidence_reference": seen[encoded]}
+            if isinstance(value, str):
+                if direct:
+                    direct_text.setdefault(value, path)
+                else:
+                    projected = factor_text(value)
+                    if not isinstance(projected, str):
+                        return projected
             seen.setdefault(encoded, path)
         if isinstance(value, dict):
             return {k: visit(v, path + [k]) for k, v in value.items()}
@@ -924,6 +961,7 @@ def collect_packets(run, work, spec, plan, checks):
         source["reference_protocol"] = (
             "context와 artifact는 직접 대조할 원문이며 참조로 대체하지 않습니다. "
             "다른 자료의 evidence_reference는 sources 루트에서 시작하는 동일 내용의 최초 위치입니다. "
+            "evidence_text_parts는 문자열과 참조 원문을 순서대로 이어 붙이면 원래 요청문이 되며 raw_utf8_sha256은 원문 해시입니다. "
             "인용은 참조가 가리키는 실제 값의 source_id와 path를 사용합니다. "
             "parsed_json은 실제 요청 JSON의 파싱 값이며 원본 문자열 해시는 raw_utf8_sha256입니다. "
             "payload_omitted인 근거 검토 요청은 본문 대신 원본 파일 해시·호출 메타데이터를 제공합니다. "
@@ -1028,6 +1066,14 @@ def run_flow(target, spec, config_root, output_root, approval_sha256, *, worker=
             row["generation_responses_received"] = sum(a.get("status") == "RECEIVED" for a in attempts)
             source_ok = runtime_unchanged(target, plan["runtime_hashes"])
             copy_ok = runtime_unchanged(copy, plan["runtime_hashes"])
+            if (outcome.get("reason") == "RUNTIME_INPUT_PREFLIGHT_FAILED"
+                    and not attempts and not outcome.get("stages")):
+                # Preserve setup integrity evidence, but do not grade an Agent
+                # that never ran. The finally block still archives this trial.
+                row["runtime_input_integrity"] = {
+                    "source_unchanged": source_ok, "copy_unchanged": copy_ok}
+                result["stop_reason"] = outcome["reason"]
+                continue
             row["checks"] = local_checks(run, source_ok, copy_ok)
             row["artifact_hashes"] = inventory(run) if run.exists() else {}
             comparison = comparison_snapshot(run)

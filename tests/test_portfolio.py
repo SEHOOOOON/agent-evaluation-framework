@@ -326,9 +326,18 @@ def test_a3_comparison_html_preserves_scope_and_all_snapshot_values():
         values = [int(n) for n in re.findall(r'<td[^>]*>(\d+)', row)]
         assert values == [c['program_score'] if criterion == 'A3-03' else c['scores'][criterion] for c in data['cases']]
     for phrase in ('가상 비교 사본', '실제 제품 실행 아님', 'AI 평균에서 제외',
-                   '각각 AI 평가 1회', '검사 하나 누락만의 영향', '위의 26개 항목 점수와는 별도'):
+                   '각각 AI 평가 1회', '검사 하나 누락만의 영향', '아래의 26개 항목 점수와는 별도'):
         assert phrase in section
     assert not re.search(r'[\u4e00-\u9fff]|sk-[A-Za-z0-9_-]{16,}|[A-Za-z]:[\\/]', json.dumps(data, ensure_ascii=False))
+
+
+def test_decision_examples_precede_counts_without_claiming_a_new_evaluation():
+    html = (PAGE / 'index.html').read_text(encoding='utf-8')
+    assert html.index('id="a3-comparison"') < html.index('id="qa-improvement"') < html.index('id="latest-repeat"')
+    assert html.index('id="latest-repeat"') < html.index('id="score-chart"')
+    assert '세 사례의 평가 결과와 원본 해시' in html
+    assert '5fdc882' in html and '934526a' in html
+    assert '이 버전에서 다시 실행한 것은 아닙니다' in html
 
 
 def test_latest_local_comparison_keeps_product_outcome_separate_from_grades():
