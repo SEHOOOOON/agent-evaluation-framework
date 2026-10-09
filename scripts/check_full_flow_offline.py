@@ -1,6 +1,9 @@
-"""Old model answers + current P1 code in a fresh copy. No API calls.
+"""Historical stage-output replay helper; retained for reference. No API calls.
 
-This is a contract integration check, not a new model performance evaluation.
+Only Agent1Analysis, Agent2TestDesign and Agent3AutomationPlan are replayed.
+Current P1 also requests grounding-review responses, which this helper does not
+provide. Do not use it as evidence of current end-to-end compatibility or model
+performance. Current local checks are documented in PROJECT_HANDOFF.md.
 Product tests may execute in the copied baseline; official assets stay intact.
 """
 from pathlib import Path

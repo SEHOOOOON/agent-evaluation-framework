@@ -146,14 +146,29 @@ def execute_trial(work: Path, config: dict, *, client=None):
     for name in list(os.environ):
         if name.startswith(("NOTION_", "SLACK_", "OPENAI_")):
             os.environ.pop(name, None)
+    sys.path.insert(0, str(copy / "src"))
+    os.chdir(copy)
+    # Reuse P1's actual input reader, not another copy of its validation rules.
+    # An incomplete runtime must fail before A1 spends any generation budget.
+    try:
+        execution = importlib.import_module("qa_pipeline_execution")
+        pipeline = importlib.import_module("qa_pipeline_orchestrator")
+        execution.load_approved_regression_catalog(copy / "approved_assets")
+    except Exception as exc:
+        ledger["fatal"] = "RUNTIME_INPUT_PREFLIGHT_FAILED"
+        outcome = {"status": "ERROR", "reason": ledger["fatal"],
+                   "error_type": type(exc).__name__, "stages": {}, "generation_by_role": {}}
+        # Keep exception bodies/absolute paths out of shared result records.
+        write(work / "runtime_input_preflight.json", {
+            "status": "ERROR", "error_type": type(exc).__name__})
+        write(work / "worker_result.json", outcome)
+        write(work / "call_ledger.json", ledger)
+        return outcome
+    write(work / "runtime_input_preflight.json", {"status": "READY"})
     if client is None:
         if not key:
             raise ValueError("API key unavailable")
         client = generation_client(key, work, ledger)
-    sys.path.insert(0, str(copy / "src"))
-    os.chdir(copy)
-    execution = importlib.import_module("qa_pipeline_execution")
-    pipeline = importlib.import_module("qa_pipeline_orchestrator")
     bind_model_clients(execution, client, work, ledger, config)
     stages = {}
     candidate_entries = []

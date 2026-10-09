@@ -78,6 +78,7 @@ def test_hold_is_a_supported_product_recommendation():
 
 def sample(root, *, failed=False):
     root.mkdir(parents=True, exist_ok=True)
+    run_id = root.name if root.name.startswith('RUN-') else 'RUN-20260918-110541-4102E0'
     write(root/'request.json', {'request': 'Apply MED; show medium.'})
     (root/'srs_snapshot.md').write_text('REQ-FAN-001 supports fan.', encoding='utf-8')
     write(root/'agent1_change_analysis.json', {'confirmed_conditions': [
@@ -91,17 +92,17 @@ def sample(root, *, failed=False):
     row={'test_id':'TC-CAND-001','status':status,'exit_code':1 if failed else 0,
          'source':'NEW_AUTOMATION_CANDIDATE','requirement_ids':['REQ-FAN-001'], 'evidence_files':['trial.txt'], 'evidence_sha256':{'trial.txt':digest(root/'trial.txt')},
          'test_file':'test_candidate.py','test_sha256':digest(root/'test_candidate.py')}
-    write(root/'validation_execution.json', {'candidate_result':row,'candidate_results':[row], 'regression_results':[], '제외된_정보_부족':[], '최종_확인_사항':[]})
-    report={'total_results':1,'status_counts':{status:1},'recommendation':'HUMAN_REVIEW' if failed else 'PASS',
+    write(root/'validation_execution.json', {'run_id':run_id,'candidate_result':row,'candidate_results':[row], 'regression_results':[], '제외된_정보_부족':[], '최종_확인_사항':[]})
+    report={'run_id':run_id,'total_results':1,'status_counts':{status:1},'recommendation':'HUMAN_REVIEW' if failed else 'PASS',
             'product_result_count':1,'environment_result_count':0,'pipeline_fixture_result_count':0,
             '검토_항목':[{'category':'PRODUCT_MISMATCH_CANDIDATE', 'test_id':row['test_id'], 'source':row['source'],
                         'requirement_ids':row['requirement_ids'], 'status':status, 'evidence_files':row['evidence_files']}] if failed else [],
             '제외된_정보_부족':[],'최종_확인_사항':[]}
     write(root/'agent4_analysis.json',dict(report, validation_execution_sha256=digest(root/'validation_execution.json')))
     write(root/'final_report.json',dict(report, analysis_sha256=digest(root/'agent4_analysis.json')))
-    write(root/'run_manifest.json',{'request_sha256':digest(root/'request.json'),'srs_sha256':digest(root/'srs_snapshot.md'),'agent1_analysis_sha256':digest(root/'agent1_change_analysis.json')})
-    write(root/'agent2_manifest.json',{'source_run_manifest_sha256':digest(root/'run_manifest.json'),'agent2_design_sha256':digest(root/'agent2_test_design.json')})
-    return Case(case_id='V2-001',run_id='RUN-20260918-110541-4102E0',title='Synthetic evaluator control',
+    write(root/'run_manifest.json',{'run_id':run_id,'request_sha256':digest(root/'request.json'),'srs_sha256':digest(root/'srs_snapshot.md'),'agent1_analysis_sha256':digest(root/'agent1_change_analysis.json')})
+    write(root/'agent2_manifest.json',{'run_id':run_id,'source_run_manifest_sha256':digest(root/'run_manifest.json'),'agent2_design_sha256':digest(root/'agent2_test_design.json')})
+    return Case(case_id='V2-001',run_id=run_id,title='Synthetic evaluator control',
                 expected_counts={status:1}, expected_recommendation=report['recommendation'],expected_gap_count=0,
                 expected_finding_categories=['PRODUCT_MISMATCH_CANDIDATE'] if failed else [],
                 require_step_links=True,human_review_topics=['Meaning needs human review'])
@@ -122,6 +123,51 @@ def refresh_links(root):
     edit(root,'final_report.json',lambda x:x.update(analysis_sha256=digest(root/'agent4_analysis.json')))
 
 
+@pytest.mark.parametrize('name', ['request.json', 'run_manifest.json', 'agent1_change_analysis.json',
+    'agent2_manifest.json', 'agent2_test_design.json', 'validation_execution.json',
+    'agent4_analysis.json', 'final_report.json'])
+@pytest.mark.parametrize('wrong', ['RUN-20991231-235959-FFFFFF', None])
+def test_explicit_run_identity_mismatch_is_not_hidden_by_valid_hashes(tmp_path, name, wrong):
+    case = sample(tmp_path, failed=True)
+    edit(tmp_path, name, lambda x: x.update(run_id=wrong))
+    refresh_links(tmp_path)
+    if name == 'request.json':
+        edit(tmp_path, 'run_manifest.json', lambda x:x.update(request_sha256=digest(tmp_path/'request.json')))
+        refresh_links(tmp_path)
+    result = evaluate(tmp_path, case)
+    assert result['status'] == 'FAIL'
+    assert next(c for c in result['checks'] if c['rule'] == 'CHAIN.RUN_ID')['status'] == 'FAIL'
+    from eval_harness.agent_rubric import summarize_roles
+    rows = summarize_roles(result['checks'])['groups']['A4']
+    assert next(c for c in rows if c['criterion_id'] == 'A4-03')['status'] == 'FAIL'
+
+
+@pytest.mark.parametrize('missing', ['final_report.json', 'all'])
+def test_historical_absent_run_identity_is_unmeasured_not_wrong(tmp_path, missing):
+    case = sample(tmp_path)
+    for name in ['run_manifest.json', 'agent2_manifest.json', 'validation_execution.json',
+                 'agent4_analysis.json', 'final_report.json']:
+        if missing == 'all' or name == missing:
+            edit(tmp_path, name, lambda x:x.pop('run_id'))
+    refresh_links(tmp_path)
+    result = evaluate(tmp_path, case)
+    assert result['status'] == 'REVIEW'
+    assert next(c for c in result['checks'] if c['rule'] == 'CHAIN.RUN_ID')['status'] == 'NOT_EVALUATED'
+
+
+def test_explicit_run_folder_disagrees_with_case(tmp_path):
+    root = tmp_path/'RUN-20260918-110541-4102E0'
+    case = sample(root)
+    case = case.model_copy(update={'run_id':'RUN-20991231-235959-FFFFFF'})
+    for name in ('run_manifest.json', 'agent2_manifest.json', 'validation_execution.json',
+                 'agent4_analysis.json', 'final_report.json'):
+        edit(root, name, lambda x:x.update(run_id=case.run_id))
+    refresh_links(root)
+    result = evaluate(root, case)
+    assert result['status'] == 'FAIL'
+    assert [c['rule'] for c in result['checks'] if c['status'] == 'FAIL'] == ['CHAIN.RUN_ID']
+
+
 @pytest.mark.parametrize('scenario', ['normal', 'hold', 'mismatch', 'false_success'])
 def test_representative_reporting_outcomes(tmp_path, scenario):
     case = sample(tmp_path, failed=scenario == 'mismatch')
@@ -131,7 +177,7 @@ def test_representative_reporting_outcomes(tmp_path, scenario):
                    status='EXECUTION_ERROR', exit_code=1)
         skipped = dict(env, test_id='TC-REG', source='EXISTING_REGRESSION', status='SKIPPED',
                        exit_code=None, evidence_files=[], evidence_sha256={})
-        write(tmp_path/'validation_execution.json', dict(status='BLOCKED', candidate_result=None,
+        write(tmp_path/'validation_execution.json', dict(run_id=case.run_id, status='BLOCKED', candidate_result=None,
               candidate_results=[], environment_precheck=env, regression_results=[skipped],
               제외된_정보_부족=[], 최종_확인_사항=[]))
         counts = {'EXECUTION_ERROR': 1, 'SKIPPED': 1}

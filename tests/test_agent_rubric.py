@@ -55,3 +55,17 @@ def test_all_count_checks_confirm_only_count_scope():
 def test_fail_not_hidden_by_error_or_pass():
     result=summarize_roles([check('EXEC.TC-1.EVIDENCE','FAIL'),check('EXEC.TC-2.EXIT','ERROR'),check('EXEC.TC-3.EXIT')])
     assert item(result,'A3-04')['status']=='FAIL'
+
+
+@pytest.mark.parametrize('states,expected', [
+    (['NOT_EVALUATED', 'NOT_EVALUATED'], 'NOT_EVALUATED'),
+    (['PASS', 'NOT_EVALUATED'], 'PARTIAL'),
+    (['FAIL', 'NOT_EVALUATED'], 'FAIL'),
+    (['ERROR', 'NOT_EVALUATED'], 'ERROR'),
+    (['PASS', 'PASS'], 'CHECKED'),
+])
+def test_unmeasured_checks_never_become_checked(states, expected):
+    result = summarize_roles([check(rule, status) for rule, status in
+                              zip(['E2E.GAPS', 'E2E.GAPS_RETAINED'], states)])
+    assert item(result, 'E02')['status'] == expected
+    assert item(result, 'E02')['score'] is None

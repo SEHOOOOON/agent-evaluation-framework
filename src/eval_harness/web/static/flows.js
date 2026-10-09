@@ -7,6 +7,7 @@
   const label=value=>states[value]||value||"미기록";
   const stopReasons={JUDGE_PREFLIGHT_FAILED:"평가 자료의 크기·안전성 확인 중 문제가 있어 AI 평가를 시작하지 않았습니다. 프로젝트1의 시험 실패를 뜻하지 않습니다.",EVIDENCE_CHANGED_DURING_REVIEW:"평가 준비 또는 평가 중 원본 기록이 바뀌어 중단했습니다.",JUDGE_ERROR:"AI 평가 중 오류가 발생했습니다. 프로젝트1의 시험 결과와 구분해 확인하세요."};
   let ticket=0;
+  stopReasons.RUNTIME_INPUT_PREFLIGHT_FAILED="기본·승인 TC 등 실행 자료를 읽지 못해 시작 전에 중단했습니다. 이 회차의 AI 호출은 없으며 에이전트 점수는 미평가입니다.";
   async function fetchJson(url){const r=await fetch(url,{cache:"no-store"});if(!r.ok)throw Error("전체 실행 기록을 읽을 수 없습니다.");return r.json();}
   function alert(text=""){el("flowAlert").textContent=text;el("flowAlert").hidden=!text;}
   function scores(card) {
