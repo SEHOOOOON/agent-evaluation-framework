@@ -1,0 +1,64 @@
+{
+  "date_kst": "2026-10-05",
+  "mode": "LOCAL_SAVED_EVIDENCE_COMPARISON",
+  "api_calls": 0,
+  "p1_executions": 0,
+  "evaluator_version": "full-flow-0.10",
+  "rubric_version": "role-rubric-2.5",
+  "original_26_scores_changed": false,
+  "repeated_stability_claim": false,
+  "cases": [
+    {
+      "id": "normal",
+      "run_id": "RUN-20261005-012518-3B43CF",
+      "label": "전원 정상 동작",
+      "source_kind": "SAVED_FRESH_P1_RUN",
+      "product_status": "PASSED",
+      "recommendation": "PASS",
+      "scores": {
+        "A3-03": 5,
+        "A4-01": 5,
+        "A4-03": 5
+      },
+      "evaluated_count": 3,
+      "total_criteria": 26,
+      "remaining_unscored": 23,
+      "restoration": "CONFIRMED",
+      "scorecard_source": "evaluation-runs/local-comparison-20261005/verified/normal/scorecard.json",
+      "scorecard_sha256": "4bd5c6371608d2547cb48238a770ac623c4a783eadbc53102976ed010d8a8bd7",
+      "report_source": "evaluation-runs/local-comparison-20261005/verified/sources/normal/RUN-20261005-012518-3B43CF/final_report.json",
+      "report_sha256": "9cc1f0041922a0b5de951a971b7150e0d573d49721531f8a20200fd9074e0215",
+      "local_checks_source": "evaluation-runs/local-comparison-20261005/verified/normal/local-checks.json",
+      "restoration_source": "evaluation-runs/local-comparison-20261005/verified/normal/restoration.json"
+    },
+    {
+      "id": "product",
+      "run_id": "RUN-20261005-040514-7A9525",
+      "label": "온도 하한 불일치 검출",
+      "source_kind": "SAVED_CP2_CONTINUATION",
+      "product_status": "ASSERTION_FAILED",
+      "recommendation": "HUMAN_REVIEW",
+      "scores": {
+        "A3-03": 5,
+        "A4-01": 5,
+        "A4-03": 5
+      },
+      "evaluated_count": 3,
+      "total_criteria": 26,
+      "remaining_unscored": 23,
+      "restoration": "CONFIRMED",
+      "scorecard_source": "evaluation-runs/local-comparison-20261005/verified/product/scorecard.json",
+      "scorecard_sha256": "1abc48b987e1cdb841715c04880ebf6bf74ff84bb419e2ac493f1dca9156fe45",
+      "report_source": "evaluation-runs/local-comparison-20261005/verified/sources/product/RUN-20261005-040514-7A9525/final_report.json",
+      "report_sha256": "5da8d98ddc1d67babd155433eb4a4bd05b74d8cb271e2173b27923e9af58fb8a",
+      "local_checks_source": "evaluation-runs/local-comparison-20261005/verified/product/local-checks.json",
+      "restoration_source": "evaluation-runs/local-comparison-20261005/verified/product/restoration.json"
+    }
+  ],
+  "limitations": [
+    "두 사례는 요구사항·P1 버전이 달라 같은 조건의 반복이나 개선율 비교가 아닙니다.",
+    "프로그램 담당 3항목만 평가했습니다. 나머지 23항목은 이번에 점수를 만들지 않았습니다.",
+    "복원 Trace 대조는 별도 로컬 확인이며 AI 의미 평가 점수를 대신하지 않습니다.",
+    "공식 등록·외부 알림 수신은 이번 범위가 아닙니다."
+  ]
+}

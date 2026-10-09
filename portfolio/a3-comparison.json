@@ -1,0 +1,68 @@
+{
+  "updated_kst": "2026-10-05",
+  "scope": "A3_AND_COMMON_FIVE_AI_CRITERIA_ONLY",
+  "model": "gpt-5.6-terra",
+  "rubric": "role-rubric-2.5",
+  "evaluator": "openai-judge-1.10",
+  "original_26_scores_changed": false,
+  "new_api_calls_for_page_update": 0,
+  "performance_claim_eligible": false,
+  "oracle_status": "DRAFT",
+  "ai_criteria": ["C01", "C02", "A3-01", "A3-02", "A3-04"],
+  "program_criterion": "A3-03",
+  "program_score_included_in_ai_average": false,
+  "cases": [
+    {
+      "id": "normal",
+      "label": "정상 동작",
+      "scenario": "켜진 장비 끄기",
+      "origin": "REAL_LOCAL_REPLAY_OF_SAVED_AI_TC",
+      "product_outcome": "PASS",
+      "evaluation_date_kst": "2026-10-04",
+      "ai_calls": 1,
+      "scores": {"C01": 5, "C02": 5, "A3-01": 5, "A3-02": 5, "A3-04": 5},
+      "average_5": 5.0,
+      "program_score": 5,
+      "source": "evaluation-runs/a3local1004/live/JUDGE-fbf5722c0051/result.json",
+      "source_sha256": "8ffedd1a928f9b607b1090acd225d4acbad45941781a11d443e34cd32bfda24f",
+      "program_source": "evaluation-runs/a3local1004/replay/python-comparison.json"
+    },
+    {
+      "id": "product",
+      "label": "제품 불일치 검출",
+      "scenario": "16°C 하한에서 감소 시도",
+      "origin": "REAL_LOCAL_REFERENCE_TRIAL",
+      "product_outcome": "PRODUCT_MISMATCH_CANDIDATE",
+      "evaluation_date_kst": "2026-10-05",
+      "ai_calls": 1,
+      "scores": {"C01": 5, "C02": 5, "A3-01": 5, "A3-02": 5, "A3-04": 5},
+      "average_5": 5.0,
+      "program_score": 5,
+      "source": "evaluation-runs/a3compare1004/live/case-a/JUDGE-f53a01f2afc6/result.json",
+      "source_sha256": "e8f4be612dbd852b9c9278864d7a4242246a13c36f786e38f15038eaaf4dbe41",
+      "program_source": "evaluation-runs/a3compare1004/prepared/case-a/python-comparison.json"
+    },
+    {
+      "id": "omission",
+      "label": "필수 검사 누락",
+      "scenario": "내부 전원값 확인을 뺀 가상 사본",
+      "origin": "SYNTHETIC_NOT_EXECUTED",
+      "product_outcome": "NOT_EXECUTED",
+      "hypothetical_claim": "PASS",
+      "evaluation_date_kst": "2026-10-05",
+      "ai_calls": 1,
+      "scores": {"C01": 5, "C02": 5, "A3-01": 2, "A3-02": 5, "A3-04": 0},
+      "average_5": 3.4,
+      "program_score": 0,
+      "source": "evaluation-runs/a3compare1004/live/case-b/JUDGE-0ac5a97bb300/result.json",
+      "source_sha256": "164698202c74e7e7d8510ed1ed5f287332c8736ecf2a1032e215667e81a20b9a",
+      "program_source": "evaluation-runs/a3compare1004/prepared/case-b/python-comparison.json"
+    }
+  ],
+  "limitations": [
+    "가상 사본의 A3-04 0점에는 검사 누락뿐 아니라 실제 실행 근거가 없다는 이유도 포함됩니다.",
+    "전체 26항목, Agent 4 보고, 반복 안정성이나 평가자 정확도를 확인한 결과가 아닙니다.",
+    "요구사항과 자료 구성이 다른 단독 평가입니다. 단일 수정의 점수 개선률로 비교하지 않습니다.",
+    "원본 실행 자료는 로컬 보관이며 Git에 포함되지 않을 수 있습니다. 사람의 확정 정답지 승인은 별도입니다."
+  ]
+}

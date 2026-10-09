@@ -23,7 +23,8 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from .detailed_rubric import role_items, VERSION as RUBRIC_VERSION, SCORE_VERSION, PYTHON_CRITERIA
 from .execution_observations import grade_run as grade_execution_observations
-from .openai_judge import JudgePacket, encode, preview as judge_preview, evaluate as judge_evaluate, scan_payload
+from .openai_judge import (JudgePacket, encode, preview as judge_preview, evaluate as judge_evaluate,
+                           scan_payload, _unique_json_fields)
 from .v2_recorded import (child, digest, read, write, target_pin, inventory, execution_rows,
                           finding_matches_execution, report_counts_match, handoff_checks)
 
@@ -349,6 +350,37 @@ def judge_projection(value, workspace, omissions, pointer=""):
     return value
 
 
+def catalog_evidence(snapshot):
+    """Keep TC content; withhold approval metadata rather than relax secret scans.
+
+    Maintenance authorization is a local approval record, not a TC criterion.
+    Never whitelist an authentication-shaped key or send its value under an alias.
+    The source catalog is hash-verified by the caller and remains unchanged.
+    """
+    projected = json.loads(encode(snapshot))
+    omissions = []
+    if not isinstance(projected, dict):
+        return projected, omissions
+    for index, entry in enumerate(projected.get("approved_assets", [])):
+        if not isinstance(entry, dict) or not isinstance(entry.get("test_case_json"), str):
+            continue
+        try:
+            document = json.loads(entry["test_case_json"], object_pairs_hook=_unique_json_fields)
+        except ValueError:
+            continue  # The unchanged content still goes through the safety scanner.
+        maintenance = document.get("maintenance_revision") if isinstance(document, dict) else None
+        if not isinstance(maintenance, dict) or "authorization" not in maintenance:
+            continue
+        original = entry["test_case_json"]
+        withheld = maintenance.pop("authorization")
+        omissions.append({"path": f"approved_assets/{index}/test_case_json/maintenance_revision/authorization",
+                          "reason": "LOCAL_APPROVAL_METADATA_NOT_JUDGE_INPUT",
+                          "source_test_case_json_sha256": sha256(original.encode("utf-8")).hexdigest(),
+                          "withheld_value_sha256": sha256(encode(withheld).encode("utf-8")).hexdigest()})
+        entry["test_case_json"] = encode(document)
+    return projected, omissions
+
+
 def compact_evidence(source):
     """Keep comparison inputs/output direct; deduplicate repeated trace evidence.
 
@@ -503,6 +535,31 @@ def execution_support(run, work, execution, *, code_references=(), trial_documen
     for row in rows:
         # Only the stdout/stderr actually named by this execution row.
         hashes = row.get("evidence_sha256", {})
+        for name in row.get("evidence_files", []):
+            if Path(name).name != "native-restoration.json":
+                continue
+            path = safe_evidence_path(run, name)
+            try:
+                if path.stat().st_size > 200_000 or not hashes.get(name) or digest(path) != hashes[name]:
+                    raise ValueError("Native restoration evidence mismatch")
+                record = read(path)
+                if record.get("contract_version") != "native-recovery-1.0" or record.get("test_id") != row.get("test_id"):
+                    raise ValueError("Native restoration identity mismatch")
+                original, restored = record.get("original", {}), record.get("restored", {})
+                required = {'devices','selected','pending','gateway','multi','cards','panel'}
+                if (not isinstance(original, dict) or not isinstance(restored, dict) or set(original) != required
+                        or not isinstance(original['devices'], list) or not isinstance(original['cards'], list)
+                        or not original['devices'] or len(original['cards']) != len(original['devices'])):
+                    raise ValueError("Incomplete baseline")
+                comparisons = {key: (key in restored and json.dumps(original[key], sort_keys=True) == json.dumps(restored[key], sort_keys=True))
+                               for key in sorted(required)}
+                result.setdefault("native_recovery", []).append(dict(file=name, sha256=hashes[name],
+                    test_id=row['test_id'], status_as_recorded=record.get('status'), method=record.get('method'),
+                    device_count=len(original['devices']), comparisons=comparisons,
+                    verification='MATCH' if set(restored) == required and all(comparisons.values()) and record.get('status') in ('RESTORED','UNCHANGED') else 'NOT_CONFIRMED',
+                    scope='Hash-verified snapshot comparison; product assertions and model quality are separate. Full snapshots retained locally.'))
+            except (OSError, ValueError, KeyError, TypeError, AttributeError):
+                result['omissions'].append(dict(file=name, reason='NATIVE_RECOVERY_UNVERIFIED'))
         for key in ("stdout_file", "stderr_file"):
             name = row.get(key)
             if not name:
@@ -766,7 +823,9 @@ def collect_packets(run, work, spec, plan, checks):
             if role in ("A1", "A2"):
                 shared.add("run_manifest.json")
             if role in ("A3", "A4"):
-                shared.add("validation_manifest.json")
+                # Execution may stop before its manifest/report exists. Retain
+                # the recorded cause, not just the missing-final-output state.
+                shared.update({"validation_manifest.json", "validation_error.json"})
             if not (basename.startswith((f"checkpoint{role[-1]}", f"agent{role[-1]}_"))
                     or key in shared):
                 continue
@@ -800,11 +859,14 @@ def collect_packets(run, work, spec, plan, checks):
         if role == "A2":
             source["context"]["user_tc_reference"] = tc_reference
         if role in ("A2", "A3"):
+            catalog_content, catalog_omissions = catalog_evidence(docs.get(catalog_name))
             source["context"]["existing_tc_catalog"] = {
                 "status": "HASH_VERIFIED" if catalog_hash else "UNVERIFIED" if catalog_name in docs else "UNAVAILABLE",
                 "file": catalog_name, "sha256": catalog_hash,
-                "content": docs.get(catalog_name),
-                "scope": "해당 실행 당시 승인 TC 스냅샷; 현재 공식 자산이나 전체 기본 TC 목록이 아님"}
+                "content": catalog_content,
+                "scope": "해당 실행 당시 저장한 승인 TC와 기본 TC 상세 명세(포함된 경우). 현재 자산으로 대체하지 않으며, 상세 명세는 실행·복원 성공 증거가 아님"}
+            if catalog_omissions:
+                source["context"]["existing_tc_catalog"]["local_only_metadata"] = catalog_omissions
         if role == "A4":
             source["artifact"]["user_guidance"] = user_guidance_support(run)
             source["artifact"]["human_review_document"] = human_review_support(run)
@@ -851,10 +913,11 @@ def collect_packets(run, work, spec, plan, checks):
                                   and checkpoint_docs[key].get("payload_omitted") else
                                   "VERIFIED_GUIDANCE_PROJECTION" if role == "A4" and key in {
                                       "external_reporting.json", "사람_최종_검토_manifest.json"} else
+                                  "VERIFIED_CATALOG_PROJECTION" if key == catalog_name and role in ("A2", "A3") and catalog_omissions else
                                   "ROLE_INPUT" if key in selected else "LOCAL_ONLY_NOT_ROLE_INPUT")
                            for key in docs},
             "actual_model_requests": "CAPTURED" if role_calls else "UNAVAILABLE_NOT_PROOF_OF_NO_CALL",
-            "boundary": "파일 포함은 평가 완료가 아닙니다. 코드 본문·HTML·이미지·Trace ZIP·승인 이력은 로컬 보존 자료이며 AI 의미 평가 입력이 아닙니다. 기존 TC 목록은 당시 승인 자산 범위이며 전체 기본 TC 목록이라고 추정하지 않습니다."}
+            "boundary": "파일 포함은 평가 완료가 아닙니다. 코드 본문·HTML·이미지·Trace ZIP·승인 이력은 로컬 보존 자료이며 AI 의미 평가 입력이 아닙니다. 기본 TC 상세는 baseline_details가 실제 저장된 경우에만 확인하며 과거 실행에 소급하지 않습니다."}
         source = judge_projection(source, work, omitted)
         source["trace"]["metadata_path_replacements"] = omitted
         source = compact_evidence(source)

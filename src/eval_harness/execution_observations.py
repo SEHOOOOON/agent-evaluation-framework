@@ -123,6 +123,7 @@ def grade_run(run):
             try:
                 execution_manifest = run / "validation_manifest.json"
                 links = read(execution_manifest) if execution_manifest.is_file() else {}
+                link = {}
                 if "source_agent3_artifacts" in links:
                     if links.get("run_id") != run.name or links.get("stage") != "VALIDATION_EXECUTION":
                         raise ValueError("Execution manifest identity mismatch")
@@ -153,6 +154,28 @@ def grade_run(run):
                     raise ValueError("Conflicting log references")
                 path = verified(folder / "evidence" / case["tc_id"], name, expected)
                 results.append(compare(case, plan, path.read_text(encoding="utf-8"), run_id=run.name, outcome=trial["outcome"]))
+                # Candidate trial and final execution can have different logs.
+                # Keep confirmed earlier violations, but never substitute an old
+                # passing trial for missing or inconsistent final observations.
+                if (run / "validation_execution.json").is_file() or links.get("validation_execution_sha256"):
+                    execution = read(verified(run, "validation_execution.json", links.get("validation_execution_sha256")))
+                    if execution.get("run_id") != run.name or execution.get("stage") != "VALIDATION_EXECUTION":
+                        raise ValueError("Final execution identity mismatch")
+                    rows = execution.get("candidate_results") or [execution.get("candidate_result")]
+                    selected = [row for row in rows if row and row.get("test_id") == case["tc_id"]]
+                    if len(selected) != 1 or selected[0].get("source") != "NEW_AUTOMATION_CANDIDATE":
+                        raise ValueError("Missing or ambiguous final candidate")
+                    row = selected[0]
+                    code_hash = row.get("test_sha256")
+                    if "validation_candidate_sha256" in link and link["validation_candidate_sha256"] != code_hash:
+                        raise ValueError("Final candidate code reference mismatch")
+                    verified(run, row["test_file"], code_hash)
+                    path = verified(run, row["stdout_file"], row["evidence_sha256"].get(row["stdout_file"]))
+                    outcome = row["source_outcome"]
+                    status = {"PASS": "PASSED", "PRODUCT_MISMATCH_CANDIDATE": "ASSERTION_FAILED"}.get(outcome)
+                    if status and row.get("status") != status:
+                        raise ValueError("Conflicting final execution status")
+                    results.append(compare(case, plan, path.read_text(encoding="utf-8"), run_id=run.name, outcome=outcome))
             except (OSError, ValueError, KeyError, TypeError, AttributeError):
                 results.append(judgment("REVIEW", "후보의 연결 자료가 부족하거나 해시 불일치; 다른 후보의 확인된 위반은 보존"))
         verdict = "FAIL" if any(r["verdict"] == "FAIL" for r in results) else "REVIEW" if any(r["verdict"] == "REVIEW" for r in results) else "PASS"

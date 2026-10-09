@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="description" content="프로젝트1 Agent 평가 점수·26개 세부 기준·실행 및 자산관리 결과를 확인하는 읽기 전용 대시보드.">
+  <title>프로젝트2 · Agent 평가 대시보드</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="evidence.js" defer></script><script src="rubric.js" defer></script><script src="page.js" defer></script>
+</head>
+<body>
+<a class="skip" href="#main">본문 바로가기</a>
+<header class="topbar"><div class="shell top-inner"><a class="brand" href="#main"><span class="brand-mark">QA</span> Agent Evaluation <small>PROJECT 02</small></a><span class="local-label">로컬 검토본 · 읽기 전용</span></div></header>
+<main id="main" class="shell">
+  <div class="page-heading"><div><p class="eyebrow">프로젝트 1 에이전트 평가</p><h1>평가 현황</h1><p>요구사항 분석부터 시험·보고까지, 기준을 지켰는지 확인합니다.</p></div><span class="pill amber">반복 안정성 검증 전</span></div>
+  <div class="tab-bar" role="tablist" aria-label="평가 영역">
+    <button id="tab-agent" role="tab" aria-selected="true" aria-controls="panel-agent" tabindex="0">Agent 평가</button>
+    <button id="tab-assets" role="tab" aria-selected="false" aria-controls="panel-assets" tabindex="-1">실행·자산관리</button>
+    <button id="tab-followup" role="tab" aria-selected="false" aria-controls="panel-followup" tabindex="-1">개선·남은 확인</button>
+  </div>
+  <section id="panel-agent" role="tabpanel" aria-labelledby="tab-agent">
+    <div class="context-bar"><div><strong>전원: 운전 → 정지</strong><span>2026.10.02 저장 평가 · 원본 점수 보존</span></div><span>당시 기준 2.2 · 5점 척도</span></div>
+    <div class="metrics" aria-label="26개 항목 평가 현황">
+      <article><span>채점된 항목</span><strong id="count-scored">—</strong><small>전체 26개 중</small></article>
+      <article><span>미평가</span><strong id="count-review">—</strong><small>근거 부족 · 0점 아님</small></article>
+      <article><span>당시 해당 없음</span><strong id="count-na">—</strong><small>적용 판단 재확인 필요</small></article>
+      <article><span>원본 반려 항목</span><strong id="count-fail">—</strong><small>후속 검토에서 오반려 확인</small></article>
+    </div>
+    <p class="notice">이 점수는 저장 당시 결과입니다. 일부 평가자 오판이 확인돼 <strong>현재 완성도·정확도로 해석하지 않습니다.</strong> 변경된 기준의 재평가 점수는 합치지 않았습니다.</p>
+    <div class="section-head"><div><h2>역할별 점수와 평가 기준</h2><p>역할을 펼치고 항목을 선택하면 세부 기준·원본 판단 근거를 볼 수 있습니다.</p></div><div class="controls"><button type="button" class="secondary" id="expand-groups">항목 목록 모두 보기</button><button type="button" class="secondary" id="collapse-all">모두 접기</button></div></div>
+    <div id="all-criteria" class="role-groups"></div>
+    <p class="footnote">Agent 고유 20개 + 공통 2개 + 전체 연결 4개 = 26개. 평균은 해당 역할에서 채점된 항목만 계산하며 공통 항목을 중복 합산하지 않습니다.</p>
+    <details class="info"><summary>5점 척도와 평가 방법</summary><div class="info-content"><div class="two-col"><div><h3>점수 읽는 법</h3><dl class="scale"><dt>5점</dt><dd>필수 기준 전체를 근거로 확인</dd><dt>4점</dt><dd>핵심 충족, 영향 없는 경미한 설명 부족</dd><dt>3점</dt><dd>핵심 일부 충족, 중요한 누락 있음</dd><dt>2점</dt><dd>주요 조건 여러 개 누락·불일치</dd><dt>1점</dt><dd>핵심 대부분 미충족</dd><dt>0점</dt><dd>핵심 목적에 반하거나 수행 범위 전체 불충족</dd></dl><p>4~5점은 통과, 0~3점은 반려입니다. 미평가·해당 없음에는 점수를 만들지 않습니다.</p></div><div><h3>누가 평가하나요?</h3><p>파이썬은 수량·값·증거 연결 같은 사실을, AI는 요구사항과 산출물의 의미를 대조합니다. 혼합 항목은 두 근거를 함께 봅니다.</p><p>현재 담당: 파이썬 3개 · AI 12개 · 혼합 11개. 담당 정의가 26개 전체 자동 채점을 뜻하지는 않습니다. 평가자의 오판은 별도로 검토합니다.</p><p>항목 안의 세부 기준은 현재 2.4입니다. 위 원본 점수는 당시 2.2 결과이며, 현재 기준으로 다시 평가한 점수가 아닙니다.</p></div></div></div></details>
+  </section>
+  <section id="panel-assets" role="tabpanel" aria-labelledby="tab-assets" hidden>
+    <div class="context-bar"><div><strong>요구사항 10종 × 자산관리 7경로</strong><span>2026.10.03 · API 없는 로컬 검사</span></div><span>시험용 사본 사용</span></div>
+    <div class="metrics"><article><span>브라우저 시험</span><strong>10 / 10</strong><small>실제 화면 시험 통과</small></article><article><span>원래 상태 복원</span><strong>10 / 10</strong><small>복원 확인</small></article><article><span>자산관리 경로</span><strong>70 / 70</strong><small>예상 처리와 일치</small></article><article><span>새 API 호출</span><strong>0</strong><small>실제 공식 승인도 0건</small></article></div>
+    <p class="notice">70번의 AI 전체 실행이 아닙니다. 브라우저 결과 10건을 사용해 자산관리 7경로를 각각 독립 사본에서 확인했습니다. 앞 단계 출처 확인 일부는 시험 대역을 사용했습니다.</p>
+    <div class="section-head"><div><h2>시나리오별 확인 결과</h2><p>‘일치’는 승인·보류·차단 등이 예상한 대로 처리됐다는 뜻입니다.</p></div></div>
+    <div class="table-scroll" role="region" aria-label="10개 시나리오 7개 경로" tabindex="0"><table class="asset-table"><thead><tr><th scope="col">시나리오</th><th scope="col">보류</th><th scope="col">동의 안 함</th><th scope="col">승인</th><th scope="col">보류 후 승인</th><th scope="col">중복 등록</th><th scope="col">SRS 변경</th><th scope="col">등록 실패</th></tr></thead><tbody id="asset-matrix"></tbody></table></div>
+    <details class="info"><summary>7개 경로에서 확인한 내용</summary><div class="info-content"><ul><li>보류 / 동의 안 함: 공식 자산 변경 없음</li><li>승인 / 보류 후 승인: 유효한 승인으로 등록</li><li>중복 등록: 같은 항목을 중복 등록하지 않음</li><li>SRS 변경: 검토 이후 기준이 바뀌었으면 그대로 등록하지 않음</li><li>등록 실패: 중간 오류 시 일부만 반영된 상태를 남기지 않음</li></ul><p>실제 사용자 승인 화면을 70번 클릭한 결과는 아닙니다. 동시 처리·프로세스 강제 종료·전원 장애까지 확인한 것은 아닙니다. Agent 26항목 점수와 별도 검사입니다.</p></div></details>
+  </section>
+  <section id="panel-followup" role="tabpanel" aria-labelledby="tab-followup" hidden>
+    <div class="context-bar"><div><strong>발견 → 수정 → 근거로 재확인</strong><span>기존 실패와 원본 점수는 유지합니다.</span></div></div>
+    <h2>개선 기록</h2>
+    <details class="info"><summary>SRS에 이미 있는 내용을 수정안으로 다시 제안 <span class="pill blue">응답 1건 개선 확인</span></summary><div class="info-content"><p><strong>수정 전:</strong> 기존 SRS와 동일한 문장을 새 수정안으로 제출했습니다.</p><p><strong>수정 후:</strong> P1의 작성 지침·개정 검사를 보완했습니다. 실제 새 응답 1건에서 해당 중복 제안이 사라졌지만 전체 흐름은 다른 문제로 중단됐습니다.</p><p>발견 근거: P2가 수집한 P1 Checkpoint 차단과 후속 코드 검토. AI 평가자가 독립적으로 검출한 사례로 표시하지 않습니다. 기록: IMP-001.</p></div></details>
+    <details class="info"><summary>복원 확인이 있는데 없다고 평가 <span class="pill blue">별도 재평가 확인</span></summary><div class="info-content"><p><strong>수정 전:</strong> A3-01은 복원 확인 누락을 이유로 3점을 받았습니다. 원본 명세·코드·로그를 대조하니 복원 비교가 있었습니다.</p><p><strong>수정 후:</strong> 평가 입력·기준을 보완한 별도 재평가에서 5점을 받았습니다. 같은 P1 산출물이며 원본 3점은 그대로 보존했습니다.</p><p>기준 2.2 → 2.3으로 평가 조건이 다릅니다. P1 성능 향상이나 같은 조건 반복 안정성을 뜻하지 않습니다. 기록: IMP-004, 2026.10.02.</p></div></details>
+    <div class="section-head followup-head"><div><h2>다음에 확인할 내용</h2><p>고정 조건의 전체 AI 반복 검증은 미완료입니다.</p></div></div>
+    <ul class="next-list"><li><strong>TC-R05 적용 판단</strong><span>정상 전환도 평가 대상인데 ‘해당 없음’으로 판단했습니다. 기준 2.4 안내는 보완했고 실제 모델 효과는 미검증입니다.</span></li><li><strong>같은 조건의 반복 결과</strong><span>새로 생성한 TC와 전체 실행 결과를 비교해야 합니다. 저장 결과 재조회나 로컬 70건으로 대신하지 않습니다.</span></li><li><strong>평가자 판단의 정확성</strong><span>사람이 확인한 기준과 모델 점수를 대조해야 합니다. 높은 점수만으로 품질을 확정하지 않습니다.</span></li></ul>
+  </section>
+  <details class="info sources"><summary>자료 출처와 화면 범위</summary><div class="info-content"><p>프로젝트2는 프로젝트1의 요구사항 분석 → TC 설계 → 자동화 수행 → 규칙 기반 결과 보고를 평가합니다. 이 화면은 기존 대시보드 구성을 참고한 읽기 전용 스냅샷이며 자동 갱신하지 않습니다.</p><p>점수: RUN-20260928-090141-6100CB의 2026.10.02 원본 평가. 세부 기준: 현재 role-rubric-2.4. 자산관리: 2026.10.03 별도 로컬 시험.</p><div id="source-hashes"></div><p><a href="evidence.js">표시 결과 데이터</a> · <a href="rubric.js">현재 26개 기준 데이터</a> · <a href="../backup-story-20261004/index.html">이전 포폴 페이지</a></p><p>페이지를 열어도 API 호출·실행·승인·게시가 발생하지 않습니다. 공개 배포하지 않았습니다.</p></div></details>
+  <noscript><p class="notice">결과와 기준을 표시하려면 JavaScript가 필요합니다. <a href="evidence.js">원본 표시 데이터</a>를 확인할 수 있습니다.</p></noscript>
+</main>
+<footer class="shell footer">Project 02 · Agent 평가 대시보드 <span>제품 시험 결과와 Agent 평가는 구분합니다.</span></footer>
+</body>
+</html>

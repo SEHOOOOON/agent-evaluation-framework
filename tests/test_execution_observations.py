@@ -219,3 +219,63 @@ def test_missing_candidate_does_not_erase_another_confirmed_violation(tmp_path, 
                     trial_sha256=digest(trial_path), trial_evidence_sha256=trial["evidence_sha256"])
     write(manifest_path, manifest)
     assert grade_run(run)["verdict"] == "FAIL"
+
+
+def with_validation(run, folder, *, actual=None, outcome="PASS"):
+    """Independent final execution, retaining the earlier passing candidate log."""
+    case, plan, event, end = sample(actual=actual)
+    log = run / "validation_evidence/TC-X/stdout.txt"
+    log.parent.mkdir(parents=True)
+    log.write_text(log_of(event, end), encoding="utf-8")
+    code = folder / "candidates/test_tc.py"
+    row = dict(test_id="TC-X", source="NEW_AUTOMATION_CANDIDATE",
+               status="PASSED" if outcome == "PASS" else "ASSERTION_FAILED",
+               source_outcome=outcome, test_file=code.relative_to(run).as_posix(),
+               test_sha256=digest(code), stdout_file=log.relative_to(run).as_posix(),
+               evidence_sha256={log.relative_to(run).as_posix(): digest(log)})
+    execution = dict(run_id=run.name, stage="VALIDATION_EXECUTION", candidate_results=[row])
+    write(run / "validation_execution.json", execution)
+    manifest = folder / "agent3_manifest.json"
+    link = dict(tc_id="TC-X", agent3_manifest_file=manifest.relative_to(run).as_posix(),
+                agent3_manifest_sha256=digest(manifest), validation_candidate_sha256=digest(code))
+    wrapper = dict(run_id=run.name, stage="VALIDATION_EXECUTION", source_agent3_artifacts=[link],
+                   validation_execution_sha256=digest(run / "validation_execution.json"))
+    write(run / "validation_manifest.json", wrapper)
+    return execution, wrapper, log
+
+
+@pytest.mark.parametrize("actual,outcome,expected", [
+    (None, "PASS", "PASS"),
+    ("COOL", "PRODUCT_MISMATCH_CANDIDATE", "PASS"),
+    ("COOL", "PASS", "FAIL"),
+    (None, "PRODUCT_MISMATCH_CANDIDATE", "FAIL"),
+])
+def test_final_observations_not_hidden_by_earlier_candidate_pass(tmp_path, actual, outcome, expected):
+    run, folder = saved_sample(tmp_path)
+    with_validation(run, folder, actual=actual, outcome=outcome)
+    grade = grade_run(run)
+    assert grade["verdict"] == expected
+    assert any(e["file"] == "validation_evidence/TC-X/stdout.txt" for e in grade["evidence"])
+
+
+@pytest.mark.parametrize("fault", ["missing_log", "changed_log", "missing_execution", "hash", "run", "stage",
+                                   "tc", "duplicate", "code_hash", "status", "outside"])
+def test_invalid_final_evidence_does_not_fall_back_to_old_pass(tmp_path, fault):
+    run, folder = saved_sample(tmp_path)
+    execution, wrapper, log = with_validation(run, folder)
+    row = execution["candidate_results"][0]
+    if fault == "missing_log": log.unlink()
+    if fault == "changed_log": log.write_text("changed", encoding="utf-8")
+    if fault == "run": execution["run_id"] = "OTHER"
+    if fault == "stage": execution["stage"] = "OTHER"
+    if fault == "tc": row["test_id"] = "OTHER"
+    if fault == "duplicate": execution["candidate_results"].append(dict(row))
+    if fault == "code_hash": row["test_sha256"] = "0" * 64
+    if fault == "status": row["status"] = "SKIPPED"
+    if fault == "outside": row["stdout_file"] = "../outside.txt"
+    write(run / "validation_execution.json", execution)
+    wrapper["validation_execution_sha256"] = digest(run / "validation_execution.json")
+    if fault == "hash": wrapper["validation_execution_sha256"] = "0" * 64
+    if fault == "missing_execution": (run / "validation_execution.json").unlink()
+    write(run / "validation_manifest.json", wrapper)
+    assert grade_run(run)["verdict"] == "REVIEW"

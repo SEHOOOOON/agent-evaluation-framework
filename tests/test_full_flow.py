@@ -80,6 +80,41 @@ def guidance_packet(run):
         {"request": {}, "oracle": {"status": "DRAFT"}, "target_commit": "test"}, [])["A4"]
 
 
+@pytest.mark.parametrize("role", ["A3", "A4"])
+@pytest.mark.parametrize("fault", [None, "wrong_run", "private_path"])
+def test_execution_error_reaches_role_without_weakening_input_guards(guidance_run, role, fault):
+    from eval_harness.full_flow import collect_packets, local_checks, python_scores
+    from eval_harness.openai_judge import preview
+    run = guidance_run
+    write(run / "agent3_automation_plan.json", {"tc_id": "TC-CAND-001"})
+    record = {"run_id": "OTHER" if fault == "wrong_run" else run.name,
+              "stage": "VALIDATION_EXECUTION", "error_type": "ValueError",
+              "message": "C:/private/evidence.txt" if fault == "private_path" else "검토 입력 해시가 다릅니다."}
+    write(run / "validation_error.json", record)
+    before = {p.name: p.read_bytes() for p in run.iterdir() if p.is_file()}
+    spec = FlowSpec(case_id="ERROR-TRANSFER", request="request.json", oracle="oracle.json",
+                    generation_model="offline", judge_model="offline")
+    def collect():
+        return collect_packets(run, run.parents[2], spec,
+            {"request": {}, "oracle": {"status": "DRAFT"}, "target_commit": "test"}, [])
+    if fault == "wrong_run":
+        with pytest.raises(ValueError, match="another Run"):
+            collect()
+    else:
+        packet = collect()[role]
+        assert packet.sources["trace"]["checkpoints_and_attempts"]["validation_error.json"] == record
+        assert packet.sources["trace"]["evidence_delivery"]["json_files"]["validation_error.json"] == "ROLE_INPUT"
+        if fault:
+            with pytest.raises(ValueError):
+                preview(packet, "offline")
+        else:
+            assert preview(packet, "offline")["maximum_calls"] == 1
+        # An error explanation is not proof of execution or an automatic zero.
+        scores = python_scores(run, local_checks(run, True, True))
+        assert all(row["score"] is None for row in scores["judgments"])
+    assert before == {p.name: p.read_bytes() for p in run.iterdir() if p.is_file()}
+
+
 @pytest.mark.parametrize("mode,status,recommendation", [
     ("DRY_RUN", "PREVIEW", "PASS"), ("LIVE", "SENT", "HOLD"), ("LIVE", "FAILED", "HUMAN_REVIEW")])
 def test_guidance_preserves_content_and_recorded_delivery(guidance_run, mode, status, recommendation):
