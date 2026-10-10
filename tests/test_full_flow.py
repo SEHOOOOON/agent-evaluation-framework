@@ -598,7 +598,9 @@ def test_preflight_stop_is_visible_without_changing_p1_result(flow_setup, monkey
     assert result["judge_attempts"] == 0
     script = (Path(flow.__file__).parent / "web/static/flows.js").read_text(encoding="utf-8")
     assert "esc(stopReasons[d.stop_reason]||label(d.stop_reason))" in script
-    assert "프로젝트1 실행 상태" in script
+    assert "원래 실행 / 후속 재시험" in script
+    assert "esc(label(t.status))" in script
+    assert "esc(retryLabel(t.approval_revalidation))" in script
 
 
 @pytest.mark.parametrize("fault", ["oversized", "sensitive"])

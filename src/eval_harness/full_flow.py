@@ -529,7 +529,94 @@ def python_scores(run, checks):
         # Retain facts already established; unavailable portions stay REVIEW.
         pass
     return dict(status="COMPLETED", mode="PYTHON", scoring_profile=SCORE_VERSION, rubric_version=RUBRIC_VERSION,
-                judgments=list(grades.values()))
+                judgments=list(grades.values()), approval_revalidation=approval_revalidation_status(run))
+
+
+def approval_revalidation_status(run):
+    """Local collection-time status, never a rescore or permission to register.
+
+    Old assessment scores describe the original execution. A later retry can
+    block registration without making those original grades wrong.
+    """
+    run = run.resolve()
+    result = dict(scope="COLLECTION_SNAPSHOT_NOT_LIVE", status="NO_RETRY_RECORD",
+                  registration="P1_CHECK_REQUIRED", scores_changed=False, items=[])
+    root = run / "asset_revalidation"
+    if root.is_symlink():
+        result.update(status="REVIEW_REQUIRED", registration="UNCONFIRMED")
+        return result
+    if not root.exists():
+        return result
+    if not root.is_dir():
+        result.update(status="REVIEW_REQUIRED", registration="UNCONFIRMED")
+        return result
+    for source in sorted(root.glob("*/latest.json")):
+        item = dict(tc_id=source.parent.name, status="REVIEW_REQUIRED", outcome=None,
+                    registration="UNCONFIRMED", reason="재시험 자료의 연결을 확인할 수 없습니다.")
+        result["items"].append(item)
+        try:
+            name = source.relative_to(run).as_posix()
+            path = safe_evidence_path(run, name)
+            record = read(path)
+            stamp = digest(path)
+            if record.get("run_id") != run.name or record.get("tc_id") != source.parent.name:
+                raise ValueError("Retry identity mismatch")
+            wrapper = read(safe_evidence_path(run, "validation_manifest.json"))
+            if wrapper.get("run_id") != run.name or wrapper.get("stage") != "VALIDATION_EXECUTION":
+                raise ValueError("Validation identity mismatch")
+            execution_path = safe_evidence_path(run, "validation_execution.json")
+            if digest(execution_path) != wrapper.get("validation_execution_sha256"):
+                raise ValueError("Validation hash mismatch")
+            execution = read(execution_path)
+            if execution.get("run_id") != run.name:
+                raise ValueError("Execution Run mismatch")
+            selected = [r for r in execution_rows(execution)
+                        if r.get("test_id") == record["tc_id"] and r.get("source") == "NEW_AUTOMATION_CANDIDATE"]
+            links = [r for r in wrapper.get("source_agent3_artifacts", []) if r.get("tc_id") == record["tc_id"]]
+            if len(selected) != 1 or len(links) != 1:
+                raise ValueError("Ambiguous retry TC")
+            manifest_path = safe_evidence_path(run, links[0]["agent3_manifest_file"])
+            if manifest_path.name != "agent3_manifest.json" or digest(manifest_path) != links[0].get("agent3_manifest_sha256"):
+                raise ValueError("Candidate manifest mismatch")
+            manifest = read(manifest_path)
+            if manifest.get("run_id") != run.name or manifest.get("tc_id") != record["tc_id"]:
+                raise ValueError("Candidate identity mismatch")
+            code = safe_evidence_path(manifest_path.parent / "candidates", manifest["candidate_file"])
+            code_hash = digest(code)
+            if not code_hash == manifest.get("candidate_sha256") == record.get("candidate_sha256") == selected[0].get("test_sha256"):
+                raise ValueError("Retry code mismatch")
+            # Today's product is checked only if it is available in this Run's
+            # workspace. Otherwise match the originally verified execution.
+            target = safe_evidence_path(run.parent.parent, "product_baseline/virtual-controller.html")
+            target_hash = digest(target) if target.is_file() else selected[0].get("target_sha256")
+            if not isinstance(target_hash, str) or len(target_hash) != 64 or record.get("target_sha256") != target_hash:
+                raise ValueError("Retry product missing or changed")
+            outcome = record.get("outcome")
+            allowed = {"PASS", "PRODUCT_MISMATCH_CANDIDATE", "AUTOMATION_ERROR", "ENVIRONMENT_ERROR", "TIMEOUT", "INCOMPLETE"}
+            if outcome not in allowed:
+                raise ValueError("Unknown retry outcome")
+            if outcome == "PASS":
+                files, hashes = record.get("evidence_files"), record.get("evidence_sha256")
+                if record.get("evidence_complete") is not True or not isinstance(files, list) or not files or not isinstance(hashes, dict):
+                    raise ValueError("Retry evidence missing")
+                evidence_root = safe_evidence_path(run, "asset_revalidation/" + record["tc_id"] + "/" + record["attempt_id"] + "/evidence")
+                for file in files:
+                    evidence = safe_evidence_path(run, file)
+                    if not evidence.is_relative_to(evidence_root) or digest(evidence) != hashes.get(file):
+                        raise ValueError("Retry evidence mismatch")
+            if digest(path) != stamp:
+                raise ValueError("Retry changed while collecting")
+            item.update(status="VERIFIED", outcome=outcome, source=name, source_sha256=stamp,
+                        product_scope="CURRENT_WORKSPACE" if target.is_file() else "ORIGINAL_EXECUTION_ONLY",
+                        registration="P1_CHECK_REQUIRED" if outcome == "PASS" else "BLOCKED_BY_RETRY")
+            item["reason"] = "재시험은 통과했지만 공식 등록은 P1의 전체 승인 검사가 필요합니다." if outcome == "PASS" else "재시험이 실패·미완료 상태입니다. 과거 점수와 별개로 등록 전 확인이 필요합니다."
+        except (OSError, ValueError, KeyError, TypeError, AttributeError):
+            # Untrusted bodies/paths never become display text or a false PASS.
+            pass
+    if result["items"]:
+        result["status"] = "REVIEW_REQUIRED" if any(i["status"] != "VERIFIED" for i in result["items"]) else "COLLECTED"
+        result["registration"] = "BLOCKED_BY_RETRY" if any(i["registration"] == "BLOCKED_BY_RETRY" for i in result["items"]) else "UNCONFIRMED" if result["status"] == "REVIEW_REQUIRED" else "P1_CHECK_REQUIRED"
+    return result
 
 
 def safe_evidence_path(root, name):
