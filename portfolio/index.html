@@ -10,10 +10,10 @@
 </head>
 <body>
 <a class="skip" href="#main">본문 바로가기</a>
-<header class="topbar"><div class="shell top-inner"><a class="brand" href="#main"><span class="brand-mark">QA</span> Agent Evaluation <small>PROJECT 02</small></a><span class="local-label">내 PC에서 보는 검토용 페이지</span></div></header>
+<header class="topbar"><div class="shell top-inner"><a class="brand" href="#main"><span class="brand-mark">QA</span> Agent Evaluation <small>PROJECT 02</small></a><span class="local-label">저장된 실행·평가 기록</span></div></header>
 <main id="main" class="shell">
-  <div class="page-heading"><div><h1>QA 에이전트의 결과, 무엇을 믿을 수 있을까?</h1><p>프로젝트1의 결과를 역할별 기준과 실행 증거로 대조하는 개인 QA 프로젝트입니다.</p></div><span class="snapshot-label">로컬 검토본 · 2026.10.09</span></div>
-  <nav class="page-jump" aria-label="페이지 주요 내용"><a href="#a3-comparison">세 가지 판단 비교</a><a href="#qa-improvement">개선 사례</a><a href="#latest-repeat">로컬 100회</a><a href="#chart-title">역할별 평가</a><a href="#criteria-details">26개 기준</a><a href="../../portfolio_export/index.html">메인 소개 ↗</a><a href="../../qa-agent-pipeline-v2/project.html">프로젝트1 ↗</a></nav>
+  <div class="page-heading"><div><h1>에이전트 결과 검증</h1><p>프로젝트1의 결과를 역할별 기준과 실행 증거로 대조하는 개인 QA 프로젝트입니다.</p></div><span class="snapshot-label">제출 검토본 · 2026.10.10</span></div>
+  <nav class="page-jump" aria-label="페이지 주요 내용"><a href="#latest-power-evaluation">최근 평가</a><a href="#a3-comparison">세 가지 판단 비교</a><a href="#qa-improvement">개선 사례</a><a href="#latest-repeat">로컬 100회</a><a href="#chart-title">역할별 평가</a><a href="#criteria-details">26개 기준</a><a href="../../portfolio_export/index.html">메인 소개 ↗</a><a href="../../qa-agent-pipeline-v2/project.html">프로젝트1 ↗</a></nav>
   <section class="qa-context" aria-labelledby="qa-purpose">
     <h2 id="qa-purpose">통과율보다 먼저, 평가가 올바른지 확인했습니다</h2>
     <div class="qa-context-grid"><div><h3>문제</h3><p>제품이 실패해도 검사는 잘했을 수 있습니다. PASS라는 보고만으로 검사가 충분했다고 볼 수도 없습니다.</p></div><div><h3>제가 정한 기준</h3><p>직접 준비한 상세 TC 예시와 역할별 책임을 26개 항목으로 정리했습니다. 사실 비교는 프로그램이, 의미 판단은 AI가 맡게 구분했습니다.</p></div><div><h3>확인과 개선</h3><p>평가가 틀렸다면 P1을 바로 고치지 않고, 자료 누락과 평가 오판부터 확인했습니다. 원래 결과와 수정 후 검증을 함께 남겼습니다.</p></div></div>
@@ -27,7 +27,7 @@
         <thead><tr><th scope="col">비교 사례</th><th scope="col">사용한 자료</th><th scope="col">AI 평균<br><small>5항목 · 5점 만점</small></th><th scope="col">어떻게 평가했나요?</th></tr></thead>
         <tbody>
           <tr data-case="normal"><th scope="row">정상 동작<small>켜진 장비 끄기</small></th><td>실제 로컬 시험<small>저장된 AI 작성 TC 사용</small></td><td class="comparison-score">5.0</td><td>정해진 시험과 확인을 수행함<small>5개 항목 모두 통과</small></td></tr>
-          <tr data-case="product"><th scope="row">제품 불일치 검출<small>16°C 하한에서 감소 시도</small></th><td>실제 로컬 시험<small>개발용 참조 TC 사용</small></td><td class="comparison-score">5.0</td><td>제품은 15°C로 내려갔지만,<br>시험 도우미는 그 차이를 찾아냄<small>제품 실패만으로 감점하지 않음</small></td></tr>
+          <tr data-case="product"><th scope="row">제품 불일치 검출<small>16°C 하한에서 감소 시도</small></th><td>실제 로컬 시험<small>개발용 참조 TC 사용</small></td><td class="comparison-score">5.0</td><td>제품은 15°C로 내려갔지만,<br>에이전트는 그 차이를 찾아냄<small>제품 실패만으로 감점하지 않음</small></td></tr>
           <tr data-case="omission"><th scope="row">필수 검사 누락<small>내부 전원값 확인을 뺀 사본</small></th><td><span class="pill amber">가상 비교 사본</span><small>실제 제품 실행 아님</small></td><td class="comparison-score">3.4</td><td>TC에 있던 검사가 계획에서 빠짐<small>누락과 실행 근거 부족에 감점</small></td></tr>
         </tbody>
       </table>
@@ -50,7 +50,7 @@
       <details class="source-files"><summary>평가 범위와 기록 보기</summary><p>평가 모델: gpt-5.6-terra · 기준: 2.5 · 정상 사례 10.04, 나머지 두 사례 10.05 평가. AI 응답은 세 건 모두 실제 호출 결과이며, 평가 대상 자료는 실제 로컬 시험 두 건과 가상 사본 한 건입니다.</p><p>사람 확인이 필요한 초안 평가입니다. 전체 26항목·Agent 4 보고·반복 일관성은 이번 비교로 확인하지 않았습니다. 이전 점수는 보존했고 제품이나 검사 기준을 바꾸지 않았습니다.</p><p><a href="a3-comparison.json">비교표 데이터와 원본 해시</a> · <a href="../improvements/IMP-004-judge-interpretation-boundaries.md">평가 이유와 확인 기록</a></p></details>
     </div></details>
   </section>
-  <section id="qa-improvement" class="card comparison-panel" aria-labelledby="improvement-title"><div class="card-head"><div><h2 id="improvement-title">평가가 이상할 때, 평가 근거부터 확인했습니다</h2><p>2026.10.09 · P2 평가 자료 연결 보완</p></div></div><div class="change-summary"><div><h3>발견한 문제</h3><p>최종 실행 기록이 있는데도 평가기가 앞선 후보 시험의 관찰값만 읽었습니다. 최신 실행을 평가한 것처럼 보일 위험이 있었습니다.</p></div><div><h3>판단과 수정</h3><p>P1의 시험 기준을 바꾸지 않고 P2의 자료 읽기를 보완했습니다. 같은 실행·TC·코드인지 확인한 뒤 최종 관찰값도 대조합니다.</p></div><div><h3>수정 후 확인</h3><p>100회 묶음 종료 후 저장 후속 흐름 5건을 다시 대조해 통과했습니다. 원본 점수는 보존했고 새 AI 평가는 하지 않았습니다.</p></div></div><p class="reading-note">최종 근거가 빠지면 이전 PASS로 대신하지 않고 검토 대상으로 남깁니다. 코드 검토와 로컬 재현으로 확인한 문제이며, AI가 독립적으로 발견한 성과로 표시하지 않습니다.</p><p class="reading-note"><a href="../improvements/IMP-005-p1-contract-compatibility.md">날짜별 수정 전후 기록</a> · <a href="evidence/local-100-20261009/latest-observations.json">5건 재대조 근거</a></p></section>
+  <section id="qa-improvement" class="card comparison-panel" aria-labelledby="improvement-title"><div class="card-head"><div><h2 id="improvement-title">평가가 이상할 때, 평가 근거부터 확인했습니다</h2><p>2026.10.09 · P2 평가 자료 연결 보완</p></div></div><div class="change-summary"><div><h3>발견한 문제</h3><p>최종 실행 기록이 있는데도 평가기가 앞선 후보 시험의 관찰값만 읽었습니다. 최신 실행을 평가한 것처럼 보일 위험이 있었습니다.</p></div><div><h3>판단과 수정</h3><p>P1의 시험 기준을 바꾸지 않고 P2의 자료 읽기를 보완했습니다. 같은 실행·TC·코드인지 확인한 뒤 최종 관찰값도 대조합니다.</p></div><div><h3>수정 후 확인</h3><p>100회 시험 이후, 저장된 결과에서 이어 실행한 5건의 기록도 대조해 일치를 확인했습니다. 원본 점수는 보존했고 새 AI 평가는 하지 않았습니다.</p></div></div><p class="reading-note">최종 근거가 빠지면 이전 PASS로 대신하지 않고 검토 대상으로 남깁니다. 코드 검토와 로컬 재현으로 확인한 문제이며, AI가 독립적으로 발견한 성과로 표시하지 않습니다.</p><p class="reading-note"><a href="../improvements/IMP-005-p1-contract-compatibility.md">날짜별 수정 전후 기록</a> · <a href="evidence/local-100-20261009/latest-observations.json">5건의 기록 대조 결과</a></p></section>
   <section id="latest-repeat" class="card repeat-panel" aria-labelledby="repeat-title">
     <div class="card-head"><div><h2 id="repeat-title">최근 로컬 반복 · 20종 × 5회</h2><p>2026.10.09 · 기존 코드가 정해진 상황을 일관되게 처리하는지 확인</p></div><span class="unit">새 API 호출 0회</span></div>
     <div class="execution-metrics"><div><strong>100 / 100</strong><span>예상한 처리와 일치</span></div><div><strong>65 / 65</strong><span>제품 화면 시험 뒤 복원 기록</span></div><div><strong>3 / 26</strong><span>이번에 확인한 P2 평가 항목</span></div></div>
@@ -69,9 +69,16 @@
     <details class="info"><summary>이 결과로 말할 수 있는 것과 없는 것</summary><div class="info-content"><p>준비한 입력과 저장된 AI 산출물을 현재 실행기에 넣었습니다. 제품 브라우저 시험은 65회이며, 나머지는 단계 처리와 승인 사본 검사입니다. 독립된 환경을 사용했으므로 장시간 연속 운영이나 동시 실행의 안정성을 측정한 결과는 아닙니다.</p><p>P2는 실제 검사 기록 대조(A3-03) 65회, 결과 집계(A4-01) 5회, 보고 증거 연결(A4-03) 5회를 확인했습니다. 총 75개 비교가 통과했으며 각 항목 평균은 5점입니다. 나머지 23개 항목은 이번에 평가하지 않았습니다.</p><p>새 AI 생성 성공률·의미 판단 정확도·공식 자료 등록 성공률로 확대할 수 없습니다. 공식 자산과 이전 점수는 바꾸지 않았습니다.</p></div></details>
     <p class="reading-note"><a href="evidence/local-100-20261009/report.html">100회 전체 결과표와 회차별 근거 ↗</a> · <a href="evidence/local-100-20261009/summary.json">공개용 결과 · 원본 해시</a> · <a href="../improvements/IMP-007-local-repeat-report.md">반복 검증 방법</a></p>
   </section>
+  <section id="latest-power-evaluation" class="card comparison-panel" aria-labelledby="latest-power-title">
+    <div class="card-head"><div><h2 id="latest-power-title">최근 평가 · 한 건의 실행을 끝까지 대조했습니다</h2><p>2026.10.09 · 전원 운전 → 정지 · RUN-20261009-103040-2FC290</p></div></div>
+    <div class="execution-metrics"><div><strong>21 / 26</strong><span>점수가 있는 항목 · 각각 5점</span></div><div><strong>1</strong><span>실패가 없어 원인 분류 제외</span></div><div><strong>4</strong><span>연결 기준 · 최종 평가 대기</span></div></div>
+    <p class="reading-note">P1이 새로 만든 TC로 제품 시험·복원·보고까지 진행한 1건을 저장한 뒤, P2가 네 역할을 각각 평가했습니다. P1은 API 5회, P2는 후속 평가 4회입니다. 서로 다른 9개 시나리오나 반복 성공률을 뜻하지 않습니다.</p>
+    <details class="info"><summary>왜 26개 모두 완료로 표시하지 않았나요?</summary><div class="info-content"><p>E01~E03은 요청·TC·실행·보고의 연결을 로컬에서 대조했지만 최종 점수는 확정하지 않았습니다. E04는 이 실행의 공식 승인 전후 이력이 없어 검토 대기입니다. 별도 사본의 승인 시험을 실제 등록 이력으로 바꾸지 않았습니다.</p><p>21개 점수도 사람 기준과의 대조가 끝난 확정 품질 점수는 아닙니다. 전체 평균은 계산하지 않았으며, 미정 조건을 포함한 새 AI 전체 실행과 반복 평가 일관성은 남은 범위입니다.</p></div></details>
+    <p class="reading-note"><a href="evidence/closeout-20261009/summary.json">최신 평가 요약과 원본 해시 ↗</a> · <a href="#chart-title">이전 점수와 개선 과정 보기 ↓</a></p>
+  </section>
   <div class="overview">
     <section class="chart-panel card" aria-labelledby="chart-title">
-      <div class="card-head"><div><h2 id="chart-title">역할별로 무엇을 평가했나요?</h2><p>기존 평가 기록 · 켜진 장비 끄기 · 2026.10.02</p></div><span class="unit">5점 만점</span></div>
+      <div class="card-head"><div><h2 id="chart-title">이전 평가와 개선 기록</h2><p>2026.10.02 전원 시험 · 당시 점수 보존</p></div><span class="unit">5점 만점</span></div>
       <p class="criteria-origin">각 Agent의 책임과 상세 TC 예시, QA 교육 자료를 참고해 <strong>이 프로젝트에 맞춘 26개 항목</strong>을 구성했습니다. 공인된 평가 점수는 아닙니다.</p>
       <div class="score-chart" id="score-chart" aria-label="Agent 1~4와 공통 기준·연결 기준 평가 요약"></div>
       <div class="chart-meta"><span>평가 완료 <strong id="count-scored">—</strong>/26</span><span>확인 대기 <strong id="count-review">—</strong></span><span>당시 제외 <strong id="count-na">—</strong></span></div>
@@ -86,12 +93,12 @@
           <div><strong id="restore-result">—</strong><span>원래 상태로 되돌리기</span></div>
           <div><strong id="asset-result">—</strong><span>자료 등록 상황별 검사</span></div>
         </div>
-        <div class="execution-foot"><p>시험용 복사본에서 확인했습니다. 일부 단계는 가짜 응답을 사용했습니다.<br>새 AI 호출 0회 / 실제 자료 등록 승인 0건</p><button type="button" class="text-button" id="show-assets">시험 내역 보기 ↗</button></div>
+        <div class="execution-foot"><p>시험용 복사본에서 확인했습니다. 일부 단계는 미리 준비한 응답(모델 대역)을 사용했습니다.<br>새 AI 호출 0회 / 실제 자료 등록 승인 0건</p><button type="button" class="text-button" id="show-assets">시험 내역 보기 ↗</button></div>
       </section>
       <section class="card attention-panel" aria-labelledby="attention-title">
-        <div class="card-head"><h2 id="attention-title">확인할 문제</h2><span class="unit">점수와 별도로 확인</span></div>
-        <details class="issue"><summary><span>되돌리기 확인을 했는데 안 했다고 평가</span><span class="issue-state checked">다시 평가해 확인</span></summary><p>처음에는 원래 상태로 돌아왔는지 확인하지 않았다며 3점을 줬습니다. 실제로는 확인 기록이 있었습니다. 평가자에게 자료를 더 분명히 보여주고 안내를 고친 뒤 5점을 받았습니다. 시험 결과 자체는 그대로였고 평가 기준은 2.2에서 2.3으로 달라졌으므로, 위에는 처음 점수를 남겼습니다.</p></details>
-        <details class="issue"><summary><span>상태 변경 시험을 평가에서 빼버림</span><span class="issue-state pending">재확인 필요</span></summary><p>장비를 켜거나 끄는 시험도 평가해야 하는데, 평가자가 이번에는 필요 없는 항목이라고 판단했습니다. 안내는 고쳤지만 AI가 이제 제대로 판단하는지는 아직 확인하지 않았습니다.</p></details>
+        <div class="card-head"><h2 id="attention-title">이전 평가에서 발견한 문제</h2><span class="unit">점수와 별도로 확인</span></div>
+        <details class="issue"><summary><span>복원 기록을 놓쳐 감점한 사례</span><span class="issue-state checked">다시 평가해 확인</span></summary><p>처음에는 원래 상태로 돌아왔는지 확인하지 않았다며 3점을 줬습니다. 실제로는 확인 기록이 있었습니다. 평가자에게 자료를 더 분명히 보여주고 안내를 고친 뒤 5점을 받았습니다. 시험 결과 자체는 그대로였고 평가 기준은 2.2에서 2.3으로 달라졌으므로, 위에는 처음 점수를 남겼습니다.</p></details>
+        <details class="issue"><summary><span>상태 변경 시험을 평가 대상에서 제외한 사례</span><span class="issue-state pending">재확인 필요</span></summary><p>장비를 켜거나 끄는 시험도 평가해야 하는데, 평가자가 이번에는 필요 없는 항목이라고 판단했습니다. 평가 안내를 보완했습니다. 10월 9일 새 전원 사례에서는 이 항목을 평가했지만, 이 과거 사례를 다시 평가한 것은 아닙니다.</p></details>
         <details class="issue"><summary><span>로컬 반복과 새 AI 반복의 차이</span><span class="issue-state quiet">AI 반복은 미검증</span></summary><p>로컬 100회는 위 표에서 확인할 수 있습니다. 같은 조건에서 AI가 처음부터 끝까지 여러 번 잘하는지는 아직 확인하지 않았습니다. 이전 70건도 별도의 승인 사본 검사이며, AI 생성 반복과 합산하지 않습니다.</p></details>
       </section>
     </div>
@@ -122,7 +129,7 @@
   <details id="criteria-details" class="disclosure-section">
     <summary><div><h2>전체 평가 기준 <span class="count-chip">26개</span></h2><p>Agent 1~4 · 공통 기준 · 연결 기준</p></div><span class="disclosure-label">펼치기</span></summary>
     <div class="disclosure-body">
-      <div class="criteria-toolbar"><p>처음 점수 유지 · 당시 보완 필요 <span id="count-fail">—</span>항목<br>설명은 지금 기준 2.5, 점수는 예전 기준 2.2입니다. ‘—’는 평가 전이거나 이번 대상이 아니라는 뜻이며, 0점이 아닙니다.</p><div class="controls"><button type="button" class="secondary" id="expand-groups">항목 목록 모두 보기</button><button type="button" class="secondary" id="collapse-all">모두 접기</button></div></div>
+      <div class="criteria-toolbar"><p>처음 점수 유지 · 당시 보완 필요 <span id="count-fail">—</span>항목<br>설명은 현재 기준 2.5입니다. 이 영역의 점수는 당시 기준 2.2로 평가한 결과입니다. ‘—’는 평가 전이거나 이번 대상이 아니라는 뜻이며, 0점이 아닙니다.</p><div class="controls"><button type="button" class="secondary" id="expand-groups">항목 목록 모두 보기</button><button type="button" class="secondary" id="collapse-all">모두 접기</button></div></div>
       <div id="all-criteria" class="role-groups"></div>
       <p class="footnote">역할별 20개 + 공통 기준 2개 + 연결 기준 4개 = 총 26개입니다. 공통 항목을 각 역할의 평균에 또 더하지 않습니다.</p>
     <details class="info"><summary>0~5점의 뜻과 평가 방법</summary><div class="info-content"><div class="two-col"><div><h3>점수 읽는 법</h3><dl class="scale"><dt>5점</dt><dd>필요한 조건을 모두 지켰다는 근거가 있음</dd><dt>4점</dt><dd>중요한 조건은 지켰고, 결과에 영향 없는 작은 설명만 부족함</dd><dt>3점</dt><dd>일부는 지켰지만 중요한 내용이 빠짐</dd><dt>2점</dt><dd>중요한 조건 여러 개가 빠지거나 틀림</dd><dt>1점</dt><dd>중요한 조건을 대부분 지키지 못함</dd><dt>0점</dt><dd>목적과 반대로 하거나, 맡은 범위 전체를 충족하지 못함</dd></dl><p>4~5점은 통과, 0~3점은 보완이 필요하다는 뜻입니다. 평가할 자료가 부족하거나 이번 사례와 관계없는 항목에는 점수를 만들지 않습니다.</p></div><div><h3>누가 평가하나요?</h3><p>프로그램은 개수·값·기록 연결을 확인합니다. AI는 요청과 결과의 뜻이 맞는지 읽고 판단합니다. 둘을 함께 사용하는 항목도 있습니다.</p><p>프로그램이 맡는 항목 4개, AI가 맡는 항목 12개, 함께 보는 항목 10개입니다. 담당을 정했다는 것이 평가를 모두 마쳤다는 뜻은 아닙니다. 평가자가 잘못 판단했는지도 따로 확인합니다.</p><p>아래 설명은 지금 사용하는 기준 2.5입니다. 위 점수는 예전 기준 2.2로 받은 점수이며, 새 기준으로 다시 매긴 것이 아닙니다.</p></div></div></div></details>
@@ -130,21 +137,21 @@
     </div>
   </details>
   <details id="assets-details" class="disclosure-section">
-    <summary><div><h2>실제 시험과 정식 자료 등록 시험 내역</h2><p>요청 10가지 × 등록 상황 7가지 · 승인, 보류, 중복 등록, 오류 등</p></div><span class="disclosure-label">펼치기</span></summary>
-    <div class="disclosure-body">    <p class="notice">AI가 전체 과정을 70번 실행한 것은 아닙니다. 화면 시험 결과 10건마다 승인·보류 같은 7가지 상황을 별도 복사본에서 확인했습니다. 앞 단계 자료가 맞는지 확인하는 일부 과정은 가짜 응답으로 대신했습니다.</p>
+    <summary><div><h2>실제 시험과 자산 등록 절차의 시험 내역</h2><p>요청 10가지 × 등록 상황 7가지 · 승인, 보류, 중복 등록, 오류 등</p></div><span class="disclosure-label">펼치기</span></summary>
+    <div class="disclosure-body">    <p class="notice">AI가 전체 과정을 70번 실행한 것은 아닙니다. 화면 시험 결과 10건마다 승인·보류 같은 7가지 상황을 별도 복사본에서 확인했습니다. 앞 단계 자료가 맞는지 확인하는 일부 과정은 미리 준비한 응답(모델 대역)으로 대신했습니다.</p>
     <div class="section-head"><div><h2>시험 상황별 확인 결과</h2><p>‘일치’는 승인·보류·차단 등이 예상한 대로 처리됐다는 뜻입니다.</p></div></div>
     <div class="table-scroll" role="region" aria-label="10개 시나리오 7개 경로" tabindex="0"><table class="asset-table"><thead><tr><th scope="col">시험 상황</th><th scope="col">보류</th><th scope="col">동의 안 함</th><th scope="col">승인</th><th scope="col">보류 후 승인</th><th scope="col">중복 등록</th><th scope="col">제품 설명서 변경</th><th scope="col">등록 실패</th></tr></thead><tbody id="asset-matrix"></tbody></table></div>
-    <details class="info"><summary>7가지 등록 상황에서 확인한 내용</summary><div class="info-content"><ul><li>보류 / 동의 안 함: 정식 제품 설명서와 시험 목록을 바꾸지 않음</li><li>승인 / 보류 후 승인: 정해진 절차로 승인하면 등록됨</li><li>중복 등록: 같은 항목을 중복 등록하지 않음</li><li>제품 설명서 변경: 검토 이후 기준이 바뀌었으면 그대로 등록하지 않음</li><li>등록 실패: 중간 오류 시 일부만 반영된 상태를 남기지 않음</li></ul><p>사람이 승인 버튼을 70번 누른 시험은 아닙니다. 동시에 여러 작업을 하거나 프로그램을 강제로 끄거나 정전되는 상황까지 확인하지는 않았습니다. 위의 도우미 평가 점수와는 별도 검사입니다.</p></div></details>
+    <details class="info"><summary>7가지 등록 상황에서 확인한 내용</summary><div class="info-content"><ul><li>보류 / 동의 안 함: 정식 제품 설명서와 시험 목록을 바꾸지 않음</li><li>승인 / 보류 후 승인: 정해진 절차로 승인하면 등록됨</li><li>중복 등록: 같은 항목을 중복 등록하지 않음</li><li>제품 설명서 변경: 검토 이후 기준이 바뀌었으면 그대로 등록하지 않음</li><li>등록 실패: 중간 오류 시 일부만 반영된 상태를 남기지 않음</li></ul><p>사람이 승인 버튼을 70번 누른 시험은 아닙니다. 동시에 여러 작업을 하거나 프로그램을 강제로 끄거나 정전되는 상황까지 확인하지는 않았습니다. 위의 에이전트 평가 점수와는 별도 검사입니다.</p></div></details>
 </div>
   </details>
   <details id="latest-local-checks" class="info"><summary>추가 확인 · 등록한 시험을 다음에도 쓸 수 있나요? · 10.04</summary><div class="info-content">
     <p>켜진 장비 끄기·중풍 변경, 두 사례를 현재 제품에서 다시 시험했습니다. 시험용 사본에 등록한 뒤, 목록에 들어간 코드로 다시 실행하고 원래 상태로 되돌린 것까지 확인했습니다.</p>
-    <dl class="source-summary"><dt>제품에서 다시 시험</dt><dd>전원·중풍 2건 모두 통과</dd><dt>등록 후 코드 재사용</dt><dd>2건 모두 통과 · 원상 복구 확인</dd><dt>승인 여부별 처리</dt><dd>7건 모두 예상과 일치 · 보류, 미등록, 추가 등록, 필요한 설명서 개정에 동의하지 않은 경우</dd></dl>
+    <dl class="source-summary"><dt>제품에서 다시 시험</dt><dd>전원·중풍 2건 모두 통과</dd><dt>등록 후 코드 재사용</dt><dd>2건 모두 통과 · 시험 전 상태 복원 확인</dd><dt>승인 여부별 처리</dt><dd>7건 모두 예상과 일치 · 보류, 미등록, 추가 등록, 필요한 설명서 개정에 동의하지 않은 경우</dd></dl>
     <p class="reading-note">저장된 AI 결과를 사용한 로컬 검사입니다. AI가 새로 작성하거나 사람이 화면 버튼을 눌러 승인한 시험은 아닙니다. 실제 공식 자료는 바꾸지 않았으며, 기존 70건 및 위 AI 점수와 별도입니다. 기존 시험의 대체 처리는 별도 회귀검사이며 이 두 건의 재사용 결과에 포함하지 않습니다.</p>
     <p><a href="local-verification.json">이 검사만의 결과와 원본 해시 보기</a></p>
   </div></details>
   <details class="info improvement"><summary>이전 개선 · 이미 있는 SRS 수정안을 또 제안한 경우</summary><div class="info-content"><h3>이미 있는 내용을 또 추가하자던 문제</h3><div class="change-summary"><div><h3>발견한 문제</h3><p>제품 설명서에 있는 내용을 AI가 다시 추가하자고 제안했습니다.</p></div><div><h3>바꾼 부분</h3><p>프로젝트1의 작성 안내와 수정안 검사를 보완했습니다.</p></div><div><h3>확인한 결과</h3><p>새 응답 1건에서는 중복 제안이 사라졌습니다. 전체 과정은 다른 문제로 중단됐습니다.</p></div></div><p class="reading-note">프로젝트2에 모인 중단 기록과 이후 코드 검토로 확인한 사례입니다. 평가 AI가 혼자 발견한 것은 아닙니다. 기록: IMP-001.</p></div></details>
-  <details class="info sources"><summary>어떤 자료로 만든 화면인가요?</summary><div class="info-content"><dl class="source-summary"><dt>현재 코드 기준</dt><dd>P1 <code>5fdc882</code> · P2 <code>934526a</code>. 설명을 대조한 버전이며, 아래 과거 결과를 이 버전에서 다시 실행한 것은 아닙니다.</dd><dt>최근 로컬 반복</dt><dd>2026.10.09 · 20종 × 5회 · 새 AI 호출 없음</dd><dt>평가 점수</dt><dd>장비 끄기 사례 · 2026.10.02 평가 · 당시 기준 2.2</dd><dt>세부 기준</dt><dd>현재 기준 2.5 · 과거 점수를 다시 계산한 것은 아님</dd><dt>자료 등록 시험</dt><dd>2026.10.03 · 별도 복사본에서 한 로컬 시험</dd></dl><p class="reading-note">저장된 결과를 보여주는 화면입니다. 자동 갱신되지 않으며 페이지를 열어도 유료 AI 호출·시험 실행·자료 승인·게시가 일어나지 않습니다. 인터넷에 공개하지 않았습니다.</p><details class="source-files"><summary>원본 파일과 이전 화면 보기</summary><p>평가 Run: RUN-20260928-090141-6100CB · 현재 기준: role-rubric-2.5</p><div id="source-hashes"></div><p><a href="evidence.js">평가 결과 원본</a> · <a href="rubric.js">26개 기준 원문</a> · <a href="backup-charts-20261004/index.html">수정 전 차트 화면</a> · <a href="backup-dashboard-20261004/index.html">이전 대시보드</a> · <a href="backup-story-20261004/index.html">소개형 페이지</a></p></details></div></details>
+  <details class="info sources"><summary>어떤 자료로 만든 화면인가요?</summary><div class="info-content"><dl class="source-summary"><dt>현재 코드 기준</dt><dd>P1 <code>5fdc882</code> · P2 <code>934526a</code>. 설명을 대조한 버전이며, 아래 과거 결과를 이 버전에서 다시 실행한 것은 아닙니다.</dd><dt>최근 로컬 반복</dt><dd>2026.10.09 · 20종 × 5회 · 새 AI 호출 없음</dd><dt>평가 점수</dt><dd>장비 끄기 사례 · 2026.10.02 평가 · 당시 기준 2.2</dd><dt>세부 기준</dt><dd>현재 기준 2.5 · 과거 점수를 다시 계산한 것은 아님</dd><dt>자료 등록 시험</dt><dd>2026.10.03 · 별도 복사본에서 한 로컬 시험</dd></dl><p class="reading-note">저장된 결과를 보여주는 화면입니다. 자동 갱신되지 않으며 페이지를 열어도 유료 AI 호출·시험 실행·자료 승인·게시가 일어나지 않습니다. 공개 배포 전 검토본입니다.</p><details class="source-files"><summary>원본 파일과 이전 화면 보기</summary><p>평가 Run: RUN-20260928-090141-6100CB · 현재 기준: role-rubric-2.5</p><div id="source-hashes"></div><p><a href="evidence.js">평가 결과 원본</a> · <a href="rubric.js">26개 기준 원문</a> · <a href="backup-charts-20261004/index.html">수정 전 차트 화면</a> · <a href="backup-dashboard-20261004/index.html">이전 대시보드</a> · <a href="backup-story-20261004/index.html">소개형 페이지</a></p></details></div></details>
 
   <noscript><p class="notice">결과와 기준을 표시하려면 JavaScript가 필요합니다. <a href="evidence.js">표시 결과 데이터</a>를 확인할 수 있습니다.</p></noscript>
 </main>

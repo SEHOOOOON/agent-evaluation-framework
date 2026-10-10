@@ -1,0 +1,71 @@
+{
+  "date_kst": "2026-10-09T20:32:59.349517+09:00",
+  "p1_run": "RUN-20261009-103040-2FC290",
+  "evaluation_kind": "SAVED_P1_FOLLOWUP_NOT_NEW_P1_RUN",
+  "api_attempts": 4,
+  "responses": 4,
+  "automatic_retries": 0,
+  "p1_new_calls": 0,
+  "criteria_total": 26,
+  "distinct_criteria_with_score": 21,
+  "criteria_states": {
+    "SCORED": 21,
+    "NOT_APPLICABLE": 1,
+    "UNASSESSED": 3,
+    "NEEDS_REVIEW": 1
+  },
+  "overall_quality_score": null,
+  "human_review": "PENDING_NOT_CALIBRATED",
+  "official_approval": false,
+  "source_sha256": "8b3077e522da7b0884dfe9681ca2c975ee2ffad107bce1dc8b7aa2e9a1a4c08d",
+  "source_label": "p2-closeout-20261009/summary.json",
+  "scope_note": "저장된 P1 결과에 대한 P2 후속 평가. 새 P1 실행이나 반복 안정성 지표가 아님.",
+  "roles": [
+    {
+      "role": "A1",
+      "status": "COMPLETED",
+      "assessment": "REVIEW",
+      "scored": 6,
+      "mean_of_scored_items": 5.0,
+      "verdicts": {
+        "PASS": 6
+      },
+      "result_sha256": "30d57a5139e853804c5bed25fc38b417c5de813973dbac0b44a0c545379665da"
+    },
+    {
+      "role": "A2",
+      "status": "COMPLETED",
+      "assessment": "REVIEW",
+      "scored": 10,
+      "mean_of_scored_items": 5.0,
+      "verdicts": {
+        "PASS": 10
+      },
+      "result_sha256": "3314ad2df9634c65e58f5e3de88b1ac5cc4fead71b3468390e012df1c5bece55"
+    },
+    {
+      "role": "A3",
+      "status": "COMPLETED",
+      "assessment": "REVIEW",
+      "scored": 5,
+      "mean_of_scored_items": 5.0,
+      "verdicts": {
+        "PASS": 5
+      },
+      "result_sha256": "6384f0b8c76737236e34b38a0fc8f3793bdd96eb53ce832332981f0556fd1b80"
+    },
+    {
+      "role": "A4",
+      "status": "COMPLETED",
+      "assessment": "REVIEW",
+      "scored": 3,
+      "mean_of_scored_items": 5.0,
+      "verdicts": {
+        "PASS": 3,
+        "NOT_APPLICABLE": 1
+      },
+      "result_sha256": "93560634fcb671485de9edd6bca60766babe239b563a1ff550200e30b0a73f5d"
+    }
+  ],
+  "followup_note": "E01~E03 로컬 검토 제안은 미확정. E04 승인 전후 이력 미확보. 기존 점수 변경 없음."
+}

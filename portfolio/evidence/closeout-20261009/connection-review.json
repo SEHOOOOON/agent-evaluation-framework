@@ -1,0 +1,39 @@
+{
+  "kind": "ASSISTANT_REVIEW_PROPOSAL_NOT_USER_APPROVED_OR_API_JUDGE",
+  "date_kst": "2026-10-09",
+  "run_id": "RUN-20261009-103040-2FC290",
+  "human_review_status": "PENDING",
+  "overall_score": null,
+  "source_sha256": "01262435a4ce542a4ef917e807532fc38df77919f09becccce705ab54bde1b26",
+  "items": [
+    {
+      "criterion_id": "E01",
+      "proposal": "PASS_FOR_SAVED_NORMAL_CASE",
+      "score_proposal": 5,
+      "reason": "요청의 단일 장비·준비·정지 적용·패널/카드/내부 상태 확인·준비 전 복원이 연결된다. 요청 조건/절차 9개와 제품 확인 3개가 추적되며 다른 장비·실장비 통신·알림은 제외로 보고했다.",
+      "limitation": "이 전원 요청 1건에 한정한 제안이다. 다른 요청의 의미 해석 정확도를 보장하지 않는다."
+    },
+    {
+      "criterion_id": "E02",
+      "proposal": "PASS_FOR_SAVED_NORMAL_CASE",
+      "score_proposal": 5,
+      "reason": "요청에 필수 미정 값이 없고 분석부터 최종 보고까지 정보 부족을 임의로 추가하지 않았다. 정보 부족이 없는 경우도 이 기준의 적용 대상이다.",
+      "limitation": "비어 있지 않은 미정 조건을 최신 실제 AI가 끝까지 전달하는 경로는 별도 미검증이다. 정상 사례의 점수와 그 경로의 검증 여부를 분리한다."
+    },
+    {
+      "criterion_id": "E03",
+      "proposal": "PASS_FOR_SAVED_NORMAL_CASE",
+      "score_proposal": 5,
+      "reason": "제품 1건·환경 점검 1건을 구분하고 제외 범위를 남겼다. 없는 실패·질문을 만들어내지 않았고 공식 승인을 완료했다고 주장하지 않았다. 실제 시험한 범위만 PASS로 보고했다.",
+      "limitation": "과거 부분 진행에서 질문이 빠진 실패는 그대로 남긴다. 정상 전원 사례의 통과 제안으로 과거 실패를 덮지 않는다."
+    },
+    {
+      "criterion_id": "E04",
+      "proposal": "REVIEW_FOR_SAVED_NORMAL_CASE",
+      "score_proposal": null,
+      "reason": "정상 전원 Run에는 공식 자산 승인 전후 전체 이력이 없다. 별도 사본 25건과 현재 승인 보호 33개 검사는 기능 근거이지만 이 Run의 공식 등록 이력이 아니다.",
+      "limitation": "0점이나 제품 실패가 아니다. 공식 원본을 바꿔야만 포폴을 완성하는 것은 아니다. 다음 검증은 같은 저장 Run의 독립 사본 승인 전후를 연결해 별도 E04 사례로 평가하는 방법이 적절하다."
+    }
+  ],
+  "note": "로컬 검토 제안이며 사람 승인·새 API 평가·원본 점수 변경이 아님."
+}

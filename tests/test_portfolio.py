@@ -109,7 +109,7 @@ def test_no_credentials_absolute_paths_or_outbound_execution():
 def test_scope_and_keyboard_controls_are_explicit():
     html = (PAGE / 'index.html').read_text(encoding='utf-8')
     js = (PAGE / 'page.js').read_text(encoding='utf-8')
-    for phrase in ('내 PC에서 보는 검토용 페이지', '일부 과정은 가짜 응답으로 대신', 'AI가 전체 과정을 70번 실행한 것은 아닙니다',
+    for phrase in ('저장된 실행·평가 기록', '일부 과정은 미리 준비한 응답(모델 대역)으로 대신', 'AI가 전체 과정을 70번 실행한 것은 아닙니다',
                    '여러 번 잘하는지는 아직 확인하지 않았습니다', '당시 기준 2.2', '처음 점수 유지'):
         assert phrase in html
     assert 'type="button" class="criteria-link"' in js
@@ -368,3 +368,40 @@ def test_latest_local_comparison_keeps_product_outcome_separate_from_grades():
     for phrase in ('23개는 미평가', '새로운 AI 평가는 하지 않음', '반복 안정성이나 개선율로 비교하지 않습니다'):
         assert phrase in section
     assert not re.search(r'sk-[A-Za-z0-9_-]{16,}|[A-Za-z]:[\\/]', json.dumps(data, ensure_ascii=False))
+
+def test_latest_closeout_separates_pending_and_preserves_source_states():
+    from collections import Counter
+    folder = PAGE / "evidence/closeout-20261009"
+    summary = json.loads((folder / "summary.json").read_text(encoding="utf-8"))
+    extract = json.loads((folder / "criteria.json").read_text(encoding="utf-8"))
+    assert len(extract["criteria"]) == 26
+    assert Counter(x["status"] for x in extract["criteria"]) == summary["criteria_states"]
+    assert summary["criteria_states"] == {"SCORED": 21, "NOT_APPLICABLE": 1, "UNASSESSED": 3, "NEEDS_REVIEW": 1}
+    assert summary["overall_quality_score"] is None
+    assert summary["human_review"] == "PENDING_NOT_CALIBRATED"
+    assert summary["p1_new_calls"] == 0 and summary["api_attempts"] == 4
+    source = ROOT / "evaluation-runs/p2-closeout-20261009/scorecard.json"
+    if source.exists():
+        assert hashlib.sha256(source.read_bytes()).hexdigest() == extract["source_sha256"]
+        original = json.loads(source.read_text(encoding="utf-8"))
+        for got, old in zip(extract["criteria"], original["criteria"], strict=True):
+            for key in ("criterion_id", "owner", "title", "status", "score_recorded"):
+                assert got[key] == old[key]
+            assert got["role_assessments"] == [
+                {k: v for k, v in row.items() if k in ("role", "verdict", "score", "reason")}
+                for row in old["ai_observations"]
+            ]
+            expected = {k: v for k, v in old["python"].items() if k in ("score", "verdict", "reason")} if isinstance(old["python"], dict) else None
+            assert got["program_assessment"] == expected
+    html = (PAGE / "index.html").read_text(encoding="utf-8")
+    assert html.index('id="latest-power-evaluation"') < html.index('id="score-chart"')
+    assert "전체 평균은 계산하지 않았으며" in html
+
+
+def test_connection_proposals_are_not_final_scores_or_approval():
+    data = json.loads((PAGE / "evidence/closeout-20261009/connection-review.json").read_text(encoding="utf-8"))
+    assert data["kind"] == "ASSISTANT_REVIEW_PROPOSAL_NOT_USER_APPROVED_OR_API_JUDGE"
+    assert data["human_review_status"] == "PENDING"
+    assert data["overall_score"] is None
+    assert [x["criterion_id"] for x in data["items"]] == ["E01", "E02", "E03", "E04"]
+    assert data["items"][-1]["score_proposal"] is None
