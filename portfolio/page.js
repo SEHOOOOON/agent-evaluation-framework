@@ -7,6 +7,7 @@
   const escape = value => String(value ?? '').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#39;');
   // Render a compact view from the preserved source rows; never recalculate scores.
   function buildResultOverview() {
+    if (document.body.classList.contains('report-page')) return;
     const overview = document.getElementById('result-overview');
     const body = document.getElementById('result-rows');
     const details = document.getElementById('evaluation-evidence');
@@ -44,6 +45,7 @@
   buildResultOverview();
   const dashboardTabs = [...document.querySelectorAll('.dashboard-tabs [role="tab"]')];
   function selectDashboardTab(tab, focus = false) {
+    if (document.body.classList.contains('report-page')) return;
     for (const candidate of dashboardTabs) {
       const selected = candidate === tab;
       candidate.setAttribute('aria-selected', String(selected));
@@ -53,6 +55,7 @@
     if (focus) tab.focus();
   }
   function showPanelFor(target) {
+    if (document.body.classList.contains('report-page')) return;
     const panel = target.closest('.portfolio-panel');
     const tab = panel && dashboardTabs.find(candidate => candidate.getAttribute('aria-controls') === panel.id);
     if (tab) selectDashboardTab(tab);
@@ -151,7 +154,8 @@
     return `<article class="role-row" aria-labelledby="overview-${key}"><h3 class="role-heading" id="overview-${key}"><span>${escape(name)}</span>${escape(description)}<small>${group.total}개 항목</small></h3><div class="role-context"><p class="role-question">${escape(context.question)}</p><p class="role-checks">${context.checks.map(escape).join(' · ')}</p><p class="role-why"><span>왜 확인하나요?</span>${escape(context.why)}</p></div><div class="score-box" aria-label="${valid ? group.evaluated+'개 항목 평균 '+score.toFixed(1)+'점 / 5점' : '당시 점수 미확정'}"><strong>${valid ? score.toFixed(1) : '—'}</strong>${valid ? '<span> / 5</span>' : ''}<small>${valid ? group.evaluated+'/'+group.total+'개 반영' : ''}</small></div><button type="button" class="criteria-link" data-role="${key}" aria-label="${escape(name)} ${escape(description)}, 세부 기준 보기">세부 기준 보기 ↗</button></article>`;
   }).join('');
   document.querySelectorAll('.disclosure-section').forEach(detail=>detail.addEventListener('toggle',()=>{
-    detail.querySelector('.disclosure-label').textContent = detail.open ? '접기' : '펼치기';
+    const label = detail.querySelector('.disclosure-label');
+    if (label) label.textContent = detail.open ? '접기' : '펼치기';
   }));
   document.querySelectorAll('.criteria-link').forEach(button=>button.addEventListener('click',()=>{
     document.getElementById('criteria-details').open = true;
