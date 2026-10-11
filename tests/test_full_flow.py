@@ -83,6 +83,61 @@ def guidance_packet(run):
         {"request": {}, "oracle": {"status": "DRAFT"}, "target_commit": "test"}, [])["A4"]
 
 
+@pytest.mark.parametrize("fault", [None, "missing", "missing_file", "path", "hash", "snapshot", "unverified_srs", "legacy", "not_captured", "rewrite"])
+def test_program_owned_srs_source_provenance(guidance_run, fault):
+    from eval_harness.full_flow import collect_packets
+    run = guidance_run
+    sha = digest(run / "srs_snapshot.md")
+    write(run / "run_manifest.json", {"srs_sha256": sha})
+    write(run / "agent2_test_design.json", {"test_cases": [], "SRS_개정_제안": []})
+    name = "agent2_srs_source_attempt_1.json"
+    write(run / name, {"contract_version": "1.0", "attempt": 1,
+          "srs_sha256": "wrong" if fault == "snapshot" else sha,
+          "raw_model_output": None if fault == "not_captured" else {"test_cases": []},
+          "capture_status": "NOT_CAPTURED" if fault == "not_captured" else "CAPTURED",
+          "attachments": []})
+    manifest = {"prompt_version": "agent2-2.62", "srs_source_records": [
+        {"file": "../other.json" if fault == "path" else name,
+         "sha256": "wrong" if fault == "hash" else digest(run / name)}]}
+    if fault == "missing":
+        manifest.pop("srs_source_records")
+    if fault == "missing_file":
+        (run / name).unlink()
+    if fault == "unverified_srs":
+        write(run / "run_manifest.json", {})
+    if fault == "rewrite":
+        second = "agent2_srs_source_attempt_2.json"
+        record = read(run / name)
+        record["attempt"] = 2
+        write(run / second, record)
+        manifest["srs_source_records"].append({"file": second, "sha256": digest(run / second)})
+    if fault == "legacy":
+        manifest = {"prompt_version": "agent2-2.61"}
+        (run / name).unlink()
+    write(run / "agent2_manifest.json", manifest)
+    before = {p.name: p.read_bytes() for p in run.iterdir() if p.is_file()}
+    spec = FlowSpec(case_id="SRS-SOURCE", request="request.json", oracle="oracle.json",
+                    generation_model="offline", judge_model="offline")
+    def collect():
+        return collect_packets(run, run.parents[2], spec,
+            {"request": {}, "oracle": {"status": "DRAFT"}, "target_commit": "test"}, [])["A2"]
+    if fault in {"missing", "missing_file", "path", "hash", "snapshot", "unverified_srs"}:
+        with pytest.raises(ValueError, match="SRS source"):
+            collect()
+    else:
+        packet = collect()
+        if fault == "legacy":
+            assert "srs_source_ownership" not in packet.sources["context"]
+        else:
+            assert packet.sources["context"]["srs_source_ownership"]["status"] == "HASH_VERIFIED"
+            trace = packet.sources["trace"]
+            assert trace["evidence_delivery"]["json_files"][name] == "ROLE_INPUT"
+            assert trace["evidence_delivery"]["actual_model_requests"] == "UNAVAILABLE_NOT_PROOF_OF_NO_CALL"
+            if fault == "not_captured":
+                assert trace["checkpoints_and_attempts"][name]["capture_status"] == "NOT_CAPTURED"
+    assert before == {p.name: p.read_bytes() for p in run.iterdir() if p.is_file()}
+
+
 @pytest.mark.parametrize("role", ["A3", "A4"])
 @pytest.mark.parametrize("fault", [None, "wrong_run", "private_path"])
 def test_execution_error_reaches_role_without_weakening_input_guards(guidance_run, role, fault):

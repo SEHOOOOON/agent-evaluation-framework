@@ -38,7 +38,7 @@ class FlowSpec(BaseModel):
     request: str
     oracle: str
     generation_model: str = Field(pattern=r"^[A-Za-z0-9._:-]{1,100}$")
-    judge_model: str = Field(pattern=r"^[A-Za-z0-9._:-]{1,100}$")
+    judge_model: str = Field(default="gpt-6.1-sol", pattern=r"^[A-Za-z0-9._:-]{1,100}$")
     trials: Literal[1, 5] = 1
     max_candidates: int = Field(default=3, ge=1, le=10)
     generation_calls_per_trial: int = Field(default=10, ge=1, le=24)
@@ -888,6 +888,32 @@ def collect_packets(run, work, spec, plan, checks):
     catalog_hash = docs.get("agent2_manifest.json", {}).get("approved_regression_catalog_sha256")
     if catalog_hash and (catalog_name not in docs or digest(safe_evidence_path(run, catalog_name)) != catalog_hash):
         raise ValueError("Saved regression catalog missing or unverified")
+    # New P1 transport omits the current SRS text from model-authored output.
+    # Preserve old runs, but verify declared provenance before attributing it.
+    agent2_manifest = docs.get("agent2_manifest.json", {})
+    srs_records = agent2_manifest.get("srs_source_records")
+    srs_ownership = None
+    if srs_records is not None or agent2_manifest.get("prompt_version") == "agent2-2.62":
+        if not isinstance(srs_records, list) or len(srs_records) not in (1, 2):
+            raise ValueError("SRS source records missing or invalid")
+        for attempt, entry in enumerate(srs_records, 1):
+            name = f"agent2_srs_source_attempt_{attempt}.json"
+            if not isinstance(entry, dict) or entry.get("file") != name:
+                raise ValueError("SRS source record reference mismatch")
+            record = docs.get(name)
+            if (not isinstance(record, dict)
+                    or digest(safe_evidence_path(run, name)) != entry.get("sha256")
+                    or input_links["srs_snapshot.md"]["status"] != "HASH_VERIFIED"
+                    or record.get("srs_sha256") != input_links["srs_snapshot.md"]["sha256"]):
+                raise ValueError("SRS source record missing or unverified")
+        srs_ownership = {
+            "status": "HASH_VERIFIED",
+            "records": srs_records,
+            "boundary": "current_acceptance_criteria는 고정 SRS에서 프로그램이 붙인 원문입니다. "
+                        "변경안·이유·요구사항 ID 선택은 모델 작성 대상입니다. "
+                        "원문 연결 해시는 변경안의 의미 정확성이나 실제 호출 입력 확보를 증명하지 않습니다. "
+                        "NOT_CAPTURED는 모델 원본 출력 미확보이며 모델이 작성하지 않았다는 뜻이 아닙니다.",
+        }
     calls = []
     for path in sorted((work / "calls").glob("*/request.json")):
         calls.append(request_evidence(read(path), digest(path)))
@@ -982,6 +1008,8 @@ def collect_packets(run, work, spec, plan, checks):
         }
         if role == "A2":
             source["context"]["user_tc_reference"] = tc_reference
+        if role in ("A2", "A3") and srs_ownership is not None:
+            source["context"]["srs_source_ownership"] = srs_ownership
         if role in ("A2", "A3"):
             catalog_content, catalog_omissions = catalog_evidence(docs.get(catalog_name))
             source["context"]["existing_tc_catalog"] = {

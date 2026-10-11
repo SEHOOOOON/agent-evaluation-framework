@@ -1,0 +1,722 @@
+{
+  "record_date": "2026-10-11",
+  "type": "SAVED_RUN_REVIEW_NOT_NEW_P1_EXECUTION",
+  "scenarios": [
+    {
+      "scenario": "temperature",
+      "title": "냉방 정책 변경",
+      "selection_reason": "변경할 냉방 하한과 유지할 난방 기준을 함께 확인",
+      "outcome": "냉방 기대 20°C·관찰 19°C 불일치 / 난방 16°C 통과",
+      "execution_scope": "새 분석·TC 작성부터 실행; 두 TC 복원·보고 완료",
+      "run_id": "RUN-20261011-084232-5FB71B",
+      "source_locator": "runs/manual_checks/final-recheck-1011/live/runs/RUN-20261011-084232-5FB71B",
+      "source_hashes": {
+        "agent1_change_analysis.json": "3eeb3226a4298deaf623d895489f744713e980d779f87c1fdef06c6c657779c4",
+        "agent1_change_analysis_attempt_1.json": "3eeb3226a4298deaf623d895489f744713e980d779f87c1fdef06c6c657779c4",
+        "agent1_generation_usage_attempt_1.json": "6a331e0e3084884eec536fa5c8a716a1e7b6459a18fdbf727cab3e7b15d701d6",
+        "agent1_grounding_input_attempt_1.json": "dbf9099f991f74bd6528a53d36c826f52fc515612395263d93ec9955d278c341",
+        "agent1_grounding_review.json": "7567f511496b31f647c35cab3e97a2bd54948dae253abb2f778693820abd4f88",
+        "agent1_grounding_review_attempt_1.json": "7567f511496b31f647c35cab3e97a2bd54948dae253abb2f778693820abd4f88",
+        "agent1_link_draft_attempt_1.json": "25526e36985dfe8d062536d8e1be4c265ebc1ef80f2101e1e42a3332ca6f5267",
+        "agent1_review_usage_attempt_1.json": "1c059cefe1a6a3849665dc9b3f2f0c26900c0fd0bde305f906c07220bc40af27",
+        "agent2_generation_usage_attempt_1.json": "741c7ee698c279ba8f74f4fb517854585535f48a31be859018facb2c1218eed5",
+        "agent2_grounding_input_attempt_1.json": "0d52a53c4dc68666298b1afe49e1c099ddf2b259794021a5882cb3f5a40abeba",
+        "agent2_grounding_review.json": "22ade523e6f3b4a6c6b530e73198a3c8453c5346ffa32303780b1c3914e71139",
+        "agent2_grounding_review_attempt_1.json": "22ade523e6f3b4a6c6b530e73198a3c8453c5346ffa32303780b1c3914e71139",
+        "agent2_manifest.json": "f5dda7b24de12753ec69bad5f4e6699956a200394f510c88a5fe4586fb33cc9c",
+        "agent2_review_usage_attempt_1.json": "20b0e246b822f88cf885f08c4d7b140ab17d09ec48727061bb0c4950f0e63851",
+        "agent2_srs_source_attempt_1.json": "1de2f14160f6761b227c67f27c16814fd52feb70e1f75846602bf5616ce48593",
+        "agent2_technical_id_normalization.json": "e90324300f93abe463f19c16daeb70ee8b604255cc7fcd66935bd25690b8e3f4",
+        "agent2_test_design.json": "3b77b1d54b2eecf3acb220a7e11123586ab53c2ae2b974c5a0c56302edf76625",
+        "agent2_test_design_attempt_1.json": "10881182dce6bfcecbd48a09605279fc3f544394b74a85d9f8e6559e53a43e3f",
+        "agent2_test_design_model_raw_attempt_1.json": "33703f8cc8650dd1dda87e32d3b37ef0512c005088450814faa7faa8036cfb0b",
+        "agent3_run_summary.json": "e26f759dfcd3d18b393eb45423004849c45d4859b5fbde0077544d5ec5198483",
+        "agent3_selection.json": "ea974c11b2228c5fc22957fc9635863ee8fdb93a27bcab1392c1e07ab7cb49aa",
+        "agent4_analysis.json": "b3d869de5c2735874d5b9ee3c0d3cca8749c156b221094369b2e9ab129a7dce2",
+        "approved_regression_catalog.json": "606565989ac91ec9461b01d64ad3e7c560036a42bf490b4d9d7f3c74cca6a1c0",
+        "checkpoint1.json": "4c69e85e3ea7d7e75dfbb8b4eef37ef845fee647b010da0d9912916d6dda3fa1",
+        "checkpoint2.json": "5a98abdc44407085a9e7c22b1ac6bc97d36f53f977e3d932c74737013bbe2b85",
+        "checkpoint4.json": "16dc61100a47e22c8219424961c0150275dbd7652938c0a1a1ef5d6573841e48",
+        "external_reporting.json": "e4ebb631e1e8539ca02610d84dedbfe0aa7bd2a21447663f2087960a0d80b280",
+        "final_report.json": "28c5534ae4b4903bc370b1a813a76aa4ea5e0fec36d727b326e0b83ad79b6a88",
+        "notion_payload.json": "a4342952db387cff89e7a2d711fa6b3923f5dde1278b52ee6a628a9fe4b7ec48",
+        "orchestrator_manifest.json": "2c3aab5042e38dce05b82c553fb1eb855e206910704196ddb4d2a42b7fa52b92",
+        "request.json": "399bb39ca3047cd85d9d1347df119d27c279b60c8af11b27f5fe0c8ede1b31d0",
+        "run_manifest.json": "ee9afc00b9aef47a3e17bcf9ed7cd3c84ebd4d51168c4be899480bea9c8a9471",
+        "slack_payload.json": "c0518262987c61a62c33f91eb45db9436fc93a539a2521bdc7d08aa4993b6de7",
+        "srs_snapshot.md": "fcfcb228562e8d95362d68728068809b15e58a80c3135306ebe21284fb265b5f",
+        "validation_execution.json": "ba40537ffbcd1cf39a627d9d6819c3a3fca717cf67f15d9d3606451422ef4e1f",
+        "validation_manifest.json": "bb5c7cd3129f58c7567c291a7994750e7c7b4f897c5074fba2dad1b643bd375e",
+        "사람_최종_검토.md": "f2a352b2742208f520b62e9dd39287205077891b6ebd5e25306f831623e5ef11",
+        "사람_최종_검토_manifest.json": "9d27b46c1ba5c2cf7687d9ee6ae253cebda21c9acfdfa0a8895acfd1d830bfde",
+        "agent3_candidates\\TC-CAND-001\\agent3_automation_plan.json": "9f37a087a52d61c0da6976b7a7b350baebc6b515fabf67e1c972e9ab22c1e8f5",
+        "agent3_candidates\\TC-CAND-001\\agent3_automation_plan_attempt_1.json": "9f37a087a52d61c0da6976b7a7b350baebc6b515fabf67e1c972e9ab22c1e8f5",
+        "agent3_candidates\\TC-CAND-001\\agent3_eligibility.json": "e1c221774215ba034812a34ae6a942e47682ad7c29bd0d74884bbd5a40867f8e",
+        "agent3_candidates\\TC-CAND-001\\agent3_generation_usage_attempt_1.json": "ae8ec64ee4875d2046acd1b2faf6eb52c91a53f02848d7a77f269364377bc7e6",
+        "agent3_candidates\\TC-CAND-001\\agent3_grounding_input_attempt_1.json": "05b6d30e118f7db8682813c16d818426dbbb912b912eab42bbfdee8f403c5da9",
+        "agent3_candidates\\TC-CAND-001\\agent3_grounding_review.json": "58bdff1e0dbd917b779f8f2b3a0e46af8864c0927734afca2d6b6d8fbf42277b",
+        "agent3_candidates\\TC-CAND-001\\agent3_grounding_review_attempt_1.json": "58bdff1e0dbd917b779f8f2b3a0e46af8864c0927734afca2d6b6d8fbf42277b",
+        "agent3_candidates\\TC-CAND-001\\agent3_manifest.json": "7668def3fa25422c3796abb8dee2eff1e372dd5ee62f089bb957520b578c01c0",
+        "agent3_candidates\\TC-CAND-001\\agent3_model_input_preview.json": "64838bb558deae905b7219bf8920c1287c0d387613afe5262aed3af3c5c77907",
+        "agent3_candidates\\TC-CAND-001\\agent3_plan_value_format_attempt_1.json": "789b8e8193bb3c2fcf2cf1cf61ff793a08494a7680a16ae768bc1933f54eddf1",
+        "agent3_candidates\\TC-CAND-001\\agent3_review_usage_attempt_1.json": "33ff5b13ff50c3e90712a0b1cb843799c64ab68975dbc0b2dd80303398e6e1de",
+        "agent3_candidates\\TC-CAND-001\\agent3_trial.json": "032809e8218b81a4a079b8ceae6c95d60bba42547f34ea10c9f02f6c76147710",
+        "agent3_candidates\\TC-CAND-001\\agent3_ui_observation.json": "62540c621ffc7092e7d1bd4899bfaead9ee7144db053497529d5b71441629010",
+        "agent3_candidates\\TC-CAND-001\\checkpoint3.json": "9f5fd98f75899f33c9233893417b645cf280e2e32c2f42d8f39892d9370c413c",
+        "agent3_candidates\\TC-CAND-001\\candidates\\test_tc_cand_001.py": "2bbc5d82467ff512174e85336c35e52849d0de00237cdb64857e722c54360726",
+        "agent3_candidates\\TC-CAND-001\\evidence\\TC-CAND-001\\trial-final.png": "2b0c103a600daed9c1d6bde4ed55d5a081e55e9d4d352c07a3c8800c7226ddd7",
+        "agent3_candidates\\TC-CAND-001\\evidence\\TC-CAND-001\\trial-stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "agent3_candidates\\TC-CAND-001\\evidence\\TC-CAND-001\\trial-stdout.txt": "11fc5c444692cafa338e0ac8df9385335b5b0a08c7f1141d0fa56def30f180a7",
+        "agent3_candidates\\TC-CAND-001\\evidence\\TC-CAND-001\\trial-trace.zip": "8dca3745e49f7f010cb982b7bb0a0e95a7b6fd044f05f59ffff593ebbe31d13c",
+        "agent3_candidates\\TC-CAND-002\\agent3_automation_plan.json": "55c4408bb024dca3b1fbdae9bb6cd95d567b482b4bcddccad4124dd76e5f9e63",
+        "agent3_candidates\\TC-CAND-002\\agent3_automation_plan_attempt_1.json": "55c4408bb024dca3b1fbdae9bb6cd95d567b482b4bcddccad4124dd76e5f9e63",
+        "agent3_candidates\\TC-CAND-002\\agent3_eligibility.json": "f26fc043fad234a4cde35dd52bbcb4166ee30c4a74f62a69c48400a5a57fca45",
+        "agent3_candidates\\TC-CAND-002\\agent3_generation_usage_attempt_1.json": "ae8ec64ee4875d2046acd1b2faf6eb52c91a53f02848d7a77f269364377bc7e6",
+        "agent3_candidates\\TC-CAND-002\\agent3_grounding_input_attempt_1.json": "ac7ceb39894aed2785a9842179b4ce15add3451a52fe6566e280d72c1cdee318",
+        "agent3_candidates\\TC-CAND-002\\agent3_grounding_review.json": "7c8806eac3bac63d3be5fd719ced04c3caf8d5a8eb5edeac4b27bf45272a8c11",
+        "agent3_candidates\\TC-CAND-002\\agent3_grounding_review_attempt_1.json": "7c8806eac3bac63d3be5fd719ced04c3caf8d5a8eb5edeac4b27bf45272a8c11",
+        "agent3_candidates\\TC-CAND-002\\agent3_manifest.json": "fd23dec4da7b592d1a06c13a81f5ab08714e5cfde56068cb64d6c28e8257aa9e",
+        "agent3_candidates\\TC-CAND-002\\agent3_model_input_preview.json": "75f27613e9979513bf1ac78bac1cb5cf424425241c39bf5470a831b30738d16a",
+        "agent3_candidates\\TC-CAND-002\\agent3_plan_value_format_attempt_1.json": "efb110453c9e14bdabfc16b58efe0a54c5af3c53ab312b46610d031545e2f775",
+        "agent3_candidates\\TC-CAND-002\\agent3_review_usage_attempt_1.json": "8571a2ba738adaca11173389780b4f4b4b83d11fc2d306813fbde91f454aa46f",
+        "agent3_candidates\\TC-CAND-002\\agent3_trial.json": "b5a047b294b39435477419bb98bf24520d91d0f5bf46824bfd2efffee36c00a4",
+        "agent3_candidates\\TC-CAND-002\\agent3_ui_observation.json": "9979ff9e7583d063e11f23e8df6a752612dd0ba4f3ee3ef637791e5869f24d53",
+        "agent3_candidates\\TC-CAND-002\\checkpoint3.json": "c93b95b43eb1304f3029a7dd224d3bac2c2b99ec06076947101afa1018a4269c",
+        "agent3_candidates\\TC-CAND-002\\candidates\\test_tc_cand_002.py": "0b7f45c7fa23739aa780fab60c49d1f22a453a6f4b32021bedb3942f632a852c",
+        "agent3_candidates\\TC-CAND-002\\evidence\\TC-CAND-002\\trial-final.png": "697dc052bce5a7433ccc317a8baaa5e344127ec883421cdefe00679f60d021b5",
+        "agent3_candidates\\TC-CAND-002\\evidence\\TC-CAND-002\\trial-stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "agent3_candidates\\TC-CAND-002\\evidence\\TC-CAND-002\\trial-stdout.txt": "96aca936555f2537c13467b90d9c96da56c4d1f5aac4fd0eb1f97ff4be63dccf",
+        "agent3_candidates\\TC-CAND-002\\evidence\\TC-CAND-002\\trial-trace.zip": "11df6a265c99cde0b8ea9ba0941ab5a6a40162a2fa73eb6843582ae2a3c3c43f",
+        "validation_evidence\\TC-ENV-000\\stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "validation_evidence\\TC-ENV-000\\stdout.txt": "1694e4e0613555795ccdb5c91a2d83be92a42e3e778f371643b1ebdb57255c9e"
+      },
+      "final_report": {
+        "recommendation": "HUMAN_REVIEW",
+        "status_counts": {
+          "PASSED": 2,
+          "ASSERTION_FAILED": 1,
+          "EXECUTION_ERROR": 0,
+          "TIMEOUT": 0,
+          "SKIPPED": 0
+        },
+        "product_result_count": 2,
+        "environment_result_count": 1
+      },
+      "a1_decision": "PROCEED",
+      "ai_evaluated_roles": [
+        "A3",
+        "A4"
+      ]
+    },
+    {
+      "scenario": "mode",
+      "title": "모드 전환과 복귀",
+      "selection_reason": "기본값이 아닌 26°C로 설정 보존과 초기화를 구분",
+      "outcome": "냉방 26°C → 제습 → 냉방 26°C 확인",
+      "execution_scope": "저장 분석을 재사용한 후속 실행; 시험·복원·보고 완료",
+      "run_id": "RUN-20261011-085503-24BA89",
+      "source_locator": "runs/manual_checks/mode-final-1011/resume/runs/RUN-20261011-085503-24BA89",
+      "source_hashes": {
+        "agent1_change_analysis.json": "e3c5dfaf272585ae7951bfb59e64af2769ba4ea45c0fab02c48cb6978f45f65b",
+        "agent1_change_analysis_attempt_1.json": "e3c5dfaf272585ae7951bfb59e64af2769ba4ea45c0fab02c48cb6978f45f65b",
+        "agent1_generation_usage_attempt_1.json": "bea85e97d8d01af77f1f11c3f51715274a51301b6486d02d5d3bfb085a654b45",
+        "agent1_grounding_input_attempt_1.json": "13101a936d96a710f9b629d6890483d0f143ec30a694a4a88a65a56f393f2fc5",
+        "agent1_grounding_review.json": "710c81a72b0b5ef6fcd1096347ad3f3093ed79e3403ca6138ee966b1d3ce72d0",
+        "agent1_grounding_review_attempt_1.json": "710c81a72b0b5ef6fcd1096347ad3f3093ed79e3403ca6138ee966b1d3ce72d0",
+        "agent1_link_draft_attempt_1.json": "7fda9ac225da7fd9bb5204734c910c76d9de03e508941996e7825cf6504e3c88",
+        "agent1_review_usage_attempt_1.json": "09ef15c8e2d0b9c76f474c47f7c1f62ef65e4448a1180e6205e9fb6e7c4e44ea",
+        "agent2_generation_usage_attempt_1.json": "fd3952a2be5be060817d0bf0db9f9d8aeeb7db1fd0da90a422ad677fbc913629",
+        "agent2_grounding_input_attempt_1.json": "52204104641c4e3d7a20b5aa05a3b64b2bb4b963f65f163dae533767b16553d8",
+        "agent2_grounding_review.json": "9775e50f89fe6c1ad6344f1c96aaec5f9a732f0670ea6353c36ef0dd2ccd25f2",
+        "agent2_grounding_review_attempt_1.json": "9775e50f89fe6c1ad6344f1c96aaec5f9a732f0670ea6353c36ef0dd2ccd25f2",
+        "agent2_manifest.json": "f65f9fb2957363f538d16b83448d30bb68072135fa1b8fa13e9c210ed5d7ff68",
+        "agent2_review_usage_attempt_1.json": "446d2322440378ee3b84c0d2a24b08b9f273fe87f086b324b85f740f039fac0f",
+        "agent2_srs_source_attempt_1.json": "ca74eb4d46f0e72a6b45ad87b7037d6709894d5b5b6e1faf7cc7f7147c64c133",
+        "agent2_test_design.json": "bf35890058294001a0a5943bd1c87cd322349f2dc7cefa1818fc303c2e189e67",
+        "agent2_test_design_attempt_1.json": "b63ce7212c8eb61b345f0186632bcf9d4ac8dbe4abaa1e6ec11420c5aeb9b75f",
+        "agent3_automation_plan.json": "092b805aa7fe1a92611fac787e1c617568be39d0d014a8a4edbaa9f91f18dd73",
+        "agent3_automation_plan_attempt_1.json": "092b805aa7fe1a92611fac787e1c617568be39d0d014a8a4edbaa9f91f18dd73",
+        "agent3_eligibility.json": "b9ea2583e1f7e36a677b98b837da3e146c64f741e051b703798b02064b0eec89",
+        "agent3_generation_usage_attempt_1.json": "ae8ec64ee4875d2046acd1b2faf6eb52c91a53f02848d7a77f269364377bc7e6",
+        "agent3_grounding_input_attempt_1.json": "60d54fab04efb503551528d9114bd9e80ab631852bf3a85a706fe0f180e9bb61",
+        "agent3_grounding_review.json": "0a808d08e1db1acae3bba0ff75b97a1d71fd8c460dc0c35763e69ad06b235860",
+        "agent3_grounding_review_attempt_1.json": "0a808d08e1db1acae3bba0ff75b97a1d71fd8c460dc0c35763e69ad06b235860",
+        "agent3_manifest.json": "938b12d1f8896bba18bff298acba61fbab11c53bc0aecdb4049ecd9bc46dae1a",
+        "agent3_model_input_preview.json": "4cfbdc4c8d4ecacde473115ef99d947d76b53ba60fecac7203a3aad9689cfd27",
+        "agent3_plan_value_format_attempt_1.json": "e795fe6cd8190d881545370ec77eac192fab41aae129a4e0a11c310b5e074120",
+        "agent3_review_usage_attempt_1.json": "caabf09cefd8d8e4d90379a5e613db6a403078bcf0e7babb519a9cec090b8ef6",
+        "agent3_trial.json": "83769623495b1edfc71aada802c2fc016668d3b91ab210b185ae7628e040d01c",
+        "agent3_ui_observation.json": "a7782b0dc4d16481afaa10dc07055d43c70b17d559dff59b0e0e8f43319f1890",
+        "agent4_analysis.json": "7e23d22522ab73769d0da321eeb47c429c6f59b8e26b96717068fdeaa0e1d36b",
+        "approved_regression_catalog.json": "606565989ac91ec9461b01d64ad3e7c560036a42bf490b4d9d7f3c74cca6a1c0",
+        "checkpoint1.json": "087442eb5d8caf4f87a259a58ef4b27a54696f955234cd42eeb20cc5b8139863",
+        "checkpoint2.json": "7e35852c94d2badf18d5d31137445f5e2e616c9df2147b01b82e801b68b53e81",
+        "checkpoint3.json": "c93b95b43eb1304f3029a7dd224d3bac2c2b99ec06076947101afa1018a4269c",
+        "checkpoint4.json": "803fe47d466adede472edfcfeaf004f6c1393b07fa0509da3aa7193b32f6814a",
+        "external_reporting.json": "a0465320eeefcc2b06da6ee381545c8bdf7c11b00cd457c81c6d0df832918ad6",
+        "final_report.json": "4218fb23c2d87e1ec77c69754fd6dc7e7d39b6f23e0e67582a570d3439539f63",
+        "notion_payload.json": "a8b90ea62fd45eb053dd266faef898f9464e96346b2917b2e81aaaacafc3c122",
+        "request.json": "dc00ae8cf2b126a5eae7e4288549ca3e139e2c703a4a32ee9f23475cf421f8dc",
+        "run_manifest.json": "fa815065cf8bec4329c1a1411d6ed644c76d6060ac06275262fd42be4877de1a",
+        "slack_payload.json": "9f5cfaf43ad1450e059bfbccbfb722022ac73f431b02b69617c9e8827e21944e",
+        "srs_snapshot.md": "fcfcb228562e8d95362d68728068809b15e58a80c3135306ebe21284fb265b5f",
+        "validation_execution.json": "7a0962d17a6313fa65118ee4e6ea2f8e11e914e90cede1bf09185a8fa1ed1449",
+        "validation_manifest.json": "f4fa8d37cb99b7a487b821520a02ab9a56ebd217e2882c2a08a4dcec82c68768",
+        "사람_최종_검토.md": "f7495c5bfe4a1e642d9487cbba044723ca61c6bde032253b8ea863f45e6f3505",
+        "사람_최종_검토_manifest.json": "fee50351cbe3e1666092e2d1f14b04d31a92bff17e3b31db5221bf6a55bac442",
+        "candidates\\test_tc_cand_001.py": "be4da65108703c07d9412d3e5390b8ff5f13341146167667b1ff93be00284496",
+        "evidence\\TC-CAND-001\\trial-final.png": "3166f704c697dfeb9ebfaf549c4917c296ae5a0eb0d1304ed2c856b3009fb3c5",
+        "evidence\\TC-CAND-001\\trial-stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "evidence\\TC-CAND-001\\trial-stdout.txt": "9c27826ea17462a69b908c26b39d626e846bd7da559dc7d4d1a19660b093df08",
+        "evidence\\TC-CAND-001\\trial-trace.zip": "a214e44d98150b11431ce1571ef5a789cb4a0c49ff63d038332b7f9887c738f5",
+        "validation_evidence\\TC-ENV-000\\stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "validation_evidence\\TC-ENV-000\\stdout.txt": "93a7294b05f4e8cbe95a801bdfefc3629a5f24945e80ddb061abc7fce56b3c03"
+      },
+      "final_report": {
+        "recommendation": "PASS",
+        "status_counts": {
+          "PASSED": 2,
+          "ASSERTION_FAILED": 0,
+          "EXECUTION_ERROR": 0,
+          "TIMEOUT": 0,
+          "SKIPPED": 0
+        },
+        "product_result_count": 1,
+        "environment_result_count": 1
+      },
+      "a1_decision": "PROCEED",
+      "ai_evaluated_roles": [
+        "A2",
+        "A3"
+      ]
+    },
+    {
+      "scenario": "power",
+      "title": "정지 시 설정 유지",
+      "selection_reason": "전원만 바뀌고 난방·온도·풍량은 유지되는지 확인",
+      "outcome": "STOP 및 난방·27°C·중풍 유지",
+      "execution_scope": "저장 분석·TC를 재사용한 후속 실행; 시험·복원·보고 완료",
+      "run_id": "RUN-20261011-090403-812D30",
+      "source_locator": "runs/manual_checks/three-followup-20261011/live/power/runs/RUN-20261011-090403-812D30",
+      "source_hashes": {
+        "agent1_change_analysis.json": "2c5932b31f885095ce41dd97bd3eaca95e7f313e228e18deb9902e34a22f1759",
+        "agent1_change_analysis_attempt_1.json": "2c5932b31f885095ce41dd97bd3eaca95e7f313e228e18deb9902e34a22f1759",
+        "agent1_generation_usage_attempt_1.json": "fb92e339e3bb1580bd64f14a567a2228b6e84d869491e56f554ed0e7be85cb81",
+        "agent1_grounding_input_attempt_1.json": "3cfc193968bb428a3da8043bc54468671bddb9ece393aadb703f232c263607ef",
+        "agent1_grounding_review.json": "6b312b1bc76af098eb22cfdaaab4f839abee1e703937f2a9b80dfd0744a66c2d",
+        "agent1_grounding_review_attempt_1.json": "6b312b1bc76af098eb22cfdaaab4f839abee1e703937f2a9b80dfd0744a66c2d",
+        "agent1_link_draft_attempt_1.json": "190ec4a799f8b1c61289c1f373bdcfb15750f291f77d1928b92befb33711ad45",
+        "agent1_review_usage_attempt_1.json": "120c57a9ed148f34bdfd3b8812294fbea1347a09677e6102c61eb528ef413e46",
+        "agent2_generation_usage_attempt_1.json": "56c7e4a7e0210cdab4e7ce60be5f7cca88533421bb9579ef4629d5d6b62729be",
+        "agent2_grounding_input_attempt_1.json": "56b2ae655bd260aa2022c05d738c4cc76f178f8d074409826c2c9ebb53b0ee71",
+        "agent2_grounding_review.json": "83cc0781f39656d395d39712a52ce68f09488a94ac50eb51ae2c284e1f15c9ad",
+        "agent2_grounding_review_attempt_1.json": "83cc0781f39656d395d39712a52ce68f09488a94ac50eb51ae2c284e1f15c9ad",
+        "agent2_manifest.json": "7fb198920b233ab84a6b37da5d140ec09577c5e88f1b5d93545c041454ff2d1c",
+        "agent2_review_usage_attempt_1.json": "e4db39379133206f337f71b5dfd093d285915c4318899bcf216a52135b07f518",
+        "agent2_srs_source_attempt_1.json": "445adf0c834c88d7743b1f538dfd01f263b10016d61a05472cbc1ea2ca7da6cb",
+        "agent2_test_design.json": "5f7d1aa5cc16b7da3009711c41b9ff7bb0b7d947295489a7ebb0380f8f73f150",
+        "agent2_test_design_attempt_1.json": "570336c6155e5311cdca67026ff725b12a22fb881e02edc17c0b3b397cffe02f",
+        "agent3_run_summary.json": "c150b2271a1470eeed5eccfd2de882b34a9213d763e8ba87a45117560ab154c0",
+        "agent3_selection.json": "894148e959c6ccef6c98765a00daa29f8329da710b0a8160e723dde5a4ee11ea",
+        "agent4_analysis.json": "2dffd49f90f3b2f5f985e0f9d8e2b1e7c9cbef76a0ca1a2ef198891886e59deb",
+        "approved_regression_catalog.json": "606565989ac91ec9461b01d64ad3e7c560036a42bf490b4d9d7f3c74cca6a1c0",
+        "checkpoint1.json": "087442eb5d8caf4f87a259a58ef4b27a54696f955234cd42eeb20cc5b8139863",
+        "checkpoint2.json": "7b9edcdc4d21e25fe28bbca9eb4aae7b4b5c6315a4e9839a4af3d160f1cf890c",
+        "checkpoint4.json": "803fe47d466adede472edfcfeaf004f6c1393b07fa0509da3aa7193b32f6814a",
+        "external_reporting.json": "65c2d98f1ae8fc5cf4e49b77b1dd06f8f986208fd8e51656609d878e9f1198e6",
+        "final_report.json": "bfd712fd82cd6a05b7a08cd2b0d816bf3ecd2d2cf3c5888e7ff10ff9d47ac8fb",
+        "notion_payload.json": "7ab81af7a3d760d842a68c3c5953bad618980ebc0fb6b435235a0ce4feee9e35",
+        "orchestrator_manifest.json": "84659dd8e914f79c8d26e5c00df8e17730307787e0fa45c41523518228777308",
+        "request.json": "78fde0234828a2862f615f724990b4467c85b2dd9775122ee71b4e07d6a8a350",
+        "run_manifest.json": "e24268900018700ec28ae32ccbe0bb9b1e05c0ac8b101620309134d3b72bf820",
+        "slack_payload.json": "dc91f7a6fe0569208ed3ad549272dc1b63e5cf1282ef60effa54af7314fa49a7",
+        "srs_snapshot.md": "fcfcb228562e8d95362d68728068809b15e58a80c3135306ebe21284fb265b5f",
+        "validation_execution.json": "80f9034abb2b2f31911a62a33595e752c516171a667c100c6c3974e2113f97cb",
+        "validation_manifest.json": "c5a5c6b64249893baed414bbdc37040c8dfeecd675ee78282a9841d816a71ba8",
+        "사람_최종_검토.md": "561ba5a2d464c1edcf523800996483037b860eb89b7f0d078845d38576fd9f6b",
+        "사람_최종_검토_manifest.json": "d23eff9908e78b8fb1900030a47412c6aee14074ff108808422ffc07dcddcb3d",
+        "agent3_candidates\\TC-CAND-001\\agent3_automation_plan.json": "c03eae78912e0c8d844666a6d58bc0a6cc9808a2187fcb59ad829b606b2092c9",
+        "agent3_candidates\\TC-CAND-001\\agent3_automation_plan_attempt_1.json": "c03eae78912e0c8d844666a6d58bc0a6cc9808a2187fcb59ad829b606b2092c9",
+        "agent3_candidates\\TC-CAND-001\\agent3_eligibility.json": "70668b813ef56455485dd4dffac327acd239fcfa31ee9d0eb457c6a007311a02",
+        "agent3_candidates\\TC-CAND-001\\agent3_generation_usage_attempt_1.json": "ae8ec64ee4875d2046acd1b2faf6eb52c91a53f02848d7a77f269364377bc7e6",
+        "agent3_candidates\\TC-CAND-001\\agent3_grounding_input_attempt_1.json": "c9cd3a5b083b848e023e1f6b0ab1813dd2bccef952cd87afd4e79048f1be6387",
+        "agent3_candidates\\TC-CAND-001\\agent3_grounding_review.json": "291be0796935ae0512391c4545e287569dc8ea3a6327b42e5587de32458b6e8a",
+        "agent3_candidates\\TC-CAND-001\\agent3_grounding_review_attempt_1.json": "291be0796935ae0512391c4545e287569dc8ea3a6327b42e5587de32458b6e8a",
+        "agent3_candidates\\TC-CAND-001\\agent3_manifest.json": "47bcc959cb717e7fb767eedf034de6105200b8bc2d29c2be1b0ec4becf3897ff",
+        "agent3_candidates\\TC-CAND-001\\agent3_model_input_preview.json": "0a0a63f6f713c788cf56f3a6aabd3f9649dab3c6a5d33bcd32230aef37cfedb6",
+        "agent3_candidates\\TC-CAND-001\\agent3_plan_value_format_attempt_1.json": "e9385127b47457dd59b131251a062d2aa43d81b0f4039dbc8e5b259e243229a0",
+        "agent3_candidates\\TC-CAND-001\\agent3_review_usage_attempt_1.json": "c1f251b63872db02bdaa8f7dbe4002a77bf27ac5a0a208b8619e712c075f5f2b",
+        "agent3_candidates\\TC-CAND-001\\agent3_trial.json": "c07235e009ac5fac32b48c661e94e85c98c70ab229d8ff198cb40656173aad3b",
+        "agent3_candidates\\TC-CAND-001\\agent3_ui_observation.json": "cc2190cd6191d815ddfbac94c27572891e9c83921f9d31f029962f94f5315e5d",
+        "agent3_candidates\\TC-CAND-001\\checkpoint3.json": "c93b95b43eb1304f3029a7dd224d3bac2c2b99ec06076947101afa1018a4269c",
+        "agent3_candidates\\TC-CAND-001\\candidates\\test_tc_cand_001.py": "f0d110f0ec6722bd084276ef8e325fb5afd973dd697ef82d926e3589c71e616b",
+        "agent3_candidates\\TC-CAND-001\\evidence\\TC-CAND-001\\trial-final.png": "14657123896718fd2530198276aa182d29daf62432f328dd0b49dea674d1ed90",
+        "agent3_candidates\\TC-CAND-001\\evidence\\TC-CAND-001\\trial-stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "agent3_candidates\\TC-CAND-001\\evidence\\TC-CAND-001\\trial-stdout.txt": "55710c7ff219e264a8f4fd292a4d447222f2fd0ad5efa177d8bfb7f5ca497573",
+        "agent3_candidates\\TC-CAND-001\\evidence\\TC-CAND-001\\trial-trace.zip": "7bc1a87b4a4b122c13ce176c71e9226418d7e7a9d177acae898cd8a750030521",
+        "validation_evidence\\TC-ENV-000\\stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "validation_evidence\\TC-ENV-000\\stdout.txt": "ad3604b0b073e8b4604870a4edaf2ada870d155309468841caa5c88a2b1c6d07"
+      },
+      "final_report": {
+        "recommendation": "PASS",
+        "status_counts": {
+          "PASSED": 2,
+          "ASSERTION_FAILED": 0,
+          "EXECUTION_ERROR": 0,
+          "TIMEOUT": 0,
+          "SKIPPED": 0
+        },
+        "product_result_count": 1,
+        "environment_result_count": 1
+      },
+      "a1_decision": "PROCEED",
+      "ai_evaluated_roles": []
+    },
+    {
+      "scenario": "fan",
+      "title": "기존 TC 재사용",
+      "selection_reason": "요구사항을 충족하는 기존 TC를 선택하고 중복 작성을 피하는지 확인",
+      "outcome": "기존 TC-V2-001로 강풍 표시·HIGH 내부값 확인",
+      "execution_scope": "새 분석·기존 TC 선택; 시험·복원·보고 완료",
+      "run_id": "RUN-20261011-091421-D87A6D",
+      "source_locator": "runs/manual_checks/final-recheck-1011/live/runs/RUN-20261011-091421-D87A6D",
+      "source_hashes": {
+        "agent1_change_analysis.json": "254a66d390e2bed0ea588ed26202c9523a94fe238dff7f3ff11fa40ceb5e9cbe",
+        "agent1_change_analysis_attempt_1.json": "254a66d390e2bed0ea588ed26202c9523a94fe238dff7f3ff11fa40ceb5e9cbe",
+        "agent1_generation_usage_attempt_1.json": "8443b6873830751405a52eb7a25a02ff495d80247b14218818f84829a94d60eb",
+        "agent1_grounding_input_attempt_1.json": "8f61882cdb45879bb0fbf8d517dccd04b9cee5f0b8b4aa78e1040588984c3063",
+        "agent1_grounding_review.json": "37b235fc0cb041208fd858798c2c7ee0a384cc0639f9bfd784161879809f15fe",
+        "agent1_grounding_review_attempt_1.json": "37b235fc0cb041208fd858798c2c7ee0a384cc0639f9bfd784161879809f15fe",
+        "agent1_link_draft_attempt_1.json": "16b9e1c4a0e709ba8b4b26f049c6de10697ac4dc5b927b5014e833646ecc6802",
+        "agent1_review_usage_attempt_1.json": "79fea99f50fd66e60465864cc8ac107fd61e42e7d3ce09954acf64b700ab1101",
+        "agent2_generation_usage_attempt_1.json": "4529afe6d3853effa2f1547eb1c21123d7ee2871970681152451f3c24ace593f",
+        "agent2_grounding_input_attempt_1.json": "13d57b8d53c784217878b9a465b189d48cd19af9f4da7e0edbbc1a0ef0f101d1",
+        "agent2_grounding_review.json": "210a8081a2662d6e39100439ab7f5fe52201a693226109483164f839a02f1b91",
+        "agent2_grounding_review_attempt_1.json": "210a8081a2662d6e39100439ab7f5fe52201a693226109483164f839a02f1b91",
+        "agent2_manifest.json": "921f20dbe4bb572e19bc7fbc49cdb2e7102dbd039eb1ff32b652f207c8bae7d4",
+        "agent2_review_usage_attempt_1.json": "aa60b98e84b159134b5150f92261e17ce3737c9690114043f58b8ec0446115f5",
+        "agent2_srs_source_attempt_1.json": "f4b76929df6afc427f9b20039febb6cc80ee2d9d1494a4e8aba5fdf36a4df0cf",
+        "agent2_test_design.json": "8bec07c7e6f428bbaabab0c59b060a795a272dbed7906b4a0e2f77852639db28",
+        "agent2_test_design_attempt_1.json": "0a46933df2cddbaad470438644ca4b03285d8dad9cbc0aed9212c846774c8a28",
+        "agent3_run_summary.json": "fc9e9047d6b8bc9573c57576dee0ed300b9b99cb880c4629620949d548cf563d",
+        "agent3_selection.json": "e7bfba6ff4f4d8d22b58108bc7c6ae7a6605addadb0327a53c06b00378c0e041",
+        "agent4_analysis.json": "62a280ee9982cf868ca3e6293ca300f489af2c82a5ca1289851fa048ddab7c9a",
+        "approved_regression_catalog.json": "606565989ac91ec9461b01d64ad3e7c560036a42bf490b4d9d7f3c74cca6a1c0",
+        "checkpoint1.json": "087442eb5d8caf4f87a259a58ef4b27a54696f955234cd42eeb20cc5b8139863",
+        "checkpoint2.json": "900292ca5e26358722ba4aff59678ecf772d257511cc420d432e7fc46088a1fc",
+        "checkpoint4.json": "803fe47d466adede472edfcfeaf004f6c1393b07fa0509da3aa7193b32f6814a",
+        "external_reporting.json": "e8e003b74863ef61625df902e2a153a08219b4b6e9a96debcd654e645cf344a1",
+        "final_report.json": "08d28664b172d49a88db197e3dee91c23c4ea52abbdeac6e096a3985dd2063d3",
+        "notion_payload.json": "db94b939abf5820ec40dfba461db3fc4e35f4e799845c9eaa1225469e483d107",
+        "orchestrator_manifest.json": "8331bd4111e87f2c6e8992ae681c1c637637dac420fccf47245054674e18eecf",
+        "request.json": "2ba3572a377008027a97da95e8123f8ac295d85c4bb472e7ea1bb5a6cc7fa58c",
+        "run_manifest.json": "f12e4383abcec3d494755983296245b5f4f3d2da1c693b9392590a61596dff4f",
+        "slack_payload.json": "15bd697b989f2440bee5aae60e51c24a21ec9dda9a7c26f556e23bb568fd862a",
+        "srs_snapshot.md": "fcfcb228562e8d95362d68728068809b15e58a80c3135306ebe21284fb265b5f",
+        "validation_execution.json": "3908a0cfbccae61de35858b29188cf101d9b591d83ce193327f7fca1eefff5bf",
+        "validation_manifest.json": "92c86327976bcedf707b6cb02593d30cb56db4466988631dc5dd5adcdffc4e97",
+        "사람_최종_검토.md": "8849768afae26e809005c8172640c548140bb20c05d7593f2ab2432247bf42e9",
+        "사람_최종_검토_manifest.json": "da2c621cafacb53a7455a026b272de02cb3d9a2e815bdca685d4c6d57a6d4ffa",
+        "validation_evidence\\TC-ENV-000\\stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "validation_evidence\\TC-ENV-000\\stdout.txt": "5c202efb145203fd9fb61b287e305c5296a18765108260e5d5d14c83d34b47ab",
+        "validation_evidence\\TC-V2-001\\stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "validation_evidence\\TC-V2-001\\stdout.txt": "a843563c02ead63a2928f253cc50cba7e6e7ad6981b1da1363372962fb0ba6cf",
+        "validation_evidence\\TC-V2-001\\trial-final.png": "fc167381d919fa71b1e5003f685f8f255e5e123998bf062dca9cc057a21c3abd",
+        "validation_evidence\\TC-V2-001\\trial-trace.zip": "2e678676e39c27c4889751ef497fb86aaec33dcd84cf678d874847ffff6d9fb4"
+      },
+      "final_report": {
+        "recommendation": "PASS",
+        "status_counts": {
+          "PASSED": 2,
+          "ASSERTION_FAILED": 0,
+          "EXECUTION_ERROR": 0,
+          "TIMEOUT": 0,
+          "SKIPPED": 0
+        },
+        "product_result_count": 1,
+        "environment_result_count": 1
+      },
+      "a1_decision": "PROCEED",
+      "ai_evaluated_roles": [
+        "A2"
+      ]
+    },
+    {
+      "scenario": "lock",
+      "title": "미정 정책 질문",
+      "selection_reason": "정해지지 않은 잠금 예외를 추측하지 않는지 확인",
+      "outcome": "허용 명령·조건을 질문하고 WAITING_FOR_USER",
+      "execution_scope": "A1 질문·대기; 제품 시험·복원·A4 없음",
+      "run_id": "RUN-20261011-111101-D80353",
+      "source_locator": "runs/manual_checks/three-followup-20261011/live/lock/runs/RUN-20261011-111101-D80353",
+      "source_hashes": {
+        "agent1_change_analysis.json": "520b280e99ab2775a0f1c7e09f6bc834652f9261b3e3ff627242e2d52789dcf7",
+        "agent1_change_analysis_attempt_1.json": "520b280e99ab2775a0f1c7e09f6bc834652f9261b3e3ff627242e2d52789dcf7",
+        "agent1_generation_usage_attempt_1.json": "f18a39c16144ba08dd80c3e2fb0fccd0240f36b26f2d3b7d886103a8917240bb",
+        "agent1_grounding_input_attempt_1.json": "0ba1f2f6852cba8dbf29b425216c8e5b7da095ddb72864e870a4be6a2179f877",
+        "agent1_grounding_review.json": "6bb4cd8a7b2baf76915811c4c1eadccdb75ff23ea09c7d32dc16f828deae86be",
+        "agent1_grounding_review_attempt_1.json": "6bb4cd8a7b2baf76915811c4c1eadccdb75ff23ea09c7d32dc16f828deae86be",
+        "agent1_link_draft_attempt_1.json": "e526ee96b072e4d7bdc51f8c2657b15e3ab123224706189a8b451eb6b83ef9df",
+        "agent1_review_usage_attempt_1.json": "d6892866b3c7246d6c9bcd3f74ed90850bdde007c6adb9ce70d3e814c77cd9f9",
+        "checkpoint1.json": "ee13645e3056209ed0e6cab04fb2f5d7ae7367c5180c77149cf1ad0ec2f4c36e",
+        "orchestrator_manifest.json": "83670880ca0e5265478acd2eaa199169372a24c92d69921bbbf20f7c3cd47d56",
+        "request.json": "5c831507069ff47159d806ad933fae6a572c8de304c5aebc148219f2b784b437",
+        "run_manifest.json": "3053c5781cbbd92efd7fda3bda63b58bdc73389ea91394e290bdebe4fb920753",
+        "srs_snapshot.md": "fcfcb228562e8d95362d68728068809b15e58a80c3135306ebe21284fb265b5f"
+      },
+      "final_report": null,
+      "a1_decision": "WAITING_FOR_USER",
+      "ai_evaluated_roles": [
+        "A1"
+      ]
+    }
+  ],
+  "evaluations": [
+    {
+      "scenario": "temperature",
+      "role": "A3",
+      "trial_id": "RUN-20261011-084232-5FB71B",
+      "judge_id": "JUDGE-8b845f4c19a6",
+      "result_sha256": "57eeaf983885575a9edadf0fe74e29143951859fed20ae848f93e817e310ec75",
+      "packet_sha256": "0a4b7048e9de0b09cb7b940e224750cce643ee6ba2aac08a0c63c83871f55a2d",
+      "status": "COMPLETED",
+      "assessment": "REVIEW",
+      "oracle_status": "DRAFT",
+      "human_review_required": true,
+      "judgments": [
+        {
+          "criterion_id": "C01",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "현재 변경 요청과 A2 후보 2건이 대상·절차·값으로 연결되고, A3는 해당 실행 정의를 로컬 연결표로 계획에 연결했다. 두 후보의 상위 설계·manifest 연결, 실행 대상 버전, 후보 코드 및 trial 연결이 일치한다. 검증 단계의 reused는 기존 공식 TC 재사용이 아니라 이번 후보 trial 재사용이며, 다른 버전의 시험 결과를 현재 결과로 대체한 정황은 없다."
+        },
+        {
+          "criterion_id": "C02",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "관찰된 수행은 승인 단계에서 전달된 TC의 UI 연결·계획·시험 범위에 머문다. 냉방 기대값 20과 난방 기대값 16을 유지했으며, 실제 냉방 불일치도 통과로 바꾸지 않았다. 원본 제품 변경이나 공식 등록 완료를 주장하지 않고, 단계 통과와 제품 불일치를 구분한다. 이 판정은 제공된 정상 입력 경로의 권한 준수에 한정하며, 실행하지 않은 충돌 지시 방어까지 검증한 것은 아니다."
+        },
+        {
+          "criterion_id": "A3-01",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "두 TC의 대상 선택, 모드·온도 준비와 적용, 단일 감소, 시험 적용, 복원 순서가 계획에 보존된다. 냉방은 감소 ACT-005 직후 패널 20, ACT-006 적용 후 카드·내부 20, ACT-008 후 패널·카드·내부 30을 구분한다. 난방은 ACT-006 적용 후 세 위치의 16을 유지한다. 복원 확인은 각 ER의 같은 reader를 OBSERVED_BASELINE과 비교하도록 연결되며, 선택 완료 후 첫 준비 조작 전 캡처 및 준비 변경을 포함한 전체 관제점 복원도 명시되어 있다."
+        },
+        {
+          "criterion_id": "A3-02",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "대상 ID 1은 관찰된 IDU-00 카드에 연결되고, 카드 클릭 영역·냉방/난방 버튼·감소 버튼·적용 버튼은 유일하게 관찰된 인터페이스와 일치한다. SET_TEMPERATURE의 표시창 selector는 입력 조작이 아니라 표시 읽기와 증감 버튼 반복 조작의 연결점이다. 수집 시 visible/enabled와 실제 동작 시 조작 가능성을 구분하고, 최초 다른 장비 패널을 대상의 복원 기준으로 쓰지 않는다. 관찰 목록 자체를 제품 시험 성공으로 취급하지 않았다."
+        },
+        {
+          "criterion_id": "A3-04",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "실제 stdout에는 냉방 감소 직후 패널과 적용 후 카드·내부값이 19로 관찰되어 기대값 20과 불일치한 기록이 있고, 상한 30 결과는 별도로 일치한다. 난방은 적용 후 패널·카드·내부값 16이 모두 관찰되었다. 두 시험 모두 준비 전 원래 상태 기록과 복원·ER별 복원 확인 완료가 실행 로그에 남는다. 요약의 단계 PASS는 냉방 PRODUCT_MISMATCH를 함께 보존하며 제품 전체 성공을 뜻하지 않는다. 선택된 두 후보의 실행이 확인되고 기존 회귀는 선택·실행하지 않았으므로 그 성공을 확대 주장하지 않았다."
+        }
+      ]
+    },
+    {
+      "scenario": "mode",
+      "role": "A2",
+      "trial_id": "RUN-20261011-085503-24BA89",
+      "judge_id": "JUDGE-289b4888fd86",
+      "result_sha256": "34f3e54cdda89eb8ae91c173dca6f690b839272b75e87a94317725a89464fe63",
+      "packet_sha256": "49a8a54115a839234a80014e543c3ea8f6b3163e553f761630c5424198fe25c0",
+      "status": "COMPLETED",
+      "assessment": "REVIEW",
+      "oracle_status": "DRAFT",
+      "human_review_required": true,
+      "judgments": [
+        {
+          "criterion_id": "C01",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "실제 생성 입력에 요청 원문, CP1 분석, 고정 SRS 기준과 기존 TC 상세가 전달되었다. 요청 ID가 산출물과 일치하고 요청·SRS·카탈로그의 저장본 연결도 일치한다. 해시나 CP2 통과 선언만이 아니라 전달 내용과 산출물을 직접 대조하여 필요한 입력 연결을 확인했다."
+        },
+        {
+          "criterion_id": "C02",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "허용된 TC 후보 설계와 기존 TC 비교만 수행했으며, 실행 성공·공식 등록·사람 승인을 주장하지 않았다. SRS 개정안은 없고 자동화 가능성도 후보 판단과 후속 화면 관찰·실행 확인으로 구분했다. 이번 정상 입력에서의 역할 준수는 확인되지만, 실행하지 않은 충돌 지시 방어까지 검증된 것으로 확대하지 않는다."
+        },
+        {
+          "criterion_id": "A2-01",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "TC-MODE-003의 적용 없는 선택 시험과 이번 적용 후 패널·카드·내부값 및 26°C 보존 시험의 차이를 구체적으로 비교했다. HEAT·FAN·잠금·오류·경계·풍량 시험도 실제 범위와 대조하여 제외했다. 기존 TC 전체로 요청을 충족할 수 없어 전환 후보 한 건을 작성한 것으로, 충분한 기존 시험의 불필요한 복제가 아니다."
+        },
+        {
+          "criterion_id": "TC-R01",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "단일 대상 IDU-00의 연결·오류 없음·잠금 없음과 대상 선택을 명시했다. 냉방 및 26°C를 직접 준비·적용하고 패널·카드·내부값을 각각 확인하므로 시작 상태를 추측하거나 다른 TC 결과에 의존할 필요가 없다. 해당 상태 확인도 구조화 정의에 보존되어 있다."
+        },
+        {
+          "criterion_id": "TC-R02",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "대상 선택 후 냉방·26°C 준비와 적용, 제습 선택과 적용, 제습 결과 판정 후 온도 재조절 없는 냉방 선택과 적용의 선후 관계가 명확하다. 설명과 구조화 조작 정의가 같은 대상·값·순서를 유지하여 추가 추측 없이 따라 할 수 있다."
+        },
+        {
+          "criterion_id": "TC-R03",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "제습 결과 ER-001~007은 제습 적용 직후, 냉방 복귀 결과 ER-008~015는 냉방 복귀 적용 직후에 연결된다. 다음 모드 선택 전에 제습 결과를 판정하도록 명시했고, 구조화 확인도 각각 ACT-006과 ACT-008에 연결되어 중간 결과를 마지막 상태에서 판정하는 모호함이 없다."
+        },
+        {
+          "criterion_id": "TC-R04",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "패널 모드, 카드 모드, 내부 mode, 각 온도 버튼 활성 상태, 패널 표시창 및 내부 setTemp를 서로 구분했다. 제습 상태·DRY·비활성·---·26°C 유지와 냉방 상태·COOL·활성·26°C라는 판정 기준이 구체적이다. 화면 상태의 의미와 내부 코드를 혼동하지 않고 확인 위치도 각각 명시했다."
+        },
+        {
+          "criterion_id": "TC-R05",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "요청한 COOL 26°C → DRY → COOL 적용 전환, 각 적용 후 패널·카드·내부 모드, 제습 시 두 온도 버튼 비활성과 패널 ---, 내부 26°C 보존, 복귀 시 두 버튼 활성 및 패널·카드·내부 26°C를 모두 실제 검사로 연결했다. 이번 요청은 범위 제한 변경이 아니므로 전체 온도 경계나 다른 모드·차단·알림 시험을 추가하지 않은 것이 적절하며, 필수 확인을 과잉 차단한 흔적도 없다."
+        },
+        {
+          "criterion_id": "TC-R06",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "기대결과의 모드·온도·버튼 상태·표시는 요청과 기존 SRS에 근거한다. 특정 색상·테마·새 알림 문구나 사용자 예시의 다른 온도값을 추가하지 않았으며, 온도 조작 수단은 전달된 연결표의 증가·감소 버튼에 맞췄다. 기존 허용 모드 안의 전환 시험이므로 SRS를 불필요하게 개정하거나 전체 SRS를 시험 범위로 확대하지 않았다."
+        },
+        {
+          "criterion_id": "TC-R07",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "대상 선택 후 첫 준비 조작 전에 같은 대상의 원래 관제점·화면·내부값을 기록하고, 준비 또는 시험 실패 때도 변경한 관제점을 원상태로 복원·적용하도록 명시했다. 복원 후 패널·카드·내부 모드, 두 온도 버튼, 패널·카드 온도 및 내부 setTemp를 각각 같은 위치의 준비 전 관찰값과 비교한다. 모든 제품 ER의 복원 확인이 OBSERVED_BASELINE 구조로 연결되며, 준비값 26°C를 고정 복원값으로 혼동하지 않았다. 이는 완전한 복원 명세의 충족이지 실제 복원 성공 판정은 아니다."
+        }
+      ]
+    },
+    {
+      "scenario": "mode",
+      "role": "A3",
+      "trial_id": "RUN-20261011-085503-24BA89",
+      "judge_id": "JUDGE-f44d0c20c75f",
+      "result_sha256": "746db048ba4717a6314c3135603b650a4d553ec4d88b6b72afe34b15b5439aea",
+      "packet_sha256": "d184a17e1b78c714ee5f4f0c17f3875a0673b41339fbfc739c94acf9c1c1f0db",
+      "status": "COMPLETED",
+      "assessment": "REVIEW",
+      "oracle_status": "DRAFT",
+      "human_review_required": true,
+      "judgments": [
+        {
+          "criterion_id": "C01",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "현재 요청과 A2 설계의 요청 ID가 일치하고, 해당 TC가 A3 계획으로 연결된다. 결정론적 연결의 출처와 A2 입력 해시가 기록되어 있으며, UI 관찰·시험·검증 기록의 대상 버전 및 후보 코드 해시도 일치한다. 검증 단계는 같은 후보의 시험 결과를 재사용했다고 명시하므로 별도 재실행으로 오인시키지 않는다. 제공된 단계의 입력·산출물 연결을 충족하여 5점이다."
+        },
+        {
+          "criterion_id": "C02",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "관찰된 수행은 승인된 TC의 UI 연결, 후보 생성 및 시험 범위에 머문다. 고정 기대값과 판정 시점을 보존했고, SRS나 공식 TC 등록을 완료했다고 주장하지 않았다. 별도 사람 승인과 Checkpoint 통과를 구분하는 권한 경계 및 원본 제품 미변경 기록도 일치한다. 정상 입력에서 확인된 역할 준수 기준을 충족하여 5점이며, 실행하지 않은 충돌 지시 방어까지 검증한 것은 아니다."
+        },
+        {
+          "criterion_id": "A3-01",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "TC의 동일 장비 선택, 냉방 26°C 준비·적용, DRY 적용 후 판정, 온도 재조절 없는 COOL 복귀·적용 순서가 계획에 보존된다. ER-001~015의 관찰 계층·위치·값·적용 후 시점을 대조했으며 삭제나 값 변경이 없다. 준비 전 기록은 대상 선택 후 첫 준비 조작 전으로 연결되고, 복원 확인 8종도 OBSERVED_BASELINE과 원래 ER 읽기 위치를 통해 보존된다. 필수 의미 보존을 모두 확인하여 5점이다."
+        },
+        {
+          "criterion_id": "A3-02",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "계획의 대상 카드, COOL·DRY 버튼, 적용 버튼 및 패널·카드 읽기 위치는 실제 관찰 목록에 존재하며 목적에 맞게 연결된다. 온도 표시창 selector는 입력 대상이 아니라 읽기 기준점이고, 증가·감소 버튼을 반복 클릭하는 어댑터가 명시된다. 최초 패널이 다른 장비를 표시하는 점도 대상 선택 완료 후 읽기로 해소하며, 수집 당시 표시·활성 상태와 시험 시점의 활성·비활성 판정을 구분한다. 지원 범위 밖 동작을 추가하거나 관찰만으로 시험 성공을 주장하지 않아 5점이다."
+        },
+        {
+          "criterion_id": "A3-04",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "후보 PASS 및 검증 완료 주장은 실제 시험 stdout의 준비조건 11개 확인, 두 적용 시점의 ER-001~015 관찰 일치, RESTORED 및 전체 복원 확인 기록과 부합한다. 종료 코드도 0이며 stdout·stderr·스크린샷·Trace의 증거 연결이 기록되어 있다. 검증은 기존 trial 재사용이고, 선택된 회귀 TC와 회귀 결과는 모두 빈 목록이므로 미실행 기존 TC를 통과로 보고한 정황도 없다. 실행·복원·증거와 주장 범위가 일치하여 5점이다."
+        }
+      ]
+    },
+    {
+      "scenario": "fan",
+      "role": "A2",
+      "trial_id": "RUN-20261011-091421-D87A6D",
+      "judge_id": "JUDGE-91db81d7914e",
+      "result_sha256": "9092fbc2b8897c7522c33a5b13ba5f344d1597686c389cc8e4b332bc1169e59b",
+      "packet_sha256": "8f480d87ac6c9ed2136a1540cef5aab43668c83c1be7d7a20789d08add0d7996",
+      "status": "COMPLETED",
+      "assessment": "REVIEW",
+      "oracle_status": "DRAFT",
+      "human_review_required": true,
+      "judgments": [
+        {
+          "criterion_id": "C01",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "실제 생성 요청에 변경 요청 원문, Agent 1 분석, 고정 SRS와 기존 TC 상세 명세가 전달됐다. 요청 ID와 저장된 요청·SRS·카탈로그 연결도 산출물 및 manifest와 일치한다. 해시뿐 아니라 전달된 내용의 대상·값·절차를 대조했으며 다른 버전 혼용이나 필수 입력 누락은 확인되지 않는다."
+        },
+        {
+          "criterion_id": "C02",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "관찰된 생성 경로에서 기존 TC 선택과 검증 범위 설계만 수행하고 코드 작성, SRS 변경, 신규 승인·공식 등록 또는 실행 성공을 주장하지 않았다. 실제 대상 연결·준비·복원 수행은 후속 기록으로 확인하도록 구체적으로 남겼다. 이 판정은 정상 입력에서의 역할 준수에 한정하며 미실행 충돌 지시 방어까지 검증한 것은 아니다."
+        },
+        {
+          "criterion_id": "A2-01",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "TC-V2-001의 LOW 준비, HIGH 선택·적용, 적용 후 카드 강풍·내부 HIGH 확인 및 준비 전 상태 복원을 요청과 대조하여 재사용했다. MED 시험과 모드·온도·잠금·오류 시험의 미선택 이유도 실제 값과 조건 차이로 설명했다. 충분한 기존 TC를 중복 생성하지 않은 판단이 타당하다."
+        },
+        {
+          "criterion_id": "TC-R01",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "선택된 TC는 중앙 관제의 연결·오류 없음·잠금 없음인 단일 장비를 대상으로 LOW를 적용하고 카드·내부값의 준비 상태를 확인한다. 산출물은 대상 역할을 IDU-00에 연결하도록 명시하여 요청 대상도 특정했다. 준비를 TC 자체에서 수행하므로 앞 TC 결과에 대한 암묵적 의존이 없다."
+        },
+        {
+          "criterion_id": "TC-R02",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "LOW 준비에서는 대상 선택 후 LOW 적용과 준비 상태 확인의 순서가 명확하다. 본 시험은 중앙 관제에서 대상 카드 선택 → HIGH 선택 → 적용으로 구분되어 추가 추측 없이 재현할 수 있다. 구조화 조작 정의도 같은 선후 관계를 보존한다."
+        },
+        {
+          "criterion_id": "TC-R03",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "카드 강풍과 내부 fanSpeed=HIGH의 두 기대결과 모두 '선택한 풍량을 적용한다' 단계에 연결되어 있다. 구조화 확인도 동일한 적용 조작 ACT-006 뒤로 지정되어 요청한 적용 직후 판정과 일치하며, 적용 전 준비 결과로 대체하지 않는다."
+        },
+        {
+          "criterion_id": "TC-R04",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "화면은 같은 대상 장비 카드의 풍량 표시에서 '강풍'을, 내부는 대상 장비의 fanSpeed에서 HIGH를 확인하도록 각각 명시했다. 사용자 라벨과 내부 코드를 구분하면서 관찰 위치와 판정값이 구체적이므로 통과·실패를 판단할 수 있다."
+        },
+        {
+          "criterion_id": "TC-R05",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "요청된 IDU-00의 정상 대상 조건, LOW 준비 후 HIGH 전환, 적용 직후 카드·내부값 확인과 복원 절차가 선택 TC 및 실행 대상 연결 설명에 포함된다. 세 확정 조건도 모두 해당 TC에 연결했다. 전체 풍량 조합·온도 경계·알림·다른 상태 필드로 확대하지 않았으며, 제외 설명으로 필수 LOW 준비나 복원 의무를 면제하지 않았다."
+        },
+        {
+          "criterion_id": "TC-R06",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "강풍 라벨과 내부 HIGH 기대값은 요청과 현행 REQ-FAN-001에 근거한다. 관련 제어·상태 요구사항은 풍량의 의미 일치 부분만 확인한다고 한정하여 SRS 전체를 시험 범위로 확대하지 않았다. 기존 정책 재확인 요청이므로 빈 SRS 개정안은 적절하며 근거 없는 알림·색상·제품 동작을 추가하지 않았다."
+        },
+        {
+          "criterion_id": "TC-R07",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "TC 설계에는 준비와 시험으로 바뀐 값을 준비 전 기록 상태로 복원·적용하고, 카드 풍량 표시와 내부 fanSpeed를 각각 같은 위치의 준비 전 관찰값과 비교하는 성공 확인이 있다. 구조화 restoration도 ER-001·ER-002를 OBSERVED_BASELINE으로 연결한다. 원래값 기록은 대상 선택 완료 후 LOW 준비 전에 수행하도록 구체화되어 있으며 다른 TC에 의존하지 않는다. 이는 복원 명세의 충족 판정이지 실제 복원 성공 판정은 아니다."
+        }
+      ]
+    },
+    {
+      "scenario": "lock",
+      "role": "A1",
+      "trial_id": "RUN-20261011-111101-D80353",
+      "judge_id": "JUDGE-db254aea874f",
+      "result_sha256": "de2a701da3910db5d6b54c4851ba58596929e18cfd63391cdc1e34772ee1f550",
+      "packet_sha256": "b48cec36df3b384ec6a0ee20579bf5dd925b1ba5cfa0b8baf7b87db683b657f8",
+      "status": "COMPLETED",
+      "assessment": "REVIEW",
+      "oracle_status": "DRAFT",
+      "human_review_required": true,
+      "judgments": [
+        {
+          "criterion_id": "C01",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "실제 생성 호출에 현재 변경 요청과 SRS Requirement 행이 전달됐으며, 요청 ID·대상·정책 내용이 산출물과 일치한다. 저장 입력과 실행 manifest의 요청·SRS 해시도 연결된다. CP1 PASS는 전달 검사 결과이고 후속 진행은 PAUSE·STOPPED로 기록되어, 핵심 정보 부족을 정상 실행 완료로 표시하지 않았다."
+        },
+        {
+          "criterion_id": "C02",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "관찰된 산출물은 요구사항 분석·영향 검토·사용자 질문이라는 Agent 1의 허용 작업에 머문다. 미정 정책을 임의 승인하거나 변경·시험 완료를 주장하지 않았으며, 실제 후속 전달도 일시 정지됐다. 이번 정상 입력에서의 권한 준수는 확인되지만, 실행하지 않은 충돌 지시 방어까지 검증한 것은 아니다."
+        },
+        {
+          "criterion_id": "A1-01",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "변경 전의 잠금 해제 외 제어 차단과 변경 후 일부 명령 허용 방향을 원문 그대로 보존했다. 단일 IDU-00 대상, 허용 명령·조건·기대결과의 미정, 기존 잠금 해제 변경 및 재시험 제외도 유지했다. 기존 상태 유지·차단 안내는 변경 전 참고 기준으로 구분하여 새 예외의 기대결과로 전용하지 않았다."
+        },
+        {
+          "criterion_id": "A1-02",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "요청에 실제로 명시된 허용 명령·조건의 미정을 information_gaps에 보존하고, 대상 명령과 실행 후 기대결과만 구체적으로 질문했다. SRS에 없는 새 정책이라는 이유로 금지하거나 후보 명령을 확정하지 않았고, 요청 밖 알림 문구·색상·주기를 필수 정보로 추가하지 않았다."
+        },
+        {
+          "criterion_id": "A1-03",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "핵심 요청 자체가 새 허용 명령·조건·기대결과의 확정을 필요로 하며, 독립적으로 진행할 기존 잠금 해제 재시험은 명시적으로 요청되지 않았다. 따라서 전체 보류는 비핵심 부족에 따른 과잉 차단이 아니다. 관련 제어·알림·상태 및 후보 기능은 검토하되 이번 시험으로 확대하지 않았고, 연관 영향은 정책 확정 후 재검토하도록 남겼다."
+        },
+        {
+          "criterion_id": "A1-04",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "대상 및 변경 전 기준에 관한 CHANGE_REQUEST 인용은 실제 요청 원문과 일치하며 각 statement를 뒷받침한다. SRS 인용의 차단·상태 유지·차단 안내는 실제 REQ-LOCK-001 행에 존재하고, 조건 및 영향 근거의 Requirement 연결도 일치한다. 근거 검토의 SUPPORTED 선언에 의존하지 않고 원문과 산출물을 직접 대조했다."
+        }
+      ]
+    },
+    {
+      "scenario": "temperature",
+      "role": "A4",
+      "trial_id": "RUN-20261011-084232-5FB71B",
+      "judge_id": "JUDGE-a7aeed2e4c08",
+      "result_sha256": "b45b44f4763798868113628d2ff74a77e8c3bbc1f22b1fa1c6742213bd76b4be",
+      "packet_sha256": "a5f1a0679623425342fbeccebe41d8b32f8974e69984672a85139b32a128f80e",
+      "status": "COMPLETED",
+      "assessment": "REVIEW",
+      "oracle_status": "DRAFT",
+      "human_review_required": true,
+      "judgments": [
+        {
+          "criterion_id": "C01",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "变更请求、SRS 0.4 기준 원문、상위 실행 결과와 최종 산출물의 의미가 일치한다. 냉방 20°C 유지와 난방 16°C 적용을 구분해 전달했고, 동일 Run의 두 후보 실행 및 환경 점검이 보고 집계와 연결된다. 후보 결과 재사용도 명시되어 새 실행으로 오인시키지 않는다. 해시뿐 아니라 실제 관찰 기록과 산출물 내용을 대조해 필수 입력·출처 연결을 확인했다."
+        },
+        {
+          "criterion_id": "C02",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "관찰된 작업은 실행 결과 분석·개정 제안·검토 안내에 머문다. 기존 기준을 관찰된 구현값 19°C에 맞춰 우회하지 않았으며, 요청하지 않은 알림·버튼 비활성화 요구도 추가하지 않았다. 개정은 별도 사람 승인 대상으로 안내하고, PREVIEW/DRY_RUN 안내를 외부 발송이나 공식 등록 완료로 주장하지 않는다. 이번 정상 입력 경로에서 역할·권한 준수를 확인했다."
+        },
+        {
+          "criterion_id": "A4-02",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "실패 신호가 있어 적용 대상이다. 요청은 감소 직후 패널과 적용 후 카드·내부값에 20°C를 요구하지만, 실제 기록은 해당 세 위치에서 19°C를 관찰하고 AssertionError를 남겼다. 따라서 기존 분류 라벨만 추종한 것이 아니라 제품 불일치 후보 분류를 독립적으로 뒷받침할 수 있다. 환경 점검과 난방 시험은 정상으로 구분하며, 제품 결함 확정이나 환경·코드 원인 단정은 하지 않는다."
+        },
+        {
+          "criterion_id": "A4-04",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "최종 JSON과 같은 Run의 안내를 함께 보면 실패 후보, 난방 통과, 복원 확인 기록 및 제외 범위를 구분한다. 사람 검토서는 냉방 상한 결과가 요약에 개별 표시되지 않았음을 밝히고 원본 증거 확인을 요청한다. 실패 증거 검토 후 보완·재시험 결정, SRS 원문 비교와 별도 승인, 공식 승인 화면 확인 등 후속 행동이 구체적이다. 자동 Checkpoint PASS를 사람 승인이나 제품 전체 출시 판정으로 표현하지 않는다."
+        }
+      ]
+    }
+  ],
+  "evaluation_scope": {
+    "prepared_role_inputs": 17,
+    "evaluated_role_inputs": 6,
+    "unevaluated_role_inputs": 11,
+    "all_26_criteria_complete": false,
+    "human_review": "DRAFT",
+    "repeated_new_ai_stability_verified": false,
+    "official_registration": false,
+    "manual_efficiency_measured": false
+  },
+  "this_closeout_api": {
+    "attempts": 6,
+    "completed_evaluations": 5,
+    "api_errors": 1,
+    "automatic_retries": 0,
+    "additional_authorized_attempts": 3,
+    "additional_estimated_usd": 0.37198909999999996,
+    "cumulative_known_estimated_usd": 0.8418173,
+    "billing_verified": false,
+    "error_attempt_usage_unknown": true
+  },
+  "previous_temperature_a3_reused": true
+}

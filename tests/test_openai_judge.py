@@ -386,11 +386,11 @@ def test_numbering_does_not_disable_payload_limit():
 
 def test_larger_evidence_is_preserved_and_size_visible():
     p = packet()
-    p.sources['large'] = '한' * 45_000
+    p.sources['large'] = '한' * 105_000
     before = p.model_dump_json()
     info = preview(p, 'configured-model')
     body = info['request']['input'][1]['content']
-    assert 120_000 < info['payload_bytes'] < info['payload_limit_bytes'] == 250_000
+    assert 250_000 < info['payload_bytes'] < info['payload_limit_bytes'] == 500_000
     assert info['payload_bytes'] == len(body.encode('utf-8'))
     assert info['request_bytes'] > info['payload_bytes']
     assert json.loads(body)['sources']['large'][1] == p.sources['large']
@@ -407,7 +407,7 @@ def test_payload_limit_counts_utf8_bytes_at_boundary():
     p.sources['large'] += 'x' * (MAX_JUDGE_PAYLOAD_BYTES - size)
     assert preview(p, 'configured-model')['payload_bytes'] == MAX_JUDGE_PAYLOAD_BYTES
     p.sources['large'] += 'x'
-    with pytest.raises(ValueError, match='250001 > 250000'):
+    with pytest.raises(ValueError, match='500001 > 500000'):
         preview(p, 'configured-model')
 
 

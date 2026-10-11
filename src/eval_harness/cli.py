@@ -59,7 +59,8 @@ def parser() -> argparse.ArgumentParser:
 
     judge = commands.add_parser("judge-openai", help="별도 OpenAI 의미 평가. 기본은 전송 미리보기이며 호출하지 않습니다.")
     judge.add_argument("--packet", type=Path, required=True)
-    judge.add_argument("--model", required=True)
+    from .openai_judge import DEFAULT_JUDGE_MODEL
+    judge.add_argument("--model", default=DEFAULT_JUDGE_MODEL)
     judge.add_argument("--role-rubric", action="store_true", help="담당 Agent의 전체 세부 기준을 적용합니다. 근거 누락은 Preview에 표시합니다.")
     judge.add_argument("--score-rubric", action="store_true", help="기존 26항목의 0~5점 기준을 적용합니다. 과거 결과를 환산하지 않습니다.")
     judge.add_argument("--execute", action="store_true")
