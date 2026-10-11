@@ -1,0 +1,153 @@
+{
+  "record_date": "2026-10-11",
+  "p1_code_commit": "09fb277",
+  "p2_code_commit": "2193cd0",
+  "runtime_files_unchanged_after_api": 47,
+  "portfolio_changes_this_task": false,
+  "p1_original_full_counts": {
+    "tests": 3236,
+    "failures": 2,
+    "errors": 0,
+    "skipped": 20
+  },
+  "p1_original_failures": [
+    "tests.test_agent3::test_plan_value_format_pipeline_uses_same_plan_for_review_and_compile[False]",
+    "tests.test_agent3::test_plan_value_format_pipeline_uses_same_plan_for_review_and_compile[True]"
+  ],
+  "p1_corrected_adjacent_counts": {
+    "tests": 39,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "p1_unique_pass_after_correction": 3216,
+  "p1_skips": [
+    {
+      "id": "tests.test_agent2::test_saved_disabled_display_failure_rechecks_without_editing_output",
+      "status": "SKIP",
+      "skip_reason": "Local saved API evidence is not distributed"
+    },
+    {
+      "id": "tests.test_agent3::test_saved_dry_tc_executes_unchanged_and_restores",
+      "status": "SKIP",
+      "skip_reason": "Local saved API evidence is not distributed"
+    },
+    {
+      "id": "tests.test_pipeline_ui::test_saved_single_run_asset_choices_preserve_sources[APPROVE-ADD]",
+      "status": "SKIP",
+      "skip_reason": "Local real API evidence is not distributed"
+    },
+    {
+      "id": "tests.test_pipeline_ui::test_saved_single_run_asset_choices_preserve_sources[APPROVE-REPLACE]",
+      "status": "SKIP",
+      "skip_reason": "Local real API evidence is not distributed"
+    },
+    {
+      "id": "tests.test_pipeline_ui::test_saved_single_run_asset_choices_preserve_sources[DECLINE-ADD]",
+      "status": "SKIP",
+      "skip_reason": "Local real API evidence is not distributed"
+    },
+    {
+      "id": "tests.test_pipeline_ui::test_saved_single_run_asset_choices_preserve_sources[HOLD-ADD]",
+      "status": "SKIP",
+      "skip_reason": "Local real API evidence is not distributed"
+    },
+    {
+      "id": "tests.test_pipeline_ui::test_saved_single_run_approval_rejects_damaged_evidence[outside]",
+      "status": "SKIP",
+      "skip_reason": "Local real API evidence is not distributed"
+    },
+    {
+      "id": "tests.test_pipeline_ui::test_saved_single_run_approval_rejects_damaged_evidence[other_tc]",
+      "status": "SKIP",
+      "skip_reason": "Local real API evidence is not distributed"
+    },
+    {
+      "id": "tests.test_pipeline_ui::test_saved_single_run_approval_rejects_damaged_evidence[missing_manifest]",
+      "status": "SKIP",
+      "skip_reason": "Local real API evidence is not distributed"
+    },
+    {
+      "id": "tests.test_pipeline_ui::test_saved_single_run_approval_rejects_damaged_evidence[wrong_hash]",
+      "status": "SKIP",
+      "skip_reason": "Local real API evidence is not distributed"
+    },
+    {
+      "id": "tests.test_pipeline_ui::test_saved_single_run_approval_rejects_damaged_evidence[duplicate]",
+      "status": "SKIP",
+      "skip_reason": "Local real API evidence is not distributed"
+    },
+    {
+      "id": "tests.test_pipeline_ui::test_saved_single_run_approval_rejects_damaged_evidence[missing_source]",
+      "status": "SKIP",
+      "skip_reason": "Local real API evidence is not distributed"
+    },
+    {
+      "id": "tests.test_pipeline_ui::test_saved_single_run_approval_rejects_damaged_evidence[mixed_summary]",
+      "status": "SKIP",
+      "skip_reason": "Local real API evidence is not distributed"
+    },
+    {
+      "id": "tests.test_pipeline_ui::test_saved_single_run_approval_rejects_damaged_evidence[missing_trace]",
+      "status": "SKIP",
+      "skip_reason": "Local real API evidence is not distributed"
+    },
+    {
+      "id": "tests.test_pipeline_ui::test_saved_single_run_approval_rejects_damaged_evidence[changed_code]",
+      "status": "SKIP",
+      "skip_reason": "Local real API evidence is not distributed"
+    },
+    {
+      "id": "tests.test_pipeline_ui::test_saved_single_run_approval_rejects_damaged_evidence[wrong_tc_identity]",
+      "status": "SKIP",
+      "skip_reason": "Local real API evidence is not distributed"
+    },
+    {
+      "id": "tests.test_pipeline_ui::test_saved_single_run_local_revalidation_uses_same_source",
+      "status": "SKIP",
+      "skip_reason": "Local real API evidence is not distributed"
+    },
+    {
+      "id": "tests.test_pipeline_ui::test_saved_single_registered_asset_reexecutes_without_source_stub[None]",
+      "status": "SKIP",
+      "skip_reason": "Local real API evidence is not distributed"
+    },
+    {
+      "id": "tests.test_pipeline_ui::test_saved_single_registered_asset_reexecutes_without_source_stub[HOLD]",
+      "status": "SKIP",
+      "skip_reason": "Local real API evidence is not distributed"
+    },
+    {
+      "id": "tests.test_pipeline_ui::test_saved_single_registered_asset_reexecutes_without_source_stub[DECLINE]",
+      "status": "SKIP",
+      "skip_reason": "Local real API evidence is not distributed"
+    }
+  ],
+  "p2_committed_full_counts": {
+    "tests": 959,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "p2_clean_p1_copy_counts": {
+    "tests": 4,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "p2_skips": [],
+  "test_xml_hashes": {
+    "p1-tests.xml": "d8193652188bd1672256b88e6138c8945cd3263a9ff8e009c6f04b89007bbd0f",
+    "p1-contract-after.xml": "a9190e371fce0ed94b9f7738627833269e8446f26f8187ad5d50ec98719fd615",
+    "p2-committed-final.xml": "6abe5a9016862d1435bc597da157360af351441fda59b9eb86d387c2653a5d44",
+    "p2-clean-copy.xml": "6be21f955193cfa4689713391602f6bf1563ebf37bf943e0e3e185e239574aa9"
+  },
+  "slack_delivery": "ACKNOWLEDGED",
+  "slack_channel_readback": false,
+  "notion_records_readback": 9,
+  "p2_ai_evaluated_role_inputs": 6,
+  "p2_ai_unevaluated_role_inputs": 11,
+  "human_review": "DRAFT",
+  "official_registration": false,
+  "public_deployment": false
+}
