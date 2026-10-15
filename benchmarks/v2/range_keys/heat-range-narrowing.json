@@ -1,0 +1,10 @@
+{
+  "key_id": "RANGE-KEY-HEAT-NARROWING-1",
+  "request_id": "CR-20261015-HEAT-RANGE",
+  "status": "DRAFT",
+  "basis": "P1 examples/change_request.heat-range-narrowing.json의 after_value(난방 18~28°C 변경, 냉방 16~30°C 유지)를 2026-10-15 사람 확정 규칙으로 펼침. 요청이 지정한 전환 시험은 없음. 범위 밖 온도에서의 난방 진입 동작은 요청이 정하지 않아 T-5 질문 대상. 값 전사는 작업자 작성, 사람 검토 전.",
+  "changed": [{"mode": "HEAT", "lower": 18, "upper": 28}],
+  "kept": [{"mode": "COOL", "lower": 16, "upper": 30}],
+  "requested_tests": [],
+  "switch_behavior_defined": false
+}

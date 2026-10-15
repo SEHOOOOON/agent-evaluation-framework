@@ -179,3 +179,21 @@ def test_cli_exit_codes(tmp_path, capsys):
     assert main(["range-oracle", "--key", str(KEY_PATH), "--design", str(path)]) == 0
     capsys.readouterr()
     assert main(["range-oracle", "--key", str(KEY_PATH), "--design", str(tmp_path / "none.json")]) == 4
+
+
+def test_second_key_with_both_bounds_changed_uses_its_own_values():
+    """Same rules, different mode and numbers: nothing is tied to the COOL 20 case."""
+    key = load_key(ROOT / "benchmarks/v2/range_keys/heat-range-narrowing.json")
+    rows = {r["id"] for r in expectations(key) if r["level"] == "REQUIRED"}
+    assert rows == {"T-1:APPLY:HEAT:18", "T-1:APPLY:HEAT:28", "T-2:BLOCK:HEAT:17", "T-2:BLOCK:HEAT:29"}
+    heat = [op(1, "PRECONDITION", "mode.heat"),
+            op(2, "TEST", "temperature.set", 18), op(3, "TEST", "command.apply"),
+            op(4, "TEST", "temperature.decrease"), op(5, "TEST", "command.apply"),
+            op(6, "TEST", "temperature.set", 28), op(7, "TEST", "command.apply"),
+            op(8, "TEST", "temperature.increase"), op(9, "TEST", "command.apply")]
+    verifications = (checks("ACT-003", 18, er=1) + checks("ACT-005", 18, er=4)
+                     + checks("ACT-007", 28, er=7) + checks("ACT-009", 28, er=10))
+    design = {"test_cases": [tc("TC-HEAT", heat, verifications)]}
+    assert grade(key, design)["verdict"] == "PASS"
+    # The representative COOL design does not satisfy this key.
+    assert grade(key, correct_design())["required_met"] == 0
