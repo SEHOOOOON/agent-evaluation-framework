@@ -10,7 +10,10 @@ from uuid import uuid4
 
 from pydantic import BaseModel, ConfigDict, Field, JsonValue, model_validator
 
-VERSION = "openai-judge-1.14"
+VERSION = "openai-judge-1.15"
+# Same reason as flow_worker.GENERATION_TIMEOUT_SECONDS: a 120 s cap can end a
+# large structured response before it arrives. One attempt, no retries.
+JUDGE_TIMEOUT_SECONDS = 600
 DEFAULT_JUDGE_MODEL = "gpt-6.1-sol"
 # Local evidence budget, not a model context-window or API service limit.
 MAX_JUDGE_PAYLOAD_BYTES = 500_000
@@ -256,12 +259,12 @@ def preview(packet: JudgePacket, model: str):
     # Bind approval to the packet, code checks, model, prompt, schema and settings.
     binding = dict(request=request,packet=packet.model_dump(),schema=ReferencedResponse.model_json_schema(),
                    evidence_catalog=catalog,
-                   timeout_seconds=120,max_retries=0,version=VERSION)
+                   timeout_seconds=JUDGE_TIMEOUT_SECONDS,max_retries=0,version=VERSION)
     return dict(destination="https://api.openai.com/v1/responses",maximum_calls=1,
                 payload_bytes=payload_bytes, payload_limit_bytes=MAX_JUDGE_PAYLOAD_BYTES,
                 request_bytes=len(encode(request).encode("utf-8")),
                 rubric_coverage=rubric_coverage,
-                max_retries=0,timeout_seconds=120,request=request,
+                max_retries=0,timeout_seconds=JUDGE_TIMEOUT_SECONDS,request=request,
                 response_schema=ReferencedResponse.model_json_schema(),
                 approval_sha256=sha256(encode(binding).encode("utf-8")).hexdigest(),
                 note="전송 전 미리보기. 코드 검사 결과는 AI에 보여주지 않고 최종 결과에서 별도 보존합니다.")
@@ -319,7 +322,7 @@ def new_client():
     key=os.environ.get("OPENAI_API_KEY")
     if not key: raise ValueError("OPENAI_API_KEY environment variable is required")
     # Explicit origin; do not use a different endpoint from an environment default.
-    return OpenAI(api_key=key,base_url="https://api.openai.com/v1",max_retries=0,timeout=120)
+    return OpenAI(api_key=key,base_url="https://api.openai.com/v1",max_retries=0,timeout=JUDGE_TIMEOUT_SECONDS)
 
 
 def evaluate(packet, model, approval_sha256, output_root, *, client_factory=None):
@@ -342,7 +345,8 @@ def evaluate(packet, model, approval_sha256, output_root, *, client_factory=None
     save("packet.json",packet.model_dump())
     _, catalog, fingerprint = evidence_catalog(packet)
     save("evidence_catalog.json", dict(packet_sha256=fingerprint, entries=catalog))
-    save("attempt.json",dict(mode=mode,status="STARTED",started_at=datetime.now(timezone.utc).isoformat(),
+    started=datetime.now(timezone.utc)
+    save("attempt.json",dict(mode=mode,status="STARTED",started_at=started.isoformat(),
          sdk_parse_attempts=1,automatic_retries=0,server_completion="UNKNOWN"))
     result=dict(mode=mode,status="ERROR",assessment="INCOMPLETE",sdk_parse_attempts=1,
                 api_request_attempts=0 if mode=="TEST_DOUBLE" else 1,
@@ -405,8 +409,12 @@ def evaluate(packet, model, approval_sha256, output_root, *, client_factory=None
                 result["client_close_error"]=type(exc).__name__
     if any(c.status=="FAIL" for c in packet.code_checks):
         result["assessment"]="ISSUES_FOUND"
+    finished=datetime.now(timezone.utc)
+    result.update(started_at=started.isoformat(),finished_at=finished.isoformat(),
+                  elapsed_seconds=round((finished-started).total_seconds(),3))
     save("result.json",result)
-    save("attempt.json",dict(mode=mode,status="FINISHED",finished_at=datetime.now(timezone.utc).isoformat(),
+    save("attempt.json",dict(mode=mode,status="FINISHED",started_at=result["started_at"],
+         finished_at=result["finished_at"],elapsed_seconds=result["elapsed_seconds"],
          sdk_parse_attempts=1,automatic_retries=0,server_completion=result["server_completion"],
          response_received=result["response_received"]))
     return out

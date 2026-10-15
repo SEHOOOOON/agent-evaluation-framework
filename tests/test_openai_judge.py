@@ -421,7 +421,8 @@ def test_real_client_constructor_fixed_origin_no_retries(monkeypatch):
     monkeypatch.setitem(sys.modules,"openai",SimpleNamespace(OpenAI=constructor))
     new_client()
     assert seen["base_url"]=="https://api.openai.com/v1"
-    assert seen["max_retries"]==0 and seen["timeout"]==120
+    # 2026-10-15: 120 s matched neither P1 nor the generation worker (600 s).
+    assert seen["max_retries"]==0 and seen["timeout"]==600
 
 
 def test_cli_preview_does_not_call_network(tmp_path,capsys,monkeypatch):
@@ -458,3 +459,27 @@ def test_real_sdk_with_mock_transport_only_one_request(tmp_path,http_status):
     assert sent["store"] is False
     assert result["status"]==("COMPLETED" if http_status==200 else "ERROR")
     assert result["api_request_attempts"]==0
+
+
+def test_judge_records_start_finish_and_elapsed_time(tmp_path):
+    """Timing must survive the FINISHED rewrite of attempt.json so a slow call
+    can be told apart from a timeout without reading process logs."""
+    import json
+    from datetime import datetime
+    from eval_harness.openai_judge import JUDGE_TIMEOUT_SECONDS, evaluate, preview
+    p = packet()
+    info = preview(p, "configured-model")
+    assert info["timeout_seconds"] == JUDGE_TIMEOUT_SECONDS == 600
+    class Broken:
+        class responses:
+            @staticmethod
+            def parse(**_):
+                raise TimeoutError("simulated")
+    out = evaluate(p, "configured-model", info["approval_sha256"], tmp_path, client_factory=lambda: Broken())
+    attempt = json.loads((out / "attempt.json").read_text(encoding="utf-8"))
+    result = json.loads((out / "result.json").read_text(encoding="utf-8"))
+    assert attempt["status"] == "FINISHED" and result["error_type"] == "TimeoutError"
+    for record in (attempt, result):
+        start = datetime.fromisoformat(record["started_at"])
+        end = datetime.fromisoformat(record["finished_at"])
+        assert end >= start and record["elapsed_seconds"] >= 0
