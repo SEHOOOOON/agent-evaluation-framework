@@ -15,6 +15,10 @@ from types import SimpleNamespace
 from .openai_judge import encode, scan_payload
 from .v2_recorded import digest, read, write
 
+# Same as the OpenAI SDK default that P1 uses when run on its own. A 120 s cap
+# cut off a full-size A2 design response (FLOW-20261015-104803-e84cbf).
+GENERATION_TIMEOUT_SECONDS = 600
+
 
 class MeteredResponses:
     def __init__(self, client, role, work, ledger, limit, seen, max_output_tokens=24000, purpose="generation"):
@@ -95,7 +99,8 @@ def generation_client(key, work, ledger, *, transport=None):
             "role": ledger["attempts"][-1]["role"], "status": "SEND_ATTEMPT",
             "time": datetime.now(timezone.utc).isoformat()})
         write(work / "call_ledger.json", ledger)
-    return OpenAI(api_key=key, base_url="https://api.openai.com/v1", max_retries=0, timeout=120,
+    return OpenAI(api_key=key, base_url="https://api.openai.com/v1", max_retries=0,
+                  timeout=GENERATION_TIMEOUT_SECONDS,
                   http_client=httpx.Client(transport=transport, trust_env=False,
                                            follow_redirects=False, event_hooks={"request": [on_request]}))
 

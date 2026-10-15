@@ -905,6 +905,8 @@ def test_generation_real_sdk_one_http_attempt(tmp_path, http_status):
     ledger = {"attempts": [], "fatal": None}
     with generation_client("local-test-only", tmp_path, ledger,
                            transport=httpx.MockTransport(handler)) as client:
+        # P1 alone uses the SDK default; a 120 s cap cut off a real A2 response.
+        assert client.timeout == 600
         meter = MeteredResponses(client, "A1", tmp_path, ledger, 2, set())
         kwargs = dict(model="test", input=[{"role": "user", "content": "18도"}], store=False, text_format=Payload)
         if http_status == 200:

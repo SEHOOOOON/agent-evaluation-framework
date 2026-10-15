@@ -760,7 +760,27 @@ def execution_support(run, work, execution, *, code_references=(), trial_documen
                                                delivery="LOCAL_ONLY_CODE")
                 continue
             size = len(data)
-            if size > min(24_000, remaining):
+            budget = min(24_000, remaining)
+            if size > budget and path.suffix.lower() == ".txt" and budget >= 4_000:
+                # A pytest failure, its observation records and restoration
+                # lines are printed last. Keep that end from a whole line
+                # instead of dropping the log; the hash covers the full file.
+                total = path.stat().st_size
+                with path.open("rb") as handle:
+                    handle.seek(max(0, total - budget))
+                    tail = handle.read(budget)
+                start = tail.find(b"\n") + 1
+                if not start or start == len(tail):
+                    # No whole line fits; do not send a fragment.
+                    result["omissions"].append(dict(file=label, reason="SIZE_LIMIT", sha256=observed))
+                    continue
+                tail = tail[start:]
+                text = tail.decode("utf-8").replace("\r\n", "\n").replace("\r", "\n")
+                result["files"][label] = dict(sha256=observed, content=text, delivery="TAIL_ONLY",
+                                               bytes_total=total, bytes_included=len(tail))
+                remaining -= len(tail)
+                continue
+            if size > budget:
                 result["omissions"].append(dict(file=label, reason="SIZE_LIMIT", sha256=observed))
                 continue
             text = data.decode("utf-8").replace("\r\n", "\n").replace("\r", "\n")

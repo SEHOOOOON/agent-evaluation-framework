@@ -218,12 +218,37 @@ def test_reused_code_and_logs_verified_by_hash_not_case_name(tmp_path):
 
 
 def test_large_log_not_silently_cut_or_assumed_complete(tmp_path):
+    """The end of a long pytest log (failure, observations) is kept and marked."""
     run, execution, *_ = saved_run(tmp_path)
-    (run / "stdout.txt").write_text("x" * 25000, encoding="utf-8")
+    lines = [f"traceback line {i:05d} 관찰" for i in range(1500)] + ["E   AssertionError: PRODUCT_MISMATCH 19"]
+    (run / "stdout.txt").write_bytes(("\n".join(lines) + "\n").encode("utf-8"))
+    full = (run / "stdout.txt").read_bytes()
     execution["candidate_results"][0]["evidence_sha256"]["stdout.txt"] = digest(run / "stdout.txt")
     result = execution_support(run, tmp_path, execution)
-    assert result["files"] == {}
-    assert result["omissions"][0]["reason"] == "SIZE_LIMIT"
+    item = result["files"]["stdout.txt"]
+    assert item["delivery"] == "TAIL_ONLY" and item["sha256"] == digest(run / "stdout.txt")
+    assert item["bytes_total"] == len(full) > 24_000 >= item["bytes_included"]
+    assert item["content"].endswith("E   AssertionError: PRODUCT_MISMATCH 19\n")
+    assert item["content"].startswith("traceback line ")  # starts on a whole line
+    assert full.endswith(item["content"].encode("utf-8"))
+    assert result["omissions"] == []
+    # A wrong hash still excludes the whole log.
+    execution["candidate_results"][0]["evidence_sha256"]["stdout.txt"] = "0" * 64
+    result = execution_support(run, tmp_path, execution)
+    assert result["files"] == {} and result["omissions"][0]["reason"] == "MISSING_OR_UNVERIFIED"
+
+
+def test_tail_only_log_respects_shared_budget(tmp_path):
+    run, execution, *_ = saved_run(tmp_path)
+    (run / "stdout.txt").write_bytes(b"line\n" * 9000)
+    row = execution["candidate_results"][0]
+    row["evidence_sha256"]["stdout.txt"] = digest(run / "stdout.txt")
+    (run / "stderr.txt").write_bytes(b"err\n" * 9000)
+    row.update(stderr_file="stderr.txt")
+    row["evidence_sha256"]["stderr.txt"] = digest(run / "stderr.txt")
+    result = execution_support(run, tmp_path, execution)
+    sent = sum(f["bytes_included"] for f in result["files"].values())
+    assert sent <= 40_000 and all(f["delivery"] == "TAIL_ONLY" for f in result["files"].values())
 
 
 @pytest.mark.parametrize("byte_count", [23999, 24000, 24001, 35713])
