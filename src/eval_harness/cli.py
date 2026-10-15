@@ -82,8 +82,24 @@ def evaluation_exit_code(status: str, decision: str | None) -> int:
     return {"PASS": 0, "HOLD": 2, "HUMAN_REVIEW": 3}.get(decision or "", 4)
 
 
+def source_mismatch(cwd: Path | None = None) -> str | None:
+    """Refuse a stale installed copy when run from a checkout that has newer source."""
+    loaded = Path(__file__).resolve().parent
+    source = (Path(cwd or Path.cwd()) / "src" / "eval_harness").resolve()
+    if not (source / "__init__.py").is_file() or source == loaded:
+        return None
+    return (f"저장소 소스({source}) 대신 다른 위치의 eval_harness({loaded})가 실행되었습니다. "
+            "설치본이 수정 전 코드일 수 있습니다. 저장소 루트에서 PYTHONPATH=src로 실행하거나 "
+            "`python -m pip install -e .`로 소스 연결 설치를 하세요.")
+
+
 def main(argv: list[str] | None = None) -> int:
     args = parser().parse_args(argv)
+    mismatch = source_mismatch()
+    if mismatch:
+        print(json.dumps({"status": "ERROR", "reason": "STALE_INSTALLED_COPY", "detail": mismatch},
+                         ensure_ascii=False))
+        return 4
     if args.command == "full-flow":
         from .full_flow import FlowSpec, make_preview, run_flow
         try:

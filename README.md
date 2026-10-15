@@ -117,6 +117,8 @@ P1의 생성·Checkpoint 재작성·근거 검토 호출을 모두 기존 P1 호
 
 ## 현재 사용할 수 있는 명령
 
+모든 명령은 이 저장소 루트에서 실행합니다. 수정한 소스가 실행되도록 처음 한 번 `python -m pip install -e ".[test,judge]"`(소스 연결 설치)를 하거나, 설치 없이 `PYTHONPATH=src`(PowerShell: `$env:PYTHONPATH="src"`)를 지정합니다. 소스 연결이 아닌 일반 설치본이 남아 있으면 `python -m eval_harness`가 수정 전 코드를 불러올 수 있어(2026-10-15 `full-flow-0.15` 실행 사례), 저장소 안에서 다른 위치의 코드가 실행되면 `STALE_INSTALLED_COPY`로 멈춥니다.
+
 ### 비용 없는 로컬 반복 시험 · 결과표
 
 ```bash
