@@ -2,6 +2,7 @@
 import hashlib
 from html.parser import HTMLParser
 import json
+import os
 from pathlib import Path
 import re
 
@@ -12,17 +13,6 @@ PAGE = ROOT / 'portfolio'
 def evidence():
     text = (PAGE / 'evidence.js').read_text(encoding='utf-8')
     return json.loads(text.split('window.PORTFOLIO_EVIDENCE = ', 1)[1].strip().removesuffix(';'))
-
-
-def assert_preserved_score_and_prior_rubric(backup):
-    assert (backup / 'evidence.js').read_bytes() == (PAGE / 'evidence.js').read_bytes()
-    def rubric(folder):
-        return json.loads((folder / 'rubric.js').read_text(encoding='utf-8').split('window.PORTFOLIO_RUBRIC = ', 1)[1].strip().removesuffix(';'))
-    previous, current = rubric(backup), rubric(PAGE)
-    assert previous['version'] == 'role-rubric-2.4'
-    assert current['version'] == 'role-rubric-2.5'
-    assert [r for r in previous['criteria'] if r['criterion_id'] != 'A3-03'] == [r for r in current['criteria'] if r['criterion_id'] != 'A3-03']
-    assert next(r for r in previous['criteria'] if r['criterion_id'] == 'A3-03')['method'] == 'HYBRID'
 
 
 class PageParser(HTMLParser):
@@ -50,7 +40,11 @@ def test_links_ids_and_local_resources():
         if link.startswith('#'):
             assert link[1:] in set(page.ids) | dynamic_ids
         elif not link.startswith('https://'):
-            assert (PAGE / link).is_file()
+            target = Path(os.path.normpath(PAGE / link))  # no symlink/junction resolution
+            # Sibling portfolio repositories are only checked when checked out.
+            if ROOT not in target.parents and not (ROOT.parent / target.relative_to(ROOT.parent).parts[0]).is_dir():
+                continue
+            assert target.is_file()
     assert all(resource and (PAGE / resource).is_file() for resource in page.resources)
 
 
@@ -142,17 +136,15 @@ def test_current_26_definitions_match_runtime_without_regrading_old_scores():
     assert evidence()['rubric'] == 'role-rubric-2.2'
 
 
-def test_dashboard_collapses_groups_and_preserves_story_backup():
+def test_dashboard_collapses_groups():
     js = (PAGE / 'page.js').read_text(encoding='utf-8')
     html = (PAGE / 'report.html').read_text(encoding='utf-8')
     assert 'class="role-group"' in js and 'class="criterion"' in js
     assert 'group.open = true' in js and 'detail.open = false' in js
     assert ' open' not in re.search(r'<details class="role-group"[^>]*>', js).group()
     assert '항목 목록 모두 보기' in html and '모두 접기' in html
-    backup = PAGE / 'backup-story-20261004'
-    assert all((backup / name).is_file() for name in ('index.html', 'style.css', 'page.js', 'evidence.js'))
-    assert 'AI가 만든 테스트' in (backup / 'index.html').read_text(encoding='utf-8')
-    assert (backup / 'evidence.js').read_bytes() == (PAGE / 'evidence.js').read_bytes()
+    # The 2026-10-04 page backups were removed by the user on 2026-10-15.
+    assert 'backup-' not in html
 
 
 def test_summary_scores_have_no_bars_and_keep_source_based_counts():
@@ -172,12 +164,9 @@ def test_summary_scores_have_no_bars_and_keep_source_based_counts():
     assert '이후 잘못된 평가가 확인된 항목' in html
     assert '전체 품질 점수는 아닙니다' in html
     assert html.index('id="criteria-details"') < html.index('id="historical-results"') < html.index('id="score-chart"')
-    backup = PAGE / 'backup-dashboard-20261004'
-    assert_preserved_score_and_prior_rubric(backup)
-    assert 'role="tab"' in (backup / 'index.html').read_text(encoding='utf-8')
 
 
-def test_role_context_and_prechange_snapshot_are_preserved():
+def test_role_context_is_explained():
     html = (PAGE / 'report.html').read_text(encoding='utf-8')
     js = (PAGE / 'page.js').read_text(encoding='utf-8')
     assert '이 프로젝트에 맞춘 26개 항목' in html
@@ -189,10 +178,6 @@ def test_role_context_and_prechange_snapshot_are_preserved():
         assert question in js
     assert '왜 확인하나요?' in js and 'context.checks.map' in js
     assert '세부 기준 보기' in js
-    backup = PAGE / 'backup-charts-20261004'
-    assert all((backup / name).is_file() for name in
-               ('index.html', 'style.css', 'page.js', 'evidence.js', 'rubric.js'))
-    assert_preserved_score_and_prior_rubric(backup)
 
 
 def test_detail_layout_keeps_every_field_without_truncating_conditions():
