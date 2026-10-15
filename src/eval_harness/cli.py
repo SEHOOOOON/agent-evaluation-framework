@@ -67,6 +67,10 @@ def parser() -> argparse.ArgumentParser:
     judge.add_argument("--approval-sha256")
     judge.add_argument("--output",type=Path,default=Path(__file__).resolve().parents[2]/"evaluation-runs")
 
+    oracle = commands.add_parser("range-oracle", help="범위 변경 요청의 규칙 기반 정답지로 A2 TC 설계를 대조합니다. API 호출 없음.")
+    oracle.add_argument("--key", type=Path, required=True)
+    oracle.add_argument("--design", type=Path, required=True, help="agent2_test_design.json")
+
     dashboard = commands.add_parser("dashboard", help="로컬 평가 대시보드를 실행합니다.")
     dashboard.add_argument("--project1-root", type=Path, default=DEFAULT_PROJECT1_ROOT)
     dashboard.add_argument("--runs-root", type=Path, default=DEFAULT_RUNS_ROOT)
@@ -100,6 +104,17 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps({"status": "ERROR", "reason": "STALE_INSTALLED_COPY", "detail": mismatch},
                          ensure_ascii=False))
         return 4
+    if args.command == "range-oracle":
+        from .range_oracle import grade, load_key
+        try:
+            if args.design.stat().st_size > 2_000_000:
+                raise ValueError("Design too large")
+            result = grade(load_key(args.key), json.loads(args.design.read_text(encoding="utf-8")))
+        except (OSError, ValueError) as exc:
+            print(json.dumps({"status": "ERROR", "reason": type(exc).__name__}, ensure_ascii=False))
+            return 4
+        print(json.dumps(result, ensure_ascii=False, indent=2))
+        return {"PASS": 0, "FAIL": 2, "REVIEW": 3}[result["verdict"]]
     if args.command == "full-flow":
         from .full_flow import FlowSpec, make_preview, run_flow
         try:

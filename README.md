@@ -161,6 +161,18 @@ python -m eval_harness judge-openai --packet benchmarks/v2/role_packet.example.j
 
 공통 2개를 포함해 A1 6개·A2 10개·A3 5개·A4 4개 기준을 적용합니다. 전체 연결기는 일부 E2E 코드 대조를 수행하며 의미 충분성·Checkpoint 오탐/미탐 평가는 남아 있습니다. 사용자 정의 일부 항목 패킷은 `--role-rubric` 없이 사용할 수 있고 `CUSTOM_SUBSET`으로 구분합니다. 실제 유료 호출은 전송 내용·예산 승인 후에만 수행합니다. [사용법과 한계](docs/11_RELIABILITY_EVALUATION_PLAN.md#8-openai-평가자-연결).
 
+### 범위 변경 요청의 규칙 기반 정답지 대조 · API 없음
+
+```bash
+python -m eval_harness range-oracle --key benchmarks/v2/range_keys/representative-temperature.json --design <Run 폴더>/agent2_test_design.json
+```
+
+사람이 요청/SRS에서 옮긴 정답지 키(바뀐 모드·유지 모드의 범위, 요청이 지정한 전환 시험)를 2026-10-15 확정 규칙([TC 정답지](benchmarks/v2/TC_REFERENCE.md))으로 펼쳐 필수·권장 시험 목록을 만들고, A2 `execution_spec`의 조작 순서와 값 확인을 따라가며 대조합니다. 예: 냉방 범위가 20~30°C로 바뀌면 필수는 20 적용·30 적용·19 차단·31 차단, 권장은 유지 모드의 경계 차단입니다. 준비 단계에서만 적용한 값은 시험으로 세지 않고, 패널·카드·내부값 중 하나라도 빠지면 `PARTIAL`입니다. 종료 코드는 PASS 0, FAIL 2, REVIEW 3(한 모드의 경계가 여러 TC로 나뉨), 오류 4입니다.
+
+- 문장 의미와 제품 결과는 판정하지 않습니다. 질문(T-5)은 확인 사항에 해당 모드 이름이 있는지만 봅니다. 대상 장비 일치(C-9)는 P1 실행기가 검사합니다.
+- 대표 온도 키는 `DRAFT`입니다(규칙은 사용자 확정, 값 전사는 사람 검토 전). 전체 흐름 점수표에는 아직 연결하지 않았고 과거 점수를 다시 매기지 않습니다.
+- 시험은 2026-10-15 실행에서 사람이 찾은 오답 3개를 재현한 **합성** 설계로 했습니다. 실제 실행 파일로 확인하지는 않았습니다.
+
 ### 모의 반복 및 저장 기록 검사
 
 ```bash
