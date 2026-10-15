@@ -28,7 +28,7 @@ from .openai_judge import (JudgePacket, encode, preview as judge_preview, evalua
 from .v2_recorded import (child, digest, read, write, target_pin, inventory, execution_rows,
                           finding_matches_execution, report_counts_match, handoff_checks)
 
-VERSION = "full-flow-0.16"
+VERSION = "full-flow-0.17"
 ROLES = ("A1", "A2", "A3", "A4")
 
 
@@ -747,6 +747,7 @@ def execution_support(run, work, execution, *, code_references=(), trial_documen
 
     # Fixed ordering makes selection independent of execution-row ordering.
     groups = sorted(references.items(), key=lambda item: min(label for label, _ in item[1]))
+    verified = []
     for path, refs in groups:
         label = min(label for label, _ in refs)
         try:
@@ -759,8 +760,24 @@ def execution_support(run, work, execution, *, code_references=(), trial_documen
                 result["files"][label] = dict(sha256=observed, bytes=path.stat().st_size,
                                                delivery="LOCAL_ONLY_CODE")
                 continue
+            verified.append((path, label, observed, data))
+        except (OSError, ValueError, UnicodeError):
+            result["omissions"].append(dict(file=label, reason="MISSING_OR_UNVERIFIED"))
+    # Several failing logs share one budget. Without shares the first two large
+    # logs took all 40,000 bytes and later failures were omitted entirely
+    # (2026-10-15 check). Small logs stay whole; large ones get equal tails of
+    # at least 4,000 bytes; a log that cannot get that much is still omitted.
+    shares, left = {}, remaining
+    logs = sorted(((min(len(d), 24_000), label) for _, label, _, d in verified
+                   if Path(label).suffix.lower() == ".txt"))
+    for index, (demand, label) in enumerate(logs):
+        share = left // (len(logs) - index)
+        shares[label] = demand if demand <= share else share if share >= 4_000 else 0
+        left -= shares[label]
+    for path, label, observed, data in verified:
+        try:
             size = len(data)
-            budget = min(24_000, remaining)
+            budget = min(24_000, remaining, shares.get(label, 24_000))
             if size > budget and path.suffix.lower() == ".txt" and budget >= 4_000:
                 # A pytest failure, its observation records and restoration
                 # lines are printed last. Keep that end from a whole line

@@ -142,7 +142,7 @@ python scripts/run_local_stability.py --p1 <현재-P1-작업본> --output evalua
 python -m eval_harness full-flow --target ../qa-agent-pipeline-v2 --spec benchmarks/v2/full_flow.example.json
 ```
 
-예시는 1회 리허설 명세입니다. P1 호출 최대 10회(생성·CP 재작성·근거 검토 합산), 별도 역할 평가 최대 4회이며 이 명령 자체는 전송하지 않습니다. 실제 전송·비용 승인 후 같은 명령에 `--execute --approval-sha256 PREVIEW_HASH`를 붙입니다. P1 요청당 출력 최대 24,000토큰(full-flow-0.16 기본값, 이전 명세에 적힌 12,000은 그대로 적용), 평가 요청당 최대 6,000토큰이며 SDK 자동 재시도는 0입니다. 기존 명세의 `generation` 예산 필드에 근거 검토도 합산하며 프로젝트 1의 제한된 CP 재작성 정책은 유지합니다.
+예시는 1회 리허설 명세입니다. P1 호출 최대 10회(생성·CP 재작성·근거 검토 합산), 별도 역할 평가 최대 4회이며 이 명령 자체는 전송하지 않습니다. 실제 전송·비용 승인 후 같은 명령에 `--execute --approval-sha256 PREVIEW_HASH`를 붙입니다. P1 요청당 출력 최대 24,000토큰(full-flow-0.16부터 기본값, 이전 명세에 적힌 12,000은 그대로 적용), 평가 요청당 최대 6,000토큰이며 SDK 자동 재시도는 0입니다. 기존 명세의 `generation` 예산 필드에 근거 검토도 합산하며 프로젝트 1의 제한된 CP 재작성 정책은 유지합니다.
 
 실행 기록은 `evaluation-runs/FLOW-.../`에 저장합니다. 5회 시험은 별도 명세와 예산 승인이 필요합니다. [전체 실행 사용법과 한계](docs/11_RELIABILITY_EVALUATION_PLAN.md#10-전체-실행-연결기-사용법)를 먼저 확인하세요.
 
