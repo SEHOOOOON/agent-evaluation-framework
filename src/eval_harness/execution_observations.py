@@ -12,6 +12,8 @@ from .v2_recorded import child, digest, read
 VERSION = "assertion-observations-1.0"
 OBSERVED = "QA_ASSERTION_OBSERVED: "
 COMPLETE = "QA_ASSERTIONS_COMPLETE: "
+# P1 writes this first line when it keeps only the tail of a long trial log.
+TRUNCATED = "QA_OUTPUT_TRUNCATED: "
 
 
 def judgment(verdict, reason, evidence=()):
@@ -71,7 +73,14 @@ def compare(case, plan, log, *, run_id, outcome):
         actual_ids = [e["assertion"]["result_id"] for e in events]
         if (not expected_ids or len(set(expected_ids)) != len(expected_ids)
                 or len(set(tc_ids)) != len(tc_ids) or set(expected_ids) != set(tc_ids)
-                or len(set(actual_ids)) != len(actual_ids) or set(actual_ids) != set(expected_ids)):
+                or len(set(actual_ids)) != len(actual_ids)):
+            return judgment("FAIL", "TC·계획·실제 관찰의 필수 검사 번호 누락·추가·중복")
+        if set(actual_ids) != set(expected_ids):
+            # A cut log head can drop early records; that is missing evidence,
+            # not proof that the run skipped a check. Extra IDs still fail.
+            if (set(actual_ids) < set(expected_ids)
+                    and any(line.startswith(TRUNCATED) for line in log.splitlines())):
+                return judgment("REVIEW", "시험 로그 앞부분이 잘려 일부 관찰 기록을 확인할 수 없음; 누락으로 판정하지 않음")
             return judgment("FAIL", "TC·계획·실제 관찰의 필수 검사 번호 누락·추가·중복")
         # Compiler emits anchored assertions after their actions, then terminal ones.
         anchors = [a["action_id"] for a in plan["actions"] if a["phase"] != "RESTORE"] + [None]

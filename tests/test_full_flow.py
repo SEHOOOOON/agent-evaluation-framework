@@ -913,7 +913,7 @@ def test_generation_real_sdk_one_http_attempt(tmp_path, http_status):
             with pytest.raises(RuntimeError):
                 meter.parse(**kwargs)
     assert len(requests) == len(ledger["http_requests"]) == 1
-    assert json.loads(requests[0].content)["max_output_tokens"] == 12000
+    assert json.loads(requests[0].content)["max_output_tokens"] == 24000
 
 
 def test_flow_api_hides_workspace_and_separates_test_mode(flow_setup, known_bad_root):
@@ -1236,3 +1236,15 @@ def test_incomplete_server_response_stops_further_calls(tmp_path, status):
             meter.parse(model="test", input=[], store=False, text_format=Payload)
     assert len(ledger["attempts"]) == 1
     assert ledger["attempts"][0]["server_completion"] == status
+
+
+def test_generation_output_cap_default_and_explicit_historical_value():
+    """New specs use the existing upper bound; old specs that set 12000 keep it."""
+    base = dict(case_id="CAP", request="r.json", oracle="o.json", generation_model="m")
+    assert FlowSpec(**base).generation_max_output_tokens == 24000
+    assert FlowSpec(**base, generation_max_output_tokens=12000).generation_max_output_tokens == 12000
+    with pytest.raises(ValueError):
+        FlowSpec(**base, generation_max_output_tokens=24001)
+    root = Path(__file__).resolve().parents[1] / "benchmarks/v2"
+    for name in ("full_flow.imp001-recheck.json", "full_flow.imp002-recheck.json", "full_flow.three-call-pilot.json"):
+        assert FlowSpec.model_validate_json((root / name).read_text(encoding="utf-8")).generation_max_output_tokens == 12000

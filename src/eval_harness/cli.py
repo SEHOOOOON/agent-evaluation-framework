@@ -70,7 +70,8 @@ def parser() -> argparse.ArgumentParser:
     dashboard = commands.add_parser("dashboard", help="로컬 평가 대시보드를 실행합니다.")
     dashboard.add_argument("--project1-root", type=Path, default=DEFAULT_PROJECT1_ROOT)
     dashboard.add_argument("--runs-root", type=Path, default=DEFAULT_RUNS_ROOT)
-    dashboard.add_argument("--port", type=int, default=8765)
+    # 8765 is the Project 1 UI default; keep the two local servers apart.
+    dashboard.add_argument("--port", type=int, default=8766)
     dashboard.add_argument("--no-browser", action="store_true")
     return root
 

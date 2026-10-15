@@ -28,7 +28,7 @@ from .openai_judge import (JudgePacket, encode, preview as judge_preview, evalua
 from .v2_recorded import (child, digest, read, write, target_pin, inventory, execution_rows,
                           finding_matches_execution, report_counts_match, handoff_checks)
 
-VERSION = "full-flow-0.15"
+VERSION = "full-flow-0.16"
 ROLES = ("A1", "A2", "A3", "A4")
 
 
@@ -46,7 +46,10 @@ class FlowSpec(BaseModel):
     judge_calls_total: int = Field(default=4, ge=0, le=20)
     trial_timeout_seconds: int = Field(default=1800, ge=60, le=7200)
     product_timeout_seconds: int = Field(default=90, ge=10, le=180)
-    generation_max_output_tokens: int = Field(default=12000, ge=2000, le=24000)
+    # P1 itself does not cap generation output. A recorded A2 response used
+    # 10,558 of the former 12,000 default, so new specs use the existing upper
+    # bound. Historical specs that set 12000 explicitly keep that value.
+    generation_max_output_tokens: int = Field(default=24000, ge=2000, le=24000)
 
 
 def p2_pin():

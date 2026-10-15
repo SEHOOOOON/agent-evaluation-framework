@@ -17,7 +17,7 @@ from .v2_recorded import digest, read, write
 
 
 class MeteredResponses:
-    def __init__(self, client, role, work, ledger, limit, seen, max_output_tokens=12000, purpose="generation"):
+    def __init__(self, client, role, work, ledger, limit, seen, max_output_tokens=24000, purpose="generation"):
         self.client, self.role, self.work = client, role, work
         self.ledger, self.limit, self.seen = ledger, limit, seen
         self.max_output_tokens = max_output_tokens

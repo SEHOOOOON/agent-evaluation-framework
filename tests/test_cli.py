@@ -6,7 +6,15 @@ from eval_harness.cli import evaluation_exit_code, parser
 def test_dashboard_has_no_host_override() -> None:
     args = parser().parse_args(["dashboard", "--no-browser"])
     assert not hasattr(args, "host")
-    assert args.port == 8765
+    assert args.port == 8766  # Project 1 UI keeps 8765.
+
+
+def test_v1_fixture_root_is_a_sibling_checkout_not_a_user_path() -> None:
+    from pathlib import Path
+    from eval_harness.runner import DEFAULT_PROJECT1_ROOT
+    repo = Path(__file__).resolve().parents[1]
+    assert DEFAULT_PROJECT1_ROOT == repo.parent / "portfolio_export"
+    assert "Users" not in DEFAULT_PROJECT1_ROOT.relative_to(repo.parent).parts
 
 
 def test_run_cli_is_fixture_only() -> None:
