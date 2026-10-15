@@ -1,5 +1,17 @@
 # 프로젝트 2 현재 상태
 
+## 2026-10-15 · 실행 명령 고정·채점 대기 시간·로그 예산·범위 변경 규칙 (클라우드 작업, API 없음)
+
+- 작업 위치: 클라우드 컨테이너. P2 브랜치 `claude/fixes-20261015-u58dgi`(이 세션 지정), P1 브랜치 `claude/fixes-20261015`. 유료 API 호출 0회, main 병합·배포·포폴 수정 없음.
+- 1) 설치본 실행 차단: 저장소 루트에서 `python -m eval_harness`가 다른 위치(예전 full-flow-0.15 설치본)를 불러오면 `STALE_INSTALLED_COPY`로 멈춘다. README에 `pip install -e .` 또는 `PYTHONPATH=src` 명시. [IMP-008](improvements/IMP-008-output-cap-and-log-truncation.md)
+- 2) 채점 호출 대기 시간 120→600초(openai-judge-1.15), 결과·시도 기록에 시작·종료 시각과 경과 초. [IMP-008]
+- 3) "완주 성공" 정의: 제품이 변경 전이라 냉방 하한 시험은 항상 불일치 후보가 된다. 선택지 A(실행 완주만)/B(예상 불일치 사전 등록, 권장)/C(제품 사본 선변경)를 [평가 계획](docs/11_RELIABILITY_EVALUATION_PLAN.md)에 적었다. **사용자 결정 대기, 구현 안 함.**
+- 4~7) 사람 확정 규칙(T-1, T-2, T-5, T-7, T-8, C-3, C-9)을 P1 작성·검토 지침(새 Run에만 적용, 과거 해시 유지)과 P2 [TC 정답지 1.1](benchmarks/v2/TC_REFERENCE.md)에 반영. 규칙 기반 정답지·코드 대조 `range-oracle`(range-oracle-1.0)과 키 2개(DRAFT). P1 새 예시 요청 2개(미실행). [IMP-009](improvements/IMP-009-range-change-rules.md)
+- 8) 로그 예산: 40,000바이트를 큰 로그 두 개가 다 써서 세 번째 실패 로그가 빠지던 문제를 재현하고, 로그끼리 몫을 나누도록 보완(full-flow-0.17). [IMP-008]
+- 검증일 2026-10-15 KST(로컬, QA_P1_TEST_ROOT=P1 커밋 53b9383): P2 전체 984 PASS / 4 SKIP(Windows 전용 경로 검사) / 1 FAIL. 실패 1개는 클라우드에 형제 `portfolio_export` 저장소가 없는 포폴 링크 검사(환경 원인, 코드 변경과 무관). P1 미커밋 상태에서는 사본 preflight 4개가 기존 보호 동작대로 막혔고 커밋 후 통과. P1 결과는 P1 인계 문서.
+- 미검증: 실제 API로 규칙 반영 효과·채점 대기 시간·로그 분배 확인, `range-oracle`의 실제 저장 A2 산출물 대조(실제 파일은 사용자 PC에만 있음), 사용자 PC 설치본 차단 동작.
+- 다음(사용자 PC): `evaluation-runs/live-20261015/`의 실제 A2로 `range-oracle` 실행 → 사람이 찾은 오답 3개가 그대로 나오는지 확인, 3번 선택지 결정, WORKLOG·임시 폴더 정리.
+
 ## 2026-10-15 · 대표 요청 실제 실행 2회와 실행기 보완 (IMP-008 후속)
 
 - 1회차 FLOW-20261015-104803-e84cbf: A1 1차 CP1-012 FAIL(요청 description 문장을 procedure_notes에 넣음) → 재작성 1회 PASS. A2 생성 호출이 P2 실행기 대기 시간 120초에 걸려 중단. 호출 4회.
