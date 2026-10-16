@@ -67,3 +67,6 @@
  .story-results td b{font-size:24px}.story-nav{gap:12px 20px}
 }
 @media print{.story-nav,.topbar{display:none}.story-hero{padding-top:0}.story-section{padding:20px 0}.judgment-pair article,.evaluation-flow li,.case-summary tr{break-inside:avoid}}
+
+/* 2026-10-16: word statuses (있음/없음, 적용 판단) in score tables stay text-sized */
+.case-summary td b.status-word { font-size: 1rem; line-height: 1.5; }
