@@ -67,6 +67,15 @@ def parser() -> argparse.ArgumentParser:
     judge.add_argument("--approval-sha256")
     judge.add_argument("--output",type=Path,default=Path(__file__).resolve().parents[2]/"evaluation-runs")
 
+    rejudge = commands.add_parser("rejudge-flow", help="저장된 FLOW 회차의 evidence.zip으로 선택 역할을 다시 채점합니다. 기본은 미리보기이며 호출하지 않습니다.")
+    rejudge.add_argument("--flow", type=Path, required=True, help="FLOW-... 폴더")
+    rejudge.add_argument("--trial", type=int, default=1)
+    rejudge.add_argument("--roles", nargs="+", choices=["A1", "A2", "A3", "A4"], required=True)
+    rejudge.add_argument("--model", help="기본: 저장된 명세의 judge_model")
+    rejudge.add_argument("--execute", action="store_true")
+    rejudge.add_argument("--approval-sha256")
+    rejudge.add_argument("--output", type=Path, default=Path(__file__).resolve().parents[2]/"evaluation-runs")
+
     oracle = commands.add_parser("range-oracle", help="범위 변경 요청의 규칙 기반 정답지로 A2 TC 설계를 대조합니다. API 호출 없음.")
     oracle.add_argument("--key", type=Path, required=True)
     oracle.add_argument("--design", type=Path, required=True, help="agent2_test_design.json")
@@ -136,6 +145,22 @@ def main(argv: list[str] | None = None) -> int:
             return 3 if result["status"] == "COMPLETED" else 4
         except (OSError, ValueError, ImportError, subprocess.SubprocessError) as exc:
             print("Full flow blocked:", type(exc).__name__)
+            return 4
+    if args.command == "rejudge-flow":
+        from .rejudge import make_preview as rejudge_preview, execute as rejudge_execute
+        try:
+            if not args.execute:
+                print(json.dumps(rejudge_preview(args.flow, args.trial, args.roles, args.model), ensure_ascii=False, indent=2))
+                return 0
+            if not args.approval_sha256:
+                raise ValueError("Exact preview approval required")
+            out = rejudge_execute(args.flow, args.trial, args.roles, args.approval_sha256, args.output, args.model)
+            summary = json.loads((out / "summary.json").read_text(encoding="utf-8"))
+            print(json.dumps({"output": str(out), "status": summary["status"],
+                              "results": summary["results"]}, ensure_ascii=False))
+            return 0 if summary["status"] == "COMPLETED" else 4
+        except (OSError, ValueError, ImportError) as exc:
+            print(json.dumps({"status": "ERROR", "reason": type(exc).__name__, "detail": str(exc)[:300]}, ensure_ascii=False))
             return 4
     if args.command == "judge-openai":
         from .openai_judge import JudgePacket,preview,evaluate

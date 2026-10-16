@@ -176,6 +176,19 @@ python -m eval_harness range-oracle --key benchmarks/v2/range_keys/representativ
 - 전체 흐름 연결(full-flow-0.19): 명세에 `"range_key": "range_keys/representative-temperature.json"`(명세 폴더 기준 경로)을 적을 때만 키 내용이 승인 해시에 묶이고, 회차마다 `record.json`/`result.json`의 `range_oracle`에 위 대조 결과가 남습니다(예: `result.json` → `"range_oracle": {"FAIL": 1}`). A2 결과가 없으면 `NOT_EVALUATED`. 점수·완주 상태는 바꾸지 않으며, 키를 적지 않은 명세는 계획(preview) 모양도 그대로입니다.
 - 2026-10-16 PC에서 10-15 실제 A2 설계로 확인: FAIL 3/6, 사람이 찾은 오답 3개(냉방 20 적용 ER, 31 차단, 전환 질문) 모두 MISSING. 원본은 압축을 임시 폴더에 풀어 읽기만 했습니다.
 
+### 저장된 회차 다시 채점 (rejudge-flow) · 기본은 호출 없음
+
+```bash
+python -m eval_harness rejudge-flow --flow evaluation-runs/<FLOW-...> --trial 1 --roles A3 A4          # 미리보기
+python -m eval_harness rejudge-flow --flow ... --roles A3 A4 --execute --approval-sha256 <미리보기 값>  # 유료 호출
+```
+
+저장된 `trial-N/evidence.zip`의 해시를 `record.json`과 대조하고, 임시 폴더(`qaf-rejudge-*`, 끝나면 삭제)에 풀어 Run 파일 해시까지 확인한 뒤 **현재 수집 코드**로 패킷을 다시 만듭니다. 예: 로그 끝부분 포함 규칙(IMP-008)이 생긴 뒤 10-15 회차의 A3·A4만 다시 채점할 때 씁니다.
+
+- 미리보기는 역할별 상태(READY / BLOCKED: 채점 입력 한도 초과 / NOT_AVAILABLE), 입력 크기, 최대 호출 수와 묶음 승인 해시를 보여 주며 아무것도 쓰지 않습니다.
+- 패킷을 파일로 옮기지 않고 메모리에서 바로 쓰므로 `judge-openai`의 패킷 파일 200KB 제한에 걸리지 않습니다. 채점 입력 한도(500,000바이트)는 그대로이고, 넘으면 잘라내지 않고 BLOCKED로 표시합니다.
+- 실행은 승인 해시가 정확히 같을 때만 하고, 첫 채점 오류에서 멈춥니다. 결과는 새 `REJUDGE-...` 폴더에만 쓰고 원래 FLOW 기록·점수는 바꾸지 않습니다(FLOW 폴더 안 출력은 거부).
+
 ### 모의 반복 및 저장 기록 검사
 
 ```bash
