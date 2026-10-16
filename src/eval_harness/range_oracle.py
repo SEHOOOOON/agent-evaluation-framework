@@ -8,13 +8,12 @@ Host-enforced target identity (C-9) is left to P1 and is not re-checked here.
 """
 from __future__ import annotations
 
-import json
 from pathlib import Path
 from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-VERSION = "range-oracle-1.1"
+VERSION = "range-oracle-1.2"
 LOCATIONS = ("panel", "card", "internal")
 # Block verdicts are value retention only (T-8); these readers judge something else.
 NON_VALUE_TARGETS = {"notification.toast", "temperature.controls", "temperature.increase",
@@ -201,13 +200,15 @@ def grade(key: RangeKey, design: dict, analysis: dict | None = None) -> dict[str
             seen = [f"{s['tc_id']} {s['action_id']}: {s['from_mode']} {s['temperature']} → {r.mode}"
                     for s in walked["switches"] if s["to_mode"] == r.mode and s["temperature"] is not None
                     and not r.lower <= s["temperature"] <= r.upper]
-            asked = _asks_about(design, r.mode, analysis)
+            asked = _asks_about(design, r.mode, analysis, [k.mode for k in sources])
             ranges = ", ".join(f"{k.mode} {k.lower}~{k.upper}" for k in sources)
+            status = {"SWITCH": "MET", "MODE_ONLY": "PARTIAL"}.get(asked, "MISSING")
+            note = " / 확인 문장에 모드 이름만 있고 유지 모드·전환·범위 밖 표현이 없음" if asked == "MODE_ONLY" else ""
             items.append(dict(id=f"T-5:QUESTION:{r.mode}", rule="T-5", level="REQUIRED", kind="QUESTION",
-                              mode=r.mode, start=None, attempted=None, expected=None,
-                              status="MET" if asked else "MISSING",
+                              mode=r.mode, start=None, attempted=None, expected=None, status=status,
                               detail=f"{ranges}에는 {r.mode} {r.lower}~{r.upper} 밖 값이 있음; 전환 동작 미정"
-                                     + (f" (TC 전환: {'; '.join(seen)})" if seen else " (TC에 해당 전환 없음)")))
+                                     + (f" (TC 전환: {'; '.join(seen)})" if seen else " (TC에 해당 전환 없음)")
+                                     + note))
     for mode in changed:
         boundary = {r["attempted"] for r in items if r["mode"] == mode and r["rule"] in {"T-1", "T-2"}}
         tcs = {p["tc_id"] for p in probes if p["mode"] == mode and p["attempted"] in boundary}
@@ -226,7 +227,7 @@ def grade(key: RangeKey, design: dict, analysis: dict | None = None) -> dict[str
                 verdict=verdict, required_met=met, required_total=len(required),
                 items=items, issues=issues,
                 limitations=["실행 정의(operations/verifications)만 대조하며 문장 의미·제품 결과는 판정하지 않음",
-                             "질문 여부는 A2 확인 사항(및 주어진 경우 A1 질문·정보 부족) 문장에 모드 이름이 있는지로만 확인",
+                             "질문 여부는 A2 확인 사항(및 주어진 경우 A1 질문·정보 부족)의 한 문장에 바뀐 모드와 유지 모드(또는 전환·범위 밖 표현)가 함께 있는지로만 확인하며 문장 의미는 판정하지 않음",
                              "대상 장비 일치(C-9)는 P1 실행기가 검사하므로 여기서 다시 보지 않음"])
 
 
@@ -234,7 +235,16 @@ MODE_WORDS = {"COOL": ("COOL", "냉방"), "HEAT": ("HEAT", "난방"), "AUTO": ("
               "DRY": ("DRY", "제습"), "FAN": ("FAN", "송풍")}
 
 
-def _asks_about(design: dict, mode: str, analysis: dict | None = None) -> bool:
+# Words that tie a question to the switch itself rather than to the mode in general.
+SWITCH_WORDS = ("전환", "바꾸", "바꿀", "바뀌", "바뀔", "범위 밖", "범위를 벗어",
+                "switch", "out of range", "outside")
+
+
+def _asks_about(design: dict, mode: str, analysis: dict | None = None,
+                kept_modes: list[str] | tuple = ()) -> str | None:
+    """Return SWITCH when one entry names the changed mode together with a kept
+    mode or a switch/out-of-range phrase, MODE_ONLY when entries only name the
+    mode, None otherwise. Words in different entries are never combined."""
     texts = []
     sources = [(design, ("최종_확인_사항", "중단_확인_사항"))]
     if analysis:
@@ -242,9 +252,28 @@ def _asks_about(design: dict, mode: str, analysis: dict | None = None) -> bool:
     for doc, fields in sources:
         for field in fields:
             for entry in doc.get(field) or []:
-                texts.append(json.dumps(entry, ensure_ascii=False) if not isinstance(entry, str) else entry)
+                # Values only: field names such as "switch_id" must not count as words.
+                texts.append(" ".join(_strings(entry)))
     words = MODE_WORDS.get(mode, (mode,))
-    return any(any(w in t for w in words) for t in texts)
+    other = [w for k in kept_modes for w in MODE_WORDS.get(k, (k,))]
+    found = None
+    for t in texts:
+        if not any(w in t for w in words):
+            continue
+        if any(w in t for w in other) or any(w in t.lower() for w in SWITCH_WORDS):
+            return "SWITCH"
+        found = "MODE_ONLY"
+    return found
+
+
+def _strings(value) -> list[str]:
+    if isinstance(value, str):
+        return [value]
+    if isinstance(value, dict):
+        return [t for v in value.values() for t in _strings(v)]
+    if isinstance(value, list):
+        return [t for v in value for t in _strings(v)]
+    return []
 
 
 def load_key(path: Path) -> RangeKey:

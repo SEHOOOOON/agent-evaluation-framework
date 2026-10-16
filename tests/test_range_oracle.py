@@ -226,3 +226,50 @@ def test_second_key_with_both_bounds_changed_uses_its_own_values():
     # The representative COOL design does not satisfy this key's boundary tests.
     assert not any(i["status"] == "MET" for i in grade(key, correct_design())["items"]
                    if i["rule"] in {"T-1", "T-2"})
+
+
+def _t5(design, analysis=None):
+    return by_id(grade(load_key(KEY_PATH), design, analysis))["T-5:QUESTION:COOL"]
+
+
+@pytest.mark.parametrize("text", [
+    "냉방 30°C 적용 후 카드 표시를 확인해 주세요.",
+    "COOL 모드 화면 문구가 SRS와 같은지 확인해 주세요.",
+])
+def test_mode_name_alone_is_not_a_switch_question(text):
+    """Counterexample (1.1 counted these as MET): unrelated sentences naming the mode."""
+    design = correct_design()
+    design["최종_확인_사항"] = [text]
+    item = _t5(design)
+    assert item["status"] == "PARTIAL" and "모드 이름만" in item["detail"]
+    assert grade(load_key(KEY_PATH), design)["verdict"] == "FAIL"
+
+
+def test_words_in_different_entries_are_not_combined():
+    design = correct_design()
+    design["최종_확인_사항"] = ["냉방 30°C 표시를 확인해 주세요.", "난방 모드 전환 버튼 위치를 확인해 주세요."]
+    assert _t5(design)["status"] == "PARTIAL"
+
+
+def test_kept_mode_alone_does_not_count():
+    design = correct_design()
+    design["최종_확인_사항"] = ["난방 17°C에서 풍량 표시를 확인해 주세요."]
+    assert _t5(design)["status"] == "MISSING"
+
+
+@pytest.mark.parametrize("text", [
+    "난방 17°C 상태에서 냉방을 선택하면 설정 온도가 어떻게 되나요?",   # changed + kept mode
+    "냉방 범위를 벗어난 기존 설정 온도는 어떻게 처리하나요?",           # out-of-range phrase
+    "What happens to setTemp when switching to COOL from 17?",          # English switch
+])
+def test_switch_question_forms_are_met(text):
+    design = correct_design()
+    design["최종_확인_사항"] = [text]
+    assert _t5(design)["status"] == "MET"
+
+
+def test_a1_field_names_are_not_read_as_words():
+    design = correct_design()
+    design["최종_확인_사항"] = []
+    analysis = {"user_questions": [{"switch_outside": "냉방 30°C 표시 확인"}], "information_gaps": []}
+    assert _t5(design, analysis)["status"] == "PARTIAL"
