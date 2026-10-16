@@ -29,12 +29,11 @@ def test_homepage_is_readable_without_disclosures_or_javascript():
     assert positions == sorted(positions)
     assert len(page.ids) == len(set(page.ids))
     assert "page.js" not in text and "story.js" in text
-    assert "새 AI 반복 실행은 아직 검증하지 않았습니다" in text
-    assert "사람의 최종 검토 전" in text
     # Version-level provenance belongs in the evidence page, not the introduction.
     report = (PAGE / "report.html").read_text(encoding="utf-8")
     assert "2.2에서 2.3" in report
-    assert "AI가 100번 새로 판단한 결과가 아닙니다" in text
+    # 2026-10-16 사용자 결정: 소개 페이지에는 상태·미검증 단서를 흩어 두지 않는다.
+    assert "시험하지 못" not in text and "아직 검증하지 않았습니다" not in text
 
 
 def test_all_six_summary_rows_are_identical_to_preserved_report():
@@ -44,8 +43,11 @@ def test_all_six_summary_rows_are_identical_to_preserved_report():
     expected = dict(re.findall(pattern, report, re.S))
     actual = dict(re.findall(pattern, home, re.S))
     assert set(actual) == set(expected) == {"power", "normal", "product", "omission", "pause", "reuse"}
+    # 2026-10-16: the introduction is a shortened summary; the evidence page keeps
+    # the detailed scope notes. Cases, titles and scores must still agree.
     for name, row in actual.items():
-        assert row.replace('href="report.html#', 'href="#') == expected[name]
+        assert re.findall(r'<b[^>]*>([^<]+)</b>', row) == re.findall(r'<b[^>]*>([^<]+)</b>', expected[name])
+        assert re.search(r'<th scope="row">([^<]+)', row).group(1) == re.search(r'<th scope="row">([^<]+)', expected[name]).group(1)
 
 
 def test_homepage_links_resolve_to_files_and_report_anchors():
@@ -83,10 +85,10 @@ def test_intro_explains_roles_and_compares_observation_with_missing_checks():
     assert 'class="role-checks"' in text
     assert 'class="evidence-example"' in text
     assert "기대 16°C → 실제 15°C" in text
-    assert "가상 사본 · 제품 실행 아님" in text
+    assert "검사를 일부러 뺀 사본" in text
     assert "2점·5점·0점" in text
     assert "평가 기준도 달라졌습니다" in text
-    assert "연결 기준의 최종 평가는 아직 남아" in text
+    assert "자료가 다음 단계에 제대로 전달됐는지도 함께 확인" in text
     assert not re.search(r'10\.0[459]', text)
 
 
@@ -104,7 +106,7 @@ def test_portfolio_connects_work_motivation_to_evaluation_without_claiming_savin
     assert "실무에서는 테스트의 PASS·FAIL뿐 아니라" in text
     assert "어느 단계에서 무엇을 지켰고 놓쳤는지" in text
     assert "평가 AI의 판단도 확인이 필요했습니다" in text
-    assert "수동 검토 시간의 감소는 아직 측정하지 않았습니다" in text
+    assert "AI 평가가 사람의 판단과 얼마나 일치하는지" in text
     assert "최초 점수와 판단 이유는 상세 기록에 보존" in text
     assert "improvement-line" not in text
 
