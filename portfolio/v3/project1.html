@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>QA Agent Pipeline · 프로젝트1</title>
-<meta name="description" content="반복 QA 업무를 AI 에이전트에 맡기면서 판단 기준을 지킬 수 있는지 확인한 프로젝트. 목적, 배경, 흐름, AI에게 기준을 전달하는 문제, 실무 적용 가능성.">
+<meta name="description" content="요구사항이 바뀔 때마다 반복하던 QA 업무를 AI 에이전트로 자동화하고, 판단 기준을 지키게 만든 개인 프로젝트.">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <link rel="stylesheet" href="style.css">
 </head>
@@ -13,21 +13,21 @@
 <header class="top"><div class="wrap">
   <a class="brand" href="index.html">OH SEHOON <span>·</span> QA</a>
   <nav class="nav" aria-label="페이지 이동">
-    <a href="index.html">메인</a><a href="project1.html" aria-current="page">프로젝트1</a><a href="project2.html">프로젝트2</a><a href="project2-report.html">근거</a>
+    <a href="index.html">메인</a><a href="project1.html" aria-current="page">프로젝트1</a><a href="project2.html">프로젝트2</a>
   </nav>
 </div></header>
 
 <main id="main">
 <div class="cs-hero"><div class="wrap">
   <p class="crumb"><a href="index.html">메인</a> / 프로젝트1</p>
-  <span class="label">Personal project 01 · QA Agent Pipeline V2</span>
+  <span class="label">Personal project 01 · QA Agent Pipeline</span>
   <h1>요구사항에서 승인까지,<br><em>같은 기준으로</em> 판단하기</h1>
-  <p class="sub">변경 요청을 분석하고, 필요한 TC를 만들어 실행·보고하는 QA 자동화 프로젝트입니다. 반복 작업을 줄이면서도 AI가 요구사항과 검증 기준을 지키도록 단계별 검토와 사람의 최종 판단을 연결했습니다.</p>
+  <p class="sub">요구사항이 바뀔 때마다 반복하던 QA 업무(영향 분석·테스트케이스 작성·시험·보고)를 AI 에이전트로 자동화한 개인 프로젝트입니다. 자동화하면서도 AI가 요구사항과 검증 기준을 지키도록 단계별 검사와 사람의 최종 판단을 연결했습니다.</p>
   <dl class="tldr">
-    <div><dt>목적</dt><dd>반복 작업은 AI에, 변경의 타당성과 결과 판단은 사람에게 남길 수 있는지 확인</dd></div>
-    <div><dt>내 역할</dt><dd>기획·QA 기준·시나리오 설계, AI 코딩 도구로 구현·검증</dd></div>
-    <div><dt>결과</dt><dd>실제 AI로 요청→보고 2건 완주, 제품 불일치·정보 부족을 구분해 보고</dd></div>
-    <div><dt>가장 어려웠던 것</dt><dd>사람이 아는 QA 기준을 AI가 같은 뜻으로 따르게 하는 일</dd></div>
+    <div><dt>목적</dt><dd>반복 작업은 AI에 맡기고, 사람은 변경이 맞는지와 결과 판단에 집중</dd></div>
+    <div><dt>내 역할</dt><dd>기획, QA 기준과 시나리오 설계. 구현은 AI 코딩 도구 활용</dd></div>
+    <div><dt>결과</dt><dd>실제 AI로 요청부터 보고까지 2건 완주, 제품의 요구사항 불일치를 찾아 보고</dd></div>
+    <div><dt>가장 어려웠던 것</dt><dd>사람이 경험으로 아는 QA 기준을 AI가 같은 뜻으로 따르게 하는 일</dd></div>
   </dl>
 </div></div>
 
@@ -35,357 +35,187 @@
   <nav class="toc" aria-label="목차">
     <p>CONTENTS</p>
     <ol>
-      <li><a href="#purpose">목적과 배경</a></li>
-      <li><a href="#flow">전체 흐름</a></li>
-      <li><a href="#hardest">AI에게 기준 전달하기</a></li>
-      <li><a href="#a1">Agent 1 · 분석</a></li>
-      <li><a href="#a2">Agent 2 · TC 설계</a></li>
-      <li><a href="#a3">Agent 3 · 실행</a></li>
-      <li><a href="#a4">Agent 4 · 보고·승인</a></li>
-      <li><a href="#results">실행 결과</a></li>
-      <li><a href="#practice">실무 적용 가능성</a></li>
+      <li><a href="#why">왜 만들었나</a></li>
+      <li><a href="#target">시험 대상</a></li>
+      <li><a href="#how">어떻게 동작하나</a></li>
+      <li><a href="#example">요청 하나로 따라가 보기</a></li>
+      <li><a href="#hardest">가장 어려웠던 점</a></li>
+      <li><a href="#results">결과</a></li>
+      <li><a href="#practice">실무에 쓸 수 있나</a></li>
       <li><a href="#limits">한계와 다음</a></li>
     </ol>
   </nav>
 
   <article class="article">
-
-  <!-- 1 -->
-  <section id="purpose">
-    <span class="label">01 · Purpose & background</span>
-    <h2>변경 요청마다 반복되는 QA 업무에서 출발했습니다</h2>
-    <p class="lede">실무에서는 요구사항이 바뀌면 기존 TC에서 영향받는 부분을 찾고, 필요한 시험을 추가한 뒤 결과와 수정 이력을 정리했습니다. 변경의 의미를 판단하는 일과, 반복해서 조작하고 기록하는 일이 함께 있었습니다.</p>
-    <div class="cards-2">
-      <div class="mini"><span class="pill info">확인하고 싶었던 것</span><h4>반복은 AI에, 판단은 사람에게</h4><p>AI와 자동화가 조작·기록을 맡으면, 사람은 변경의 타당성과 결과 검토에 더 집중할 수 있을까?</p></div>
-      <div class="mini"><span class="pill warn">실무에서 겪던 문제</span><h4>기준이 사람마다 달랐습니다</h4><p>같은 요구사항이라도 담당자에 따라 넣는 경계값·회귀 TC가 달랐습니다. 기준이 문서가 아니라 경험에 있었습니다.</p></div>
-    </div>
-    <p>그래서 목표를 "TC를 많이 만드는 AI"가 아니라 <b>요구사항부터 실행 결과까지 같은 기준을 유지하고, 근거 없는 판단을 막는 흐름</b>으로 잡았습니다. 실제 회사 자료 대신 직접 만든 가상 중앙제어 시스템과 예시 요구사항을 사용했습니다.</p>
+  <section id="why">
+    <span class="label">01 · Why</span>
+    <h2>변경 요청마다 같은 일을 반복했습니다</h2>
+    <p class="lede">중앙제어 시스템을 검증하면서, 요구사항이 하나 바뀔 때마다 아래 일을 반복했습니다.</p>
+    <ol class="steps">
+      <li><b>영향 분석</b><span>예: "냉방 최저 온도를 20°C로" → 어떤 화면·모드·기존 테스트가 영향을 받는지 찾기</span></li>
+      <li><b>테스트케이스(TC) 검토·작성</b><span>기존 TC로 충분한지 보고, 경계값 같은 필요한 시험을 추가</span></li>
+      <li><b>시험과 원상 복구</b><span>장비 상태를 바꿔 시험하고, 다음 시험을 위해 원래 상태로 되돌리기</span></li>
+      <li><b>보고</b><span>실패가 제품 문제인지 시험 준비 문제인지 나눠 근거와 함께 정리</span></li>
+    </ol>
+    <p>판단하는 시간보다 조작하고 기록하는 시간이 더 길었습니다. 또 같은 요구사항이라도 <b>담당자마다 넣는 시험이 달랐습니다.</b> 기준이 문서가 아니라 사람의 경험에 있었기 때문입니다.</p>
+    <div class="note">그래서 목표는 "AI가 TC를 많이 만드는 것"이 아니라, <b>요구사항부터 시험 결과까지 같은 기준을 지키고, 근거 없는 판단을 막는 흐름</b>을 만드는 것이었습니다.</div>
   </section>
 
-  <!-- 2 -->
-  <section id="flow">
-    <span class="label">02 · Flow</span>
-    <h2>분석 → 시험 설계 → 실행 → 보고 → 사람 판단</h2>
-    <p>요청이 분석 결과 → TC → 실행 기록 → 보고서로 이어집니다. 각 단계는 앞에서 정한 기준을 전달받고, 마지막 등록은 사람이 결정합니다.</p>
+  <section id="target">
+    <span class="label">02 · Test target</span>
+    <h2>시험 대상: 직접 만든 가상 중앙제어 시스템</h2>
+    <p>회사 자료 대신, 실무와 비슷한 가상 제품을 만들어 시험했습니다. 장비 16대의 운전·모드·온도·풍량·잠금을 중앙에서 제어합니다.</p>
+    <figure style="margin:20px 0">
+      <img src="assets/product.jpg" alt="가상 중앙제어 시스템 화면. 장비 카드 목록, 오른쪽 제어 패널, 아래쪽 장비 내부값 표" style="border-radius:var(--radius-s);border:1px solid var(--line)" loading="lazy">
+      <figcaption class="muted small" style="margin-top:10px">위: 장비 카드와 오른쪽 제어 패널(사용자가 보는 화면) · 아래: 장비의 실제 내부값. 화면만 맞고 내부값이 다른 경우를 잡기 위해 <b>화면·카드·내부값 세 곳</b>을 함께 확인합니다.</figcaption>
+    </figure>
+  </section>
+
+  <section id="how">
+    <span class="label">03 · How it works</span>
+    <h2>분석 → TC 작성 → 시험 → 보고 → 사람 판단</h2>
+    <p>에이전트 4개가 일을 나눠 맡고, 각 단계의 결과는 자동 검사를 통과해야 다음 단계로 넘어갑니다.</p>
     <div class="diagram" role="img" aria-label="변경 요청부터 결과 보고까지의 흐름도">
-      <div class="d-head"><h4>변경 요청부터 결과 보고까지</h4><span>역할과 결과물</span></div>
-      <div class="d-input"><b>사용자가 넣는 자료</b>변경 요청 + 기존 제품 요구사항(SRS) + 기존 테스트케이스(TC)</div>
+      <div class="d-input"><b>입력</b>변경 요청 + 기존 요구사항 문서(SRS) + 기존 TC</div>
       <div class="d-down" aria-hidden="true">↓</div>
       <div class="d-group">
-        <div class="g-head"><b>분석·설계 · 무엇을 시험할지 정합니다</b><span>Agent 1·2는 AI</span></div>
+        <div class="g-head"><b>무엇을 시험할지 정합니다</b><span>AI</span></div>
         <div class="d-pair">
-          <div class="d-card"><span class="who">AGENT 1 · 요구사항 분석</span><h5>바뀌는 조건과 부족한 정보 구분</h5><p>요청을 SRS와 대조해 변경·유지 조건과 영향 범위를 정리합니다. 정해지지 않은 값은 추측하지 않습니다.</p><div class="out"><b>결과물</b>분석 결과 · 확정 조건 · 확인할 질문</div></div>
+          <div class="d-card"><span class="who">AGENT 1 · 요구사항 분석</span><h5>바뀌는 것과 모르는 것 구분</h5><p>요청을 기존 요구사항과 대조해 바뀌는 조건과 유지할 조건을 나눕니다. 정해지지 않은 값은 추측하지 않고 질문으로 남깁니다.</p></div>
           <div class="arrow" aria-hidden="true">→</div>
-          <div class="d-card"><span class="who">AGENT 2 · 시험 설계</span><h5>기존 TC를 고르고, 부족한 시험 작성</h5><p>기존 TC의 절차·기대결과를 요청과 비교해 재사용할 시험과 새 TC, 필요한 SRS 변경안을 준비합니다.</p><div class="out"><b>결과물</b>기존 TC · 새 상세 TC · SRS 개정 제안</div></div>
+          <div class="d-card"><span class="who">AGENT 2 · TC 작성</span><h5>기존 TC를 고르고, 부족한 시험만 작성</h5><p>기존 TC로 확인할 수 있는 것은 재사용하고, 부족한 부분만 새 TC로 만듭니다.</p></div>
         </div>
       </div>
-      <div class="d-down" aria-hidden="true">↓ 검토를 통과한 시험 내용만 전달</div>
+      <div class="d-down" aria-hidden="true">↓ 검사를 통과한 TC만 전달</div>
       <div class="d-group">
-        <div class="g-head"><b>실행·보고 · 결과와 이유를 남깁니다</b><span>TC의 기준과 실제 관찰을 비교</span></div>
+        <div class="g-head"><b>시험하고 결과를 남깁니다</b><span>AI + 프로그램</span></div>
         <div class="d-pair">
-          <div class="d-card"><span class="who">AGENT 3 · 자동화 수행</span><h5>TC대로 조작하고 결과 확인</h5><p>TC의 조작·기대값을 화면 요소에 연결합니다. 검사를 통과한 계획만 코드로 바꿔 시험하고 원래 상태로 복원합니다.</p><div class="out"><b>결과물</b>자동화 코드 · 관찰값 · 실행·복원 기록</div></div>
+          <div class="d-card"><span class="who">AGENT 3 · 자동 시험</span><h5>TC대로 조작하고 원래대로 복구</h5><p>TC를 화면 요소에 연결해 자동으로 시험하고, 끝나면 시험 전 상태로 되돌렸는지 확인합니다.</p></div>
           <div class="arrow" aria-hidden="true">→</div>
-          <div class="d-card"><span class="who">AGENT 4 · 규칙 기반 분석</span><h5>결과와 이유를 보고</h5><p>새 TC와 선택한 기존 TC의 결과를 모아 제품 불일치·실행 문제·미실행을 근거와 함께 구분합니다.</p><div class="out"><b>결과물</b>결과 보고서 · 검토서 · Slack·Notion 보고</div></div>
+          <div class="d-card"><span class="who">AGENT 4 · 결과 보고</span><h5>결과와 이유를 분류해 보고</h5><p>제품 문제인지, 시험 준비 문제인지, 실행하지 못했는지 나눠 Slack·Notion으로 보고합니다.</p></div>
         </div>
       </div>
       <div class="d-down" aria-hidden="true">↓</div>
-      <div class="d-decide"><b>마지막 결정은 사람에게</b> · 결과와 기존 TC를 비교하고 SRS 변경·TC 추가·대체·미등록·보류 선택</div>
+      <div class="d-decide"><b>마지막 결정은 사람이</b> · 요구사항 변경 승인, TC 공식 등록·대체·보류</div>
     </div>
-    <div class="note"><b>시험을 진행할 수 없는 경우</b> · 핵심 정보가 부족하면 질문을 남깁니다. 실행 수단이 없으면 해당 TC를 제외하고 사유를 보고합니다. 실행하지 않은 항목을 PASS로 계산하지 않습니다.</div>
-    <details>
-      <summary>각 단계는 언제 진행하고, 언제 멈추나요? (Checkpoint 1~4)</summary>
-      <p class="small muted">Checkpoint는 각 단계 결과를 확인하는 자동 검사이며, 사람의 공식 승인을 대신하지 않습니다.</p>
-      <div class="table"><table>
-        <thead><tr><th scope="col">관문</th><th scope="col">확인하는 것</th><th scope="col">결과</th></tr></thead>
-        <tbody>
-          <tr><td>CP1 · 시험에 필요한 정보</td><td>원문 출처·요청에 적힌 값·조건 연결 대조. 미정 조건은 제외하고 보고</td><td>전체 진행 · 일부 진행 · 입력 보완 대기</td></tr>
-          <tr><td>CP2 · TC 내용과 검증 기준</td><td>확정 조건 누락, 원문에 없는 값, 준비·시험·복원과 확인 시점</td><td>통과 · 제한된 재작성 · 미해결이면 중단</td></tr>
-          <tr><td>CP3 · TC와 실행 내용</td><td>준비·조작 순서·기대결과·복원 절차가 TC와 일치하는지</td><td>불일치·필수 검토 미완료면 시험 차단</td></tr>
-          <tr><td>CP4 · 실행 기록과 보고</td><td>집계 수치·분류 근거·외부 보고값이 원본 실행 기록과 같은지</td><td>통과해야 보고 데이터 생성</td></tr>
-        </tbody>
-      </table></div>
-    </details>
-  </section>
-
-  <!-- 3 -->
-  <section id="hardest">
-    <span class="label">03 · Hardest problem</span>
-    <h2>기준을 정해도 AI의 해석은 달랐습니다</h2>
-    <p class="lede">가장 어려웠던 것은 자동화가 아니라, 사람에게는 당연한 QA 기준을 AI가 같은 뜻으로 따르게 만드는 일이었습니다.</p>
-    <p>사람에게는 "하한과 상한을 확인하세요"면 충분합니다. AI에게는 무엇을, 몇 개, 어느 시점에 확인하라는 뜻인지까지 적어 줘야 했습니다. 기준을 전달하려고 시도한 과정입니다.</p>
-    <div class="rlist">
-      <div><span class="no">01</span><div><b>양식과 검토 기준을 자세히 정했다</b><small>→ AI가 요구사항의 값을 바꿔 썼습니다(18~30°C → 16~30°C). 원문 값과 분석 값을 프로그램이 직접 대조하도록 바꿨습니다.</small></div><span class="pill warn">값 왜곡</span></div>
-      <div><span class="no">02</span><div><b>단계마다 기준을 반복해서 줬다</b><small>→ 같은 요구사항을 분석·설계·실행 단계가 다르게 해석했고, 기준을 잘게 쪼개자 정상적인 작성 차이까지 막혔습니다. 이미 정한 원문과 시험 내용은 프로그램이 그대로 넘기고, AI는 새 판단만 맡게 했습니다.</small></div><span class="pill warn">해석 차이</span></div>
-      <div><span class="no">03</span><div><b>그래도 사람만 아는 기준이 남았다</b><small>→ 10-15 온도 범위 변경 실행의 TC는 AI 검토를 통과했지만, 사람이 보니 필수 시험 3개가 빠져 있었습니다. 지침에는 "변경 후 하한과 상한을 확인"이라고만 적혀 있었습니다.</small></div><span class="pill bad">암묵지</span></div>
-    </div>
-    <div class="artifact">
-      <header><span>한 문장이 규칙이 되기까지</span><span>2026-10-15 사람 확정 · 새 실행부터 적용</span></header>
-      <div class="body">
-        <dl>
-          <dt>이전</dt><dd>"변경 후 하한과 상한을 확인한다"</dd>
-          <dt>이후</dt><dd>
-            <div class="er"><code>T-1</code><span>새 하한 적용과 새 상한 적용을 각각 별도 기대결과로 확인</span></div>
-            <div class="er"><code>T-2</code><span>하한−1, 상한+1 차단 시험이 모두 필요 (한쪽만 있으면 누락)</span></div>
-            <div class="er"><code>T-5</code><span>범위 밖 값에서 모드를 바꿀 때 동작이 정해지지 않았으면 기대값을 만들지 말고 질문</span></div>
-            <div class="er"><code>T-8</code><span>차단 판정은 값이 그대로인지로만. 요청에 없는 알림·비활성화를 기대결과로 추가하지 않음</span></div>
-            <div class="er"><code>C-3</code><span>적용 결과는 패널·카드·내부값 세 곳을 같은 시점에 확인</span></div>
-          </dd>
-          <dt>함께 쓴 것</dt><dd>값을 넣지 않은 규칙(L·U 표기)과 사람이 판단한 사례 8개, "예시 값을 현재 TC에 복사하지 말 것"이라는 주의</dd>
-        </dl>
-      </div>
-    </div>
-    <div class="note"><b>배운 점</b> · QA 기준의 상당 부분은 경험으로 아는 암묵지였습니다. AI가 따르게 하려면 <b>문장 → 규칙 → 코드 대조</b>로 점점 구체화해야 했고, 너무 느슨하면 누락을, 너무 세세하면 정상까지 막았습니다. 새 유형의 요청이 올 때마다 사람이 먼저 기준을 정리해야 한다는 점이 이 방식의 가장 큰 비용입니다. 지금 AI에 함께 전달하는 공통 기준 문서는 9종, 약 1만 자입니다.</div>
-  </section>
-
-  <!-- 4 -->
-  <section id="a1">
-    <span class="label">04 · Agent 1 · 요구사항 분석</span>
-    <h2>확정 조건과 추가 확인 사항 구분</h2>
-    <p>Agent 1은 기존 SRS와 변경 요청을 AI로 분석합니다. 결과를 셋으로 나누고, 프로그램이 원문의 값과 조건을 대조합니다.</p>
+    <h3>모든 단계가 지키는 세 가지 원칙</h3>
     <div class="tri">
-      <div><span class="k ok">확정 정보</span><h5>판단 기준으로 사용</h5><p>요구사항 또는 승인된 제품 기준에서 직접 확인한 조건</p></div>
-      <div><span class="k warn">추정 정보</span><h5>기대결과로 사용하지 않음</h5><p>가능성은 있지만 근거가 없는 해석</p></div>
-      <div><span class="k bad">정보 부족</span><h5>제외·보고 또는 입력 보완</h5><p>미정 조건은 제외·보고. 핵심 범위가 불명확하면 보완 대기</p></div>
+      <div><span class="k ok">추측 금지</span><h5>근거 없는 기대값은 만들지 않음</h5><p>모르는 값은 질문으로 남기고, 확인된 범위만 시험합니다.</p></div>
+      <div><span class="k warn">정직한 집계</span><h5>실행 안 한 시험은 통과가 아님</h5><p>자동화할 수 없는 시험은 제외하고 그 이유를 보고합니다.</p></div>
+      <div><span class="k bad">사람 승인</span><h5>자동 통과 ≠ 공식 등록</h5><p>통과한 TC도 사람이 기존 TC와 비교한 뒤 등록합니다.</p></div>
     </div>
-    <div class="fp">
-      <div class="bad"><span class="k">✕ FAIL · 요구사항 검사 실패 예시</span><h5>최저 온도를 16°C로 잘못 작성</h5><p>요구사항은 자동 모드에서 18~30°C만 허용합니다. AI가 16~30°C로 분석하면 잘못된 기준으로 TC가 만들어집니다.</p><span class="tag">요청과 다른 온도 기준 · 수정 필요</span></div>
-      <div class="ok"><span class="k">✓ PASS · 수정 후 검사 통과 예시</span><h5>18°C 기준 확인 뒤 설계로 전달</h5><p>원문과 분석의 값·근거를 대조하고 의미 검토를 거칩니다. 허용된 횟수 안에서 재작성하고, 재검사를 통과해야 넘깁니다.</p><span class="tag">수정된 분석 통과 · TC 설계로 전달</span></div>
-    </div>
-    <p class="muted small">처리 방식을 설명하는 예시입니다. 검사를 거쳐도 AI의 해석 오류가 남을 수 있습니다.</p>
   </section>
 
-  <!-- 5 -->
-  <section id="a2">
-    <span class="label">05 · Agent 2 · TC 설계</span>
-    <h2>기존 TC 검토와 변경분 테스트 설계</h2>
-    <p>Agent 2는 확정된 조건과 기존 TC를 읽고, 기존 TC로 충분한 부분과 새 시험이 필요한 부분을 나눕니다. 프로그램은 요청에 적힌 값과 TC의 준비·조작·검사·복원 절차를 대조합니다.</p>
-    <div class="diagram" role="img" aria-label="TC 선택과 작성에 사용하는 자료">
-      <div class="d-head"><h4>기대결과와 검증 범위 설정</h4><span>Agent 2가 TC를 선택·작성할 때 쓰는 자료</span></div>
-      <div class="tcmap">
-        <div class="col">
-          <div class="d-card"><span class="who">기대결과의 근거</span><h5>변경 요청 + 관련 SRS</h5><p>새로 바꿀 조건과 유지할 제품 기준</p></div>
-          <div class="d-card"><span class="who">시험 범위의 근거</span><h5>분석한 영향 + 기존 TC</h5><p>관련 기능을 기존 TC의 실제 내용과 대조</p></div>
-        </div>
-        <div class="arrow" aria-hidden="true">→</div>
-        <div class="col">
-          <div class="d-card"><h5>무엇이 맞아야 하나?</h5><p>확인할 대상·기대값·확인 시점</p></div>
-          <div class="d-card"><h5>무엇을 다시 시험하나?</h5><p>기존 TC로 확인할 것과 새 시험이 필요한 것</p></div>
-        </div>
-        <div class="arrow" aria-hidden="true">→</div>
-        <div class="d-card result"><span class="who">이번 시험에 사용</span><h5>선택·작성한 TC</h5><p>선택한 기존 TC<br>+ 필요한 새 TC</p></div>
-      </div>
-    </div>
-    <p>예: 중풍 표시 변경에서는 새 중풍 TC와 관련 기존 강풍 TC를 함께 시험했습니다. 이름이 비슷하다는 이유만으로 재사용하지 않고, 준비·절차·기대결과가 이번 조건을 확인할 수 있는지 비교합니다.</p>
-    <div class="table"><table>
-      <caption>시험 범위를 정할 때 보는 세 가지 관점 · 정상·예외·경계값을 모든 TC에 넣지는 않고 요청과 영향 범위에 맞춰 정함</caption>
-      <thead><tr><th scope="col">공통 QA 기준</th><th scope="col">중앙제어 제품 기준</th><th scope="col">TC 판단 기준</th></tr></thead>
-      <tbody><tr>
-        <td>정상·예외·경계값<br>상태 변경과 회귀 영향<br>각 테스트의 독립 실행<br>정보 부족 여부</td>
-        <td>모드별 제어 제한<br>연결·알람·잠금 상태<br>대상 장비의 화면·상태값 일치<br>비대상 장비 보호</td>
-        <td>근거가 확인된 기대결과만<br>통과·실패 판단 기준<br>기능에 맞는 검증 대상<br>자동화 가능 범위</td>
-      </tr></tbody>
-    </table></div>
-    <details>
-      <summary>선택한 TC의 공통 검토 4항목 · 기존 TC가 있는데 왜 새로 만드나요?</summary>
-      <ol class="steps">
-        <li><b>요구사항에 근거가 있는가</b><span>출처·명시 코드·수치를 대조하고 근거 밖 값을 검사</span></li>
-        <li><b>이 TC만으로 시험할 수 있는가</b><span>다른 TC에 의존하지 않는 준비·시험 절차. 상태 변경 시험은 복원도 확인</span></li>
-        <li><b>무엇을 언제 확인하는가</b><span>어떤 조작 뒤 무엇을 관찰하는지 기대결과와 시점</span></li>
-        <li><b>실제로 조작·확인할 수 있는가</b><span>검증 가능한 절차인지. 실제 화면 요소 검사는 Agent 3에서</span></li>
-      </ol>
-      <p class="small">보완 가능한 초안 오류는 해당 TC와 검사 결과를 AI에 보내 최대 한 번 다시 쓰게 하고, 판단이 불확실하거나 오류가 나면 중단합니다. 기존 TC로 충분하면 새로 만들지 않습니다. 같은 기능의 TC라도 입력값·상태·관찰 대상이 다르면 새 요구사항을 모두 확인하지 못하므로, 부족한 부분만 추가합니다.</p>
-    </details>
-  </section>
-
-  <!-- 6 -->
-  <section id="a3">
-    <span class="label">06 · Agent 3 · 자동화 실행</span>
-    <h2>TC 기반 자동화 구현과 실행</h2>
-    <p>Agent 2가 작성한 TC의 조작 순서와 기대결과를 그대로 사용합니다. 프로그램이 실제 화면에 연결해 자동화 코드를 만들고, 시험·결과 확인·원래 상태 복원을 수행합니다.</p>
+  <section id="example">
+    <span class="label">04 · Walkthrough</span>
+    <h2>요청 하나로 따라가 보기</h2>
     <div class="worked">
       <span class="label">실제로 실행한 변경 요청 · 2026-10-15</span>
       <p class="quote">"냉방은 20°C 아래로 내려가지 않게 해 주세요.<br>난방은 기존 16°C 하한을 유지해 주세요."</p>
-      <p class="muted small" style="margin:0">기존 온도 TC가 있어도 새 기준을 그대로 확인할 수는 없습니다. 무엇을 새로 시험하고 무엇을 다시 확인할지 나눠야 합니다.</p>
       <div class="two">
-        <div><span>기존 SRS</span><b>설정 온도 16~30°C</b><small>기존 TC도 이 범위 기준</small></div>
-        <div class="new"><span>새 요청</span><b>냉방 20~30°C · 난방 16~30°C</b><small>냉방 하한만 변경 · 난방 유지</small></div>
+        <div><span>기존 요구사항</span><b>설정 온도 16~30°C</b><small>모든 모드 공통</small></div>
+        <div class="new"><span>새 요청</span><b>냉방 20~30°C · 난방 16~30°C</b><small>냉방 하한만 변경</small></div>
       </div>
       <div class="nrows">
-        <div><span class="no">01</span><b>바뀌는 범위 구분</b><span>냉방 최저 온도만 20°C로. 난방 16°C 하한과 30°C 상한은 유지. 요청하지 않은 알림·비활성 조건은 추가하지 않음</span></div>
-        <div><span class="no">02</span><b>새 TC와 기존 TC 비교</b><span>냉방 20°C에서 내림을 눌러도 20°C 유지, 난방 17→16°C 적용 확인</span></div>
-        <div><span class="no">03</span><b>요청한 기준으로 판정</b><span>패널·카드·내부값 확인. 실제로 냉방이 19°C로 내려갔고, 기대값을 제품에 맞춰 바꾸지 않고 불일치 후보로 보고</span></div>
-        <div><span class="no">04</span><b>복원·보고 후 사람 결정</b><span>시험 전 상태로 되돌린 뒤 보고. 통과해도 자동 등록하지 않음</span></div>
+        <div><span class="no">01</span><b>분석</b><span>바뀌는 것: 냉방 하한 20°C. 유지할 것: 난방 16°C 하한, 30°C 상한</span></div>
+        <div><span class="no">02</span><b>TC 작성</b><span>냉방 20°C에서 내림 버튼을 눌러도 20°C가 유지되는지, 난방은 17→16°C가 되는지 시험</span></div>
+        <div><span class="no">03</span><b>자동 시험</b><span>제품은 아직 요청대로 바뀌지 않은 상태. 냉방이 19°C로 내려감</span></div>
+        <div><span class="no">04</span><b>보고</b><span>기대값을 제품에 맞춰 바꾸지 않고 "요구사항과 다른 동작"으로 보고. 난방 시험은 통과</span></div>
       </div>
     </div>
-    <p class="muted small">이 요청은 Checkpoint 1~4를 재작성 없이 통과해 끝까지 실행됐습니다. 다만 사람이 확인해 보니 TC에 필수 시험 일부가 빠져 있었습니다(<a href="#hardest">03 참고</a>). 제품은 아직 요청대로 바뀌지 않아 냉방 불일치는 예상된 결과입니다.</p>
     <div class="table"><table>
-      <caption>시험 전 확인과 문제 발생 시 처리</caption>
-      <thead><tr><th scope="col">TC대로 시험하는지 확인</th><th scope="col">실행할 수 없는 TC는 따로 보고</th><th scope="col">시험 실패와 준비 오류 구분</th></tr></thead>
-      <tbody><tr>
-        <td>준비·조작 순서·기대결과·복원 절차가 TC와 맞는지 확인. 다르면 시험을 막고 이유를 남김</td>
-        <td>자동화할 수 없는 조작은 제외하고 이유를 기록. 호출·내부 오류면 추가 AI 호출 중단</td>
-        <td>초기 상태를 확인한 뒤 시험하고, 복원에 실패한 환경에서는 후속 시험을 계속하지 않음</td>
-      </tr></tbody>
-    </table></div>
-    <details>
-      <summary>끝까지 실행한 기록 · 전원 정지 요청 (2026-10-09, 사람이 TC를 고치지 않음)</summary>
-      <p class="small">"운전 중인 장비 한 대를 정지해 주세요." 새 AI 분석·TC 생성·검토부터 시험과 보고까지 이어진 1건입니다. API 5회, 재작성 없이 완료했고 제품 시험 1건과 환경 점검 1건을 따로 보고했습니다.</p>
-      <div class="table"><table>
-        <thead><tr><th scope="col">확인 시점</th><th scope="col">제어 패널</th><th scope="col">장비 카드</th><th scope="col">내부 상태</th></tr></thead>
-        <tbody>
-          <tr><td>준비 전</td><td>정지</td><td>정지</td><td>STOP</td></tr>
-          <tr><td>준비 후</td><td>운전</td><td>운전</td><td>OPERATION</td></tr>
-          <tr><td>정지 적용 후</td><td>정지</td><td>정지</td><td>STOP</td></tr>
-          <tr><td>복원 확인</td><td>비교 통과</td><td>비교 통과</td><td>비교 통과</td></tr>
-        </tbody>
-      </table></div>
-      <p class="small muted">복원은 "운전 준비 상태"가 아니라 "준비 전 상태"와 비교했습니다.</p>
-    </details>
-    <details>
-      <summary>과거 기록 · 중풍 변경의 실행 계획과 생성 코드</summary>
-      <p class="small">TC에서 정한 조작과 기대값이 계획 번호로 연결되고, 검사한 계획을 코드 생성기가 변환합니다(AI가 자유롭게 Python을 쓴 것이 아님).</p>
-      <div class="artifact"><header><span>실행 계획</span><span>두 검증 모두 ACT-003 적용 직후</span></header><div class="body">
-        <div class="er"><code>ACT-002</code><span>CLICK #det-fan-med</span></div>
-        <div class="er"><code>ACT-003</code><span>APPLY .btn-apply-cmd</span></div>
-        <div class="er"><code>ER-001</code><span>UI #device-card-1 · 기대 텍스트 "중풍"</span><span class="pill ok">일치</span></div>
-        <div class="er"><code>ER-002</code><span>내부값 fanSpeed = "MED"</span><span class="pill ok">일치</span></div>
-      </div></div>
-      <p class="small muted">시험 뒤 LOW 복원 검사도 통과했습니다. 당시 방식의 기록이며, 현재는 시험 준비 전 상태와 비교해 복원합니다.</p>
-    </details>
-  </section>
-
-  <!-- 7 -->
-  <section id="a4">
-    <span class="label">07 · Agent 4 · 보고와 사람 승인</span>
-    <h2>실행 결과 분류와 사람의 최종 판단</h2>
-    <p>Agent 4는 규칙으로 실행 결과를 분류합니다. 프로그램이 실행 근거·집계·보고 내용이 일치하는지 검사한 뒤 Slack·Notion 보고 데이터를 만듭니다.</p>
-    <div class="table classify"><table>
-      <thead><tr><th scope="col">분류</th><th scope="col">판단 기준</th><th scope="col">대표 예시</th><th scope="col">후속 조치</th></tr></thead>
+      <caption>시험 결과 · 모든 단계의 자동 검사를 재작성 없이 통과</caption>
+      <thead><tr><th scope="col">시험</th><th scope="col">기대</th><th scope="col">실제</th><th scope="col">보고</th></tr></thead>
       <tbody>
-        <tr class="c-bad"><td><b>제품 불일치 후보</b><small>제품 영역</small></td><td>유효 실행에서 기대값 불일치</td><td>잠금 상태인데 온도 버튼 활성</td><td>제품 확인 요청</td></tr>
-        <tr class="c-warn"><td><b>판정 근거 부족</b><small>실행 근거</small></td><td>환경 점검 차단으로 회귀 증거 없음</td><td>선택한 회귀 TC가 실행되지 않음</td><td>환경 복구·재실행</td></tr>
-        <tr class="c-info"><td><b>환경·시뮬레이터 문제</b><small>실행 환경</small></td><td>응답·초기화 문제</td><td>환경 준비·초기화 실패</td><td>정상화 후 재실행</td></tr>
-        <tr class="c-dim"><td><b>자동화 실행 문제</b><small>준비·시험·복원</small></td><td>실행 오류·시간 초과·준비/복원 실패</td><td>시험 전 상태가 TC와 다름</td><td>자동화 확인·재실행</td></tr>
-        <tr class="c-dim"><td><b>미실행</b><small>실행 상태</small></td><td>미실행으로 기록</td><td>관찰 결과가 없음</td><td>사유 확인·재실행</td></tr>
+        <tr><td>냉방 20°C에서 내림</td><td>20°C 유지</td><td>19°C</td><td><span class="pill warn">불일치</span><small>제품 변경 전이라 예상된 결과</small></td></tr>
+        <tr><td>냉방 30°C 적용</td><td>30°C</td><td>30°C</td><td><span class="pill ok">통과</span></td></tr>
+        <tr><td>난방 17°C → 16°C</td><td>16°C</td><td>16°C</td><td><span class="pill ok">통과</span></td></tr>
       </tbody>
     </table></div>
-    <p>실행한 TC가 모두 통과해도 미확인 항목이 남으면 사람 검토로 넘깁니다. 10-16에는 실패한 TC 안에서도 통과한 확인 항목은 "통과(관찰값 30)"처럼 따로 보이도록 검토서를 개선했습니다.</p>
-    <div class="table"><table>
-      <caption>보고 이후 사람이 결정하는 것 · PASS는 등록 조건의 하나일 뿐 자동 승인이 아님</caption>
-      <thead><tr><th scope="col">검토</th><th scope="col">사람이 하는 일</th></tr></thead>
-      <tbody>
-        <tr><td><b>실행 결과 검토</b></td><td>요청한 변경·기대값과 실제 결과 비교, 실패 증거·제외 사유·미확인 항목 검토</td></tr>
-        <tr><td><b>SRS 개정 동의</b></td><td>변경 전·후 문구 비교, 승인 전에는 기존 명세 유지</td></tr>
-        <tr><td><b>기존 TC 비교·등록</b></td><td>준비·절차·기대결과 비교 → 추가 / 선택한 TC 대체 / 미등록 / 보류</td></tr>
-      </tbody>
-    </table></div>
-    <details>
-      <summary>현재 등록 상태와 등록 직전 자동 확인</summary>
-      <ul class="small">
-        <li>강풍 표시 TC(TC-V2-001)와 중풍 표시 TC(TC-V2-002)는 사람 승인으로 공식 등록됐고, 다음 요청에서 기존 회귀 TC로 재사용됩니다.</li>
-        <li>등록 직전: 최종 실행·자동 검사 통과와 필수 증거, TC·자동화 코드·실행 증거가 원본 기록과 같은지, 비교한 TC 목록이 바뀌었는지, 제품 화면 파일이 바뀌었으면 현재 화면에서 재검증.</li>
-        <li>관리 중인 회귀 자산: 기준 6건(난방 적용, 송풍 온도 비활성, 제습→냉방 복원, 잠금 명령 차단, 오류 장비 차단, 30°C 상한) + V2 승인 2건, 환경 점검 별도.</li>
-      </ul>
-    </details>
+    <div class="note warn"><b>그런데 사람이 다시 보니</b> · 이 TC는 자동 검사를 모두 통과했지만, 꼭 있어야 할 시험 3개가 빠져 있었습니다. 냉방 31°C가 막히는지, 냉방 20°C가 정상 적용되는지, 난방 17°C에서 냉방으로 바꾸면 어떻게 되는지(요구사항에 없으니 질문해야 함)입니다. 이것이 다음 절의 문제로 이어집니다.</div>
   </section>
 
-  <!-- 8 -->
-  <section id="results">
-    <span class="label">08 · Results</span>
-    <h2>변경 요청별 실행 결과</h2>
-    <div class="stats">
-      <div class="stat"><b>2건</b><span>실제 AI로 변경 요청부터 보고까지 완주</span><small>2026-10-09 전원 · 10-15 온도 범위</small></div>
-      <div class="stat"><b>100/100</b><span>준비한 20종 상황 × 5회 예상 처리 일치</span><small>로컬 반복 · AI의 새 판단 아님</small></div>
-      <div class="stat"><b>65/65</b><span>화면 시험 뒤 시험 전 상태로 복원</span><small>위 100회 중 제품 화면 시험</small></div>
-      <div class="stat"><b>3개</b><span>AI 검토를 통과한 TC에서 사람이 찾은 누락</span><small>규칙으로 보완 · 효과는 다음 실행에서 확인</small></div>
-    </div>
-    <h3>저장된 실행 세 사례</h3>
+  <section id="hardest">
+    <span class="label">05 · Hardest part</span>
+    <h2>가장 어려웠던 점: AI에게 기준을 알려 주는 일</h2>
+    <p class="lede">사람 QA에게는 "바뀐 범위의 하한과 상한을 확인하세요"면 충분합니다. AI에게는 무엇을, 몇 개, 어느 시점에 확인하라는 뜻인지까지 적어 줘야 했습니다.</p>
     <div class="rlist">
-      <div><span class="no">01</span><div><b>새 검증은 만들고, 기존 검증은 재사용</b><small>중풍 표시 변경 · 신규 TC 1 + 기존 강풍 TC 1 + 환경 점검 1</small></div><span class="pill ok">3건 통과</span></div>
-      <div><span class="no">02</span><div><b>요구사항과 다른 동작은 실패로 보고</b><small>잠금 기능 · 신규 TC 1 + 기존 TC 2 + 환경 점검 1</small></div><span class="pill bad">1건 불일치</span></div>
-      <div><span class="no">03</span><div><b>시험이 통과해도 미정 조건은 사람에게 확인</b><small>알림 색상 미정 · 확정 범위만 시험하고 색상은 질문</small></div><span class="pill info">사람 검토</span></div>
+      <div><span class="no">01</span><div><b>양식과 기준을 자세히 줬더니</b><small>AI가 요구사항의 숫자를 바꿔 썼습니다(18~30°C → 16~30°C). → 원문 숫자는 프로그램이 직접 대조하도록 바꿨습니다.</small></div><span class="pill warn">숫자 왜곡</span></div>
+      <div><span class="no">02</span><div><b>단계마다 기준을 반복해 줬더니</b><small>같은 요구사항을 단계마다 다르게 해석했고, 기준을 잘게 쪼개자 정상적인 TC까지 막혔습니다. → 이미 정한 내용은 프로그램이 그대로 넘기고, AI는 새 판단만 맡게 했습니다.</small></div><span class="pill warn">해석 차이</span></div>
+      <div><span class="no">03</span><div><b>그래도 사람만 아는 기준이 남았습니다</b><small>위 온도 요청에서 시험 3개가 빠진 이유는, 지침에 "하한과 상한을 확인"이라고만 적혀 있었기 때문입니다.</small></div><span class="pill bad">암묵적 기준</span></div>
     </div>
-    <div class="artifact">
-      <header><span>사례 02 · 사람 최종 검토서 FIND-001</span><span>RUN-20260827-114925-507176</span></header>
-      <div class="body"><dl>
-        <dt>요구사항</dt><dd>REQ-LOCK-001 · 잠금 설정 시 온도 내림·올림 버튼 비활성화</dd>
-        <dt>관찰</dt><dd>
-          <div class="er"><code>ER-001</code><span>온도 내림 버튼 enabled=True</span><span class="pill bad">불일치</span></div>
-          <div class="er"><code>ER-002</code><span>온도 올림 버튼 enabled=True</span><span class="pill bad">불일치</span></div>
-          <div class="er"><code>ER-003</code><span>내부 locked=true</span><span class="pill ok">일치</span></div>
-        </dd>
-        <dt>판단</dt><dd>내부 잠금은 켜졌지만 화면 버튼은 활성. 내부값만 봤다면 놓쳤을 차이입니다. 결함 확정은 사람이 판정합니다.</dd>
-      </dl></div>
+    <div class="cards-2">
+      <div class="mini"><span class="pill bad">이전 지침</span><h4>"변경 후 하한과 상한을 확인한다"</h4><p>사람에게는 충분하지만, AI는 한쪽 경계만 시험해도 지켰다고 판단했습니다.</p></div>
+      <div class="mini"><span class="pill ok">바꾼 지침 (일부)</span><ul><li>새 하한과 새 상한이 각각 적용되는지 따로 확인</li><li>하한 바로 아래, 상한 바로 위가 막히는지 둘 다 확인</li><li>모드를 바꿀 때의 동작이 정해지지 않았으면 추측하지 말고 질문</li><li>화면·카드·내부값을 같은 시점에 확인</li></ul></div>
     </div>
-    <details>
-      <summary>사례 01의 실제 TC 원문 · 사례 03의 항목별 처리</summary>
-      <div class="artifact"><header><span>공식 등록 TC-V2-001 · 강풍 표시</span><span>승인 2026-08-30</span></header><div class="body"><dl>
-        <dt>사전조건</dt><dd>오류·잠금이 없는 단일 장비, 첫 실행 기본 LOW 풍량 확인</dd>
-        <dt>절차</dt><dd>중앙 관제 패널에서 대상 장비에 HIGH 풍량을 선택하고 적용</dd>
-        <dt>기대결과</dt><dd><div class="er"><code>ER-001</code><span>대상 장비 카드에 강풍 표시</span><span class="pill info">화면</span></div><div class="er"><code>ER-002</code><span>내부 fanSpeed = HIGH</span><span class="pill info">내부값</span></div></dd>
-        <dt>복원</dt><dd>시험 뒤 LOW 풍량으로 복원하고 적용</dd>
-      </dl></div></div>
-      <div class="table"><table>
-        <thead><tr><th scope="col">사례 03 확인 항목</th><th scope="col">처리</th><th scope="col">결과</th></tr></thead>
-        <tbody>
-          <tr><td>중풍 표시·내부 풍량</td><td>확정 조건으로 신규 TC 설계·시험</td><td>신규 1건 통과</td></tr>
-          <tr><td>기존 강풍 검증</td><td>승인된 기존 TC 재실행</td><td>기존 1건 통과</td></tr>
-          <tr><td>실행 환경</td><td>가상 중앙제어 준비 상태 확인</td><td>환경 1건 통과</td></tr>
-          <tr><td>알림 색상 변경</td><td>목표 색상 미정 → 기대값을 만들지 않고 정보 부족으로 보고</td><td>미검증 1건</td></tr>
-        </tbody>
-      </table></div>
-    </details>
-    <div class="video"><video controls preload="none" poster="assets/p1-demo-poster.png"><source src="assets/p1-demo-60s.mp4" type="video/mp4"></video></div>
-    <p class="muted small">60초 영상 · 00:00 정상 시험 → 사람 승인·등록 · 00:20 잠금 시험 실패 → 불일치 후보 보고 · 00:40 색상 미정 → 확정 범위만 시험. 2026년 8~9월 저장 실행을 10월 9일 편집한 영상입니다.</p>
+    <div class="note"><b>배운 점</b> · QA 기준의 상당 부분은 경험으로 아는 암묵지였습니다. AI가 따르게 하려면 <b>말 → 규칙 → 프로그램 대조</b>로 점점 구체화해야 했고, 너무 느슨하면 시험이 빠지고 너무 세세하면 정상 결과까지 막혔습니다. 새로운 유형의 요청마다 사람이 먼저 기준을 정리해야 한다는 점이 이 방식의 가장 큰 비용입니다.</div>
   </section>
 
-  <!-- 9 -->
+  <section id="results">
+    <span class="label">06 · Results</span>
+    <h2>결과</h2>
+    <div class="stats">
+      <div class="stat"><b>2건</b><span>실제 AI로 변경 요청부터 보고까지 완주</span><small>전원 정지 · 온도 범위 변경</small></div>
+      <div class="stat"><b>100 / 100</b><span>미리 준비한 20가지 상황 × 5회, 예상대로 처리</span><small>프로그램 반복 검사 · AI의 새 판단은 아님</small></div>
+      <div class="stat"><b>65 / 65</b><span>시험 뒤 시험 전 상태로 복구 확인</span><small>위 100회 중 화면 시험</small></div>
+      <div class="stat"><b>3개</b><span>자동 검사를 통과한 TC에서 사람이 찾은 누락</span><small>지침 보완 · 효과는 다음 실행에서 확인</small></div>
+    </div>
+    <h3>대표 사례 세 가지</h3>
+    <div class="rlist">
+      <div><span class="no">01</span><div><b>새 시험은 만들고, 기존 시험은 재사용</b><small>풍량 '중풍' 표시 변경 · 새 TC 1개 + 기존 '강풍' TC 1개를 함께 시험 → 사람 승인 후 공식 등록</small></div><span class="pill ok">통과</span></div>
+      <div><span class="no">02</span><div><b>요구사항과 다른 동작을 찾아 보고</b><small>잠금 기능 · 잠금 상태인데 온도 버튼이 눌리는 상태. 내부 잠금값은 맞아서, 화면까지 확인하지 않았다면 놓쳤을 차이</small></div><span class="pill bad">불일치</span></div>
+      <div><span class="no">03</span><div><b>정해지지 않은 조건은 추측하지 않음</b><small>알림 색상이 정해지지 않은 요청 · 확정된 부분만 시험하고 색상은 사람에게 질문</small></div><span class="pill info">사람 확인</span></div>
+    </div>
+    <div class="video"><video controls preload="none" poster="assets/p1-demo-poster.png"><source src="assets/p1-demo-60s.mp4" type="video/mp4"></video></div>
+    <p class="muted small">60초 영상 · 위 세 사례를 20초씩 보여 줍니다(2026년 8~9월 실행을 편집).</p>
+  </section>
+
   <section id="practice">
-    <span class="label">09 · Practical use</span>
-    <h2>실무에 적용할 수 있을까?</h2>
-    <p class="lede">반복 작업을 연결하는 것과, 새로운 요청을 믿고 맡기는 것은 다른 문제였습니다.</p>
+    <span class="label">07 · In practice</span>
+    <h2>실무에 쓸 수 있을까?</h2>
+    <p class="lede">반복 작업을 자동으로 연결하는 것과, 새로운 요청을 믿고 맡기는 것은 다른 문제였습니다.</p>
     <div class="table"><table>
-      <thead><tr><th scope="col">업무</th><th scope="col">판단</th><th scope="col">근거와 조건</th></tr></thead>
+      <thead><tr><th scope="col">업무</th><th scope="col">판단</th><th scope="col">이유</th></tr></thead>
       <tbody>
-        <tr><td>정해진 TC 실행·관찰 기록·복원 확인</td><td><span class="pill ok">적용 가능</span></td><td>준비한 상황 100/100, 복원 65/65. 화면 요소·내부값 읽는 방법은 제품마다 준비 필요</td></tr>
-        <tr><td>결과 분류와 보고서 작성</td><td><span class="pill ok">적용 가능</span></td><td>제품·자동화·환경·미실행을 규칙으로 분류. 결함 확정은 사람</td></tr>
-        <tr><td>기존 TC 재사용 판단</td><td><span class="pill warn">조건부</span></td><td>절차·기대결과 비교로 초안 제시. 같은 시험인지 최종 판단은 사람</td></tr>
-        <tr><td>새 변경 요청의 TC 설계</td><td><span class="pill warn">초안 수준</span></td><td>그 유형의 기준이 규칙으로 정리돼 있을 때만. 정리 전에는 필수 시험이 빠짐(10-15)</td></tr>
-        <tr><td>기준이 없는 새 유형을 맡기기</td><td><span class="pill bad">아직 아님</span></td><td>사람이 먼저 기준을 찾아 적어야 함. 반복 일관성 측정 전</td></tr>
+        <tr><td>정해진 TC 실행과 원상 복구</td><td><span class="pill ok">쓸 수 있음</span></td><td>준비한 상황에서 100% 예상대로 처리, 복구도 확인</td></tr>
+        <tr><td>결과 분류와 보고서 작성</td><td><span class="pill ok">쓸 수 있음</span></td><td>제품 문제·시험 준비 문제·미실행을 규칙으로 구분. 결함 확정은 사람</td></tr>
+        <tr><td>새 요청의 TC 작성</td><td><span class="pill warn">초안 수준</span></td><td>기준을 규칙으로 정리해 둔 유형에서만. 그 전에는 필요한 시험이 빠짐</td></tr>
+        <tr><td>처음 보는 유형의 요청을 맡기기</td><td><span class="pill bad">아직 어려움</span></td><td>사람이 먼저 기준을 정리해야 하고, 반복 실행 시 일관성도 아직 측정 전</td></tr>
       </tbody>
     </table></div>
-    <h3>도입하려면 필요한 것</h3>
-    <ul>
-      <li><b>도메인 기준 문서화</b> — 담당자 머릿속의 경계값·회귀 기준을 규칙으로 정리하는 시간. 가장 큰 비용입니다.</li>
-      <li><b>제품별 실행 연결</b> — 화면 요소와 내부값을 읽는 방법, 시험 전 상태 기록·복원 방법</li>
-      <li><b>사람 검토 시간</b> — 설계 초안 검토와 최종 등록 판단은 줄지 않습니다</li>
-      <li><b>API 비용</b> — 10-15 실행은 생성·검토·재채점까지 호출 16회, 사용량 기준 약 $1.9 추정(청구액 아님)</li>
-    </ul>
-    <p class="muted small">현재는 가상 중앙제어 범위에 한정되며, 수작업 대비 시간 절감과 사람 개입 감소는 아직 측정하지 않았습니다.</p>
+    <p>실제 도입에는 <b>담당자의 기준을 규칙으로 정리하는 시간</b>(가장 큰 비용), 제품마다 화면·내부값을 읽는 연결 작업, 사람의 검토 시간이 필요합니다. 실행 비용은 온도 요청 한 건 기준으로 AI 호출 16회, 사용량 기준 약 2달러로 추정했습니다(청구액 아님).</p>
   </section>
 
-  <!-- 10 -->
   <section id="limits">
-    <span class="label">10 · Limits & next</span>
+    <span class="label">08 · Limits & next</span>
     <h2>한계와 다음 단계</h2>
     <div class="cards-2">
-      <div class="mini"><span class="pill warn">한계</span><ul><li>기준을 AI에 전달하는 비용이 크고 새 유형마다 다시 필요</li><li>같은 요청을 반복 실행했을 때의 일관성은 측정 전</li><li>가상 제품에서만 확인, 실제 장비는 미확인</li></ul></div>
-      <div class="mini"><span class="pill info">다음</span><ul><li>추가한 규칙으로 같은 요청을 다시 실행해 누락이 줄었는지 확인</li><li>코드·기준·입력을 고정하고 같은 조건 5회 실행</li><li>사람 판단과 대조, 수작업 대비 시간 측정</li></ul></div>
+      <div class="mini"><span class="pill warn">한계</span><ul><li>가상 제품에서만 확인했고 실제 장비는 미확인</li><li>같은 요청을 반복 실행했을 때의 일관성은 아직 측정 전</li><li>수작업 대비 시간이 얼마나 줄었는지 미측정</li></ul></div>
+      <div class="mini"><span class="pill info">다음</span><ul><li>보완한 지침으로 같은 요청을 다시 실행해 누락이 줄었는지 확인</li><li>조건을 고정하고 같은 요청을 5회 반복</li><li>사람의 판단과 대조</li></ul></div>
     </div>
-    <p>AI가 낸 결과를 어떻게 다시 검증했는지는 <a href="project2.html">프로젝트2</a>에 정리했습니다.</p>
-    <div class="links">
-      <a href="https://github.com/SEHOOOOON/qa-agent-pipeline-v2/blob/3691587/README.md">프로젝트 소개·실행 방법<span>README ↗</span></a>
-      <a href="https://github.com/SEHOOOOON/qa-agent-pipeline-v2/tree/3691587/docs">시나리오·상세 로직<span>docs ↗</span></a>
-      <a href="https://github.com/SEHOOOOON/qa-agent-pipeline-v2/tree/3691587/examples/results/agent1-agent2-agent3-agent4-medium-fan">중풍·강풍 공개 결과<span>성공 사례 ↗</span></a>
-      <a href="https://github.com/SEHOOOOON/qa-agent-pipeline-v2/tree/3691587/examples/results/agent1-agent2-agent3-agent4-lock-disable">잠금 불일치 공개 결과<span>불일치 사례 ↗</span></a>
-      <a href="https://github.com/SEHOOOOON/qa-agent-pipeline-v2/blob/3691587/src/qa_pipeline_contracts.py#L800">AI에 전달한 범위 변경 규칙<span>원문 ↗</span></a>
-      <a href="https://github.com/SEHOOOOON/qa-agent-pipeline-v2/blob/3691587/PROJECT_HANDOFF.md">수정·검증 기록<span>인계 문서 ↗</span></a>
-    </div>
-    <div class="next"><a href="index.html">← 메인</a><a href="project2.html">프로젝트2 · 에이전트 결과 검증 →</a></div>
+    <details>
+      <summary>더 자세히 보기 · 단계별 자동 검사와 원본 자료</summary>
+      <div class="table"><table>
+        <thead><tr><th scope="col">단계</th><th scope="col">자동 검사가 확인하는 것</th></tr></thead>
+        <tbody>
+          <tr><td>분석 후</td><td>요청 원문의 숫자·조건이 분석 결과와 같은지, 정해지지 않은 조건이 있는지</td></tr>
+          <tr><td>TC 작성 후</td><td>요구사항에 없는 값이 들어갔는지, 준비·시험·복구 순서와 확인 시점이 맞는지</td></tr>
+          <tr><td>시험 전</td><td>자동화 계획이 TC와 같은지. 다르면 시험하지 않음</td></tr>
+          <tr><td>보고 전</td><td>집계 숫자와 분류 근거가 실제 실행 기록과 같은지</td></tr>
+        </tbody>
+      </table></div>
+      <div class="links">
+        <a href="https://github.com/SEHOOOOON/qa-agent-pipeline-v2/blob/3691587/README.md">프로젝트 소개·실행 방법<span>GitHub ↗</span></a>
+        <a href="https://github.com/SEHOOOOON/qa-agent-pipeline-v2/blob/3691587/approved_assets/test_cases/TC-V2-001.json">사람이 승인한 TC 원문<span>GitHub ↗</span></a>
+        <a href="https://github.com/SEHOOOOON/qa-agent-pipeline-v2/tree/3691587/examples/results/agent1-agent2-agent3-agent4-lock-disable">잠금 불일치 실행 결과<span>GitHub ↗</span></a>
+        <a href="https://github.com/SEHOOOOON/qa-agent-pipeline-v2/blob/3691587/src/qa_pipeline_contracts.py#L800">AI에 준 범위 변경 지침 원문<span>GitHub ↗</span></a>
+      </div>
+    </details>
+    <div class="next"><a href="index.html">← 메인</a><a href="project2.html">프로젝트2 · 결과를 다시 검증하기 →</a></div>
   </section>
   </article>
 </div>
 </main>
-<footer><div class="wrap"><span>OH SEHOON · Central Control QA · Project 01 V2</span><span>수치 기준일 2026-10-16 · 코드 3691587</span></div></footer>
+<footer><div class="wrap"><span>OH SEHOON · Project 01</span><span>수치 기준일 2026-10-16</span></div></footer>
 </body>
 </html>
