@@ -1,5 +1,18 @@
 # 프로젝트 2 현재 상태
 
+## 2026-10-16 (2차) · 클라우드 후속 작업 7건 (API 없음)
+
+- 작업 위치: 클라우드 컨테이너. P2 브랜치 `claude/fixes-20261015-le3mg5`(a35ec0a에서 이어서 쌓음), P1 브랜치 `claude/fixes-20261015-le3mg5`(bf02cf5에서 이어서 쌓음). 유료 API 0회, main 병합·배포·포폴 HTML 수정 없음. PC 폴더·PC 임시 폴더는 건드리지 않음.
+- 1) T-5 질문 판정 엄격화 range-oracle-1.2: 한 문장에 바뀐 모드 + (유지 모드 또는 전환·범위 밖 표현)이 있어야 MET, 모드 이름만이면 PARTIAL. 반례 시험 8개. [IMP-009](improvements/IMP-009-range-change-rules.md) (b3f9d50)
+- 2) full-flow-0.19: 명세 `range_key`(선택)를 적으면 회차 `record.json`·`result.json`에 `range_oracle` 기록, 점수·완주 상태 불변, 키 없는 명세는 계획 모양 그대로. [IMP-009] (6262de1)
+- 3) P1 사람 최종 검토서: 실패한 TC 안에서 ER별 `QA_ASSERTION_OBSERVED`(해시 일치 로그, 같은 Run·TC만)를 읽어 "관찰 기록상 통과/불일치"로 표시. 기록 없는 ER만 기존 "개별 판정 미확인". P1 인계 문서 참조.
+- 4) `rejudge-flow` 명령: 저장 `evidence.zip`으로 역할별 재채점. 기본 미리보기, `--execute`는 묶음 승인 해시 필요, 200KB 패킷 파일 제한 없음(채점 입력 500KB 한도 유지). 실제 호출 안 함. [IMP-008](improvements/IMP-008-output-cap-and-log-truncation.md) (63e035c)
+- 5) 임시 폴더 `qaf-*` 원인: `run_flow`가 압축 후에도 작업 폴더를 지우지 않음 → 압축 성공 시 삭제·`workspace_removed` 기록. [IMP-011](improvements/IMP-011-temporary-workspace-cleanup.md) (d68d839)
+- 6) **결정 필요** 비용 자동 계산 설계안 [docs/14](docs/14_COST_ESTIMATION_DESIGN.md) — 단가 확인·채점 캐시 상세 저장 여부.
+- 7) **결정 필요** 포트폴리오 점수 문구 수정안 [docs/15](docs/15_PORTFOLIO_WORDING_PROPOSAL.md) — HTML은 그대로.
+- 검증(로컬, 2026-10-16 KST): 아래 "검증 수치" 참조. 보안 확인 필요: `pyproject.toml`의 `test` 추가 설치 항목 `httpx2`는 흔히 쓰는 `httpx`와 이름이 달라 의도한 패키지인지 확인 필요(이번 작업에서 설치하지 않았고 파일도 바꾸지 않음).
+- 다음(PC): [PC 지시서](docs/pc-sync-20261016b.md) — 받아오기, 테스트, 10-15 저장 자료로 range-oracle 1.2·rejudge-flow 미리보기·P1 검토서 재생성 비교.
+
 ## 2026-10-16 · 완주 판정 B안 구현 (예상된 제품 불일치 사전 기재)
 
 - 사용자 결정: B안. 명세의 `expected_product_mismatches`에 "실패해야 정상"인 값을 적으면(예: `setTemp` 기대 20 → 실제 19), 실행 후 검증된 관찰 기록과 대조해 `product_expectation`(AS_EXPECTED / NOT_AS_EXPECTED / UNVERIFIED / NOT_DECLARED)을 남긴다. full-flow-0.18. [IMP-010](improvements/IMP-010-expected-product-mismatch.md)
