@@ -10,7 +10,7 @@
 - 5) 임시 폴더 `qaf-*` 원인: `run_flow`가 압축 후에도 작업 폴더를 지우지 않음 → 압축 성공 시 삭제·`workspace_removed` 기록. [IMP-011](improvements/IMP-011-temporary-workspace-cleanup.md) (d68d839)
 - 6) **결정 필요** 비용 자동 계산 설계안 [docs/14](docs/14_COST_ESTIMATION_DESIGN.md) — 단가 확인·채점 캐시 상세 저장 여부.
 - 7) **결정 필요** 포트폴리오 점수 문구 수정안 [docs/15](docs/15_PORTFOLIO_WORDING_PROPOSAL.md) — HTML은 그대로.
-- 검증(로컬, 2026-10-16 KST): 아래 "검증 수치" 참조. 보안 확인 필요: `pyproject.toml`의 `test` 추가 설치 항목 `httpx2`는 흔히 쓰는 `httpx`와 이름이 달라 의도한 패키지인지 확인 필요(이번 작업에서 설치하지 않았고 파일도 바꾸지 않음).
+- 검증(로컬, 2026-10-16 KST): P2 전체 1025개 중 1020 PASS / 4 SKIP(Windows 전용) / 1 FAIL(형제 포폴 저장소 없음, 환경). P1 커밋 72366f5 이후 P2의 P1 사본 사전 점검 시험 4개 PASS(P1 미커밋 상태에서는 '추적 파일 변경'으로 FAIL — 의도된 보호 동작). P1 전체 결과는 P1 인계 문서. 보안 확인 필요: `pyproject.toml`의 `test` 추가 설치 항목 `httpx2`는 흔히 쓰는 `httpx`와 이름이 달라 의도한 패키지인지 확인 필요(이번 작업에서 설치하지 않았고 파일도 바꾸지 않음).
 - 다음(PC): [PC 지시서](docs/pc-sync-20261016b.md) — 받아오기, 테스트, 10-15 저장 자료로 range-oracle 1.2·rejudge-flow 미리보기·P1 검토서 재생성 비교.
 
 ## 2026-10-16 · 완주 판정 B안 구현 (예상된 제품 불일치 사전 기재)
