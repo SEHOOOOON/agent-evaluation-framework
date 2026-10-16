@@ -1,6 +1,7 @@
 from copy import deepcopy
 import json
 import os
+import shutil
 from pathlib import Path
 import subprocess
 import sys
@@ -1276,3 +1277,53 @@ def test_declared_mismatches_are_bound_to_the_approval_hash(flow_setup):
         ExpectedMismatch(field="setTemp", expected=20, actual=18, reason="제품 미변경")]})
     hashes = {make_preview(target, s, config_root)["approval_sha256"] for s in (spec, declared, changed)}
     assert len(hashes) == 3
+
+
+RANGE_KEY = Path(__file__).resolve().parents[1] / "benchmarks/v2/range_keys/representative-temperature.json"
+
+
+def with_range_key(setup):
+    shutil.copyfile(RANGE_KEY, setup[1] / "range_key.json")
+    return setup[2].model_copy(update={"range_key": "range_key.json"})
+
+
+def test_spec_without_range_key_keeps_plan_shape_and_records_nothing(flow_setup):
+    target, config, spec = flow_setup[0], flow_setup[1], flow_setup[2]
+    plan = make_preview(target, spec, config)["plan"]
+    assert "range_key" not in plan and "range_key" not in plan["spec"]
+    root, result = execute(flow_setup, worker_for())
+    assert "range_oracle" not in result and "range_oracle" not in result["trials"][0]
+
+
+def test_range_oracle_is_recorded_beside_scores(flow_setup):
+    _, plain = execute(flow_setup, worker_for())
+    spec = with_range_key(flow_setup)
+    root, result = execute(flow_setup, worker_for(), spec)
+    record = read(root / "trial-1" / "record.json")["range_oracle"]
+    # The test-double A2 has no test cases: every required boundary test is missing.
+    assert record["status"] == "EVALUATED" and record["verdict"] == "FAIL"
+    assert record["version"].startswith("range-oracle-") and record["design_sha256"]
+    assert result["range_oracle"] == {"FAIL": 1}
+    assert result["status"] == plain["status"] == "COMPLETED"
+    assert result["trials"][0]["scorecard"] == plain["trials"][0]["scorecard"]
+    assert result["score_comparison"] == plain["score_comparison"]
+
+
+def test_range_key_without_a2_output_is_not_evaluated(flow_setup):
+    root, result = execute(flow_setup, worker_for("blocked"), with_range_key(flow_setup))
+    assert result["trials"][0]["range_oracle"] == {"status": "NOT_EVALUATED", "reason": "A2_OUTPUT_MISSING"}
+    assert result["range_oracle"] == {"NOT_EVALUATED": 1}
+
+
+def test_range_key_is_bound_to_the_approval_hash(flow_setup):
+    target, config = flow_setup[0], flow_setup[1]
+    spec = with_range_key(flow_setup)
+    first = make_preview(target, spec, config)
+    key = json.loads((config / "range_key.json").read_text(encoding="utf-8"))
+    key["changed"][0]["upper"] = 29
+    (config / "range_key.json").write_text(json.dumps(key, ensure_ascii=False), encoding="utf-8")
+    assert make_preview(target, spec, config)["approval_sha256"] != first["approval_sha256"]
+    assert first["approval_sha256"] != make_preview(target, flow_setup[2], config)["approval_sha256"]
+    (config / "range_key.json").write_text("{}", encoding="utf-8")
+    with pytest.raises(ValueError):
+        make_preview(target, spec, config)

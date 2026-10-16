@@ -24,12 +24,13 @@ from pydantic import BaseModel, ConfigDict, Field
 from .detailed_rubric import role_items, VERSION as RUBRIC_VERSION, SCORE_VERSION, PYTHON_CRITERIA
 from .execution_observations import grade_run as grade_execution_observations
 from .product_expectations import ExpectedMismatch, classify as classify_product_expectation
+from .range_oracle import RangeKey, grade as grade_range
 from .openai_judge import (JudgePacket, encode, preview as judge_preview, evaluate as judge_evaluate,
                            scan_payload, _unique_json_fields)
 from .v2_recorded import (child, digest, read, write, target_pin, inventory, execution_rows,
                           finding_matches_execution, report_counts_match, handoff_checks)
 
-VERSION = "full-flow-0.18"
+VERSION = "full-flow-0.19"
 ROLES = ("A1", "A2", "A3", "A4")
 
 
@@ -54,6 +55,9 @@ class FlowSpec(BaseModel):
     # Option B (2026-10-16): mismatches a person expects on the unchanged
     # product. Bound into the preview/approval hash through the spec.
     expected_product_mismatches: list[ExpectedMismatch] = Field(default=[], max_length=20)
+    # Optional range answer key (relative to the spec folder, like ``oracle``).
+    # Recorded next to the scores; it never changes a score or the completion status.
+    range_key: str | None = None
 
 
 def p2_pin():
@@ -108,12 +112,21 @@ def make_preview(target: Path, spec: FlowSpec, config_root: Path):
     # Validate the SRS text before allowing even a generation request.
     srs = child(target, "docs/01_PRODUCT_SRS.md").read_text(encoding="utf-8")
     scan_payload(srs)
+    range_key = None
+    if spec.range_key is not None:
+        key_path = child(config_root.resolve(), spec.range_key)
+        if key_path.stat().st_size > 100_000:
+            raise ValueError("Range key too large")
+        range_key = RangeKey.model_validate_json(key_path.read_text(encoding="utf-8")).model_dump()
     plan = {
-        "version": VERSION, "spec": spec.model_dump(), "target_commit": pin["commit"],
+        # Specs without a range key keep the earlier plan shape.
+        "version": VERSION, "spec": spec.model_dump(exclude={"range_key"} if range_key is None else None),
+        "target_commit": pin["commit"],
         "runtime_hashes": selected, "evaluator_hashes": p2_pin(),
         "oracle": oracle, "request": request, "srs_sha256": selected["docs/01_PRODUCT_SRS.md"],
         "rubric_version": RUBRIC_VERSION,
         "scoring_profile": SCORE_VERSION,
+        **({"range_key": range_key} if range_key is not None else {}),
         "python_criteria": sorted(PYTHON_CRITERIA),
         "generation_destination": "https://api.openai.com/v1/responses",
         "judge_destination": "https://api.openai.com/v1/responses",
@@ -284,6 +297,21 @@ def local_checks(run: Path, source_unchanged: bool, copy_unchanged: bool):
     add("A4.CAUSE_ACCURACY", "NOT_EVALUATED",
         "원인 분류의 정답은 결과 라벨에서 복사하지 않음; 중립 증거와 사람 판정 필요")
     return checks
+
+
+def range_oracle_record(run: Path, key: dict) -> dict:
+    """Rule-based A2 check against the approved range key; separate from scores."""
+    design_path, analysis_path = run / "agent2_test_design.json", run / "agent1_change_analysis.json"
+    if not design_path.is_file():
+        return {"status": "NOT_EVALUATED", "reason": "A2_OUTPUT_MISSING"}
+    try:
+        analysis = read(analysis_path) if analysis_path.is_file() else None
+        graded = grade_range(RangeKey.model_validate(key), read(design_path),
+                             analysis if isinstance(analysis, dict) else None)
+    except Exception as exc:
+        return {"status": "ERROR", "reason": type(exc).__name__}
+    return dict(status="EVALUATED", design_sha256=digest(design_path),
+                analysis_sha256=digest(analysis_path) if analysis_path.is_file() else None, **graded)
 
 
 def runtime_unchanged(root, hashes):
@@ -1249,6 +1277,8 @@ def run_flow(target, spec, config_root, output_root, approval_sha256, *, worker=
             observation_grade = grade_execution_observations(run, observations=observed)
             row["product_expectation"] = classify_product_expectation(
                 spec.expected_product_mismatches, observed, observation_grade["verdict"])
+            if "range_key" in plan:
+                row["range_oracle"] = range_oracle_record(run, plan["range_key"])
             packets = collect_packets(run, work, spec, plan, row["checks"])
             prepared = {}
             available_slots = spec.judge_calls_total - result["judge_slots_used"]
@@ -1330,6 +1360,11 @@ def run_flow(target, spec, config_root, output_root, approval_sha256, *, worker=
     # Separate from COMPLETED/STOPPED: did the product fail exactly as declared?
     statuses = [t.get("product_expectation", {}).get("status", "NOT_EVALUATED") for t in result["trials"]]
     result["product_expectation"] = {status: statuses.count(status) for status in sorted(set(statuses))}
+    if "range_key" in plan:
+        # Counted per trial; NOT_EVALUATED/ERROR rows keep their status instead of a verdict.
+        verdicts = [t.get("range_oracle", {}).get("verdict") or t.get("range_oracle", {}).get("status", "NOT_EVALUATED")
+                    for t in result["trials"]]
+        result["range_oracle"] = {v: verdicts.count(v) for v in sorted(set(verdicts))}
     result["comparison"] = {
         "method": "STRUCTURED_AND_TEXT_FINGERPRINT_NOT_SEMANTIC_EQUIVALENCE",
         "same_wrong_not_ruled_out": True,
