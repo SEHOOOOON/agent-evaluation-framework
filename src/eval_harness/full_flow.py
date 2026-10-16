@@ -322,6 +322,21 @@ def runtime_unchanged(root, hashes):
     return inventory(root / "approved_assets") == expected_assets
 
 
+def remove_workspace(work: Path) -> bool:
+    """Delete a trial's temporary copy; read-only files (e.g. Windows) are retried writable."""
+    def retry(function, path, _):
+        try:
+            os.chmod(path, 0o700)
+            function(path)
+        except OSError:
+            pass
+    if sys.version_info >= (3, 12):
+        shutil.rmtree(work, onexc=retry)
+    else:
+        shutil.rmtree(work, onerror=retry)
+    return not work.exists()
+
+
 def archive_evidence(work, destination):
     destination.parent.mkdir(parents=True, exist_ok=True)
     with zipfile.ZipFile(destination, "x", compression=zipfile.ZIP_DEFLATED) as archive:
@@ -1168,7 +1183,8 @@ def collect_packets(run, work, spec, plan, checks):
     return packets
 
 
-def run_flow(target, spec, config_root, output_root, approval_sha256, *, worker=None, judge=None):
+def run_flow(target, spec, config_root, output_root, approval_sha256, *, worker=None, judge=None,
+             keep_workspace=False):
     info = make_preview(target, spec, config_root)
     if info["approval_sha256"] != approval_sha256:
         raise ValueError("Execution requires approval bound to this exact preview")
@@ -1348,10 +1364,15 @@ def run_flow(target, spec, config_root, output_root, approval_sha256, *, worker=
                 try:
                     row["evidence_archive_sha256"] = archive_evidence(work, root / f"trial-{index + 1}" / "evidence.zip")
                     row["evidence_archive"] = f"trial-{index + 1}/evidence.zip"
+                    # The archive holds every workspace file; the temporary copy
+                    # (qaf-*) was never removed before 2026-10-16 and piled up.
+                    if not keep_workspace:
+                        row["workspace_removed"] = remove_workspace(work)
                 except Exception as exc:
                     row["archive_error"] = type(exc).__name__
                     result["stop_reason"] = "EVIDENCE_ARCHIVE_FAILED"
                     row["status"] = "ERROR"
+                    row["workspace_removed"] = False  # kept for investigation
                 write(root / f"trial-{index + 1}" / "record.json", row)
             write(root / "result.json", result)
     result["status"] = "STOPPED" if result["stop_reason"] else "COMPLETED"

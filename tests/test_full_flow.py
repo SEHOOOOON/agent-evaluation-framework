@@ -358,11 +358,11 @@ def worker_for(branch="normal", received=None):
     return worker
 
 
-def execute(setup, worker, spec=None, judge=fake_judge):
+def execute(setup, worker, spec=None, judge=fake_judge, **options):
     target, config, default, output = setup
     spec = spec or default
     preview = make_preview(target, spec, config)
-    root = run_flow(target, spec, config, output, preview["approval_sha256"], worker=worker, judge=judge)
+    root = run_flow(target, spec, config, output, preview["approval_sha256"], worker=worker, judge=judge, **options)
     return root, read(root / "result.json")
 
 
@@ -936,13 +936,14 @@ def test_flow_api_hides_workspace_and_separates_test_mode(flow_setup, known_bad_
 
 def test_evidence_archive_preserves_original_bytes(flow_setup):
     import zipfile
-    root, result = execute(flow_setup, worker_for())
+    root, result = execute(flow_setup, worker_for(), keep_workspace=True)
     row = result["trials"][0]
     archive = root / row["evidence_archive"]
     assert digest(archive) == row["evidence_archive_sha256"]
     with zipfile.ZipFile(archive) as z:
         name = "p1/runs/" + row["run_id"] + "/final_report.json"
         assert z.read(name) == (Path(row["workspace"]) / name).read_bytes()
+    shutil.rmtree(row["workspace"])
 
 
 def test_compacted_evidence_is_lossless():
@@ -1090,7 +1091,7 @@ def test_large_grounding_body_preserves_call_and_rejection_records(flow_setup):
         write(run / "agent2_grounding_input_attempt_notes.json", {"input": "Unrecognized artifact is not silently omitted"})
         write(run / "checkpoint2_attempt_1.json", {"status": "FAIL"})
         return outcome
-    root, state = execute(flow_setup, worker)
+    root, state = execute(flow_setup, worker, keep_workspace=True)
     packet = JudgePacket.model_validate(read(root / "trial-1/A2/packet.json"))
     trace = packet.sources["trace"]
     assert trace["actual_model_requests"][0]["payload"]["input"][0]["content"] == "Required generation input"
@@ -1113,6 +1114,7 @@ def test_large_grounding_body_preserves_call_and_rejection_records(flow_setup):
     with zipfile.ZipFile(root / trial["evidence_archive"]) as z:
         assert z.read("calls/002/request.json") == raw.read_bytes()
         assert z.read(f"p1/runs/{trial['run_id']}/agent2_grounding_input_attempt_1.json") == raw_input.read_bytes()
+    shutil.rmtree(work)
 
 
 def test_added_official_asset_blocks_further_trials(flow_setup):
@@ -1327,3 +1329,34 @@ def test_range_key_is_bound_to_the_approval_hash(flow_setup):
     (config / "range_key.json").write_text("{}", encoding="utf-8")
     with pytest.raises(ValueError):
         make_preview(target, spec, config)
+
+
+def test_workspace_is_removed_after_the_archive_by_default(flow_setup):
+    root, result = execute(flow_setup, worker_for("multi"))
+    row = result["trials"][0]
+    assert row["workspace_removed"] is True and not Path(row["workspace"]).exists()
+    assert read(root / "trial-1" / "record.json")["workspace_removed"] is True
+    assert digest(root / row["evidence_archive"]) == row["evidence_archive_sha256"]
+
+
+def test_workspace_is_kept_when_the_archive_fails(flow_setup, monkeypatch):
+    import eval_harness.full_flow as full_flow
+    def broken(work, destination):
+        raise OSError("disk full")
+    monkeypatch.setattr(full_flow, "archive_evidence", broken)
+    root, result = execute(flow_setup, worker_for())
+    row = result["trials"][0]
+    assert row["workspace_removed"] is False and Path(row["workspace"]).is_dir()
+    assert result["stop_reason"] == "EVIDENCE_ARCHIVE_FAILED"
+    full_flow.remove_workspace(Path(row["workspace"]))
+
+
+def test_remove_workspace_handles_read_only_files(tmp_path):
+    from eval_harness.full_flow import remove_workspace
+    work = tmp_path / "qaf-test"
+    (work / "sub").mkdir(parents=True)
+    locked = work / "sub" / "file.txt"
+    locked.write_text("x", encoding="utf-8")
+    locked.chmod(0o400)
+    (work / "sub").chmod(0o500)
+    assert remove_workspace(work) is True
