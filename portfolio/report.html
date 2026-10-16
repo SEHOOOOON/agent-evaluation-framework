@@ -8,12 +8,23 @@
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="report-view.css">
 <script src="evidence.js" defer></script><script src="rubric.js" defer></script><script src="plain-language.js" defer></script><script src="page.js" defer></script><script src="report-view.js" defer></script>
+<style id="pf-bar-style">
+.pf-bar{position:sticky;top:0;z-index:60;background:rgba(11,12,11,.92);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-bottom:1px solid #1f201d;font-family:Pretendard,"Noto Sans KR",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.pf-bar-in{width:min(var(--pf-w,1100px),calc(100% - 48px));margin:0 auto;height:62px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.pf-brand{color:#f1eee7;font-size:13px;font-weight:800;letter-spacing:.02em;text-decoration:none;white-space:nowrap}
+.pf-brand:hover{text-decoration:none;color:#f1eee7}
+.pf-links{display:flex;gap:22px;font-size:12px;line-height:1}
+.pf-links a{color:#a8a199;text-decoration:none;white-space:nowrap;padding:6px 0;border-bottom:2px solid transparent}
+.pf-links a:hover{color:#f1eee7;text-decoration:none}
+.pf-links a[aria-current="page"]{color:#f1eee7;border-bottom-color:#d27f48}
+@media(max-width:640px){.pf-bar-in{width:calc(100% - 28px);height:54px}.pf-brand{font-size:12px}.pf-links{gap:14px;font-size:11px}}
+</style>
 </head>
 <body class="report-page">
 <a class="skip" href="#main">본문 바로가기</a>
-<header class="topbar"><div class="shell top-inner"><a class="brand" href="#main"><span class="brand-mark">QA</span> Agent Evaluation <small>PROJECT 02</small></a><span class="local-label">저장된 실행·평가 기록</span></div></header>
+<nav class="pf-bar" aria-label="포트폴리오 메뉴" style="--pf-w:1100px"><div class="pf-bar-in"><a class="pf-brand" href="../../portfolio_export/main.html">OH SEHOON · QA</a><div class="pf-links"><a href="../../portfolio_export/main.html">메인</a><a href="../../qa-agent-pipeline-v2/project.html">프로젝트1</a><a href="index.html" aria-current="page">프로젝트2</a><a href="../../portfolio_export/main.html#contact">Contact</a></div></div></nav>
 <main id="main" class="shell">
-<p class="report-return"><a href="index.html">← 프로젝트2 소개로 돌아가기</a></p>
+<p class="report-return"><a href="index.html">← 프로젝트2 소개로 돌아가기</a> <span class="local-label">· 저장된 실행·평가 기록</span></p>
 <div class="page-heading"><div><h1>평가 결과와 근거</h1><p>사례별 점수 · 판단 이유 · 실행 근거</p></div><div class="page-links"><a href="../../portfolio_export/main.html">메인 ↗</a><a href="../../qa-agent-pipeline-v2/project.html">프로젝트1 ↗</a></div></div>
 <p>프로젝트 소개에서 다룬 사례의 점수와 판단 이유를 확인하는 자료입니다. 역할별 평가와 원문은 필요한 기록을 선택해 볼 수 있습니다. 사례마다 평가 범위가 달라 전체 평균으로 합치지 않았습니다.</p>
 <details id="record-metadata" class="info record-metadata"><summary>사례별 평가 시점과 자료 구분</summary><div class="info-content">
