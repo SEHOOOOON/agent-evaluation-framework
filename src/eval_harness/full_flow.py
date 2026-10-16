@@ -23,12 +23,13 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from .detailed_rubric import role_items, VERSION as RUBRIC_VERSION, SCORE_VERSION, PYTHON_CRITERIA
 from .execution_observations import grade_run as grade_execution_observations
+from .product_expectations import ExpectedMismatch, classify as classify_product_expectation
 from .openai_judge import (JudgePacket, encode, preview as judge_preview, evaluate as judge_evaluate,
                            scan_payload, _unique_json_fields)
 from .v2_recorded import (child, digest, read, write, target_pin, inventory, execution_rows,
                           finding_matches_execution, report_counts_match, handoff_checks)
 
-VERSION = "full-flow-0.17"
+VERSION = "full-flow-0.18"
 ROLES = ("A1", "A2", "A3", "A4")
 
 
@@ -50,6 +51,9 @@ class FlowSpec(BaseModel):
     # 10,558 of the former 12,000 default, so new specs use the existing upper
     # bound. Historical specs that set 12000 explicitly keep that value.
     generation_max_output_tokens: int = Field(default=24000, ge=2000, le=24000)
+    # Option B (2026-10-16): mismatches a person expects on the unchanged
+    # product. Bound into the preview/approval hash through the spec.
+    expected_product_mismatches: list[ExpectedMismatch] = Field(default=[], max_length=20)
 
 
 def p2_pin():
@@ -1241,6 +1245,10 @@ def run_flow(target, spec, config_root, output_root, approval_sha256, *, worker=
                 result["stop_reason"] = outcome.get("reason", "EXECUTION_ERROR")
             row["judges"] = {}
             row["python_evaluation"] = python_scores(run, row["checks"])
+            observed = {}
+            observation_grade = grade_execution_observations(run, observations=observed)
+            row["product_expectation"] = classify_product_expectation(
+                spec.expected_product_mismatches, observed, observation_grade["verdict"])
             packets = collect_packets(run, work, spec, plan, row["checks"])
             prepared = {}
             available_slots = spec.judge_calls_total - result["judge_slots_used"]
@@ -1319,6 +1327,9 @@ def run_flow(target, spec, config_root, output_root, approval_sha256, *, worker=
     result["status"] = "STOPPED" if result["stop_reason"] else "COMPLETED"
     result["role_reached"] = {r: sum(t["roles"][r] != "NOT_EXECUTED" for t in result["trials"]) for r in ROLES}
     result["quality_assessment"] = "REVIEW_REQUIRED"
+    # Separate from COMPLETED/STOPPED: did the product fail exactly as declared?
+    statuses = [t.get("product_expectation", {}).get("status", "NOT_EVALUATED") for t in result["trials"]]
+    result["product_expectation"] = {status: statuses.count(status) for status in sorted(set(statuses))}
     result["comparison"] = {
         "method": "STRUCTURED_AND_TEXT_FINGERPRINT_NOT_SEMANTIC_EQUIVALENCE",
         "same_wrong_not_ruled_out": True,

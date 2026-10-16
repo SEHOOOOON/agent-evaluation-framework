@@ -1250,3 +1250,29 @@ def test_generation_output_cap_default_and_explicit_historical_value():
     root = Path(__file__).resolve().parents[1] / "benchmarks/v2"
     for name in ("full_flow.imp001-recheck.json", "full_flow.imp002-recheck.json", "full_flow.three-call-pilot.json"):
         assert FlowSpec.model_validate_json((root / name).read_text(encoding="utf-8")).generation_max_output_tokens == 12000
+
+
+@pytest.mark.parametrize("declared", [False, True])
+def test_product_expectation_is_recorded_separately_from_completion(flow_setup, declared):
+    """Option B (2026-10-16). The test-double worker writes no verified
+    assertion records, so a declaration can only be UNVERIFIED here; the
+    classification itself is covered in test_product_expectations.py."""
+    from eval_harness.product_expectations import ExpectedMismatch
+    mismatches = [ExpectedMismatch(field="setTemp", expected=20, actual=19, reason="제품 미변경")] if declared else []
+    spec = flow_setup[2].model_copy(update={"expected_product_mismatches": mismatches})
+    root, result = execute(flow_setup, worker_for("product_fail"), spec)
+    assert result["status"] == "COMPLETED"       # completion meaning is unchanged
+    status = "UNVERIFIED" if declared else "NOT_DECLARED"
+    assert result["trials"][0]["product_expectation"]["status"] == status
+    assert result["product_expectation"] == {status: 1}
+
+
+def test_declared_mismatches_are_bound_to_the_approval_hash(flow_setup):
+    from eval_harness.product_expectations import ExpectedMismatch
+    target, config_root, spec = flow_setup[0], flow_setup[1], flow_setup[2]
+    declared = spec.model_copy(update={"expected_product_mismatches": [
+        ExpectedMismatch(field="setTemp", expected=20, actual=19, reason="제품 미변경")]})
+    changed = spec.model_copy(update={"expected_product_mismatches": [
+        ExpectedMismatch(field="setTemp", expected=20, actual=18, reason="제품 미변경")]})
+    hashes = {make_preview(target, s, config_root)["approval_sha256"] for s in (spec, declared, changed)}
+    assert len(hashes) == 3

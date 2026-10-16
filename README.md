@@ -144,6 +144,8 @@ python -m eval_harness full-flow --target ../qa-agent-pipeline-v2 --spec benchma
 
 예시는 1회 리허설 명세입니다. P1 호출 최대 10회(생성·CP 재작성·근거 검토 합산), 별도 역할 평가 최대 4회이며 이 명령 자체는 전송하지 않습니다. 실제 전송·비용 승인 후 같은 명령에 `--execute --approval-sha256 PREVIEW_HASH`를 붙입니다. P1 요청당 출력 최대 24,000토큰(full-flow-0.16부터 기본값, 이전 명세에 적힌 12,000은 그대로 적용), 평가 요청당 최대 6,000토큰이며 SDK 자동 재시도는 0입니다. 기존 명세의 `generation` 예산 필드에 근거 검토도 합산하며 프로젝트 1의 제한된 CP 재작성 정책은 유지합니다.
 
+제품이 아직 요청대로 바뀌지 않아 **실패가 나와야 정상**인 확인은 명세의 `expected_product_mismatches`에 미리 적습니다(예: `setTemp` 기대 20 → 실제 19). 결과의 `product_expectation`이 `AS_EXPECTED`면 예상대로 실패를 잡은 것이고, `NOT_AS_EXPECTED`면 그 확인이 빠졌거나 예상 밖 결과입니다. [자세히](docs/11_RELIABILITY_EVALUATION_PLAN.md#완주-성공-정의--b안-채택-2026-10-15-작성-2026-10-16-사용자-결정구현)
+
 실행 기록은 `evaluation-runs/FLOW-.../`에 저장합니다. 5회 시험은 별도 명세와 예산 승인이 필요합니다. [전체 실행 사용법과 한계](docs/11_RELIABILITY_EVALUATION_PLAN.md#10-전체-실행-연결기-사용법)를 먼저 확인하세요.
 
 최대 3회 제한 명세는 `full_flow.three-call-pilot.json`입니다. 생성·재작성·근거 검토 합산 최대 3회, Judge 0회로 전체 상한을 유지합니다. 이 한도로 전체 단계 완료를 보장하지 않습니다. 해당 파일로 바꿔 Preview를 확인할 수 있지만 새 실행에는 새 사용자 승인이 필요합니다. 이전 3회 승인을 재사용하지 않습니다.

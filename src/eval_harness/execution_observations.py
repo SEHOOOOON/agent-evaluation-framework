@@ -57,8 +57,11 @@ def matches(assertion, actual):
     raise ValueError("Unsupported legacy observation comparison")
 
 
-def compare(case, plan, log, *, run_id, outcome):
-    """Grade only complete, interpretable product-assertion records."""
+def compare(case, plan, log, *, run_id, outcome, sink=None):
+    """Grade only complete, interpretable product-assertion records.
+
+    ``sink`` receives the records only when they fully verify (PASS).
+    """
     try:
         events = [json.loads(line[len(OBSERVED):]) for line in log.splitlines() if line.startswith(OBSERVED)]
         ends = [json.loads(line[len(COMPLETE):]) for line in log.splitlines() if line.startswith(COMPLETE)]
@@ -101,13 +104,19 @@ def compare(case, plan, log, *, run_id, outcome):
             return judgment("REVIEW", "본시험 관찰은 있으나 준비·복원·실행 중단 결과는 별도 검토 필요")
         if (outcome == "PASS") != all(matched):
             return judgment("FAIL", "실제 관찰의 기대값 일치 여부와 시험 결과가 다름")
+        if sink is not None:
+            sink[:] = events
         return judgment("PASS", "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님")
     except (ValueError, KeyError, TypeError, AttributeError):
         return judgment("REVIEW", "관찰 형식 또는 비교 방식이 지원되지 않아 독립 대조 보류")
 
 
-def grade_run(run):
-    """Verify the saved handoff chain before interpreting assertion records."""
+def grade_run(run, observations=None):
+    """Verify the saved handoff chain before interpreting assertion records.
+
+    ``observations`` (optional dict) receives each TC's verified records, the
+    final execution's when it exists, otherwise the candidate trial's.
+    """
     evidence = []
 
     def verified(base, name, expected):
@@ -162,7 +171,9 @@ def grade_run(run):
                 if manifest.get("trial_evidence_sha256", {}).get(name) != expected:
                     raise ValueError("Conflicting log references")
                 path = verified(folder / "evidence" / case["tc_id"], name, expected)
-                results.append(compare(case, plan, path.read_text(encoding="utf-8"), run_id=run.name, outcome=trial["outcome"]))
+                trial_events, final_events = [], None
+                results.append(compare(case, plan, path.read_text(encoding="utf-8"), run_id=run.name,
+                                       outcome=trial["outcome"], sink=trial_events))
                 # Candidate trial and final execution can have different logs.
                 # Keep confirmed earlier violations, but never substitute an old
                 # passing trial for missing or inconsistent final observations.
@@ -184,7 +195,11 @@ def grade_run(run):
                     status = {"PASS": "PASSED", "PRODUCT_MISMATCH_CANDIDATE": "ASSERTION_FAILED"}.get(outcome)
                     if status and row.get("status") != status:
                         raise ValueError("Conflicting final execution status")
-                    results.append(compare(case, plan, path.read_text(encoding="utf-8"), run_id=run.name, outcome=outcome))
+                    final_events = []
+                    results.append(compare(case, plan, path.read_text(encoding="utf-8"), run_id=run.name,
+                                           outcome=outcome, sink=final_events))
+                if observations is not None:
+                    observations[case["tc_id"]] = trial_events if final_events is None else final_events
             except (OSError, ValueError, KeyError, TypeError, AttributeError):
                 results.append(judgment("REVIEW", "후보의 연결 자료가 부족하거나 해시 불일치; 다른 후보의 확인된 위반은 보존"))
         verdict = "FAIL" if any(r["verdict"] == "FAIL" for r in results) else "REVIEW" if any(r["verdict"] == "REVIEW" for r in results) else "PASS"

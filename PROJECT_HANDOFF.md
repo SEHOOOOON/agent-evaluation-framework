@@ -1,5 +1,11 @@
 # 프로젝트 2 현재 상태
 
+## 2026-10-16 · 완주 판정 B안 구현 (예상된 제품 불일치 사전 기재)
+
+- 사용자 결정: B안. 명세의 `expected_product_mismatches`에 "실패해야 정상"인 값을 적으면(예: `setTemp` 기대 20 → 실제 19), 실행 후 검증된 관찰 기록과 대조해 `product_expectation`(AS_EXPECTED / NOT_AS_EXPECTED / UNVERIFIED / NOT_DECLARED)을 남긴다. full-flow-0.18. [IMP-010](improvements/IMP-010-expected-product-mismatch.md)
+- 기존 COMPLETED/STOPPED·점수·과거 결과는 바꾸지 않았다. 검증일 2026-10-16 KST(로컬): P2 전체 996 PASS / 4 SKIP(Windows 전용) / 1 FAIL(형제 포폴 저장소 없음, 환경).
+- 다음(PC): 10-15 실행의 관찰 기록으로 `AS_EXPECTED`가 나오는지 저장 자료 재검사, 다음 실제 실행 명세에 기대 불일치 기재.
+
 ## 2026-10-15 · 실행 명령 고정·채점 대기 시간·로그 예산·범위 변경 규칙 (클라우드 작업, API 없음)
 
 - 작업 위치: 클라우드 컨테이너. P2 브랜치 `claude/fixes-20261015-u58dgi`(이 세션 지정), P1 브랜치 `claude/fixes-20261015`. 유료 API 호출 0회, main 병합·배포·포폴 수정 없음.
