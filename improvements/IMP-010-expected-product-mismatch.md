@@ -11,6 +11,7 @@
 | 수정일 / 검증일 | 수정 전 내용 | 수정 후 내용 | 수정 후 정상 여부·근거 | 부작용·남은 확인 |
 |---|---|---|---|---|
 | 2026-10-16 / 2026-10-16 로컬 | 제품이 요청 전이라 올바른 냉방 TC는 항상 `PRODUCT_MISMATCH_CANDIDATE`(FAIL). `COMPLETED`는 끝까지 실행됐다는 뜻뿐이라 ① 실패를 맞게 잡음 ② 냉방 확인이 빠짐 ③ 예상 밖 통과를 구분하지 못함 | `product_expectations.py`(product-expectation-1.0), FlowSpec `expected_product_mismatches`, 회차·전체 `product_expectation`(AS_EXPECTED / NOT_AS_EXPECTED / UNVERIFIED / NOT_DECLARED). 관찰 기록은 A3-03이 완전히 검증한 경우만 사용(`compare`의 sink). full-flow-0.18 | 합성 기록으로 ①=AS_EXPECTED, ②·③=NOT_AS_EXPECTED, 적지 않은 불일치 보고, 검증 실패=UNVERIFIED, 미기재=NOT_DECLARED. 실행기에 결과 칸 기록, 승인 해시 결합 시험. P2 전체 996 PASS / 4 SKIP / 1 FAIL(형제 포폴 저장소 없음) | 실제 저장 실행으로 미검증. ②와 ③은 구분하지 않음. 기존 COMPLETED·점수·과거 결과 불변. 예상 목록을 잘못 적으면 판정도 틀림 |
+| 2026-10-16 저장 자료 재검사 (PC) | 위 판정은 합성 기록으로만 확인됨 | 코드 변경 없음. 같은 실행의 P1 Run(RUN-20261015-110609-8E2600, 압축을 임시 폴더에 풀어 사용)으로 `grade_run` + `classify` 실행, 기대 불일치 `setTemp` 20→19(제품 미변경) | `A3-03 PASS`, `AS_EXPECTED`. `where`: TC-CAND-001/ER-001·ER-002·ER-003(냉방 감소 후 패널·카드·내부값) — 예상과 같음 | 실제 새 실행에서의 명세 기재·판정은 미검증 |
 
 ## 문제와 영향
 

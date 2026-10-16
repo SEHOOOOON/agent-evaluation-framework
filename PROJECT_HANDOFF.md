@@ -5,6 +5,7 @@
 - 사용자 결정: B안. 명세의 `expected_product_mismatches`에 "실패해야 정상"인 값을 적으면(예: `setTemp` 기대 20 → 실제 19), 실행 후 검증된 관찰 기록과 대조해 `product_expectation`(AS_EXPECTED / NOT_AS_EXPECTED / UNVERIFIED / NOT_DECLARED)을 남긴다. full-flow-0.18. [IMP-010](improvements/IMP-010-expected-product-mismatch.md)
 - 기존 COMPLETED/STOPPED·점수·과거 결과는 바꾸지 않았다. 검증일 2026-10-16 KST(로컬): P2 전체 996 PASS / 4 SKIP(Windows 전용) / 1 FAIL(형제 포폴 저장소 없음, 환경).
 - 다음(PC): 10-15 실행의 관찰 기록으로 `AS_EXPECTED`가 나오는지 저장 자료 재검사, 다음 실제 실행 명세에 기대 불일치 기재.
+- PC 확인(2026-10-16 KST, 저장 자료 재검사·로컬): `claude-fix-20261015`에서 P1 `bf02cf5`·P2 `11d50bb` fast-forward, `pip install -e`로 full-flow-0.18 확인. P2 1001 PASS(0 SKIP). P1 3245 PASS / 1 FAIL(`test_agent3.py::test_compiled_device_selection_checks_effect_not_just_handler[correct]` Playwright 클릭 300ms 시간 초과, P2 시험과 동시 실행 중 발생, 단독 3회 재실행 모두 통과) / 0 SKIP. 10-15 실제 TC 범위 정답지 대조: FAIL 3/5, COOL20·COOL31 MISSING 확인, **T-5 질문 항목은 생성되지 않음**(TC에 전환 조작 없음 — IMP-009). B안: A3-03 PASS·AS_EXPECTED(IMP-010).
 
 ## 2026-10-15 · 실행 명령 고정·채점 대기 시간·로그 예산·범위 변경 규칙 (클라우드 작업, API 없음)
 
