@@ -4,183 +4,190 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>QA Agent Pipeline · 프로젝트1</title>
-<meta name="description" content="변경 요청 분석부터 TC 설계·자동화 실행·보고·사람 승인까지 연결한 QA 에이전트 파이프라인.">
+<meta name="description" content="변경 요청 분석부터 TC 설계·자동화 실행·보고·사람 승인까지 연결한 QA 에이전트 파이프라인 케이스 스터디.">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="t-p1">
 <a class="skip" href="#main">본문 바로가기</a>
 <header class="top"><div class="wrap">
-  <a class="brand" href="index.html">OH SEHOON<small>QA Engineer</small></a>
+  <a class="brand" href="index.html">OH SEHOON <span>·</span> QA</a>
   <nav class="nav" aria-label="페이지 이동">
     <a href="index.html">메인</a><a href="project1.html" aria-current="page">프로젝트1</a><a href="project2.html">프로젝트2</a><a href="project2-report.html">평가 근거</a>
   </nav>
 </div></header>
 
 <main id="main">
-<div class="hero"><div class="wrap">
-  <p class="eyebrow">Project 01 · QA Agent Pipeline</p>
-  <h1>변경 요청에서 승인까지,<br><em>같은 기준으로</em> 처리하기</h1>
-  <p class="lead">요구사항이 바뀔 때마다 반복하던 영향 분석·TC 작성·시험·보고를 AI 에이전트 4개로 나눠 자동화했습니다. 각 단계 결과는 프로그램 검사와 AI 검토를 통과해야 다음 단계로 넘어가고, 공식 TC 등록은 사람이 결정합니다.</p>
-  <div class="actions">
-    <a class="btn primary" href="#cases">실행 사례 보기</a>
-    <a class="btn" href="#demo">60초 영상</a>
-    <a class="btn" href="https://github.com/SEHOOOOON/qa-agent-pipeline-v2">GitHub</a>
-  </div>
-  <div class="figures" aria-label="요약 수치">
-    <div class="fig"><b>4 + 4</b><span>에이전트 4개 · 단계별 Checkpoint 4개</span><small>마지막 등록은 사람 승인</small></div>
-    <div class="fig"><b>2건</b><span>실제 AI로 요청부터 보고까지 완주</span><small>10-09 전원 · 10-15 온도 범위</small></div>
-    <div class="fig"><b>100/100</b><span>로컬 반복 20종 상황 × 5회 예상 처리 일치</span><small>화면 시험 65회 모두 복원 확인 · API 없음</small></div>
-    <div class="fig"><b>3,249개</b><span>파이프라인 자체 회귀검사</span><small>제품 TC 수가 아닌 내부 검사</small></div>
-  </div>
+<div class="cs-hero"><div class="wrap">
+  <p class="crumb"><a href="index.html">메인</a> / 프로젝트1</p>
+  <span class="label">Case study · QA Agent Pipeline</span>
+  <h1>변경 요청에서 승인까지,<br><em>같은 기준</em>으로 처리하는 QA 에이전트</h1>
+  <p class="sub">요구사항이 바뀔 때마다 반복하던 영향 분석·TC 작성·시험·보고를 AI 에이전트 4개로 나눴습니다. 단계마다 검사를 통과해야 다음으로 넘어가고, 공식 TC 등록은 사람이 결정합니다.</p>
+  <dl class="tldr">
+    <div><dt>무엇을</dt><dd>변경 요청 → 분석 → TC 설계 → 자동화 실행 → 보고 → 사람 승인</dd></div>
+    <div><dt>내 역할</dt><dd>기획, 검증 기준·시나리오 설계, AI 코딩 도구로 구현·검증</dd></div>
+    <div><dt>결과</dt><dd>실제 AI 전체 실행 2건 완주, 제품 불일치·정보 부족 구분 보고</dd></div>
+    <div><dt>도구</dt><dd>Python · Playwright · Pytest · OpenAI API · Slack · Notion</dd></div>
+  </dl>
 </div></div>
 
-<section id="why"><div class="wrap">
-  <div class="sec-head">
-    <div><span class="num">01 · BACKGROUND</span><h2>실무의 반복 업무에서 출발했습니다</h2></div>
-    <p>중앙제어 시스템을 검증하며 요구사항이 바뀔 때마다 같은 일을 반복했습니다. 판단은 사람이 하되, 반복되는 조작과 기록은 맡길 수 있는지 확인하고 싶었습니다.</p>
-  </div>
-  <div class="grid-3">
-    <div class="card"><span class="tag">문제 1</span><h3>담당자마다 시험 범위가 다름</h3><p class="muted">같은 요구사항이라도 어떤 경계값·회귀 TC를 넣을지 사람마다 달랐습니다.</p></div>
-    <div class="card"><span class="tag">문제 2</span><h3>AI는 근거 없는 기대값을 만듦</h3><p class="muted">예: "자동 모드 18~30°C"를 AI가 16~30°C로 바꿔 쓰면, 이후 TC와 시험이 모두 틀린 기준으로 진행됩니다.</p></div>
-    <div class="card"><span class="tag">문제 3</span><h3>모호한 TC가 끝까지 전파됨</h3><p class="muted">설계 단계의 모호함이 자동화와 보고까지 이어지면, 실패 원인을 제품 탓으로 오해하게 됩니다.</p></div>
-  </div>
-  <p class="dim" style="margin-top:16px">실제 회사 자료 대신 직접 만든 가상 중앙제어 제품과 예시 요구사항을 사용했습니다. 기획·검증 기준·시나리오 설계를 맡고, AI 코딩 도구를 활용해 구현했습니다.</p>
-</div></section>
+<div class="wrap cs">
+  <nav class="toc" aria-label="목차">
+    <p>CONTENTS</p>
+    <ol>
+      <li><a href="#problem">문제</a></li>
+      <li><a href="#approach">접근</a></li>
+      <li><a href="#decisions">설계 결정</a></li>
+      <li><a href="#artifacts">QA 산출물</a></li>
+      <li><a href="#results">실행 결과</a></li>
+      <li><a href="#learned">발견한 한계</a></li>
+      <li><a href="#demo">시연 영상</a></li>
+      <li><a href="#scope">확인 범위</a></li>
+    </ol>
+  </nav>
 
-<section id="flow"><div class="wrap">
-  <div class="sec-head">
-    <div><span class="num">02 · FLOW</span><h2>분석 → 설계 → 실행 → 보고 → 사람 판단</h2></div>
-    <p>입력은 변경 요청, 기존 요구사항(SRS), 기존 TC입니다. 각 단계는 앞 단계가 정한 기준을 다시 쓰지 않고 그대로 전달받습니다.</p>
-  </div>
-  <div class="flow">
-    <div class="step"><span class="who">AGENT 1 · AI</span><h3>요구사항 분석</h3><p>요청을 SRS와 대조해 바뀌는 조건·유지할 조건·정보 부족을 나눕니다.</p><div class="cp">CP1 · 원문 값과 분석 값 대조</div></div>
-    <div class="step"><span class="who">AGENT 2 · AI</span><h3>TC 설계</h3><p>기존 TC로 충분한지 비교하고, 부족한 시험만 새 TC로 작성합니다.</p><div class="cp">CP2 · 근거·절차·기대결과 검토</div></div>
-    <div class="step"><span class="who">AGENT 3 · AI + 프로그램</span><h3>자동화 실행</h3><p>TC를 화면 요소에 연결하고, 검증된 계획만 Playwright 코드로 변환해 시험 후 원래 상태로 복원합니다.</p><div class="cp">CP3 · TC와 실행 계획 일치</div></div>
-    <div class="step"><span class="who">AGENT 4 · 규칙 기반</span><h3>결과 보고</h3><p>제품 불일치·자동화 문제·환경 문제·근거 부족·미실행으로 분류해 보고합니다.</p><div class="cp">CP4 · 집계·근거·보고값 일치</div></div>
-  </div>
-  <div class="flow-end"><b>사람 판단</b> · 결과와 기존 TC를 비교해 SRS 개정, TC 추가·대체, 미등록, 보류를 선택합니다. 자동 검사 통과는 등록 승인이 아닙니다.</div>
-  <details>
-    <summary>단계가 멈추는 경우</summary>
-    <ul class="checklist">
-      <li><b>핵심 정보가 없으면</b> 추측하지 않고 질문을 남긴 채 다음 단계로 넘어가지 않습니다.</li>
-      <li><b>고칠 수 있는 오류</b>는 검사 결과를 AI에 보내 정해진 횟수 안에서 다시 쓰고, 재검사를 통과해야 진행합니다.</li>
-      <li><b>자동화할 수 없는 TC</b>는 비슷한 기능으로 대신하지 않고 제외 사유와 함께 보고합니다.</li>
-      <li><b>실행하지 않은 항목</b>은 PASS로 세지 않습니다.</li>
-    </ul>
-  </details>
-</div></section>
+  <article class="article">
+    <section id="problem">
+      <span class="label">01 · Problem</span>
+      <h2>판단보다 조작과 기록에 시간이 더 들었습니다</h2>
+      <p class="lede">중앙제어 시스템을 검증하며, 요구사항이 바뀔 때마다 기존 TC에서 영향받는 부분을 찾고, 시험을 추가하고, 결과를 정리하는 일을 반복했습니다.</p>
+      <p>반복 작업을 AI에 맡기되, 변경의 타당성과 결과 판단은 사람에게 남길 수 있는지 확인하고 싶었습니다. 다만 AI에 맡기면 새 문제가 생깁니다.</p>
+      <div class="cards-2">
+        <div class="mini"><span class="pill bad">위험</span><h4>근거 없는 기대값</h4><p>"자동 모드 18~30°C"를 AI가 16~30°C로 바꿔 쓰면 이후 TC와 시험이 모두 틀린 기준으로 진행됩니다.</p></div>
+        <div class="mini"><span class="pill bad">위험</span><h4>모호함의 전파</h4><p>설계 단계의 모호한 TC가 자동화와 보고까지 이어지면, 실패 원인을 제품 탓으로 오해하게 됩니다.</p></div>
+      </div>
+      <p class="muted small">회사 자료 대신 직접 만든 가상 중앙제어 제품과 예시 요구사항을 사용했습니다.</p>
+    </section>
 
-<section id="cases"><div class="wrap">
-  <div class="sec-head">
-    <div><span class="num">03 · CASES</span><h2>실행 사례</h2></div>
-    <p>저장된 실행 기록입니다. "시험이 통과했다"보다 "어떤 결과를 어떻게 구분했는가"를 보여 주는 사례를 골랐습니다.</p>
-  </div>
-  <div class="card" style="margin-bottom:16px">
-    <span class="tag">실제 AI 전체 실행 · 2026-10-15</span>
-    <h3>온도 범위 변경: 냉방 하한 16°C → 20°C, 난방 16~30°C 유지</h3>
-    <p class="muted">새로 만든 요청으로 분석부터 보고까지 실제 AI로 실행했습니다. Checkpoint 1~4를 재작성 없이 통과했고, 시험 대상 제품은 아직 요청대로 바뀌지 않은 상태였습니다.</p>
-    <div class="table-wrap"><table>
-      <thead><tr><th scope="col">시험</th><th scope="col">관찰</th><th scope="col">보고</th></tr></thead>
-      <tbody>
-        <tr><td>냉방 20°C에서 내림</td><td>19°C로 내려감 (기대 20°C 유지)</td><td><span class="pill warn">제품 불일치 후보</span><span class="dim">제품이 변경 전이므로 예상된 결과</span></td></tr>
-        <tr><td>냉방 30°C 적용</td><td>30°C 확인 항목 3개(ER-004~006) 모두 일치</td><td><span class="pill ok">통과</span></td></tr>
-        <tr><td>난방 17°C → 16°C</td><td>16°C 적용</td><td><span class="pill ok">통과</span></td></tr>
-      </tbody>
-    </table></div>
-    <div class="result">이 실행의 TC를 사람이 다시 확인해 <b>필수 시험 3개가 빠진 것</b>을 찾았습니다. 아래 "4. 사람이 찾은 한계"와 <a href="project2.html#story">프로젝트2</a>에서 이어집니다.</div>
-  </div>
-  <div class="grid-3">
-    <div class="card"><span class="tag">정상 · 재사용</span><h3>중풍 표시 변경</h3><p class="muted">새 TC 1개와 기존 강풍 TC 1개, 환경 점검 1개를 함께 실행했습니다.</p><div class="result"><span class="pill ok">3건 통과</span> 사람 승인 후 SRS 반영·공식 TC 등록</div></div>
-    <div class="card"><span class="tag">제품 불일치</span><h3>잠금 상태의 온도 버튼</h3><p class="muted">잠금 상태인데 온도 버튼이 활성 상태였습니다. 기대값을 제품에 맞춰 바꾸지 않았습니다.</p><div class="result"><span class="pill warn">1건 불일치</span> 3건 통과 · 제품 확인 요청으로 보고</div></div>
-    <div class="card"><span class="tag">정보 부족</span><h3>알림 색상이 정해지지 않은 요청</h3><p class="muted">확정된 범위만 시험하고, 정해지지 않은 색상은 추측하지 않았습니다.</p><div class="result"><span class="pill info">사람 검토</span> 3건 통과 · 미정 조건 1건 질문</div></div>
-  </div>
-</div></section>
+    <section id="approach">
+      <span class="label">02 · Approach</span>
+      <h2>단계마다 관문을 둔 파이프라인</h2>
+      <p>입력은 변경 요청, 기존 요구사항(SRS), 기존 TC입니다. 각 단계는 앞 단계가 정한 기준을 다시 쓰지 않고 그대로 전달받습니다.</p>
+      <ol class="steps">
+        <li><b>Agent 1 · 요구사항 분석 (AI)</b><span>요청을 SRS와 대조해 바뀌는 조건, 유지할 조건, 정보 부족을 나눕니다.</span><em class="gate">CP1 · 원문 값과 분석 값 대조</em></li>
+        <li><b>Agent 2 · TC 설계 (AI)</b><span>기존 TC로 충분한지 비교하고, 부족한 시험만 새 TC로 작성합니다.</span><em class="gate">CP2 · 근거·절차·기대결과 검토</em></li>
+        <li><b>Agent 3 · 자동화 실행 (AI + 프로그램)</b><span>TC를 화면 요소에 연결하고, 검증된 계획만 Playwright 코드로 변환해 시험한 뒤 원래 상태로 복원합니다.</span><em class="gate">CP3 · TC와 실행 계획 일치</em></li>
+        <li><b>Agent 4 · 결과 보고 (규칙 기반)</b><span>제품 불일치·자동화 문제·환경 문제·근거 부족·미실행으로 분류해 Slack·Notion으로 보고합니다.</span><em class="gate">CP4 · 집계·근거·보고값 일치</em></li>
+        <li><b>사람 승인</b><span>결과와 기존 TC를 비교해 SRS 개정, TC 추가·대체, 미등록, 보류를 선택합니다.</span></li>
+      </ol>
+    </section>
 
-<section id="lessons"><div class="wrap">
-  <div class="sec-head">
-    <div><span class="num">04 · LIMITS FOUND</span><h2>사람이 찾은 한계와 보완</h2></div>
-    <p>자동 검토를 통과한 결과도 사람이 다시 보면 빠진 것이 있었습니다. 발견한 문제는 사례별 예외가 아니라 공통 규칙으로 고쳤습니다.</p>
-  </div>
-  <div class="grid-2">
-    <div class="card">
-      <span class="tag">2026-10-15 발견</span>
-      <h3>범위 변경 요청의 필수 시험 누락</h3>
-      <p class="muted">위 온도 실행의 TC는 AI 검토(CP2)를 통과했지만 세 가지가 빠져 있었습니다.</p>
+    <section id="decisions">
+      <span class="label">03 · Decisions</span>
+      <h2>설계하면서 정한 네 가지</h2>
+      <h3>1. AI가 판단할 것과 프로그램이 전달할 것을 나눴습니다</h3>
+      <p>처음에는 단계마다 양식을 자세히 주면 일관될 거라 기대했지만, 같은 요구사항을 단계마다 다르게 해석했습니다. 그래서 이미 정한 원문과 시험 내용은 프로그램이 그대로 넘기고, AI는 새 판단이 필요한 부분만 맡게 했습니다.</p>
+      <h3>2. 실행하지 않은 것은 통과로 세지 않습니다</h3>
+      <p>핵심 정보가 없으면 질문을 남기고 멈춥니다. 자동화할 수 없는 TC는 비슷한 기능으로 대신하지 않고 제외 사유와 함께 보고합니다.</p>
+      <h3>3. 시험 후에는 시험 전 상태로 되돌렸는지 확인합니다</h3>
+      <p>상태를 바꾸는 시험은 준비 전 값을 기록하고, 끝난 뒤 화면과 내부값이 돌아왔는지 비교합니다. 복원에 실패하면 이후 실행을 멈춥니다.</p>
+      <h3>4. 공식 등록은 사람이 결정합니다</h3>
+      <p>자동 검사 통과는 등록 조건의 하나일 뿐입니다. 사람이 검토서에서 SRS 개정과 TC 등록 여부를 고릅니다.</p>
+    </section>
+
+    <section id="artifacts">
+      <span class="label">04 · Artifacts</span>
+      <h2>실제로 만들어진 QA 산출물</h2>
+      <p>에이전트가 만든 TC와 결과 검토서의 일부입니다. 사람이 승인해 공식 등록한 TC와, 제품 불일치를 보고한 실행의 기록입니다.</p>
+      <div class="artifact">
+        <header><span>TC-V2-001 · 공식 등록 TC</span><span>승인 2026-08-30 · 검토자 오세훈</span></header>
+        <div class="body">
+          <dl>
+            <dt>제목</dt><dd>단일 허용 장비 HIGH 풍량 적용 시 강풍 카드 라벨 및 fanSpeed HIGH 유지</dd>
+            <dt>사전조건</dt><dd>오류·잠금이 없는 단일 장비, 첫 실행 기본 상태인 LOW 풍량 확인</dd>
+            <dt>절차</dt><dd>중앙 관제 패널에서 대상 장비에 HIGH 풍량을 선택하고 적용</dd>
+            <dt>기대결과</dt><dd>
+              <div class="er"><code>ER-001</code><span>대상 장비 카드에 강풍이 표시된다</span><span class="pill info">UI</span></div>
+              <div class="er"><code>ER-002</code><span>대상 장비의 내부 fanSpeed는 HIGH이다</span><span class="pill info">내부값</span></div>
+            </dd>
+            <dt>복원</dt><dd>시험 뒤 LOW 풍량으로 복원하고 적용</dd>
+          </dl>
+        </div>
+      </div>
+      <p class="muted small">화면 라벨과 내부값을 서로 다른 관찰 계층에서 함께 확인하도록 설계했습니다.</p>
+      <div class="artifact">
+        <header><span>사람 최종 검토서 · FIND-001</span><span>RUN-20260827-114925-507176</span></header>
+        <div class="body">
+          <dl>
+            <dt>분류</dt><dd><span class="pill warn">제품 동작 불일치 후보</span> 결함 확정이 아니며 사람이 판정</dd>
+            <dt>요구사항</dt><dd>REQ-LOCK-001 · 잠금 설정 시 온도 버튼 비활성화</dd>
+            <dt>관찰</dt><dd>
+              <div class="er"><code>ER-001</code><span>온도 내림 버튼 enabled=True</span><span class="pill bad">불일치</span></div>
+              <div class="er"><code>ER-002</code><span>온도 올림 버튼 enabled=True</span><span class="pill bad">불일치</span></div>
+              <div class="er"><code>ER-003</code><span>내부 locked=true</span><span class="pill ok">일치</span></div>
+            </dd>
+            <dt>사람 판정</dt><dd>제품 수정 필요 / 요구사항 수정 / 자동화 재검토 / 환경 보완 / 종결 중 선택</dd>
+          </dl>
+        </div>
+      </div>
+    </section>
+
+    <section id="results">
+      <span class="label">05 · Results</span>
+      <h2>실행 결과</h2>
+      <div class="stats">
+        <div class="stat"><b>2건</b><span>실제 AI로 요청부터 보고까지 완주</span><small>2026-10-09 전원 · 10-15 온도 범위</small></div>
+        <div class="stat"><b>100/100</b><span>준비한 20종 상황 × 5회 예상 처리 일치</span><small>로컬 반복 · API 호출 없음</small></div>
+        <div class="stat"><b>65/65</b><span>화면 시험 뒤 복원 확인</span><small>위 100회 중 제품 화면 시험</small></div>
+        <div class="stat"><b>3,249개</b><span>파이프라인 자체 회귀검사</span><small>제품 TC 수가 아닌 내부 검사</small></div>
+      </div>
+      <h3>대표 사례 · 2026-10-15 온도 범위 변경 (실제 AI 실행)</h3>
+      <p>"냉방은 20°C 아래로 내려가지 않게, 난방은 16~30°C 유지" 요청입니다. Checkpoint 1~4를 재작성 없이 통과했고, 시험 대상 제품은 아직 요청대로 바뀌지 않은 상태였습니다.</p>
+      <div class="table"><table>
+        <thead><tr><th scope="col">시험</th><th scope="col">관찰</th><th scope="col">보고</th></tr></thead>
+        <tbody>
+          <tr><td>냉방 20°C에서 내림</td><td>19°C로 내려감 (기대: 20°C 유지)</td><td><span class="pill warn">불일치 후보</span><small>제품 변경 전이라 예상된 결과</small></td></tr>
+          <tr><td>냉방 30°C 적용</td><td>확인 항목 3개(ER-004~006) 일치</td><td><span class="pill ok">통과</span></td></tr>
+          <tr><td>난방 17°C → 16°C</td><td>16°C 적용</td><td><span class="pill ok">통과</span></td></tr>
+        </tbody>
+      </table></div>
+      <h3>저장된 이전 실행</h3>
+      <div class="cards-2">
+        <div class="mini"><span class="pill ok">3건 통과</span><h4>중풍 표시 변경</h4><p>새 TC 1 + 기존 강풍 TC 1 + 환경 점검 1. 사람 승인 후 SRS 반영·공식 TC 등록.</p></div>
+        <div class="mini"><span class="pill warn">1건 불일치</span><h4>잠금 상태의 온도 버튼</h4><p>잠금인데 버튼이 활성. 기대값을 제품에 맞춰 바꾸지 않고 불일치 후보로 보고.</p></div>
+        <div class="mini"><span class="pill info">사람 검토</span><h4>알림 색상이 미정인 요청</h4><p>확정 범위만 시험(3건 통과)하고 정해지지 않은 색상은 질문으로 남김.</p></div>
+        <div class="mini"><span class="pill ok">재사용</span><h4>등록된 TC 재실행</h4><p>공식 등록한 강풍 TC를 다음 요청에서 다시 실행하고 복원까지 확인.</p></div>
+      </div>
+    </section>
+
+    <section id="learned">
+      <span class="label">06 · What I found</span>
+      <h2>자동 검토를 통과해도 빠진 것이 있었습니다</h2>
+      <p>10-15 실행의 TC는 AI 검토(CP2)를 통과했지만, 사람이 다시 보니 필수 시험 세 가지가 빠져 있었습니다.</p>
       <ul>
-        <li>냉방 31°C 차단 시험 없음 (새 상한 바로 위)</li>
+        <li>냉방 31°C 차단 시험 없음 (새 상한 바로 위 값)</li>
         <li>냉방 20°C 적용을 준비 단계에서만 하고 기대결과 없음</li>
         <li>난방 17°C에서 냉방으로 바꿀 때의 동작을 질문하지 않음</li>
       </ul>
-      <div class="result"><b>보완</b> · 사람이 확정한 범위 변경 규칙(적용·차단 경계, 전환 질문 등)을 TC 작성·검토 지침에 추가. 새 실행에만 적용하고 과거 기록은 그대로 둠. <span class="dim">실제 AI가 규칙을 지키는지는 아직 확인 전</span></div>
-    </div>
-    <div class="card">
-      <span class="tag">2026-10-16 보완</span>
-      <h3>실패한 TC 안의 통과 항목이 "미확인"으로 표시됨</h3>
-      <p class="muted">냉방 TC 하나가 실패하면, 같은 TC 안에서 통과한 30°C 확인까지 사람 검토서에 "개별 판정 미확인"으로 남았습니다. 평가 AI가 이 보고 부족을 지적했습니다.</p>
-      <div class="result"><b>보완</b> · 실행 로그의 기대결과별 관찰 기록을 읽어 "통과(관찰값 30)" / "불일치(관찰값 19)"로 나눠 표시. 기록이 없는 항목만 미확인으로 둠. <span class="dim">로컬 시험 확인</span></div>
-    </div>
-  </div>
-</div></section>
+      <div class="note"><b>보완</b> · 사람이 확정한 범위 변경 규칙(바뀐 경계는 적용·차단을 각각 시험, 범위 밖 값의 전환 동작이 미정이면 질문 등)을 TC 작성·검토 지침에 추가했습니다. 새 실행에만 적용하고 과거 기록은 바꾸지 않았습니다. 이 규칙을 AI가 실제로 지키는지는 다음 실행에서 확인합니다. 누락을 숫자로 확인한 과정은 <a href="project2.html#case">프로젝트2</a>에 있습니다.</div>
+      <p>같은 실행에서 보고서 문제도 찾았습니다. 냉방 TC가 실패하자, 같은 TC 안에서 통과한 30°C 확인까지 검토서에 "개별 판정 미확인"으로 남았습니다. 지금은 실행 로그의 항목별 관찰 기록을 읽어 "통과(관찰값 30)" / "불일치(관찰값 19)"로 나눠 표시합니다.</p>
+    </section>
 
-<section id="demo"><div class="wrap">
-  <div class="sec-head">
-    <div><span class="num">05 · DEMO</span><h2>60초로 보는 세 가지 결과</h2></div>
-    <p>정상 시험과 등록, 제품 불일치 보고, 정보 부족 시 부분 진행을 각 20초씩 보여 줍니다.</p>
-  </div>
-  <div class="media">
-    <video controls preload="none" poster="assets/p1-demo-poster.png">
-      <source src="assets/p1-demo-60s.mp4" type="video/mp4">
-    </video>
-    <div>
-      <ul class="checklist">
-        <li><b>00:00</b> 정상 시험 → 사람 승인 후 SRS 반영·공식 TC 등록</li>
-        <li><b>00:20</b> 잠금 시험 실패 → 제품 불일치 후보 보고</li>
-        <li><b>00:40</b> 색상 미정 → 확정 범위만 시험하고 사람 검토</li>
-      </ul>
-      <p class="dim" style="margin-top:12px">2026년 8~9월 저장 실행을 10월 9일에 편집한 영상입니다. 최신 코드로 새로 촬영한 것은 아닙니다.</p>
-    </div>
-  </div>
-</div></section>
+    <section id="demo">
+      <span class="label">07 · Demo</span>
+      <h2>60초로 보는 세 가지 결과</h2>
+      <div class="video"><video controls preload="none" poster="assets/p1-demo-poster.png"><source src="assets/p1-demo-60s.mp4" type="video/mp4"></video></div>
+      <p class="muted small">00:00 정상 시험 → 사람 승인 후 등록 · 00:20 잠금 시험 실패 → 불일치 후보 보고 · 00:40 색상 미정 → 확정 범위만 시험. 2026년 8~9월 저장 실행을 10월 9일에 편집한 영상입니다.</p>
+    </section>
 
-<section id="limits"><div class="wrap">
-  <div class="sec-head">
-    <div><span class="num">06 · SCOPE</span><h2>확인한 것과 아직 확인하지 않은 것</h2></div>
-    <p>반복 작업을 연결하는 것과, 새 요청을 믿고 맡길 수 있는 것은 다른 문제였습니다.</p>
-  </div>
-  <div class="grid-2">
-    <div class="card"><span class="tag">확인함</span>
-      <ul>
-        <li>가상 제품에서 조작·관찰값 기록·복원·보고를 한 흐름으로 수행</li>
-        <li>실제 AI 전체 실행 2건 완주, 제품 불일치와 정보 부족을 구분해 보고</li>
-        <li>준비한 20종 상황 × 5회에서 예상 처리 100% 일치 (AI 새 판단 아님)</li>
-      </ul>
-    </div>
-    <div class="card"><span class="tag">아직 확인 전</span>
-      <ul>
-        <li>같은 요청을 여러 번 새로 실행했을 때 AI 판단이 일관되는지</li>
-        <li>추가한 범위 변경 규칙이 실제 AI 실행에서 누락을 막는지</li>
-        <li>실제 제품·장비 환경에서의 동작</li>
-      </ul>
-    </div>
-  </div>
-  <p class="dim" style="margin-top:16px">다음 단계는 코드·기준·입력을 고정한 뒤 같은 조건으로 5회 실행해 일관성을 확인하는 것입니다. 평가 방법은 <a href="project2.html">프로젝트2</a>에 있습니다.</p>
-</div></section>
-
-<section id="evidence" style="border-bottom:0"><div class="wrap">
-  <div class="sec-head">
-    <div><span class="num">07 · EVIDENCE</span><h2>근거 자료</h2></div>
-    <p>공개 저장소의 원본 파일입니다.</p>
-  </div>
-  <div class="grid-3">
-    <a class="card link-card" href="https://github.com/SEHOOOOON/qa-agent-pipeline-v2/blob/3691587/README.md"><span class="tag">Start</span><h3>프로젝트 소개·실행 방법</h3><span class="more">README ↗</span></a>
-    <a class="card link-card" href="https://github.com/SEHOOOOON/qa-agent-pipeline-v2/tree/3691587/examples/results/agent1-agent2-agent3-agent4-medium-fan"><span class="tag">Pass</span><h3>중풍 변경 실행 결과</h3><span class="more">공개 결과 ↗</span></a>
-    <a class="card link-card" href="https://github.com/SEHOOOOON/qa-agent-pipeline-v2/tree/3691587/examples/results/agent1-agent2-agent3-agent4-lock-disable"><span class="tag">Mismatch</span><h3>잠금 불일치 실행 결과</h3><span class="more">공개 결과 ↗</span></a>
-    <a class="card link-card" href="https://github.com/SEHOOOOON/qa-agent-pipeline-v2/tree/3691587/examples/results/agent1-agent2-agent3-agent4-partial-information"><span class="tag">Partial</span><h3>정보 부족 부분 진행</h3><span class="more">실행·판단 근거 ↗</span></a>
-    <a class="card link-card" href="https://github.com/SEHOOOOON/qa-agent-pipeline-v2/blob/3691587/PROJECT_HANDOFF.md"><span class="tag">History</span><h3>수정·검증 기록</h3><span class="more">인계 문서 ↗</span></a>
-    <a class="card link-card" href="https://github.com/SEHOOOOON/qa-agent-pipeline-v2/tree/3691587/tests"><span class="tag">Tests</span><h3>파이프라인 회귀검사 코드</h3><span class="more">tests ↗</span></a>
-  </div>
-  <div class="pager"><a href="index.html">← 메인</a><a href="project2.html">프로젝트2 · 에이전트 결과 검증 →</a></div>
-</div></section>
+    <section id="scope">
+      <span class="label">08 · Scope</span>
+      <h2>확인한 것과 아직 확인하지 않은 것</h2>
+      <div class="cards-2">
+        <div class="mini"><span class="pill ok">확인함</span><ul><li>가상 제품에서 조작·관찰·복원·보고를 한 흐름으로 수행</li><li>실제 AI 전체 실행 2건 완주</li><li>준비한 상황에서 예상 처리 100% 일치</li></ul></div>
+        <div class="mini"><span class="pill warn">확인 전</span><ul><li>같은 요청을 반복 실행했을 때 AI 판단의 일관성</li><li>추가한 규칙이 실제 실행에서 누락을 막는지</li><li>실제 제품·장비 환경에서의 동작</li></ul></div>
+      </div>
+      <p>다음 단계는 코드·기준·입력을 고정하고 같은 조건으로 5회 실행해 일관성을 보는 것입니다.</p>
+      <div class="links">
+        <a href="https://github.com/SEHOOOOON/qa-agent-pipeline-v2/blob/3691587/README.md">프로젝트 소개·실행 방법<span>README ↗</span></a>
+        <a href="https://github.com/SEHOOOOON/qa-agent-pipeline-v2/blob/3691587/approved_assets/test_cases/TC-V2-001.json">공식 등록 TC 원문<span>TC-V2-001 ↗</span></a>
+        <a href="https://github.com/SEHOOOOON/qa-agent-pipeline-v2/tree/3691587/examples/results/agent1-agent2-agent3-agent4-lock-disable">잠금 불일치 실행 결과<span>공개 결과 ↗</span></a>
+        <a href="https://github.com/SEHOOOOON/qa-agent-pipeline-v2/blob/3691587/PROJECT_HANDOFF.md">수정·검증 기록<span>인계 문서 ↗</span></a>
+      </div>
+      <div class="next"><a href="index.html">← 메인</a><a href="project2.html">프로젝트2 · 에이전트 결과 검증 →</a></div>
+    </section>
+  </article>
+</div>
 </main>
 <footer><div class="wrap"><span>© 2026 OH SEHOON · Project 01</span><span>수치 기준일 2026-10-16 · 코드 3691587</span></div></footer>
 </body>

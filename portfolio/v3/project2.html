@@ -4,145 +4,140 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Agent Evaluation · 프로젝트2</title>
-<meta name="description" content="QA 에이전트의 분석·설계·실행·보고를 사람·프로그램·AI 기준으로 다시 검증한 평가 프로젝트.">
+<meta name="description" content="QA 에이전트의 결과를 사람·프로그램·AI 기준으로 다시 검증한 평가 프로젝트 케이스 스터디.">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="t-p2">
 <a class="skip" href="#main">본문 바로가기</a>
 <header class="top"><div class="wrap">
-  <a class="brand" href="index.html">OH SEHOON<small>QA Engineer</small></a>
+  <a class="brand" href="index.html">OH SEHOON <span>·</span> QA</a>
   <nav class="nav" aria-label="페이지 이동">
     <a href="index.html">메인</a><a href="project1.html">프로젝트1</a><a href="project2.html" aria-current="page">프로젝트2</a><a href="project2-report.html">평가 근거</a>
   </nav>
 </div></header>
 
 <main id="main">
-<div class="hero"><div class="wrap">
-  <p class="eyebrow">Project 02 · Agent Evaluation</p>
+<div class="cs-hero"><div class="wrap">
+  <p class="crumb"><a href="index.html">메인</a> / 프로젝트2</p>
+  <span class="label">Case study · Agent Evaluation</span>
   <h1>AI가 통과시킨 결과도<br><em>다시 검증합니다</em></h1>
-  <p class="lead">프로젝트1을 실무에 쓰려면 한 번의 성공보다, 여러 요청에서 같은 기준을 지키는지가 중요하다고 봤습니다. 에이전트의 분석·설계·실행·보고를 역할별로 평가하고, 제품 문제·에이전트의 검사 누락·평가 AI의 오판을 구분합니다.</p>
-  <div class="actions">
-    <a class="btn primary" href="#story">핵심 사례 보기</a>
-    <a class="btn" href="project2-report.html">평가 근거</a>
-  </div>
-  <div class="figures" aria-label="요약 수치">
-    <div class="fig"><b>26개</b><span>평가 기준</span><small>역할별 20 · 공통 2 · 단계 연결 4</small></div>
-    <div class="fig"><b>3 / 6</b><span>AI가 통과시킨 TC의 필수 시험 충족 수</span><small>사람 기준을 코드 대조로 옮긴 결과 · FAIL</small></div>
-    <div class="fig"><b>4건</b><span>평가 과정에서 찾아 고친 평가 도구·P1 문제</span><small>입력 누락·로그 잘림·보고 부족 등</small></div>
-    <div class="fig"><b>19 / 20</b><span>한 실행에서 AI 채점이 준 5점 비율</span><small>점수 변별력 부족 · 보완 과제</small></div>
-  </div>
+  <p class="sub">프로젝트1을 실무에 쓰려면 한 번의 성공보다 여러 요청에서 같은 기준을 지키는지가 중요합니다. 에이전트의 결과를 역할별로 평가하고, 제품 문제·에이전트의 검사 누락·평가 AI의 오판을 구분했습니다.</p>
+  <dl class="tldr">
+    <div><dt>무엇을</dt><dd>프로젝트1의 분석·설계·실행·보고를 26개 기준으로 평가</dd></div>
+    <div><dt>내 역할</dt><dd>평가 기준 설계, 산출물 수집·대조, 평가 오류 분석</dd></div>
+    <div><dt>핵심 결과</dt><dd>AI가 통과시킨 TC의 필수 시험 누락 3개를 규칙·코드 대조로 재현</dd></div>
+    <div><dt>도구</dt><dd>Python · Pydantic · OpenAI API · FastAPI 대시보드</dd></div>
+  </dl>
 </div></div>
 
-<section id="why"><div class="wrap">
-  <div class="sec-head">
-    <div><span class="num">01 · WHY</span><h2>PASS·FAIL만으로는 알 수 없는 것</h2></div>
-    <p>실무에서도 테스트 결과뿐 아니라 "요구사항에 맞는 검사를 했는지", "실패 근거가 충분한지"를 함께 봤습니다.</p>
-  </div>
-  <div class="grid-3">
-    <div class="card"><span class="tag">구분 1</span><h3>제품이 틀린 경우</h3><p class="muted">예: 하한 16°C인데 15°C로 내려감. 이를 찾아낸 에이전트는 잘한 것이므로 감점하지 않습니다.</p></div>
-    <div class="card"><span class="tag">구분 2</span><h3>에이전트가 검사를 빠뜨린 경우</h3><p class="muted">예: 상한 바로 위 값의 차단 시험이 없음. 시험이 모두 통과해도 문제입니다.</p></div>
-    <div class="card"><span class="tag">구분 3</span><h3>평가 AI가 잘못 판단한 경우</h3><p class="muted">예: 복원 기록이 있는데 평가 입력에서 빠져 낮은 점수. 점수를 믿고 정상 시험을 고칠 뻔했습니다.</p></div>
-  </div>
-</div></section>
+<div class="wrap cs">
+  <nav class="toc" aria-label="목차">
+    <p>CONTENTS</p>
+    <ol>
+      <li><a href="#why">왜 필요했나</a></li>
+      <li><a href="#method">평가 방법</a></li>
+      <li><a href="#case">핵심 사례</a></li>
+      <li><a href="#findings">찾아 고친 것</a></li>
+      <li><a href="#scores">AI 채점 결과</a></li>
+      <li><a href="#next">한계와 다음</a></li>
+    </ol>
+  </nav>
 
-<section id="method"><div class="wrap">
-  <div class="sec-head">
-    <div><span class="num">02 · METHOD</span><h2>누가 무엇을 판단하는가</h2></div>
-    <p>값·개수·연결처럼 계산할 수 있는 것은 프로그램이, 의미 판단은 AI가, 정답 기준은 사람이 정합니다.</p>
-  </div>
-  <div class="flow">
-    <div class="step"><span class="who">1 · 수집</span><h3>P1 실행 기록</h3><p>요청·SRS·분석·TC·실행 로그·복원·보고를 해시와 함께 모읍니다.</p></div>
-    <div class="step"><span class="who">2 · 프로그램</span><h3>값과 연결 대조</h3><p>집계 수, 기대값, 증거 연결을 계산으로 확인합니다. (4개 기준)</p></div>
-    <div class="step"><span class="who">3 · AI</span><h3>의미 검토</h3><p>요청과 산출물의 의미를 근거 번호를 인용해 평가합니다. (12개 기준, 혼합 10개)</p></div>
-    <div class="step"><span class="who">4 · 사람</span><h3>정답과 대조</h3><p>사람이 확정한 기준과 평가 결과를 비교해 오판과 누락을 찾습니다.</p></div>
-  </div>
-  <div class="flow-end">평가할 근거가 부족하면 점수를 주지 않고 <b>판단 보류</b>로 남깁니다. 실행되지 않은 단계는 PASS로 세지 않습니다.</div>
-</div></section>
+  <article class="article">
+    <section id="why">
+      <span class="label">01 · Why</span>
+      <h2>PASS·FAIL만으로는 알 수 없는 것</h2>
+      <p class="lede">실무에서도 테스트 결과뿐 아니라 "요구사항에 맞는 검사를 했는지", "실패 근거가 충분한지"를 함께 봤습니다. 에이전트의 결과도 같은 눈으로 봐야 했습니다.</p>
+      <div class="table"><table>
+        <thead><tr><th scope="col">상황</th><th scope="col">예시</th><th scope="col">평가</th></tr></thead>
+        <tbody>
+          <tr><td>제품이 틀림</td><td>하한 16°C인데 15°C로 내려감</td><td><span class="pill ok">찾아냄 = 잘함</span><small>감점하지 않음</small></td></tr>
+          <tr><td>에이전트가 검사를 빠뜨림</td><td>상한 바로 위 값의 차단 시험이 없음</td><td><span class="pill bad">누락</span><small>시험이 전부 통과해도 문제</small></td></tr>
+          <tr><td>평가 AI가 잘못 판단</td><td>복원 기록이 평가 입력에서 빠져 낮은 점수</td><td><span class="pill warn">평가 오류</span><small>P1이 아니라 평가 도구를 고침</small></td></tr>
+        </tbody>
+      </table></div>
+    </section>
 
-<section id="story"><div class="wrap">
-  <div class="sec-head">
-    <div><span class="num">03 · KEY CASE</span><h2>AI 검토와 AI 채점이 모두 통과시킨 TC</h2></div>
-    <p>2026-10-15 온도 범위 변경 요청(냉방 20~30°C, 난방 16~30°C 유지)의 실제 실행입니다. 자동 검토만 믿었다면 놓쳤을 누락을 사람이 찾았습니다.</p>
-  </div>
-  <div class="story">
-    <div class="card"><h3>자동 검토 통과</h3><p>P1 AI 검토(CP2) PASS, P2 AI 채점 TC 설계 5점</p></div>
-    <div class="card"><h3>사람 대조</h3><p>냉방 31°C 차단 없음, 20°C 적용 기대결과 없음, 모드 전환 질문 없음</p></div>
-    <div class="card"><h3>규칙으로 확정</h3><p>"바뀐 경계는 적용·차단을 각각 시험" 같은 규칙을 값 없이 정리해 P1 지침과 P2 정답지에 같은 문장으로 반영</p></div>
-    <div class="card"><h3>코드로 재현</h3><p>규칙으로 필수 시험 목록을 만들고 실제 TC와 대조해 같은 누락을 숫자로 확인</p></div>
-  </div>
-  <div class="table-wrap" style="margin-top:20px"><table>
-    <caption class="dim" style="caption-side:bottom;text-align:left;padding:10px 16px">실제 저장 TC를 규칙 기반 정답지(range-oracle)로 대조한 결과 · 2026-10-16 저장 자료 재검사 · 필수 3/6 → FAIL</caption>
-    <thead><tr><th scope="col">필수 시험</th><th scope="col">규칙</th><th scope="col">실제 TC</th></tr></thead>
-    <tbody>
-      <tr><td>냉방 20°C 적용 확인</td><td>바뀐 하한 적용</td><td><span class="pill bad">MISSING</span><span class="dim">준비 단계에서만 설정, 기대결과 없음</span></td></tr>
-      <tr><td>냉방 30°C 적용 확인</td><td>상한 적용</td><td><span class="pill ok">MET</span></td></tr>
-      <tr><td>냉방 19°C 차단 확인</td><td>하한 바로 아래 차단</td><td><span class="pill ok">MET</span></td></tr>
-      <tr><td>냉방 31°C 차단 확인</td><td>상한 바로 위 차단</td><td><span class="pill bad">MISSING</span></td></tr>
-      <tr><td>난방 17°C → 16°C 적용</td><td>요청에 적힌 시험</td><td><span class="pill ok">MET</span></td></tr>
-      <tr><td>난방 17°C에서 냉방 전환 시 처리 질문</td><td>범위 밖 값의 전환 동작이 미정이면 질문</td><td><span class="pill bad">MISSING</span></td></tr>
-    </tbody>
-  </table></div>
-  <div class="callout warn" style="margin-top:16px"><b>의미</b> · AI 채점 5점은 "초안 기준으로 감점 사유를 찾지 못함"이지 "사람 기준으로도 맞음"이 아니었습니다. 그래서 의미 판단은 AI에 맡기되, 계산할 수 있는 필수 조건은 코드로 따로 확인하도록 바꿨습니다. 규칙 반영 후 AI가 실제로 누락을 막는지는 다음 실행에서 확인합니다.</div>
-</div></section>
+    <section id="method">
+      <span class="label">02 · Method</span>
+      <h2>누가 무엇을 판단하는가</h2>
+      <p>계산할 수 있는 것은 프로그램이, 의미 판단은 AI가, 정답 기준은 사람이 정합니다. 근거가 부족하면 점수를 주지 않고 판단을 보류합니다.</p>
+      <ol class="steps">
+        <li><b>수집</b><span>요청·SRS·분석·TC·실행 로그·복원·보고를 원본 해시와 함께 모읍니다.</span></li>
+        <li><b>프로그램 대조</b><span>집계 수, 기대값, 증거 연결처럼 계산으로 확인할 수 있는 기준을 봅니다.</span><em class="gate">프로그램 4 · 혼합 10</em></li>
+        <li><b>AI 의미 검토</b><span>요청과 산출물의 의미를, 근거 번호를 인용하게 해서 평가합니다.</span><em class="gate">AI 12 · 혼합 10</em></li>
+        <li><b>사람 대조</b><span>사람이 확정한 기준과 비교해 평가 AI의 오판과 놓친 누락을 찾습니다.</span></li>
+      </ol>
+      <p class="muted small">기준은 역할별 20개(분석 4 · 설계 8 · 실행 4 · 보고 4), 공통 2개, 단계 연결 4개입니다. 전체 목록은 <a href="project2-report.html#criteria">평가 근거</a>에 있습니다.</p>
+    </section>
 
-<section id="fixes"><div class="wrap">
-  <div class="sec-head">
-    <div><span class="num">04 · FINDINGS</span><h2>평가하면서 찾아 고친 것</h2></div>
-    <p>평가 도구 자체의 문제와 P1의 문제를 구분해 기록했습니다. 원래 점수와 실패 기록은 지우지 않고 보존합니다.</p>
-  </div>
-  <div class="table-wrap"><table>
-    <thead><tr><th scope="col">발견</th><th scope="col">원인</th><th scope="col">보완과 결과</th></tr></thead>
-    <tbody>
-      <tr><td>복원한 시험이 낮은 점수<span class="dim">평가 AI 오판</span></td><td>복원 기록이 평가 입력에서 빠짐</td><td>기록 전달 후 같은 사례 재평가: 복원 항목 3점 → 5점<span class="dim">P1 성능 향상이 아닌 평가 입력 보완</span></td></tr>
-      <tr><td>실패 로그 근거 부족으로 판단 보류<span class="dim">평가 도구</span></td><td>큰 로그가 통째로 제외됨</td><td>해시 확인 후 끝부분을 포함하도록 수정: 두 항목 보류 → 5점</td></tr>
-      <tr><td>보고서의 통과 항목이 "미확인"<span class="dim">P1 보고 부족</span></td><td>실패 TC 안의 개별 결과를 읽지 않음</td><td>평가 AI가 지적(5점 → 4점) → P1 검토서가 항목별 관찰값을 표시하도록 수정</td></tr>
-      <tr><td>필수 시험 누락을 통과<span class="dim">P1 + 평가 기준</span></td><td>범위 변경의 필수 시험 기준이 없음</td><td>사람 확정 규칙을 지침·정답지·코드 대조에 반영 (위 사례)</td></tr>
-    </tbody>
-  </table></div>
-</div></section>
+    <section id="case">
+      <span class="label">03 · Key case</span>
+      <h2>AI 검토와 AI 채점이 모두 통과시킨 TC</h2>
+      <p class="lede">2026-10-15 온도 범위 변경 요청(냉방 20~30°C, 난방 16~30°C 유지)의 실제 실행입니다. 자동 검토만 믿었다면 놓쳤을 누락을 사람이 찾았습니다.</p>
+      <ol class="steps">
+        <li><b>자동 검토 통과</b><span>P1 근거 검토(CP2) PASS, P2 AI 채점 TC 설계 5점.</span></li>
+        <li><b>사람 대조</b><span>냉방 31°C 차단 없음, 20°C 적용의 기대결과 없음, 모드 전환 질문 없음.</span></li>
+        <li><b>규칙으로 확정</b><span>"바뀐 경계는 적용과 차단을 각각 시험" 같은 규칙을 값 없이 정리해 P1 지침과 P2 정답지에 같은 문장으로 넣었습니다.</span></li>
+        <li><b>코드로 재현</b><span>요청에서 옮긴 범위 값에 규칙을 적용해 필수 시험 목록을 만들고, 실제 TC의 조작·확인 순서와 대조했습니다.</span></li>
+      </ol>
+      <div class="table"><table>
+        <caption>실제 저장 TC를 규칙 기반 정답지로 대조 · 2026-10-16 저장 자료 재검사 · 새 AI 호출 없음</caption>
+        <thead><tr><th scope="col">필수 시험</th><th scope="col">규칙</th><th scope="col">실제 TC</th></tr></thead>
+        <tbody>
+          <tr><td>냉방 20°C 적용</td><td>바뀐 하한 적용</td><td><span class="pill bad">MISSING</span><small>준비 단계에서만 설정</small></td></tr>
+          <tr><td>냉방 30°C 적용</td><td>상한 적용</td><td><span class="pill ok">MET</span></td></tr>
+          <tr><td>냉방 19°C 차단</td><td>하한 바로 아래</td><td><span class="pill ok">MET</span></td></tr>
+          <tr><td>냉방 31°C 차단</td><td>상한 바로 위</td><td><span class="pill bad">MISSING</span></td></tr>
+          <tr><td>난방 17°C → 16°C</td><td>요청에 적힌 시험</td><td><span class="pill ok">MET</span></td></tr>
+          <tr><td>난방 17°C → 냉방 전환 질문</td><td>범위 밖 값의 전환 동작 미정</td><td><span class="pill bad">MISSING</span></td></tr>
+        </tbody>
+      </table></div>
+      <div class="note warn"><b>필수 3 / 6 → FAIL.</b> 사람이 찾은 누락 3개가 그대로 나왔습니다. AI 채점의 5점은 "초안 기준으로 감점 사유를 못 찾음"이었지 "사람 기준으로 맞음"이 아니었습니다. 그래서 의미 판단은 AI에 맡기되, 계산할 수 있는 필수 조건은 코드로 따로 확인하도록 바꿨습니다.</div>
+    </section>
 
-<section id="results"><div class="wrap">
-  <div class="sec-head">
-    <div><span class="num">05 · RESULTS</span><h2>사례별 AI 채점 결과</h2></div>
-    <p>저장된 6개 사례입니다. 사례마다 입력·시점·평가 범위가 달라 평균이나 순위로 묶지 않았습니다.</p>
-  </div>
-  <div class="table-wrap"><table>
-    <thead><tr><th scope="col">사례</th><th scope="col">판단</th><th scope="col">AI 채점 · 5점 만점</th></tr></thead>
-    <tbody>
-      <tr><td>전원 정상 동작<span class="dim">새 P1 실행 · 네 역할</span></td><td>시험·복원·보고가 연결됨<span class="dim">26개 중 21개 평가 · 연결 4개 미확정</span></td><td><span class="score">각 5.0</span></td></tr>
-      <tr><td>온도 하한 불일치<span class="dim">로컬 제품 시험</span></td><td>16°C 아래로 내려가는 제품 차이를 찾음</td><td><span class="score">5.0</span><span class="dim">실행 역할</span></td></tr>
-      <tr><td>정보 부족으로 보류<span class="dim">저장된 분석</span></td><td>미정 온도를 추측하지 않고 질문함</td><td><span class="score">5.0</span><span class="dim">분석 역할</span></td></tr>
-      <tr><td>기존 강풍 TC 재사용<span class="dim">저장된 설계·실행</span></td><td>재사용은 적절, 복원 확인 설명 부족</td><td><span class="score">4.75</span><span class="dim">설계 역할</span></td></tr>
-      <tr><td>필수 검사 누락<span class="dim">일부러 망가뜨린 사본</span></td><td>내부값 검사 누락과 근거 없는 완료 주장 지적</td><td><span class="score">2.33</span><span class="dim">실행 역할</span></td></tr>
-      <tr><td>전원 정상 동작<span class="dim">저장된 AI TC</span></td><td>TC에 적힌 검사를 수행함</td><td><span class="score">5.0</span><span class="dim">실행 역할</span></td></tr>
-    </tbody>
-  </table></div>
-  <p class="dim" style="margin-top:12px">채점 기준은 사람 확정 전 초안입니다. 3장 사례처럼 5점이 사람 기준의 정답을 뜻하지 않을 수 있어, 점수보다 판단 이유와 사람 대조 결과를 함께 봅니다.</p>
-</div></section>
+    <section id="findings">
+      <span class="label">04 · Findings</span>
+      <h2>평가하면서 찾아 고친 것</h2>
+      <p>평가 도구의 문제와 P1의 문제를 나눠 기록했습니다. 원래 점수와 실패 기록은 지우지 않고 보존합니다.</p>
+      <div class="cards-2">
+        <div class="mini"><span class="pill warn">평가 AI 오판</span><h4>복원했는데 낮은 점수</h4><p>복원 기록이 평가 입력에서 빠져 있었습니다. 기록을 전달하고 같은 사례를 재평가해 3점 → 5점. P1 성능이 오른 게 아니라 평가 입력을 고친 것입니다.</p></div>
+        <div class="mini"><span class="pill warn">평가 도구</span><h4>큰 실패 로그가 통째로 빠짐</h4><p>로그가 크기 한도를 넘으면 근거에서 제외되어 판단 보류가 났습니다. 해시 확인 뒤 끝부분을 포함하게 해 두 항목 보류 → 5점.</p></div>
+        <div class="mini"><span class="pill bad">P1 보고 부족</span><h4>통과한 항목이 "미확인"</h4><p>평가 AI가 지적(5점 → 4점)한 내용을 확인해, P1 검토서가 항목별 관찰값을 표시하도록 고쳤습니다.</p></div>
+        <div class="mini"><span class="pill bad">P1 + 평가 기준</span><h4>필수 시험 누락 통과</h4><p>범위 변경의 필수 시험 기준이 없었습니다. 위 사례처럼 규칙·정답지·코드 대조로 보완했습니다.</p></div>
+      </div>
+    </section>
 
-<section id="next" style="border-bottom:0"><div class="wrap">
-  <div class="sec-head">
-    <div><span class="num">06 · NEXT</span><h2>한계와 다음 단계</h2></div>
-    <p>지금은 사례별 차이를 확인한 단계입니다.</p>
-  </div>
-  <div class="grid-2">
-    <div class="card"><span class="tag">한계</span>
-      <ul>
-        <li>같은 조건의 새 AI 반복 실행이 아직 없어 일관성은 측정 전</li>
-        <li>정답 기준·채점 기준 일부가 사람 확정 전 초안</li>
-        <li>AI 채점 점수가 5점에 몰려 변별력이 낮음</li>
-      </ul>
-    </div>
-    <div class="card"><span class="tag">다음</span>
-      <ul>
-        <li>사람이 정답 기준을 확정하고 코드·기준·입력 버전을 고정</li>
-        <li>같은 조건으로 전체 흐름 5회 실행해 역할별 결과 비교</li>
-        <li>사람 판단과 AI 채점의 일치율 측정</li>
-      </ul>
-    </div>
-  </div>
-  <div class="pager"><a href="project1.html">← 프로젝트1</a><a href="project2-report.html">평가 근거 자세히 →</a></div>
-</div></section>
+    <section id="scores">
+      <span class="label">05 · Scores</span>
+      <h2>사례별 AI 채점 결과</h2>
+      <p>저장된 6개 사례입니다. 사례마다 입력·시점·평가 범위가 달라 평균이나 순위로 묶지 않았습니다. 채점 기준은 사람 확정 전 초안입니다.</p>
+      <div class="table"><table>
+        <thead><tr><th scope="col">사례</th><th scope="col">판단</th><th scope="col">AI 채점</th></tr></thead>
+        <tbody>
+          <tr><td>전원 정상 동작<small>새 P1 실행 · 네 역할</small></td><td>시험·복원·보고가 연결됨<small>26개 중 21개 평가 · 연결 4개 미확정</small></td><td class="n">각 5.0</td></tr>
+          <tr><td>온도 하한 불일치<small>로컬 제품 시험</small></td><td>16°C 아래로 내려가는 차이를 찾음</td><td class="n">5.0</td></tr>
+          <tr><td>정보 부족으로 보류<small>저장된 분석</small></td><td>미정 온도를 추측하지 않고 질문</td><td class="n">5.0</td></tr>
+          <tr><td>전원 정상 동작<small>저장된 AI TC</small></td><td>TC에 적힌 검사를 수행</td><td class="n">5.0</td></tr>
+          <tr><td>기존 강풍 TC 재사용<small>저장된 설계·실행</small></td><td>재사용은 적절, 복원 확인 설명 부족</td><td class="n">4.75</td></tr>
+          <tr><td>필수 검사 누락<small>오류를 넣은 사본</small></td><td>내부값 검사 누락과 근거 없는 완료 주장 지적</td><td class="n">2.33</td></tr>
+        </tbody>
+      </table></div>
+      <div class="note">한 실행에서 AI 채점 20개 중 19개가 5점이었습니다. <b>점수 변별력이 낮다는 것 자체가 발견</b>이며, 그래서 점수보다 판단 이유와 사람 대조 결과를 함께 봅니다.</div>
+    </section>
+
+    <section id="next">
+      <span class="label">06 · Next</span>
+      <h2>한계와 다음 단계</h2>
+      <div class="cards-2">
+        <div class="mini"><span class="pill warn">한계</span><ul><li>같은 조건의 새 AI 반복 실행이 아직 없어 일관성은 측정 전</li><li>정답 기준·채점 기준 일부가 사람 확정 전 초안</li><li>AI 채점이 5점에 몰림</li></ul></div>
+        <div class="mini"><span class="pill info">다음</span><ul><li>사람이 정답 기준을 확정하고 코드·기준·입력 버전 고정</li><li>같은 조건으로 전체 흐름 5회 실행</li><li>사람 판단과 AI 채점의 일치율 측정</li></ul></div>
+      </div>
+      <div class="next"><a href="project1.html">← 프로젝트1</a><a href="project2-report.html">평가 근거 자세히 →</a></div>
+    </section>
+  </article>
+</div>
 </main>
 <footer><div class="wrap"><span>© 2026 OH SEHOON · Project 02</span><span>수치 기준일 2026-10-16</span></div></footer>
 </body>
