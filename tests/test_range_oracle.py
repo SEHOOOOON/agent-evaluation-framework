@@ -69,7 +69,8 @@ def correct_design():
     verifications = (checks("ACT-004", 20, er=1) + checks("ACT-006", 20, er=4)
                      + checks("ACT-008", 30, er=7) + checks("ACT-010", 30, er=10))
     return {"test_cases": [tc("TC-COOL", cool, verifications), heat_tc()],
-            "최종_확인_사항": [], "중단_확인_사항": []}
+            "최종_확인_사항": ["난방 17°C처럼 냉방 범위 밖 온도에서 냉방으로 전환할 때 설정 온도 처리 방식을 확인해 주세요."],
+            "중단_확인_사항": []}
 
 
 def by_id(result):
@@ -93,8 +94,8 @@ def test_synthetic_live_errors_are_all_found():
     assert result["verdict"] == "FAIL"
     assert items["T-2:BLOCK:COOL:31"]["status"] == "MISSING"
     assert items["T-1:APPLY:COOL:20"]["status"] == "MISSING"   # setup-only apply is not a test
-    assert items["T-5:QUESTION:COOL:TC-COOL"]["status"] == "MISSING"
-    assert "HEAT 17 → COOL" in items["T-5:QUESTION:COOL:TC-COOL"]["detail"]
+    assert items["T-5:QUESTION:COOL"]["status"] == "MISSING"
+    assert "HEAT 17 → COOL" in items["T-5:QUESTION:COOL"]["detail"]
     # What the design did cover is credited, not flattened into one failure.
     for met in ("T-2:BLOCK:COOL:19", "T-1:APPLY:COOL:30", "T-4:APPLY:HEAT:16"):
         assert items[met]["status"] == "MET", met
@@ -105,7 +106,7 @@ def test_synthetic_live_errors_are_all_found():
 def test_question_in_confirmation_items_satisfies_t5():
     design = live_like_design()
     design["최종_확인_사항"] = ["난방 17°C 상태에서 냉방으로 전환할 때 설정 온도 처리 방식을 확인해 주세요."]
-    assert by_id(grade(load_key(KEY_PATH), design))["T-5:QUESTION:COOL:TC-COOL"]["status"] == "MET"
+    assert by_id(grade(load_key(KEY_PATH), design))["T-5:QUESTION:COOL"]["status"] == "MET"
 
 
 def test_defined_switch_behavior_needs_no_question():
@@ -116,8 +117,32 @@ def test_defined_switch_behavior_needs_no_question():
 def test_correct_design_passes():
     result = grade(load_key(KEY_PATH), correct_design())
     assert result["verdict"] == "PASS", [i for i in result["items"] if i["status"] != "MET"]
-    assert result["required_met"] == result["required_total"] == 5
+    assert result["required_met"] == result["required_total"] == 6
     assert result["issues"] == []
+
+
+def test_t5_comes_from_the_request_even_without_a_switch_in_the_tc():
+    """Real 10-15 TC set COOL right after device selection (no out-of-range switch)."""
+    design = correct_design()
+    design["최종_확인_사항"] = []
+    result = grade(load_key(KEY_PATH), design)
+    item = by_id(result)["T-5:QUESTION:COOL"]
+    assert item["status"] == "MISSING" and "TC에 해당 전환 없음" in item["detail"] and "HEAT 16~30" in item["detail"]
+    assert result["verdict"] == "FAIL"
+
+
+def test_a1_question_counts_for_t5():
+    design = correct_design()
+    design["최종_확인_사항"] = []
+    analysis = {"user_questions": [{"question": "냉방 하한보다 낮은 온도에서 냉방 모드로 바꾸면 어떻게 처리하나요?"}],
+                "information_gaps": []}
+    assert by_id(grade(load_key(KEY_PATH), design, analysis))["T-5:QUESTION:COOL"]["status"] == "MET"
+
+
+def test_widened_range_needs_no_t5_question():
+    key = load_key(KEY_PATH).model_copy(update={"changed": [RangeKey.model_fields["changed"].annotation.__args__[0](mode="COOL", lower=16, upper=30)],
+                                                "kept": [RangeKey.model_fields["changed"].annotation.__args__[0](mode="HEAT", lower=18, upper=28)]})
+    assert not any(i["rule"] == "T-5" for i in grade(key, correct_design())["items"])
 
 
 def test_missing_internal_value_is_partial_not_met():
@@ -194,6 +219,10 @@ def test_second_key_with_both_bounds_changed_uses_its_own_values():
     verifications = (checks("ACT-003", 18, er=1) + checks("ACT-005", 18, er=4)
                      + checks("ACT-007", 28, er=7) + checks("ACT-009", 28, er=10))
     design = {"test_cases": [tc("TC-HEAT", heat, verifications)]}
+    # The key leaves out-of-range switching into HEAT undefined (COOL 16~30 is wider): ask (T-5).
+    assert by_id(grade(key, design))["T-5:QUESTION:HEAT"]["status"] == "MISSING"
+    design["최종_확인_사항"] = ["난방 18~28°C 밖 온도에서 난방으로 전환할 때의 처리 방식을 확인해 주세요."]
     assert grade(key, design)["verdict"] == "PASS"
-    # The representative COOL design does not satisfy this key.
-    assert grade(key, correct_design())["required_met"] == 0
+    # The representative COOL design does not satisfy this key's boundary tests.
+    assert not any(i["status"] == "MET" for i in grade(key, correct_design())["items"]
+                   if i["rule"] in {"T-1", "T-2"})

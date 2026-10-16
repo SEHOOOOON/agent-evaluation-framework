@@ -166,14 +166,14 @@ python -m eval_harness judge-openai --packet benchmarks/v2/role_packet.example.j
 ### 범위 변경 요청의 규칙 기반 정답지 대조 · API 없음
 
 ```bash
-python -m eval_harness range-oracle --key benchmarks/v2/range_keys/representative-temperature.json --design <Run 폴더>/agent2_test_design.json
+python -m eval_harness range-oracle --key benchmarks/v2/range_keys/representative-temperature.json --design <Run 폴더>/agent2_test_design.json [--analysis <Run 폴더>/agent1_change_analysis.json]
 ```
 
 사람이 요청/SRS에서 옮긴 정답지 키(바뀐 모드·유지 모드의 범위, 요청이 지정한 전환 시험)를 2026-10-15 확정 규칙([TC 정답지](benchmarks/v2/TC_REFERENCE.md))으로 펼쳐 필수·권장 시험 목록을 만들고, A2 `execution_spec`의 조작 순서와 값 확인을 따라가며 대조합니다. 예: 냉방 범위가 20~30°C로 바뀌면 필수는 20 적용·30 적용·19 차단·31 차단, 권장은 유지 모드의 경계 차단입니다. 준비 단계에서만 적용한 값은 시험으로 세지 않고, 패널·카드·내부값 중 하나라도 빠지면 `PARTIAL`입니다. 종료 코드는 PASS 0, FAIL 2, REVIEW 3(한 모드의 경계가 여러 TC로 나뉨), 오류 4입니다.
 
-- 문장 의미와 제품 결과는 판정하지 않습니다. 질문(T-5)은 확인 사항에 해당 모드 이름이 있는지만 봅니다. 대상 장비 일치(C-9)는 P1 실행기가 검사합니다.
+- 문장 의미와 제품 결과는 판정하지 않습니다. 질문(T-5)은 키 기준입니다(range-oracle-1.1): 요청이 전환 동작을 정하지 않았고 유지 모드에 바뀐 모드의 새 범위 밖 값이 있으면 TC에 전환 조작이 없어도 필수 질문 1개를 둡니다. 질문 여부는 A2 확인 사항과 `--analysis`로 준 A1 질문·정보 부족에 해당 모드 이름이 있는지만 봅니다. 대상 장비 일치(C-9)는 P1 실행기가 검사합니다.
 - 대표 온도 키는 `DRAFT`입니다(규칙은 사용자 확정, 값 전사는 사람 검토 전). 전체 흐름 점수표에는 아직 연결하지 않았고 과거 점수를 다시 매기지 않습니다.
-- 시험은 2026-10-15 실행에서 사람이 찾은 오답 3개를 재현한 **합성** 설계로 했습니다. 실제 실행 파일로 확인하지는 않았습니다.
+- 2026-10-16 PC에서 10-15 실제 A2 설계로 확인: FAIL 3/6, 사람이 찾은 오답 3개(냉방 20 적용 ER, 31 차단, 전환 질문) 모두 MISSING. 원본은 압축을 임시 폴더에 풀어 읽기만 했습니다.
 
 ### 모의 반복 및 저장 기록 검사
 

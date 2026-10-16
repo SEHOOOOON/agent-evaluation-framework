@@ -14,7 +14,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-VERSION = "range-oracle-1.0"
+VERSION = "range-oracle-1.1"
 LOCATIONS = ("panel", "card", "internal")
 # Block verdicts are value retention only (T-8); these readers judge something else.
 NON_VALUE_TARGETS = {"notification.toast", "temperature.controls", "temperature.increase",
@@ -159,7 +159,13 @@ def walk_design(design: dict) -> dict[str, list[dict]]:
     return {"probes": probes, "switches": switches}
 
 
-def grade(key: RangeKey, design: dict) -> dict[str, Any]:
+def _out_of_range(changed: ModeRange, kept: list[ModeRange]) -> list[ModeRange]:
+    """Kept modes that allow values outside the changed mode's new range."""
+    return [k for k in kept if k.lower < changed.lower or k.upper > changed.upper]
+
+
+def grade(key: RangeKey, design: dict, analysis: dict | None = None) -> dict[str, Any]:
+    """``analysis`` (optional A1 output) adds its questions/gaps to the T-5 check."""
     walked = walk_design(design)
     probes = walked["probes"]
     items, issues = [], []
@@ -186,14 +192,22 @@ def grade(key: RangeKey, design: dict) -> dict[str, Any]:
         items.append(dict(row, status=status, detail=detail))
     changed = {r.mode: r for r in key.changed}
     if not key.switch_behavior_defined:
-        for s in walked["switches"]:
-            r = changed.get(s["to_mode"])
-            if r and s["temperature"] is not None and not r.lower <= s["temperature"] <= r.upper:
-                asked = _asks_about(design, r.mode)
-                items.append(dict(id=f"T-5:QUESTION:{r.mode}:{s['tc_id']}", rule="T-5", level="REQUIRED",
-                                  kind="QUESTION", mode=r.mode, start=s["temperature"], attempted=None,
-                                  expected=None, status="MET" if asked else "MISSING",
-                                  detail=f"{s['tc_id']} {s['action_id']}: {s['from_mode']} {s['temperature']} → {r.mode}"))
+        # T-5 follows the request, not the TC: a person asked for the question even
+        # when no TC exercises the switch (2026-10-16, option 1).
+        for r in key.changed:
+            sources = _out_of_range(r, key.kept)
+            if not sources:
+                continue
+            seen = [f"{s['tc_id']} {s['action_id']}: {s['from_mode']} {s['temperature']} → {r.mode}"
+                    for s in walked["switches"] if s["to_mode"] == r.mode and s["temperature"] is not None
+                    and not r.lower <= s["temperature"] <= r.upper]
+            asked = _asks_about(design, r.mode, analysis)
+            ranges = ", ".join(f"{k.mode} {k.lower}~{k.upper}" for k in sources)
+            items.append(dict(id=f"T-5:QUESTION:{r.mode}", rule="T-5", level="REQUIRED", kind="QUESTION",
+                              mode=r.mode, start=None, attempted=None, expected=None,
+                              status="MET" if asked else "MISSING",
+                              detail=f"{ranges}에는 {r.mode} {r.lower}~{r.upper} 밖 값이 있음; 전환 동작 미정"
+                                     + (f" (TC 전환: {'; '.join(seen)})" if seen else " (TC에 해당 전환 없음)")))
     for mode in changed:
         boundary = {r["attempted"] for r in items if r["mode"] == mode and r["rule"] in {"T-1", "T-2"}}
         tcs = {p["tc_id"] for p in probes if p["mode"] == mode and p["attempted"] in boundary}
@@ -212,7 +226,7 @@ def grade(key: RangeKey, design: dict) -> dict[str, Any]:
                 verdict=verdict, required_met=met, required_total=len(required),
                 items=items, issues=issues,
                 limitations=["실행 정의(operations/verifications)만 대조하며 문장 의미·제품 결과는 판정하지 않음",
-                             "질문 여부는 확인 사항 문장에 모드 이름이 있는지로만 확인",
+                             "질문 여부는 A2 확인 사항(및 주어진 경우 A1 질문·정보 부족) 문장에 모드 이름이 있는지로만 확인",
                              "대상 장비 일치(C-9)는 P1 실행기가 검사하므로 여기서 다시 보지 않음"])
 
 
@@ -220,11 +234,15 @@ MODE_WORDS = {"COOL": ("COOL", "냉방"), "HEAT": ("HEAT", "난방"), "AUTO": ("
               "DRY": ("DRY", "제습"), "FAN": ("FAN", "송풍")}
 
 
-def _asks_about(design: dict, mode: str) -> bool:
+def _asks_about(design: dict, mode: str, analysis: dict | None = None) -> bool:
     texts = []
-    for field in ("최종_확인_사항", "중단_확인_사항"):
-        for entry in design.get(field) or []:
-            texts.append(json.dumps(entry, ensure_ascii=False) if not isinstance(entry, str) else entry)
+    sources = [(design, ("최종_확인_사항", "중단_확인_사항"))]
+    if analysis:
+        sources.append((analysis, ("user_questions", "information_gaps")))
+    for doc, fields in sources:
+        for field in fields:
+            for entry in doc.get(field) or []:
+                texts.append(json.dumps(entry, ensure_ascii=False) if not isinstance(entry, str) else entry)
     words = MODE_WORDS.get(mode, (mode,))
     return any(any(w in t for w in words) for t in texts)
 
