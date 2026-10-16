@@ -1,5 +1,12 @@
 # 프로젝트 2 현재 상태
 
+## 2026-10-16 (3차) · 포트폴리오 4개 페이지 새 버전 `portfolio/v3/` (사용자 요청, 검토용)
+
+- 사용자 요청: 기존 4개(메인·P1·P2 소개·P2 근거)를 백업하고 새로 작성. 기존 파일은 원래 위치 그대로, 사본은 `portfolio/v3/backup-20261016/`. 메인 원본은 GitHub에 없는 PC `main.html` 대신 V1 `codex/night-review-20261009`의 `index.html`을 백업.
+- 새 페이지는 폴더 안에서만 연결(형제 폴더 링크 제거), 첫 화면 핵심 수치, 최신 사실(실제 전체 실행 2건, 10-15 사례, range-oracle 3/6, 개선 4건), 점수는 "초안 기준 AI 채점" 표시. [README](portfolio/v3/README.md), [IMP-006](improvements/IMP-006-portfolio-evidence-presentation.md).
+- 검증(로컬 브라우저 1440·390px): 오류·가로 넘침 0, 링크·앵커 존재, `tests/test_portfolio_v3.py` 5 PASS.
+- **결정 필요**: ① v3로 교체할지 ② 공개 위치(이 저장소는 비공개) ③ 버전 고정 후 수치 갱신 시점. 외부 게시·기존 페이지 교체는 하지 않음.
+
 ## 2026-10-16 (2차) · 클라우드 후속 작업 7건 (API 없음)
 
 - 작업 위치: 클라우드 컨테이너. P2 브랜치 `claude/fixes-20261015-le3mg5`(a35ec0a에서 이어서 쌓음), P1 브랜치 `claude/fixes-20261015-le3mg5`(bf02cf5에서 이어서 쌓음). 유료 API 0회, main 병합·배포·포폴 HTML 수정 없음. PC 폴더·PC 임시 폴더는 건드리지 않음.

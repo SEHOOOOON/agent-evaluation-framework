@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>오세훈 · QA Engineer</title>
+<meta name="description" content="소프트웨어 QA·데이터 QA 경험과, 요구사항부터 보고까지 연결한 QA 에이전트 개인 프로젝트를 소개합니다.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<a class="skip" href="#main">본문 바로가기</a>
+<header class="top"><div class="wrap">
+  <a class="brand" href="index.html">OH SEHOON<small>QA Engineer</small></a>
+  <nav class="nav" aria-label="페이지 이동">
+    <a href="#experience">경력</a><a href="#projects">프로젝트</a><a href="#principles">원칙</a><a href="#contact">연락처</a>
+  </nav>
+</div></header>
+
+<main id="main">
+<div class="hero"><div class="wrap">
+  <p class="eyebrow">Software QA · Data QA/QC</p>
+  <h1>검증 결과가<br><em>다음 변경의 판단 기준</em>이 되도록.</h1>
+  <p class="lead">요구사항과 기존 TC를 대조해 검증 범위를 정하고, 이슈의 재현 조건과 수정 결과를 남기는 일을 해 왔습니다. 개인 프로젝트에서는 이 흐름을 AI 에이전트로 자동화하고, 그 결과를 다시 사람의 기준으로 검증했습니다.</p>
+  <div class="actions">
+    <a class="btn primary" href="#projects">프로젝트 보기</a>
+    <a class="btn" href="https://github.com/SEHOOOOON">GitHub</a>
+  </div>
+  <div class="figures" aria-label="요약">
+    <div class="fig"><b>2개 회사</b><span>Software QA · Data QA/QC</span><small>2021.12 ~ 현재</small></div>
+    <div class="fig"><b>4단계</b><span>분석 → TC 설계 → 실행 → 보고</span><small>프로젝트1 에이전트 흐름</small></div>
+    <div class="fig"><b>2건</b><span>실제 AI로 요청부터 보고까지 완주</span><small>2026-10-09 전원 · 10-15 온도</small></div>
+    <div class="fig"><b>3개</b><span>AI 검토·채점이 놓친 필수 시험 누락을 사람이 발견</span><small>규칙·코드 대조로 재현 (프로젝트2)</small></div>
+  </div>
+</div></div>
+
+<section id="experience"><div class="wrap">
+  <div class="sec-head">
+    <div><span class="num">01 · EXPERIENCE</span><h2>업무 경험</h2></div>
+    <p>요구사항 기반 검증과 데이터 품질 관리를 담당했습니다.</p>
+  </div>
+  <div class="timeline">
+    <div class="card job">
+      <div class="when">2024.11 – 현재<br>테스트코윈</div>
+      <div>
+        <h3>Software QA / System Verification</h3>
+        <p class="muted">신규·변경 요구사항을 분석하고 기능·통합·회귀 테스트, 이슈 재현과 수정 후 검증을 수행합니다.</p>
+        <ul>
+          <li>요구사항과 기존 TC를 대조해 검증 범위 정리</li>
+          <li>UI·API·통신 상태의 정합성 확인</li>
+          <li>Jira로 재현 조건을 기록하고 수정 버전에서 같은 조건으로 재검증</li>
+          <li>반복 TC를 선별해 일부 자동화</li>
+        </ul>
+        <div class="result"><b>중앙제어 시스템 전환 검증</b> (2024.11 – 2026.04) · 시스템이 바뀐 뒤에도 기존 TC가 유효한지 다시 확인하고, 기존 TC를 검토·재구성해 기능·통합·회귀·연동 테스트를 수행했습니다.</div>
+      </div>
+    </div>
+    <div class="card job">
+      <div class="when">2021.12 – 2023.08<br>빌트온</div>
+      <div>
+        <h3>Data QA / QC</h3>
+        <p class="muted">수집 데이터의 누락·이상값과 상품 매핑 정합성을 확인하고, 반복 검수 조건을 QC 로직으로 구현했습니다.</p>
+        <ul>
+          <li>데이터 유효성·정합성 검수</li>
+          <li>Python·SQL·R 기반 QC 로직 구현</li>
+          <li>데이터 정의와 검수 기준 문서화</li>
+        </ul>
+        <div class="result"><b>판매 데이터 품질 검증</b> (2022.03 – 2023.05) · 수집은 됐지만 분석에 쓸 수 없는 데이터(누락·이상값·매핑 오류)를 반복 조건으로 정리하고 다시 확인했습니다.</div>
+      </div>
+    </div>
+  </div>
+</div></section>
+
+<section id="projects"><div class="wrap">
+  <div class="sec-head">
+    <div><span class="num">02 · PERSONAL PROJECTS</span><h2>개인 프로젝트</h2></div>
+    <p>실무에서 반복하던 "요구사항 대조 → TC 검토 → 시험 → 보고"를 자동화하고(프로젝트1), 그 자동화를 믿을 수 있는지 따로 평가했습니다(프로젝트2).</p>
+  </div>
+  <div class="grid-2">
+    <a class="card link-card" href="project1.html" style="color:inherit">
+      <span class="tag">Project 01 · QA Agent Pipeline</span>
+      <h3>변경 요청에서 사람 승인까지, 같은 기준으로 처리하는 QA 에이전트</h3>
+      <p class="muted">AI 에이전트 4개가 요구사항 분석·TC 설계·자동화 실행·결과 보고를 나눠 맡고, 단계마다 프로그램 검사와 AI 검토를 통과해야 다음으로 넘어갑니다. 공식 TC 등록은 사람이 결정합니다.</p>
+      <div class="result"><b>실제 AI 전체 실행 2건 완주</b> · 온도 범위 변경 요청에서 변경 전 제품의 불일치(기대 20°C → 19°C)를 찾아 보고</div>
+      <div class="chips"><span class="chip">Python</span><span class="chip">Playwright</span><span class="chip">Pytest</span><span class="chip">OpenAI API</span><span class="chip">Slack·Notion</span></div>
+      <span class="more">프로젝트1 자세히 보기 →</span>
+    </a>
+    <a class="card link-card" href="project2.html" style="color:inherit">
+      <span class="tag">Project 02 · Agent Evaluation</span>
+      <h3>에이전트 결과를 사람·프로그램·AI 기준으로 다시 검증하는 평가 도구</h3>
+      <p class="muted">프로젝트1의 분석·설계·실행·보고를 26개 기준으로 평가합니다. 제품이 틀린 것과 에이전트가 검사를 빠뜨린 것, 평가 AI가 잘못 판단한 것을 구분합니다.</p>
+      <div class="result"><b>AI가 통과시킨 TC에서 필수 시험 누락 3개 발견</b> · 사람이 찾은 기준을 규칙·코드 대조로 옮겨 같은 TC가 필수 6개 중 3개만 충족(FAIL)으로 나오게 함</div>
+      <div class="chips"><span class="chip">평가 기준 설계</span><span class="chip">LLM 평가</span><span class="chip">규칙 기반 정답지</span><span class="chip">FastAPI</span></div>
+      <span class="more">프로젝트2 자세히 보기 →</span>
+    </a>
+  </div>
+</div></section>
+
+<section id="principles"><div class="wrap">
+  <div class="sec-head">
+    <div><span class="num">03 · PRINCIPLES</span><h2>QA 판단 원칙</h2></div>
+    <p>실무에서 지켜 온 기준이고, 개인 프로젝트의 설계 원칙으로 사용했습니다.</p>
+  </div>
+  <div class="grid-3">
+    <div class="card"><span class="tag">Scope</span><h3>근거 없는 기대값은 만들지 않습니다</h3><p class="muted">요구사항에 없는 값은 추측하지 않고 질문으로 남깁니다. 확인된 범위만 시험합니다.</p></div>
+    <div class="card"><span class="tag">Evidence</span><h3>제품 문제와 검사 누락을 구분합니다</h3><p class="muted">시험이 실패했다면 제품이 다르게 동작한 것인지, 검사가 잘못된 것인지 실행 기록으로 나눕니다.</p></div>
+    <div class="card"><span class="tag">Prevent</span><h3>사례별 예외보다 공통 원인을 고칩니다</h3><p class="muted">한 사례의 실패를 고칠 때 다른 값·다른 조합에도 같은 원인이 있는지 함께 확인합니다.</p></div>
+  </div>
+</div></section>
+
+<section id="tools"><div class="wrap">
+  <div class="sec-head">
+    <div><span class="num">04 · TOOLS</span><h2>사용 도구</h2></div>
+    <p>어디에 썼는지 함께 적었습니다.</p>
+  </div>
+  <div class="table-wrap"><table>
+    <thead><tr><th scope="col">영역</th><th scope="col">도구</th><th scope="col">사용한 곳</th></tr></thead>
+    <tbody>
+      <tr><th scope="row">이슈 관리</th><td>Jira</td><td>재현 조건·수정 이력·재검증 기록 (실무)</td></tr>
+      <tr><th scope="row">데이터 검수</th><td>Python · SQL · R</td><td>누락·이상값·매핑 오류 QC 로직 (실무)</td></tr>
+      <tr><th scope="row">테스트 자동화</th><td>Playwright · Pytest</td><td>가상 제품 조작·관찰·복원, 파이프라인 회귀검사 (개인)</td></tr>
+      <tr><th scope="row">AI 활용</th><td>OpenAI API · AI 코딩 도구</td><td>에이전트 생성·검토, 평가 AI 연결, 구현 보조 (개인)</td></tr>
+      <tr><th scope="row">보고·이력</th><td>Slack · Notion · GitHub</td><td>시험 결과 보고와 변경 이력 관리 (개인)</td></tr>
+    </tbody>
+  </table></div>
+</div></section>
+
+<section id="contact" style="border-bottom:0"><div class="wrap">
+  <div class="grid-2">
+    <div>
+      <span class="num">05 · CONTACT</span>
+      <h2 style="margin:0 0 12px">반복은 자동화하고,<br>판단 기준은 사람이 지킵니다.</h2>
+      <p class="muted">요구사항 해석과 품질 판단에 사람의 기준이 남아 있어야 자동화도 믿을 수 있다고 생각합니다.</p>
+    </div>
+    <div class="card">
+      <h3>오세훈 · OH SEHOON</h3>
+      <p class="muted">QA Engineer · Korea</p>
+      <p><a href="mailto:qasehoon@gmail.com">qasehoon@gmail.com</a></p>
+      <p><a href="https://github.com/SEHOOOOON">github.com/SEHOOOOON</a></p>
+    </div>
+  </div>
+</div></section>
+</main>
+
+<footer><div class="wrap">
+  <span>© 2026 OH SEHOON</span>
+  <span>개인 프로젝트 수치는 2026-10-16 기준 기록이며, 각 프로젝트 페이지에 확인 범위를 함께 적었습니다.</span>
+</div></footer>
+</body>
+</html>

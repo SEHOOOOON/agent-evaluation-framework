@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>평가 근거 · 프로젝트2</title>
+<meta name="description" content="프로젝트2 평가의 자료 구분, 핵심 사례 근거, 로컬 반복 검사, 26개 기준과 개선 이력.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<a class="skip" href="#main">본문 바로가기</a>
+<header class="top"><div class="wrap">
+  <a class="brand" href="index.html">OH SEHOON<small>QA Engineer</small></a>
+  <nav class="nav" aria-label="페이지 이동">
+    <a href="index.html">메인</a><a href="project1.html">프로젝트1</a><a href="project2.html">프로젝트2</a><a href="project2-report.html" aria-current="page">평가 근거</a>
+  </nav>
+</div></header>
+
+<main id="main">
+<div class="hero"><div class="wrap">
+  <p class="eyebrow">Project 02 · Evidence</p>
+  <h1>평가 근거와 <em>확인 범위</em></h1>
+  <p class="lead">프로젝트2 소개에 쓴 수치가 어디서 나왔는지, 어떤 방식으로 확인했는지 정리했습니다. 실제 AI 실행, 저장 자료 재검사, 로컬 시험은 서로 다른 근거이므로 섞어서 세지 않습니다.</p>
+  <div class="actions">
+    <a class="btn" href="#kinds">자료 구분</a><a class="btn" href="#local">로컬 100회</a><a class="btn" href="#criteria">26개 기준</a><a class="btn" href="#history">개선 이력</a>
+  </div>
+</div></div>
+
+<section id="kinds"><div class="wrap">
+  <div class="sec-head">
+    <div><span class="num">01 · SOURCES</span><h2>세 가지 근거를 구분합니다</h2></div>
+    <p>같은 "통과"라도 무엇으로 확인했는지에 따라 의미가 다릅니다.</p>
+  </div>
+  <div class="grid-3">
+    <div class="card"><span class="pill info">실제 AI 실행</span><h3 style="margin-top:12px">새 요청을 AI가 처리</h3><p class="muted">유료 API로 분석·설계·검토·채점을 새로 수행한 결과입니다. 호출 수와 사용량을 함께 기록합니다.</p><p class="dim">예: 2026-10-09 전원 요청, 2026-10-15 온도 범위 요청</p></div>
+    <div class="card"><span class="pill warn">저장 자료 재검사</span><h3 style="margin-top:12px">저장된 산출물을 다시 대조</h3><p class="muted">새 AI 호출 없이, 보관한 실행 기록의 원본 해시를 확인하고 새 검사 코드로 다시 읽은 결과입니다.</p><p class="dim">예: 10-15 TC의 범위 정답지 대조(필수 3/6)</p></div>
+    <div class="card"><span class="pill ok">로컬 시험</span><h3 style="margin-top:12px">준비한 입력으로 처리 확인</h3><p class="muted">사람이 준비한 TC와 저장 자료를 현재 실행기에 넣어, 정해진 상황을 예상대로 처리하는지 봅니다. AI가 새로 판단한 결과가 아닙니다.</p><p class="dim">예: 20종 상황 × 5회</p></div>
+  </div>
+</div></section>
+
+<section id="keycase"><div class="wrap">
+  <div class="sec-head">
+    <div><span class="num">02 · KEY CASE</span><h2>핵심 사례의 근거</h2></div>
+    <p>프로젝트2 소개의 "AI가 통과시킨 TC" 사례입니다.</p>
+  </div>
+  <div class="table-wrap"><table>
+    <thead><tr><th scope="col">단계</th><th scope="col">내용</th><th scope="col">근거 종류</th></tr></thead>
+    <tbody>
+      <tr><td>실행</td><td>전체 흐름 FLOW-20261015-110607-bb73a2 · P1 Run RUN-20261015-110609-8E2600 · Checkpoint 1~4 PASS, 재작성 0</td><td><span class="pill info">실제 AI</span></td></tr>
+      <tr><td>자동 판단</td><td>P1 근거 검토(CP2) PASS · P2 AI 채점 TC 설계 5점</td><td><span class="pill info">실제 AI</span></td></tr>
+      <tr><td>사람 대조</td><td>필수 시험 누락 3개 발견 (냉방 31°C 차단, 20°C 적용 기대결과, 전환 질문)</td><td>사람 검토</td></tr>
+      <tr><td>코드 대조</td><td>범위 정답지로 실제 TC 대조: 필수 6개 중 3개 충족, 누락 3개가 사람 발견과 일치 → FAIL</td><td><span class="pill warn">저장 자료 재검사</span></td></tr>
+      <tr><td>남은 확인</td><td>규칙을 반영한 P1이 실제 실행에서 누락을 막는지</td><td>미검증</td></tr>
+    </tbody>
+  </table></div>
+  <p class="dim" style="margin-top:12px">원본 실행 폴더는 용량 때문에 저장소 밖에 보관하고, 해시와 판정 과정은 <a href="../../improvements/IMP-009-range-change-rules.md">개선 기록 IMP-009</a>에 남겼습니다.</p>
+</div></section>
+
+<section id="local"><div class="wrap">
+  <div class="sec-head">
+    <div><span class="num">03 · LOCAL REPEAT</span><h2>로컬 반복 검사 · 20종 상황 × 5회</h2></div>
+    <p>2026-10-09 · 새 API 호출 0회 · 정해진 상황을 기존 코드가 일관되게 처리하는지 확인했습니다.</p>
+  </div>
+  <div class="figures" style="margin-top:0;margin-bottom:20px">
+    <div class="fig"><b>100 / 100</b><span>예상한 처리와 일치</span></div>
+    <div class="fig"><b>65 / 65</b><span>화면 시험 뒤 복원 확인</span></div>
+    <div class="fig"><b>60 · 5 · 35</b><span>제품 PASS · 불일치 검출 · 보류/제외/자산 선택</span></div>
+    <div class="fig"><b>3 / 26</b><span>이 검사로 확인한 평가 항목</span></div>
+  </div>
+  <div class="table-wrap"><table>
+    <thead><tr><th scope="col">확인한 경로</th><th scope="col">횟수</th><th scope="col">관찰한 처리</th><th scope="col">입력</th></tr></thead>
+    <tbody>
+      <tr><td>다섯 관제점 정상 변경</td><td>50</td><td>50회 PASS · 복원 확인</td><td>사람이 준비한 TC 10종</td></tr>
+      <tr><td>온도 하한 불일치</td><td>5</td><td>16°C 유지 기대 → 15°C 관찰</td><td>사람이 준비한 경계 TC</td></tr>
+      <tr><td>지원하지 않는 자동 전환</td><td>5</td><td>다른 기능으로 대신하지 않고 실행 제외</td><td>사람이 준비한 미지원 TC</td></tr>
+      <tr><td>저장 TC의 실행·보고</td><td>5</td><td>PASS · 복원 · 네 역할 자료 수집</td><td>저장된 AI TC·검토 재사용</td></tr>
+      <tr><td>목표값이 미정인 요청</td><td>5</td><td>질문 유지 · 다음 단계 대기</td><td>저장된 AI 분석 재검사</td></tr>
+      <tr><td>등록된 강풍 TC 재사용</td><td>5</td><td>PASS · 복원 확인</td><td>기존 등록 코드 실행</td></tr>
+      <tr><td>추가·대체·미등록·보류·중복 승인</td><td>25</td><td>각 선택의 반영·차단이 예상과 일치</td><td>시험용 사본에서 함수 호출</td></tr>
+    </tbody>
+  </table></div>
+  <p class="dim" style="margin-top:12px">AI 생성·의미 판단의 정확도와 실제 공식 TC 등록은 이 검사에 포함하지 않았습니다. 회차별 기록: <a href="../evidence/local-100-20261009/report.html">로컬 100회 결과표</a> · <a href="../evidence/local-100-20261009/summary.json">summary.json</a></p>
+</div></section>
+
+<section id="criteria"><div class="wrap">
+  <div class="sec-head">
+    <div><span class="num">04 · CRITERIA</span><h2>26개 평가 기준</h2></div>
+    <p>역할별 기준 20개, 공통 기준 2개, 단계 연결 기준 4개입니다. 판단 주체는 프로그램 4개, AI 12개, 혼합 10개로 나눴습니다.</p>
+  </div>
+  <div class="table-wrap"><table>
+    <thead><tr><th scope="col">영역</th><th scope="col">기준 수</th><th scope="col">무엇을 보나</th></tr></thead>
+    <tbody>
+      <tr><td>Agent 1 · 요구사항 분석</td><td>4</td><td>변경·유지 조건과 명시 값 보존 · 정보 부족·미기재·금지 구분 · 영향 범위와 부분 진행 · 근거 인용의 의미 일치</td></tr>
+      <tr><td>Agent 2 · TC 설계</td><td>8</td><td>기존 TC 재사용·중복 방지 · TC 대상·시작 상태 · 조작 순서 재현성 · 조작과 판정 시점 연결 · 관찰 위치·값의 구체성 · 요청 조건의 검증 범위 충족 · SRS 근거 · 독립 실행·복원</td></tr>
+      <tr><td>Agent 3 · 자동화 실행</td><td>4</td><td>TC에서 계획까지 의미 보존 · 화면 요소 선택과 지원 범위 · 계획과 실제 검사 기록 일치 · 실제 시험·복원·증거와 완료 주장</td></tr>
+      <tr><td>Agent 4 · 결과 보고</td><td>4</td><td>원본 실행 행과 집계 정확성 · 증거에 따른 원인 분류 · 보고 대상·상태·증거 추적 · 미확인 범위·후속 행동·승인 구분</td></tr>
+      <tr><td>공통</td><td>2</td><td>필요 입력·버전·출처 연결 · 역할·권한과 충돌 지시 방어</td></tr>
+      <tr><td>단계 연결</td><td>4</td><td>조건부터 실제 시험까지 완료 범위 · 정보 부족의 단계 간 보존 · 실패·질문의 다음 절차 전달 · 사람 승인 전후 공식 자산 보호 <span class="dim">최종 평가 남음</span></td></tr>
+    </tbody>
+  </table></div>
+  <p class="dim" style="margin-top:12px">기준 원문과 판단 예시: <a href="../../docs/12_DETAILED_RUBRIC.md">세부 기준 문서</a></p>
+</div></section>
+
+<section id="history"><div class="wrap">
+  <div class="sec-head">
+    <div><span class="num">05 · HISTORY</span><h2>개선 이력</h2></div>
+    <p>모든 개선은 날짜·수정 전·수정 후·확인 근거를 같은 양식으로 남깁니다. 확인하지 않은 것은 "미검증"으로 적습니다.</p>
+  </div>
+  <div class="table-wrap"><table>
+    <thead><tr><th scope="col">ID</th><th scope="col">문제</th><th scope="col">확인 수준</th></tr></thead>
+    <tbody>
+      <tr><td><a href="../../improvements/IMP-001-redundant-srs-revision.md">IMP-001</a></td><td>이미 반영된 SRS에 같은 수정안을 다시 제출</td><td>실제 응답 1건에서 개선 확인</td></tr>
+      <tr><td><a href="../../improvements/IMP-002-compound-condition-links.md">IMP-002</a></td><td>복합 조건을 선택한 TC 전체에 연결하지 않음</td><td>실제 연결·실행 1건</td></tr>
+      <tr><td><a href="../../improvements/IMP-003-judge-rejection-diagnostics.md">IMP-003</a></td><td>평가 진단 부족·잘못된 인용·입력 크기 초과</td><td>용량 초과 해소, 인용 방식 보완</td></tr>
+      <tr><td><a href="../../improvements/IMP-004-judge-interpretation-boundaries.md">IMP-004</a></td><td>평가 AI의 과잉 해석 (복원 기록 오반려 등)</td><td>일부 개선 확인 · 일부 미해결</td></tr>
+      <tr><td><a href="../../improvements/IMP-008-output-cap-and-log-truncation.md">IMP-008</a></td><td>생성 응답 상한·대기 시간 부족, 큰 로그 제외</td><td>실제 실행 1회 완주·재채점 확인</td></tr>
+      <tr><td><a href="../../improvements/IMP-009-range-change-rules.md">IMP-009</a></td><td>범위 변경 TC의 필수 시험 누락을 AI가 통과시킴</td><td>저장 자료 재검사 · 실제 재실행 미검증</td></tr>
+      <tr><td><a href="../../improvements/IMP-010-expected-product-mismatch.md">IMP-010</a></td><td>변경 전 제품의 예상된 실패와 시험 누락을 구분 못 함</td><td>로컬·합성 기록 · 실제 실행 미검증</td></tr>
+      <tr><td><a href="../../improvements/IMP-011-temporary-workspace-cleanup.md">IMP-011</a></td><td>평가 회차마다 임시 폴더가 쌓임</td><td>로컬 시험</td></tr>
+    </tbody>
+  </table></div>
+  <p class="dim" style="margin-top:12px">전체 목록: <a href="../../improvements/README.md">개선 이력 README</a> · 이전 상세 보고서: <a href="../report.html">기존 평가 결과 페이지</a></p>
+  <div class="pager"><a href="project2.html">← 프로젝트2</a><a href="index.html">메인으로 →</a></div>
+</div></section>
+</main>
+<footer><div class="wrap"><span>© 2026 OH SEHOON · Project 02 Evidence</span><span>수치 기준일 2026-10-16</span></div></footer>
+</body>
+</html>
