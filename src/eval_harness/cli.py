@@ -76,6 +76,17 @@ def parser() -> argparse.ArgumentParser:
     rejudge.add_argument("--approval-sha256")
     rejudge.add_argument("--output", type=Path, default=Path(__file__).resolve().parents[2]/"evaluation-runs")
 
+    repeat = commands.add_parser("repeat-a2", help="저장된 FLOW 회차의 A1 결과로 A2만 현재 P1 코드로 반복합니다. 채점은 정답지 코드 대조만. 기본은 미리보기이며 호출하지 않습니다.")
+    repeat.add_argument("--flow", type=Path, required=True, help="FLOW-... 폴더")
+    repeat.add_argument("--trial", type=int, default=1)
+    repeat.add_argument("--target", type=Path, required=True, help="현재 P1 폴더")
+    repeat.add_argument("--times", type=int, default=2)
+    repeat.add_argument("--range-key", type=Path, help="범위 정답지 키(선택)")
+    repeat.add_argument("--model", help="기본: 저장된 명세의 generation_model")
+    repeat.add_argument("--execute", action="store_true")
+    repeat.add_argument("--approval-sha256")
+    repeat.add_argument("--output", type=Path, default=Path(__file__).resolve().parents[2]/"evaluation-runs")
+
     oracle = commands.add_parser("range-oracle", help="범위 변경 요청의 규칙 기반 정답지로 A2 TC 설계를 대조합니다. API 호출 없음.")
     oracle.add_argument("--key", type=Path, required=True)
     oracle.add_argument("--design", type=Path, required=True, help="agent2_test_design.json")
@@ -145,6 +156,24 @@ def main(argv: list[str] | None = None) -> int:
             return 3 if result["status"] == "COMPLETED" else 4
         except (OSError, ValueError, ImportError, subprocess.SubprocessError) as exc:
             print("Full flow blocked:", type(exc).__name__)
+            return 4
+    if args.command == "repeat-a2":
+        from .a2_repeat import make_preview as repeat_preview, execute as repeat_execute
+        try:
+            if not args.execute:
+                print(json.dumps(repeat_preview(args.flow, args.trial, args.target, args.times,
+                                                range_key=args.range_key, model=args.model), ensure_ascii=False, indent=2))
+                return 0
+            if not args.approval_sha256:
+                raise ValueError("Exact preview approval required")
+            out = repeat_execute(args.flow, args.trial, args.target, args.times, args.approval_sha256, args.output,
+                                 range_key=args.range_key, model=args.model)
+            result = json.loads((out / "result.json").read_text(encoding="utf-8"))
+            print(json.dumps({"output": str(out), "status": result["status"], "summary": result.get("summary")},
+                             ensure_ascii=False))
+            return 0 if result["status"] == "COMPLETED" else 4
+        except (OSError, ValueError, ImportError, subprocess.SubprocessError) as exc:
+            print(json.dumps({"status": "ERROR", "reason": type(exc).__name__, "detail": str(exc)[:300]}, ensure_ascii=False))
             return 4
     if args.command == "rejudge-flow":
         from .rejudge import make_preview as rejudge_preview, execute as rejudge_execute

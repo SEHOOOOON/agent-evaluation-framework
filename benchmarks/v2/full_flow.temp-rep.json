@@ -1,0 +1,23 @@
+{
+ "case_id": "TEMP-REP-RERUN",
+ "request": "examples/change_request.representative-temperature.json",
+ "oracle": "full_flow.temp-rep.oracle.json",
+ "generation_model": "gpt-6.1-sol",
+ "judge_model": "gpt-6.1-sol",
+ "trials": 1,
+ "max_candidates": 3,
+ "generation_calls_per_trial": 10,
+ "generation_calls_total": 10,
+ "judge_calls_total": 4,
+ "trial_timeout_seconds": 1800,
+ "product_timeout_seconds": 90,
+ "range_key": "range_keys/representative-temperature.json",
+ "expected_product_mismatches": [
+  {
+   "field": "setTemp",
+   "expected": 20,
+   "actual": 19,
+   "reason": "제품 미변경: 냉방 하한 20°C가 아직 적용되지 않아 19°C로 내려감(실패 시나리오)"
+  }
+ ]
+}

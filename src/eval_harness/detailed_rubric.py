@@ -5,6 +5,9 @@ VERSION = "role-rubric-2.5"
 SCORE_VERSION = "score-0-5-v2"
 SCORE_VERSIONS = {"score-0-5-v1", SCORE_VERSION}
 PYTHON_CRITERIA = {"A3-03", "A4-01", "A4-03", "E04"}
+# Scored by code only when a human-confirmed answer key exists for the request
+# (2026-10-17). The AI still judges them and its result is kept for comparison.
+KEY_CRITERIA = {"TC-R05"}
 
 
 def evaluation_method(cid):
@@ -243,7 +246,7 @@ def full_scorecard(judges, python_result=None):
         cid = item["criterion_id"]
         owners = ("A1", "A2", "A3", "A4") if item["owner"] == "COMMON" else (item["owner"],)
         candidates = []
-        use_python = bool(python_result and cid in PYTHON_CRITERIA and
+        use_python = bool(python_result and cid in PYTHON_CRITERIA | KEY_CRITERIA and
                           any(j.get("criterion_id") == cid for j in python_result.get("judgments", [])))
         for owner in owners:
             result = (python_result if use_python

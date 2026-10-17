@@ -21,7 +21,7 @@ import zipfile
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from .detailed_rubric import role_items, VERSION as RUBRIC_VERSION, SCORE_VERSION, PYTHON_CRITERIA
+from .detailed_rubric import role_items, VERSION as RUBRIC_VERSION, SCORE_VERSION, PYTHON_CRITERIA, KEY_CRITERIA
 from .execution_observations import grade_run as grade_execution_observations
 from .product_expectations import ExpectedMismatch, classify as classify_product_expectation
 from .range_oracle import RangeKey, grade as grade_range
@@ -30,7 +30,7 @@ from .openai_judge import (JudgePacket, encode, preview as judge_preview, evalua
 from .v2_recorded import (child, digest, read, write, target_pin, inventory, execution_rows,
                           finding_matches_execution, report_counts_match, handoff_checks)
 
-VERSION = "full-flow-0.19"
+VERSION = "full-flow-0.20"
 ROLES = ("A1", "A2", "A3", "A4")
 
 
@@ -56,7 +56,8 @@ class FlowSpec(BaseModel):
     # product. Bound into the preview/approval hash through the spec.
     expected_product_mismatches: list[ExpectedMismatch] = Field(default=[], max_length=20)
     # Optional range answer key (relative to the spec folder, like ``oracle``).
-    # Recorded next to the scores; it never changes a score or the completion status.
+    # 0.20: a HUMAN_CONFIRMED key scores TC-R05 by code (the AI judgment is kept
+    # alongside); a DRAFT key is only recorded. Completion status never changes.
     range_key: str | None = None
 
 
@@ -107,6 +108,10 @@ def make_preview(target: Path, spec: FlowSpec, config_root: Path):
         raise ValueError("Oracle review status is required")
     if not isinstance(oracle.get("expectations"), list) or not oracle["expectations"]:
         raise ValueError("Independent expected conditions must be supplied")
+    # 0.20: an oracle written for another request must not grade this one.
+    request_sha256 = sha256(child(target, spec.request).read_bytes()).hexdigest()
+    if oracle.get("request_sha256") not in {None, request_sha256}:
+        raise ValueError("Independent oracle was written for a different request")
     scan_payload(request)
     scan_payload(oracle)
     # Validate the SRS text before allowing even a generation request.
@@ -118,6 +123,8 @@ def make_preview(target: Path, spec: FlowSpec, config_root: Path):
         if key_path.stat().st_size > 100_000:
             raise ValueError("Range key too large")
         range_key = RangeKey.model_validate_json(key_path.read_text(encoding="utf-8")).model_dump()
+        if range_key["request_id"] != (request or {}).get("request_id"):
+            raise ValueError("Range key was written for a different request")
     plan = {
         # Specs without a range key keep the earlier plan shape.
         "version": VERSION, "spec": spec.model_dump(exclude={"range_key"} if range_key is None else None),
@@ -127,7 +134,7 @@ def make_preview(target: Path, spec: FlowSpec, config_root: Path):
         "rubric_version": RUBRIC_VERSION,
         "scoring_profile": SCORE_VERSION,
         **({"range_key": range_key} if range_key is not None else {}),
-        "python_criteria": sorted(PYTHON_CRITERIA),
+        "python_criteria": sorted(PYTHON_CRITERIA | (KEY_CRITERIA if (range_key or {}).get("status") == "HUMAN_CONFIRMED" else set())),
         "generation_destination": "https://api.openai.com/v1/responses",
         "judge_destination": "https://api.openai.com/v1/responses",
         "generation_sdk_retries": 0, "judge_sdk_retries": 0,
@@ -513,7 +520,29 @@ def request_evidence(call, raw_sha256=None):
     return result
 
 
-def python_scores(run, checks):
+def range_key_judgment(record: dict | None) -> dict | None:
+    """TC-R05 from a human-confirmed range key (0.20). DRAFT keys are recorded only."""
+    if not record or record.get("status") != "EVALUATED" or record.get("key_status") != "HUMAN_CONFIRMED":
+        return None
+    total, met = record["required_total"], record["required_met"]
+    if not total:
+        return None
+    recommended = [i for i in record.get("items", []) if i.get("level") == "RECOMMENDED"]
+    missing = [i["id"] for i in record.get("items", []) if i.get("level") == "REQUIRED" and i.get("status") != "MET"]
+    if not missing:
+        partial = any(i.get("status") != "MET" for i in recommended)
+        return dict(criterion_id="TC-R05", verdict="PASS", score=4 if partial else 5,
+                    reason=f"사람 확정 범위 정답지 {record['key_id']}: 필수 {met}/{total} 충족"
+                           + (", 권장 일부 미충족" if partial else ""),
+                    evidence=[dict(file="agent2_test_design.json", sha256=record.get("design_sha256"))])
+    ratio = met / total
+    return dict(criterion_id="TC-R05", verdict="FAIL",
+                score=3 if ratio >= 0.75 else 2 if ratio >= 0.5 else 1 if met else 0,
+                reason=f"사람 확정 범위 정답지 {record['key_id']}: 필수 {met}/{total}, 누락 " + ", ".join(missing),
+                evidence=[dict(file="agent2_test_design.json", sha256=record.get("design_sha256"))])
+
+
+def python_scores(run, checks, range_record=None):
     """Read-only fact grades, independent of the target's PASS declarations.
 
     E04 remains unscored without a real approval lifecycle. An observed asset
@@ -578,6 +607,9 @@ def python_scores(run, checks):
     except (OSError, ValueError, KeyError, TypeError, AttributeError):
         # Retain facts already established; unavailable portions stay REVIEW.
         pass
+    keyed = range_key_judgment(range_record)
+    if keyed is not None:
+        grades["TC-R05"] = keyed
     return dict(status="COMPLETED", mode="PYTHON", scoring_profile=SCORE_VERSION, rubric_version=RUBRIC_VERSION,
                 judgments=list(grades.values()), approval_revalidation=approval_revalidation_status(run))
 
@@ -1288,13 +1320,13 @@ def run_flow(target, spec, config_root, output_root, approval_sha256, *, worker=
             if outcome["status"] == "ERROR":
                 result["stop_reason"] = outcome.get("reason", "EXECUTION_ERROR")
             row["judges"] = {}
-            row["python_evaluation"] = python_scores(run, row["checks"])
+            if "range_key" in plan:
+                row["range_oracle"] = range_oracle_record(run, plan["range_key"])
+            row["python_evaluation"] = python_scores(run, row["checks"], row.get("range_oracle"))
             observed = {}
             observation_grade = grade_execution_observations(run, observations=observed)
             row["product_expectation"] = classify_product_expectation(
                 spec.expected_product_mismatches, observed, observation_grade["verdict"])
-            if "range_key" in plan:
-                row["range_oracle"] = range_oracle_record(run, plan["range_key"])
             packets = collect_packets(run, work, spec, plan, row["checks"])
             prepared = {}
             available_slots = spec.judge_calls_total - result["judge_slots_used"]

@@ -175,6 +175,9 @@ python -m eval_harness range-oracle --key benchmarks/v2/range_keys/representativ
 - 대표 온도 키는 `DRAFT`입니다(규칙은 사용자 확정, 값 전사는 사람 검토 전). 과거 점수를 다시 매기지 않습니다.
 - 전체 흐름 연결(full-flow-0.19): 명세에 `"range_key": "range_keys/representative-temperature.json"`(명세 폴더 기준 경로)을 적을 때만 키 내용이 승인 해시에 묶이고, 회차마다 `record.json`/`result.json`의 `range_oracle`에 위 대조 결과가 남습니다(예: `result.json` → `"range_oracle": {"FAIL": 1}`). A2 결과가 없으면 `NOT_EVALUATED`. 점수·완주 상태는 바꾸지 않으며, 키를 적지 않은 명세는 계획(preview) 모양도 그대로입니다.
 - 2026-10-16 PC에서 10-15 실제 A2 설계로 확인: FAIL 3/6, 사람이 찾은 오답 3개(냉방 20 적용 ER, 31 차단, 전환 질문) 모두 MISSING. 원본은 압축을 임시 폴더에 풀어 읽기만 했습니다.
+- full-flow-0.20(2026-10-17): 키 상태가 `HUMAN_CONFIRMED`이면 **TC-R05(요청 조건의 검증 범위)를 코드로 채점**합니다(필수 모두 충족 5점, 권장 일부 누락 4점, 누락이 있으면 FAIL: 필수 충족 비율 75% 이상 3점·50% 이상 2점·그 밖 1점·0개 0점). AI 채점도 그대로 받아 비교용으로 남기고, 점수표는 코드 결과를 씁니다. `DRAFT` 키는 기록만 합니다. 10-15 실행에 적용하면 AI 5점(PASS) → 코드 2점(FAIL, 필수 3/6).
+- 같은 버전부터 실행 준비 단계에서 채점 정답 파일의 `request_sha256`와 범위 키의 `request_id`가 이번 요청과 다르면 호출 전에 멈춥니다.
+- 확정 키 2개: `range_keys/representative-temperature.json`, `range_keys/heat-range-narrowing.json`(2026-10-17 사용자 확정). 실행 명세: `full_flow.temp-rep.json`, `full_flow.heat-range.json`(둘 다 제품 미변경 실패 시나리오, 예상된 제품 불일치 포함).
 
 ### 저장된 회차 다시 채점 (rejudge-flow) · 기본은 호출 없음
 
@@ -188,6 +191,16 @@ python -m eval_harness rejudge-flow --flow ... --roles A3 A4 --execute --approva
 - 미리보기는 역할별 상태(READY / BLOCKED: 채점 입력 한도 초과 / NOT_AVAILABLE), 입력 크기, 최대 호출 수와 묶음 승인 해시를 보여 주며 아무것도 쓰지 않습니다.
 - 패킷을 파일로 옮기지 않고 메모리에서 바로 쓰므로 `judge-openai`의 패킷 파일 200KB 제한에 걸리지 않습니다. 채점 입력 한도(500,000바이트)는 그대로이고, 넘으면 잘라내지 않고 BLOCKED로 표시합니다.
 - 실행은 승인 해시가 정확히 같을 때만 하고, 첫 채점 오류에서 멈춥니다. 결과는 새 `REJUDGE-...` 폴더에만 쓰고 원래 FLOW 기록·점수는 바꾸지 않습니다(FLOW 폴더 안 출력은 거부).
+
+### 저장된 회차의 A1 결과로 A2만 반복 (repeat-a2) · 기본은 호출 없음
+
+```bash
+python -m eval_harness repeat-a2 --flow evaluation-runs/<FLOW-...> --trial 1 --target ../qa-agent-pipeline-v2 --times 2 --range-key benchmarks/v2/range_keys/representative-temperature.json   # 미리보기
+python -m eval_harness repeat-a2 ... --execute --approval-sha256 <미리보기 값>   # 유료 호출
+```
+
+TC 설계의 안정성은 A2에서 가장 크게 흔들리므로, 저장 회차의 **A1 결과는 그대로 쓰고 A2만 현재 P1 코드로** N번(최대 5) 다시 돌립니다. A1 파일만 새 P1 사본에 옮기고 P1 자체 검증을 거친 뒤 실행하며, 반복마다 최대 4회(작성·검토, 재작성·검토) 호출합니다. 채점은 범위 정답지 코드 대조만 하고 AI 채점은 부르지 않습니다. 결과는 새 `A2REP-...` 폴더의 `result.json`(반복별 CP2 상태·정답지 결과, 필수 항목별 충족 횟수)에 남고 임시 작업 폴더는 지웁니다(a2-repeat-1.0).
+
 
 ### 모의 반복 및 저장 기록 검사
 

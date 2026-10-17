@@ -29,7 +29,7 @@ def flow_setup(tmp_path):
         "product_baseline/tests/conftest.py": "# harness",
         "product_baseline/tests/test_controller.py": "# baseline",
         "approved_assets/registry.json": "{}",
-        "request.json": '{"description":"18~30도 범위를 확인한다."}',
+        "request.json": '{"request_id":"CR-FIXTURE","description":"18~30도 범위를 확인한다."}',
     }.items():
         p = target / name
         p.parent.mkdir(parents=True, exist_ok=True)
@@ -1285,7 +1285,10 @@ RANGE_KEY = Path(__file__).resolve().parents[1] / "benchmarks/v2/range_keys/repr
 
 
 def with_range_key(setup):
-    shutil.copyfile(RANGE_KEY, setup[1] / "range_key.json")
+    # The fixture request has its own ID (full-flow-0.20 checks it); these tests
+    # cover the record-only path, so the copy stays a DRAFT key.
+    key = json.loads(RANGE_KEY.read_text(encoding="utf-8"))
+    write(setup[1] / "range_key.json", dict(key, request_id="CR-FIXTURE", status="DRAFT"))
     return setup[2].model_copy(update={"range_key": "range_key.json"})
 
 
@@ -1376,3 +1379,43 @@ def test_rejected_response_still_records_billed_usage(tmp_path):
         meter.parse(model="test", input=[], store=False, text_format=Payload)
     attempt = ledger["attempts"][0]
     assert attempt["status"] == "ERROR" and attempt["usage"]["total_tokens"] == 16
+
+
+def test_oracle_and_range_key_must_belong_to_the_request(flow_setup):
+    """full-flow-0.20: an answer key written for another request is refused before any call."""
+    from hashlib import sha256 as _sha
+    target, config, spec, _ = flow_setup
+    oracle = read(config / "oracle.json")
+    write(config / "oracle.json", dict(oracle, request_sha256="0" * 64))
+    with pytest.raises(ValueError, match="different request"):
+        make_preview(target, spec, config)
+    write(config / "oracle.json", dict(oracle, request_sha256=_sha((target / "request.json").read_bytes()).hexdigest()))
+    make_preview(target, spec, config)
+    write(config / "key.json", dict(key_id="K", request_id="OTHER", status="HUMAN_CONFIRMED", basis="b",
+                                    changed=[dict(mode="COOL", lower=20, upper=30)]))
+    with pytest.raises(ValueError, match="different request"):
+        make_preview(target, spec.model_copy(update={"range_key": "key.json"}), config)
+
+
+def test_confirmed_range_key_scores_tc_r05_by_code_and_draft_does_not():
+    from eval_harness.full_flow import range_key_judgment
+    from eval_harness.detailed_rubric import full_scorecard
+    def record(status, required, recommended=()):
+        items = [dict(id=f"R{i}", level="REQUIRED", status=s) for i, s in enumerate(required)]
+        items += [dict(id=f"C{i}", level="RECOMMENDED", status=s) for i, s in enumerate(recommended)]
+        return dict(status="EVALUATED", key_status=status, key_id="K", design_sha256="h",
+                    required_total=len(required), required_met=sum(s == "MET" for s in required), items=items)
+    assert range_key_judgment(record("DRAFT", ["MET"])) is None
+    assert range_key_judgment(record("HUMAN_CONFIRMED", ["MET", "MET"]))["score"] == 5
+    assert range_key_judgment(record("HUMAN_CONFIRMED", ["MET"], ["MISSING"]))["score"] == 4
+    real = range_key_judgment(record("HUMAN_CONFIRMED", ["MET", "MISSING", "MET", "MISSING", "MET", "MISSING"]))
+    assert (real["verdict"], real["score"]) == ("FAIL", 2)  # 10-15: required 3/6
+    assert range_key_judgment(record("HUMAN_CONFIRMED", ["MISSING"]))["score"] == 0
+    # The scorecard takes the code result; the AI's own 5 stays in the judge record.
+    ai = dict(status="COMPLETED", scoring_profile="score-0-5-v2",
+              judgments=[dict(criterion_id="TC-R05", verdict="PASS", score=5)])
+    python = dict(status="COMPLETED", scoring_profile="score-0-5-v2", judgments=[real])
+    row = next(r for r in full_scorecard({"A2": ai}, python)["criteria"] if r["criterion_id"] == "TC-R05")
+    assert row["evaluation_method"] == "PYTHON" and row["score"] == 2 and row["verdict"] == "FAIL"
+    row = next(r for r in full_scorecard({"A2": ai}, dict(python, judgments=[]))["criteria"] if r["criterion_id"] == "TC-R05")
+    assert row["evaluation_method"] == "AI" and row["score"] == 5

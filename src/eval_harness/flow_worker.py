@@ -232,9 +232,52 @@ def execute_trial(work: Path, config: dict, *, client=None):
     return outcome
 
 
+def execute_agent2_repeat(work: Path, config: dict, *, client=None):
+    """Run only P1 Agent 2 on an Agent 1 Run already placed in the copy (a2-repeat-1.0)."""
+    copy = work / "p1"
+    if not copy.is_dir() or not (copy / "src/qa_pipeline_orchestrator.py").is_file():
+        raise ValueError("Isolated target copy is missing")
+    ledger = {"attempts": [], "fatal": None, "automatic_retries": 0}
+    write(work / "call_ledger.json", ledger)
+    key = os.environ.pop("OPENAI_API_KEY", None)
+    for name in list(os.environ):
+        if name.startswith(("NOTION_", "SLACK_", "OPENAI_")):
+            os.environ.pop(name, None)
+    sys.path.insert(0, str(copy / "src"))
+    os.chdir(copy)
+    stages = {}
+    outcome = {"status": "STARTED", "stages": stages}
+    try:
+        execution = importlib.import_module("qa_pipeline_execution")
+        pipeline = importlib.import_module("qa_pipeline_orchestrator")
+        execution.load_approved_regression_catalog(copy / "approved_assets")
+        if client is None:
+            if not key:
+                raise ValueError("API key unavailable")
+            client = generation_client(key, work, ledger)
+        bind_model_clients(execution, client, work, ledger, config)
+        code = pipeline.run_agent2(argparse.Namespace(
+            run_id=config["run_id"], runs_root=str(copy / "runs"), model=config["generation_model"],
+            approved_assets_root=str(copy / "approved_assets")))
+        stages["agent2"] = code
+        outcome.update(status="COMPLETED" if code == 0 and not ledger["fatal"] else "BLOCKED" if code == 2
+                       else "ERROR", reason=ledger["fatal"] or (None if code == 0 else "AGENT2_STOP"))
+    except Exception as exc:
+        outcome.update(status="ERROR", reason=type(exc).__name__)
+    finally:
+        outcome["generation_by_role"] = dict(Counter(x["role"] for x in ledger["attempts"]))
+        write(work / "worker_result.json", outcome)
+        write(work / "call_ledger.json", ledger)
+    return outcome
+
+
 def main():
     path = Path(sys.argv[1]).resolve()
-    execute_trial(path.parent, read(path))
+    config = read(path)
+    if config.get("mode") == "AGENT2_REPEAT":
+        execute_agent2_repeat(path.parent, config)
+    else:
+        execute_trial(path.parent, config)
 
 
 if __name__ == "__main__":
