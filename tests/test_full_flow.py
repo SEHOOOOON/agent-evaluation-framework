@@ -1360,3 +1360,19 @@ def test_remove_workspace_handles_read_only_files(tmp_path):
     locked.chmod(0o400)
     (work / "sub").chmod(0o500)
     assert remove_workspace(work) is True
+
+
+def test_rejected_response_still_records_billed_usage(tmp_path):
+    """2026-10-17: an incomplete or unstructured response is billed, so the ledger keeps its usage."""
+    class Usage:
+        def model_dump(self):
+            return {"input_tokens": 11, "output_tokens": 5, "total_tokens": 16}
+    def parse(**kwargs):
+        return SimpleNamespace(id="resp", status="incomplete", output_parsed=None, usage=Usage())
+    ledger = {"attempts": [], "fatal": None}
+    meter = MeteredResponses(SimpleNamespace(responses=SimpleNamespace(parse=parse)),
+                             "A1", tmp_path, ledger, 3, set())
+    with pytest.raises(RuntimeError):
+        meter.parse(model="test", input=[], store=False, text_format=Payload)
+    attempt = ledger["attempts"][0]
+    assert attempt["status"] == "ERROR" and attempt["usage"]["total_tokens"] == 16

@@ -10,7 +10,7 @@ from uuid import uuid4
 
 from pydantic import BaseModel, ConfigDict, Field, JsonValue, model_validator
 
-VERSION = "openai-judge-1.15"
+VERSION = "openai-judge-1.16"
 # Same reason as flow_worker.GENERATION_TIMEOUT_SECONDS: a 120 s cap can end a
 # large structured response before it arrives. One attempt, no retries.
 JUDGE_TIMEOUT_SECONDS = 600
@@ -141,6 +141,28 @@ def encode(value):
     return json.dumps(value,ensure_ascii=False,sort_keys=True,separators=(",",":"),allow_nan=False)
 
 
+def usage_summary(response):
+    """Billed totals plus cache/reasoning details (same fields as P1 usage records)."""
+    usage=getattr(response,"usage",None)
+    summary={k:getattr(usage,k,None) for k in ("input_tokens","output_tokens","total_tokens")}
+    details=dict(cached_input_tokens=getattr(getattr(usage,"input_tokens_details",None),"cached_tokens",None),
+                 reasoning_tokens=getattr(getattr(usage,"output_tokens_details",None),"reasoning_tokens",None))
+    summary.update({k:v for k,v in details.items() if isinstance(v,int)})
+    return summary
+
+
+# Keys that change for every packet. Sent last so the role's fixed rubric,
+# scale and examples form a cacheable prefix (openai-judge-1.16).
+PER_PACKET_KEYS = ("sources","case_id","trial_id","packet_sha256")
+
+
+def cache_ordered(payload):
+    """Same JSON content as encode(payload); only top-level key order differs."""
+    first = sorted(k for k in payload if k not in PER_PACKET_KEYS)
+    last = [k for k in PER_PACKET_KEYS if k in payload]
+    return "{" + ",".join(encode(k)+":"+encode(payload[k]) for k in first+last) + "}"
+
+
 def evidence_catalog(packet):
     """Number exact leaf values without changing their types or original locations."""
     catalog = {}
@@ -253,7 +275,8 @@ def preview(packet: JudgePacket, model: str):
     if payload_bytes > MAX_JUDGE_PAYLOAD_BYTES:
         raise ValueError(f"Judge payload is too large: {payload_bytes} > {MAX_JUDGE_PAYLOAD_BYTES} bytes; select relevant source content")
     request = dict(model=model,store=False,max_output_tokens=6000,
-                   input=[{"role":"system","content":SYSTEM},{"role":"user","content":encoded_payload}])
+                   prompt_cache_key=f"p2-judge-{VERSION}-{packet.agent_id}",
+                   input=[{"role":"system","content":SYSTEM},{"role":"user","content":cache_ordered(payload)}])
     if model == DEFAULT_JUDGE_MODEL:
         request.update(reasoning={"effort": "medium"}, service_tier="default")
     # Bind approval to the packet, code checks, model, prompt, schema and settings.
@@ -362,8 +385,7 @@ def evaluate(packet, model, approval_sha256, output_root, *, client_factory=None
         result["response_id"]=getattr(response,"id",None)
         result["request_id"]=getattr(response,"_request_id",None)
         result["server_completion"]=getattr(response,"status","UNKNOWN")
-        usage=getattr(response,"usage",None)
-        result["usage"]={k:getattr(usage,k,None) for k in ("input_tokens","output_tokens","total_tokens")}
+        result["usage"]=usage_summary(response)
         if not result["response_id"] or result["server_completion"]!="completed":
             raise ValueError("Response incomplete or identity missing")
         received = getattr(response,"output_parsed",None)

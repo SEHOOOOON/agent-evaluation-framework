@@ -57,6 +57,10 @@ class MeteredResponses:
         self.persist()
         try:
             response = self.client.responses.parse(**kwargs)
+            # Billed even when the response is later rejected (incomplete, no
+            # identity, no structured output), so keep usage before any check.
+            usage = getattr(response, "usage", None)
+            item["usage"] = usage.model_dump() if hasattr(usage, "model_dump") else None
             item["server_completion"] = getattr(response, "status", "UNKNOWN")
             if item["server_completion"] != "completed":
                 raise ValueError("Generation response did not complete")
@@ -71,10 +75,8 @@ class MeteredResponses:
             if parsed is None:
                 raise ValueError("Structured output missing")
             write(folder / "response.json", parsed.model_dump(mode="json", by_alias=True))
-            usage = getattr(response, "usage", None)
             item.update(status="RECEIVED", server_completion="completed",
-                        response_sha256=digest(folder / "response.json"),
-                        usage=usage.model_dump() if hasattr(usage, "model_dump") else None)
+                        response_sha256=digest(folder / "response.json"))
             return response
         except Exception as exc:
             item.update(status="ERROR", error_type=type(exc).__name__)

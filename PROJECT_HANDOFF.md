@@ -1,5 +1,14 @@
 # 프로젝트 2 현재 상태
 
+## 2026-10-17 · PC 로컬: 클라우드 2차 반영 검증과 고칠 곳 8개 (API 없음, 미커밋)
+
+- 반영·검증: `-le3mg5`를 fast-forward(P1 `289133f`, P2 `3355e61`). 지시서 5단계 저장 자료 재검사 예상 일치(range-oracle 1.2 FAIL 3/6·T-5 MISSING, rejudge-flow 미리보기 READY, P1 검토서 재생성 차이는 기대 결과별 관찰 절뿐). 원본 FLOW 37개 해시 불변. 지시서 경로 오기(`live-20261015\runs\FLOW-…`) 수정.
+- 상단바 링크 시험: 형제 `portfolio_export`가 있는 PC에서 `main.html#contact` 링크 때문에 2개 FAIL(클라우드는 형제 폴더가 없어 '환경 원인'으로 표시되어 가려짐) → `#` 앞은 파일, 뒤는 대상 파일 id 확인. 형제 저장소가 없으면 실패 대신 "건너뜀: 링크 N개 미확인"으로 표시.
+- 비용·기록 [IMP-012](improvements/IMP-012-cache-order-and-usage-records.md): P2 채점 전송 순서·캐시 키(openai-judge-1.16), 채점 사용량에 캐시·추론 토큰, 생성 호출의 거절 응답 사용량 기록. P1 검토 전송 순서는 P1 인계 문서.
+- `pyproject.toml` 시험용 추가 설치 `httpx2` → 코드가 실제로 쓰는 `httpx`(사용자 결정). `httpx2`는 코드 어디에서도 import하지 않음.
+- 비용 분석: 10-15 2회차 기록 합산 가정 단가 약 $1.4, 비중 P2 채점 56%·P1 검토 36%·P1 생성 8%. 실제 청구액 미확인.
+- 전체 시험(2026-10-17 KST, 로컬, API 키 제거): 1033개 중 1029 PASS / 4 FAIL / 0 SKIP. FAIL 4개는 P1 사본 사전 점검(`test_actual_p1_copy_preflight_without_api`)이 P1 미커밋 변경을 '추적 파일 변경'으로 막은 기존 보호 동작 — P1 커밋 후 재확인. `qaf-*` 시험 전후 0 → 0.
+
 ## 2026-10-16 (3차) · 포트폴리오 4개 페이지 새 버전 `portfolio/v3/` (사용자 요청, 검토용)
 
 - 사용자 요청: 기존 4개(메인·P1·P2 소개·P2 근거)를 백업하고 새로 작성. 기존 파일은 원래 위치 그대로, 사본은 `portfolio/v3/backup-20261016/`. 메인 원본은 GitHub에 없는 PC `main.html` 대신 V1 `codex/night-review-20261009`의 `index.html`을 백업.

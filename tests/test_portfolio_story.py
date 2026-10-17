@@ -1,9 +1,13 @@
 """Narrative/report presentation contracts; not model evaluations."""
 from html.parser import HTMLParser
 from pathlib import Path
+import os
 import re
 
+import pytest
+
 PAGE = Path(__file__).resolve().parents[1] / "portfolio"
+ROOT = PAGE.parent
 
 
 class Links(HTMLParser):
@@ -53,14 +57,27 @@ def test_all_six_summary_rows_are_identical_to_preserved_report():
 def test_homepage_links_resolve_to_files_and_report_anchors():
     page = Links((PAGE / "index.html").read_text(encoding="utf-8"))
     report = Links((PAGE / "report.html").read_text(encoding="utf-8"))
+    unchecked = []
     for link in page.links:
         if link.startswith("#"):
             assert link[1:] in page.ids
         else:
             name, _, anchor = link.partition("#")
+            target = Path(os.path.normpath(PAGE / name))
+            # A sibling repository that is not checked out is reported, not failed.
+            if ROOT not in target.parents and not (ROOT.parent / target.relative_to(ROOT.parent).parts[0]).is_dir():
+                unchecked.append(link)
+                continue
             assert (PAGE / name).is_file(), link
-            if anchor:
-                assert name == "report.html" and anchor in report.ids
+            if anchor == "":
+                continue
+            if name == "report.html":
+                assert anchor in report.ids, link
+            else:
+                # Shared top bar links to the sibling main page (2026-10-16).
+                assert f'id="{anchor}"' in (PAGE / name).read_text(encoding="utf-8"), link
+    if unchecked:
+        pytest.skip(f"형제 저장소 없음: 링크 {len(unchecked)}개 미확인 {sorted(set(unchecked))}")
 
 
 def test_report_exposes_original_details_and_keeps_legacy_anchor_routes():

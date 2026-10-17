@@ -6,6 +6,8 @@ import os
 from pathlib import Path
 import re
 
+import pytest
+
 ROOT = Path(__file__).resolve().parents[1]
 PAGE = ROOT / 'portfolio'
 
@@ -36,16 +38,24 @@ def test_links_ids_and_local_resources():
     assert len(page.ids) == len(set(page.ids))
     rubric = json.loads((PAGE / 'rubric.js').read_text(encoding='utf-8').split('window.PORTFOLIO_RUBRIC = ', 1)[1].strip().removesuffix(';'))
     dynamic_ids = {'criterion-' + row['criterion_id'] for row in rubric['criteria']}
+    unchecked = []
     for link in page.links:
         if link.startswith('#'):
             assert link[1:] in set(page.ids) | dynamic_ids
         elif not link.startswith('https://'):
-            target = Path(os.path.normpath(PAGE / link))  # no symlink/junction resolution
+            path, _, anchor = link.partition('#')
+            target = Path(os.path.normpath(PAGE / path))  # no symlink/junction resolution
             # Sibling portfolio repositories are only checked when checked out.
             if ROOT not in target.parents and not (ROOT.parent / target.relative_to(ROOT.parent).parts[0]).is_dir():
+                unchecked.append(link)
                 continue
-            assert target.is_file()
+            assert target.is_file(), link
+            if anchor:
+                assert f'id="{anchor}"' in target.read_text(encoding='utf-8'), link
     assert all(resource and (PAGE / resource).is_file() for resource in page.resources)
+    # Report sibling links as unchecked, never as a pass or an environment failure.
+    if unchecked:
+        pytest.skip(f'형제 저장소 없음: 링크 {len(unchecked)}개 미확인 {sorted(set(unchecked))}')
 
 
 def test_all_26_original_items_and_missing_scores_preserved():

@@ -483,3 +483,30 @@ def test_judge_records_start_finish_and_elapsed_time(tmp_path):
         start = datetime.fromisoformat(record["started_at"])
         end = datetime.fromisoformat(record["finished_at"])
         assert end >= start and record["elapsed_seconds"] >= 0
+
+
+def test_judge_request_sends_fixed_rubric_before_evidence_with_same_content():
+    """openai-judge-1.16: only the top-level order changes, for prompt caching."""
+    from eval_harness.openai_judge import encode
+    first = preview(packet(), "offline")
+    second = preview(packet().model_copy(update={"trial_id": "T002", "sources": {
+        "request": {"text": "Set temperature to 20 degrees."}, "tc": {"steps": ["Apply"]}}}), "offline")
+    a, b = (p["request"]["input"][1]["content"] for p in (first, second))
+    sent = json.loads(a)
+    assert list(sent)[-4:] == ["sources", "case_id", "trial_id", "packet_sha256"]
+    assert list(sent)[0] == "agent_id" and list(sent).index("rubric") < list(sent).index("sources")
+    assert len(a.encode("utf-8")) == first["payload_bytes"] == len(encode(sent).encode("utf-8"))
+    assert a[:a.index('"sources"')] == b[:b.index('"sources"')]  # shared, cacheable prefix
+    assert first["request"]["prompt_cache_key"] == "p2-judge-openai-judge-1.16-A2"
+
+
+def test_judge_usage_keeps_cache_and_reasoning_details():
+    from eval_harness.openai_judge import usage_summary
+    usage = SimpleNamespace(input_tokens=100, output_tokens=40, total_tokens=140,
+                            input_tokens_details=SimpleNamespace(cached_tokens=64),
+                            output_tokens_details=SimpleNamespace(reasoning_tokens=25))
+    assert usage_summary(SimpleNamespace(usage=usage)) == dict(
+        input_tokens=100, output_tokens=40, total_tokens=140, cached_input_tokens=64, reasoning_tokens=25)
+    # Older SDK objects without details keep the previous three fields only.
+    assert usage_summary(SimpleNamespace(usage=SimpleNamespace(input_tokens=1, output_tokens=2, total_tokens=3))) == dict(
+        input_tokens=1, output_tokens=2, total_tokens=3)
