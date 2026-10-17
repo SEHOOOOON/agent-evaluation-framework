@@ -1419,3 +1419,27 @@ def test_confirmed_range_key_scores_tc_r05_by_code_and_draft_does_not():
     assert row["evaluation_method"] == "PYTHON" and row["score"] == 2 and row["verdict"] == "FAIL"
     row = next(r for r in full_scorecard({"A2": ai}, dict(python, judgments=[]))["criteria"] if r["criterion_id"] == "TC-R05")
     assert row["evaluation_method"] == "AI" and row["score"] == 5
+
+
+def test_generation_payload_limit_and_blocked_reason_is_recorded(tmp_path):
+    """2026-10-17: a 251,361-byte Agent 3 review was blocked at the former 250 KB cap."""
+    from eval_harness.flow_worker import MAX_GENERATION_PAYLOAD_BYTES
+    sent = []
+    def parse(**kwargs):
+        sent.append(kwargs)
+        return SimpleNamespace(id=f"resp-{len(sent)}", status="completed", output_parsed=Payload(text="x"), usage=None)
+    ledger = {"attempts": [], "fatal": None}
+    meter = MeteredResponses(SimpleNamespace(responses=SimpleNamespace(parse=parse)),
+                             "A3", tmp_path, ledger, 3, set(), purpose="grounding")
+    near = "가" * 85_000  # about 255 KB in UTF-8: over the old cap, under the new one
+    meter.parse(model="test", input=[{"role": "user", "content": near}], store=False, text_format=Payload)
+    assert len(sent) == 1 and ledger["fatal"] is None
+    too_big = "가" * (MAX_GENERATION_PAYLOAD_BYTES // 3 + 1000)
+    with pytest.raises(ValueError, match="too large"):
+        meter.parse(model="test", input=[{"role": "user", "content": too_big}], store=False, text_format=Payload)
+    assert len(sent) == 1 and len(ledger["attempts"]) == 1  # not sent, not counted as a call
+    assert ledger["fatal"] == "GENERATION_PAYLOAD_TOO_LARGE"
+    blocked = ledger["blocked_before_send"]
+    assert blocked["role"] == "A3" and blocked["purpose"] == "grounding"
+    assert blocked["payload_bytes"] > blocked["limit_bytes"] == MAX_GENERATION_PAYLOAD_BYTES
+    assert read(tmp_path / "call_ledger.json")["fatal"] == "GENERATION_PAYLOAD_TOO_LARGE"

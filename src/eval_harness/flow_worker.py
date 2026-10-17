@@ -18,6 +18,10 @@ from .v2_recorded import digest, read, write
 # Same as the OpenAI SDK default that P1 uses when run on its own. A 120 s cap
 # cut off a full-size A2 design response (FLOW-20261015-104803-e84cbf).
 GENERATION_TIMEOUT_SECONDS = 600
+# A complete single-TC Agent 3 review was 251,361 bytes (FLOW-20261017-073532-43e9b8,
+# 1,018 sources) and was blocked by the former 250,000 cap. Same bound as the
+# judge input (MAX_JUDGE_PAYLOAD_BYTES); content is never truncated to fit.
+MAX_GENERATION_PAYLOAD_BYTES = 500_000
 
 
 class MeteredResponses:
@@ -43,7 +47,13 @@ class MeteredResponses:
         scan_payload(payload)
         if payload.get("store") is not False or payload.get("tools"):
             raise ValueError("Unsupported generation transmission")
-        if len(encode(payload).encode("utf-8")) > 250_000:
+        size = len(encode(payload).encode("utf-8"))
+        if size > MAX_GENERATION_PAYLOAD_BYTES:
+            # Not sent, not billed; record why so the stop is visible without replaying.
+            self.ledger["fatal"] = "GENERATION_PAYLOAD_TOO_LARGE"
+            self.ledger["blocked_before_send"] = dict(role=self.role, purpose=self.purpose, payload_bytes=size,
+                                                      limit_bytes=MAX_GENERATION_PAYLOAD_BYTES)
+            self.persist()
             raise ValueError("Generation payload too large")
         seq = len(self.ledger["attempts"]) + 1
         folder = self.work / "calls" / f"{seq:03d}"
