@@ -1443,3 +1443,26 @@ def test_generation_payload_limit_and_blocked_reason_is_recorded(tmp_path):
     assert blocked["role"] == "A3" and blocked["purpose"] == "grounding"
     assert blocked["payload_bytes"] > blocked["limit_bytes"] == MAX_GENERATION_PAYLOAD_BYTES
     assert read(tmp_path / "call_ledger.json")["fatal"] == "GENERATION_PAYLOAD_TOO_LARGE"
+
+
+def test_judge_input_keeps_identity_of_fixed_instructions_and_unsupported_review_items():
+    """full-flow-0.21 (2026-10-18): judge input about 30% smaller on the saved 10-17 runs."""
+    from eval_harness.full_flow import compact_grounding_review, request_evidence
+    call = {"role": "A2", "purpose": "generation",
+            "payload": {"input": [{"role": "system", "content": "고정 지침" * 100},
+                                  {"role": "user", "content": '{"요청": "냉방 20~30"}'}]}}
+    sent = request_evidence(call)["payload"]["input"]
+    assert sent[0]["content"]["payload_omitted"] == "FIXED_SYSTEM_INSTRUCTIONS"
+    assert sent[0]["content"]["utf8_bytes"] == len(("고정 지침" * 100).encode())
+    assert sent[1]["content"]["parsed_json"] == {"요청": "냉방 20~30"}
+    review = {"stage": "AGENT3", "model": "m", "source_selection": {"items": [1, 2]}, "index_selection": {},
+              "review": {"items": [dict(item_id="A", verdict="SUPPORTED", reason="ok"),
+                                   dict(item_id="B", verdict="UNSUPPORTED", reason="[경고] 근거 약함"),
+                                   dict(item_id="C", verdict="UNCERTAIN", reason="확인 필요")]}}
+    compact = compact_grounding_review(review, "h" * 64)
+    assert compact["stage"] == "AGENT3" and "review" not in compact and "source_selection" not in compact
+    summary = compact["review_summary"]
+    assert summary["verdict_counts"] == {"SUPPORTED": 1, "UNSUPPORTED": 1, "UNCERTAIN": 1}
+    assert [i["item_id"] for i in summary["not_supported_items"]] == ["B", "C"]
+    assert summary["raw_artifact_sha256"] == "h" * 64
+    assert compact_grounding_review({"review": "unexpected"}, "h") == {"review": "unexpected"}

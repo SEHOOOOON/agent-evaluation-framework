@@ -30,7 +30,7 @@ from .openai_judge import (JudgePacket, encode, preview as judge_preview, evalua
 from .v2_recorded import (child, digest, read, write, target_pin, inventory, execution_rows,
                           finding_matches_execution, report_counts_match, handoff_checks)
 
-VERSION = "full-flow-0.20"
+VERSION = "full-flow-0.21"
 ROLES = ("A1", "A2", "A3", "A4")
 
 
@@ -511,12 +511,40 @@ def request_evidence(call, raw_sha256=None):
         return result
     for message in result.get("payload", {}).get("input", []):
         content = message.get("content") if isinstance(message, dict) else None
+        if isinstance(content, str) and message.get("role") == "system":
+            # full-flow-0.21: P1's fixed instructions (A2 ~58 KB) are the same every
+            # Run and are not what the role is graded on. Keep identity, not text.
+            message["content"] = {"payload_omitted": "FIXED_SYSTEM_INSTRUCTIONS",
+                                  "raw_utf8_sha256": sha256(content.encode()).hexdigest(),
+                                  "utf8_bytes": len(content.encode())}
+            continue
         if isinstance(content, str) and content.lstrip().startswith(("{", "[")):
             try:
                 message["content"] = {"parsed_json": json.loads(content),
                                       "raw_utf8_sha256": sha256(content.encode()).hexdigest()}
             except ValueError:
                 pass
+    return result
+
+
+def compact_grounding_review(value: dict, raw_sha256: str) -> dict:
+    """full-flow-0.21: verdict counts and every non-SUPPORTED item; SUPPORTED details
+    (A3 ~90 KB per candidate) stay in the ZIP under the recorded hash."""
+    review = value.get("review")
+    items = review.get("items") if isinstance(review, dict) else None
+    if not isinstance(items, list):
+        return value
+    counts = {}
+    for item in items:
+        verdict = item.get("verdict") if isinstance(item, dict) else None
+        counts[verdict] = counts.get(verdict, 0) + 1
+    result = {k: v for k, v in value.items() if k not in ("review", "source_selection", "index_selection")}
+    result["review_summary"] = {
+        "verdict_counts": counts,
+        "not_supported_items": [i for i in items if not isinstance(i, dict) or i.get("verdict") != "SUPPORTED"],
+        "omitted": "SUPPORTED_ITEM_DETAILS_AND_SOURCE_SELECTION",
+        "raw_artifact_sha256": raw_sha256,
+    }
     return result
 
 
@@ -1111,6 +1139,8 @@ def collect_packets(run, work, spec, plan, checks):
                          "raw_artifact_sha256": digest(run / key)}
                 if retained:
                     value["retained_reference_context"] = retained
+            elif basename.startswith(f"agent{role[-1]}_grounding_review") and isinstance(value, dict):
+                value = compact_grounding_review(value, digest(run / key))
             checkpoint_docs[key] = value
         source = {
             "context": {"request": plan["request"], "independent_oracle": plan["oracle"],

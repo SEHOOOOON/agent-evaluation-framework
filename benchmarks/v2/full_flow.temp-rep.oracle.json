@@ -3,7 +3,7 @@
  "status": "DRAFT",
  "human_reviewed": false,
  "author": "Codex assistant",
- "request_sha256": "399bb39ca3047cd85d9d1347df119d27c279b60c8af11b27f5fe0c8ede1b31d0",
+ "request_sha256": "1a85b4eb45fd87d03a804a293b2c5a4c0688bb37d18fa50ac147fc2cbdaff873",
  "rubric_version": "role-rubric-2.5",
  "note": "2026-10-15 oracle.draft.json의 역할별 조건을 다시 사용(사람 확정 정답 아님). A2의 필수 시험·질문은 사람 확정 범위 정답지 range_keys/representative-temperature.json(HUMAN_CONFIRMED, 2026-10-17)으로 코드 채점한다.",
  "expectations": [
@@ -15,7 +15,7 @@
     "A1-03",
     "A1-04"
    ],
-   "condition": "냉방 20~30°C 변경과 난방 16~30°C 유지, 준비값 17°C를 구분한다. 공식 반영 금지는 개정안 작성 금지로 해석하지 않는다."
+   "condition": "냉방 20~30°C 변경과 난방 16~30°C 유지를 구분하고, 난방 하한 16°C에서 15°C 시도 시 16°C 유지를 조건으로 보존한다. 공식 반영 금지는 개정안 작성 금지로 해석하지 않는다."
   },
   {
    "role": "A2",
@@ -29,7 +29,7 @@
     "TC-R06",
     "TC-R07"
    ],
-   "condition": "냉방 20°C 적용 후 감소 1회 직후 패널 입력 20°C 유지, 적용 후 카드·내부 20°C를 확인한다. 난방 17°C 준비 후 16°C 적용과 패널·카드·내부값을 확인한다. 기존 TC 범위가 충분하면 재사용하며 후보 개수 자체는 정답 기준이 아니다."
+   "condition": "냉방 20°C 적용 후 감소 1회 직후 패널 입력 20°C 유지, 적용 후 카드·내부 20°C를 확인한다. 난방 16°C에서 15°C 감소 시도 후 적용 시 16°C 유지와 패널·카드·내부값을 확인한다. 기존 TC 범위가 충분하면 재사용하며 후보 개수 자체는 정답 기준이 아니다."
   },
   {
    "role": "A3",

@@ -1,0 +1,14 @@
+{
+ "case_id": "FAN-REP",
+ "request": "examples/change_request.representative-fan.json",
+ "oracle": "full_flow.fan-rep.oracle.json",
+ "generation_model": "gpt-6.1-sol",
+ "judge_model": "gpt-6.1-sol",
+ "trials": 1,
+ "max_candidates": 3,
+ "generation_calls_per_trial": 10,
+ "generation_calls_total": 10,
+ "judge_calls_total": 4,
+ "trial_timeout_seconds": 1800,
+ "product_timeout_seconds": 90
+}

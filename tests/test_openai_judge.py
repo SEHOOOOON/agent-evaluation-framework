@@ -523,3 +523,12 @@ def test_untested_c02_is_not_applicable_and_revision_counts_for_a2_01():
     assert "시험되지 않은 능력" in SYSTEM and "NOT_APPLICABLE로 두고" in SYSTEM
     # Saved packets of the previous profile still load.
     assert JudgePacket.model_fields["rubric_profile"].annotation.__args__ == ("custom", "role-rubric-2.5", "role-rubric-2.6")
+
+
+def test_operation_and_check_in_one_step_line_is_tc_r02_failure():
+    """2026-10-18 사람 대조 H-4: '적용하고 모드를 확인한다'처럼 한 줄에 쓰면 3점 이하."""
+    from eval_harness.detailed_rubric import CRITERIA
+    from eval_harness.openai_judge import SYSTEM
+    row = next(r for r in CRITERIA if r["criterion_id"] == "TC-R02")
+    assert "H-4" in row["pass_condition"] and "3점 이하" in row["fail_condition"]
+    assert "조작과 확인을 한 절차 줄에 함께 쓴 경우" in SYSTEM and "TC-R02 FAIL, 3점 이하" in SYSTEM
