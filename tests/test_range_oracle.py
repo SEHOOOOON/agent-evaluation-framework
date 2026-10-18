@@ -77,6 +77,11 @@ def by_id(result):
     return {i["id"]: i for i in result["items"]}
 
 
+def strict_key():
+    """Same request without the out_of_scope exclusion: T-5 stays REQUIRED."""
+    return load_key(KEY_PATH).model_copy(update={"switch_behavior_excluded": False})
+
+
 def test_key_expands_to_required_and_recommended_tests():
     rows = {r["id"]: r for r in expectations(load_key(KEY_PATH))}
     assert {k for k, r in rows.items() if r["level"] == "REQUIRED"} == {
@@ -89,7 +94,7 @@ def test_key_expands_to_required_and_recommended_tests():
 
 def test_synthetic_live_errors_are_all_found():
     """The reviewer AI and P2 judge gave 5/5 to a design with these errors."""
-    result = grade(load_key(KEY_PATH), live_like_design())
+    result = grade(strict_key(), live_like_design())
     items = by_id(result)
     assert result["verdict"] == "FAIL"
     assert items["T-2:BLOCK:COOL:31"]["status"] == "MISSING"
@@ -106,7 +111,7 @@ def test_synthetic_live_errors_are_all_found():
 def test_question_in_confirmation_items_satisfies_t5():
     design = live_like_design()
     design["최종_확인_사항"] = ["난방 17°C 상태에서 냉방으로 전환할 때 설정 온도 처리 방식을 확인해 주세요."]
-    assert by_id(grade(load_key(KEY_PATH), design))["T-5:QUESTION:COOL"]["status"] == "MET"
+    assert by_id(grade(strict_key(), design))["T-5:QUESTION:COOL"]["status"] == "MET"
 
 
 def test_defined_switch_behavior_needs_no_question():
@@ -115,7 +120,7 @@ def test_defined_switch_behavior_needs_no_question():
 
 
 def test_correct_design_passes():
-    result = grade(load_key(KEY_PATH), correct_design())
+    result = grade(strict_key(), correct_design())
     assert result["verdict"] == "PASS", [i for i in result["items"] if i["status"] != "MET"]
     assert result["required_met"] == result["required_total"] == 6
     assert result["issues"] == []
@@ -125,7 +130,7 @@ def test_t5_comes_from_the_request_even_without_a_switch_in_the_tc():
     """Real 10-15 TC set COOL right after device selection (no out-of-range switch)."""
     design = correct_design()
     design["최종_확인_사항"] = []
-    result = grade(load_key(KEY_PATH), design)
+    result = grade(strict_key(), design)
     item = by_id(result)["T-5:QUESTION:COOL"]
     assert item["status"] == "MISSING" and "TC에 해당 전환 없음" in item["detail"] and "HEAT 16~30" in item["detail"]
     assert result["verdict"] == "FAIL"
@@ -136,7 +141,7 @@ def test_a1_question_counts_for_t5():
     design["최종_확인_사항"] = []
     analysis = {"user_questions": [{"question": "냉방 하한보다 낮은 온도에서 냉방 모드로 바꾸면 어떻게 처리하나요?"}],
                 "information_gaps": []}
-    assert by_id(grade(load_key(KEY_PATH), design, analysis))["T-5:QUESTION:COOL"]["status"] == "MET"
+    assert by_id(grade(strict_key(), design, analysis))["T-5:QUESTION:COOL"]["status"] == "MET"
 
 
 def test_widened_range_needs_no_t5_question():
@@ -229,7 +234,7 @@ def test_second_key_with_both_bounds_changed_uses_its_own_values():
 
 
 def _t5(design, analysis=None):
-    return by_id(grade(load_key(KEY_PATH), design, analysis))["T-5:QUESTION:COOL"]
+    return by_id(grade(strict_key(), design, analysis))["T-5:QUESTION:COOL"]
 
 
 @pytest.mark.parametrize("text", [
@@ -242,7 +247,7 @@ def test_mode_name_alone_is_not_a_switch_question(text):
     design["최종_확인_사항"] = [text]
     item = _t5(design)
     assert item["status"] == "PARTIAL" and "모드 이름만" in item["detail"]
-    assert grade(load_key(KEY_PATH), design)["verdict"] == "FAIL"
+    assert grade(strict_key(), design)["verdict"] == "FAIL"
 
 
 def test_words_in_different_entries_are_not_combined():
@@ -273,3 +278,26 @@ def test_a1_field_names_are_not_read_as_words():
     design["최종_확인_사항"] = []
     analysis = {"user_questions": [{"switch_outside": "냉방 30°C 표시 확인"}], "information_gaps": []}
     assert _t5(design, analysis)["status"] == "PARTIAL"
+
+
+def test_request_excluded_switch_makes_t5_optional():
+    """H-2 (2026-10-17): the real request lists the COOL entry policy as out of scope."""
+    key = load_key(KEY_PATH)
+    assert key.status == "HUMAN_CONFIRMED" and key.switch_behavior_excluded
+    design = correct_design()
+    design["최종_확인_사항"] = []
+    result = grade(key, design)
+    item = by_id(result)["T-5:QUESTION:COOL"]
+    assert item["level"] == "OPTIONAL" and item["status"] == "MISSING" and "H-2" in item["detail"]
+    assert result["verdict"] == "PASS" and result["required_met"] == result["required_total"] == 5
+    # Asking anyway is recorded as met and never lowers the result.
+    assert by_id(grade(key, correct_design()))["T-5:QUESTION:COOL"]["status"] == "MET"
+
+
+def test_english_field_names_count_for_t5():
+    """A2 attempt files may use English field names; the question is the same."""
+    design = correct_design()
+    question = design.pop("최종_확인_사항")
+    assert _t5(design)["status"] == "MISSING"
+    design["final_review_notes"] = question
+    assert _t5(design)["status"] == "MET"

@@ -5,6 +5,11 @@ with the human-confirmed rules of 2026-10-15 (T-1/T-2/T-3/T-4/T-5/T-7/T-8/C-3)
 and walks the A2 ``execution_spec`` to see which required tests exist. It reads
 operations and typed verifications only; prose is never parsed for values.
 Host-enforced target identity (C-9) is left to P1 and is not re-checked here.
+
+1.3 (2026-10-17 사람 대조 H-2): when the request itself lists the switch behavior
+as out of scope (``switch_behavior_excluded``), the T-5 question is OPTIONAL and
+not counted as required; asking anyway is not penalized. 1.3 also reads the
+English design field names (final_review_notes, human_review_notes).
 """
 from __future__ import annotations
 
@@ -13,7 +18,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-VERSION = "range-oracle-1.2"
+VERSION = "range-oracle-1.3"
 LOCATIONS = ("panel", "card", "internal")
 # Block verdicts are value retention only (T-8); these readers judge something else.
 NON_VALUE_TARGETS = {"notification.toast", "temperature.controls", "temperature.increase",
@@ -53,6 +58,8 @@ class RangeKey(BaseModel):
     requested_tests: list[RequestedTest] = []
     # T-5 applies only while the request/SRS leaves the switch behavior undefined.
     switch_behavior_defined: bool = False
+    # H-2: the request's out_of_scope names this switch policy -> question optional.
+    switch_behavior_excluded: bool = False
 
     @model_validator(mode="after")
     def distinct_modes(self):
@@ -204,7 +211,10 @@ def grade(key: RangeKey, design: dict, analysis: dict | None = None) -> dict[str
             ranges = ", ".join(f"{k.mode} {k.lower}~{k.upper}" for k in sources)
             status = {"SWITCH": "MET", "MODE_ONLY": "PARTIAL"}.get(asked, "MISSING")
             note = " / 확인 문장에 모드 이름만 있고 유지 모드·전환·범위 밖 표현이 없음" if asked == "MODE_ONLY" else ""
-            items.append(dict(id=f"T-5:QUESTION:{r.mode}", rule="T-5", level="REQUIRED", kind="QUESTION",
+            level = "OPTIONAL" if key.switch_behavior_excluded else "REQUIRED"
+            if key.switch_behavior_excluded:
+                note += " / 요청서가 이 전환 정책을 '이번에 다루지 않음'으로 제외해 질문은 선택(H-2)"
+            items.append(dict(id=f"T-5:QUESTION:{r.mode}", rule="T-5", level=level, kind="QUESTION",
                               mode=r.mode, start=None, attempted=None, expected=None, status=status,
                               detail=f"{ranges}에는 {r.mode} {r.lower}~{r.upper} 밖 값이 있음; 전환 동작 미정"
                                      + (f" (TC 전환: {'; '.join(seen)})" if seen else " (TC에 해당 전환 없음)")
@@ -246,7 +256,8 @@ def _asks_about(design: dict, mode: str, analysis: dict | None = None,
     mode or a switch/out-of-range phrase, MODE_ONLY when entries only name the
     mode, None otherwise. Words in different entries are never combined."""
     texts = []
-    sources = [(design, ("최종_확인_사항", "중단_확인_사항"))]
+    # P1 saves Korean display names; English field names are read too (1.3).
+    sources = [(design, ("최종_확인_사항", "중단_확인_사항", "final_review_notes", "human_review_notes"))]
     if analysis:
         sources.append((analysis, ("user_questions", "information_gaps")))
     for doc, fields in sources:

@@ -10,7 +10,7 @@ from uuid import uuid4
 
 from pydantic import BaseModel, ConfigDict, Field, JsonValue, model_validator
 
-VERSION = "openai-judge-1.16"
+VERSION = "openai-judge-1.17"
 # Same reason as flow_worker.GENERATION_TIMEOUT_SECONDS: a 120 s cap can end a
 # large structured response before it arrives. One attempt, no retries.
 JUDGE_TIMEOUT_SECONDS = 600
@@ -34,6 +34,7 @@ TC 설명의 복원 성공 확인과 코드 구현·실제 실행 증거를 구�
 TC→계획 보존은 구조화 필드도 함께 대조하세요. restore_confirmations의 result_ids·comparisons·OBSERVED_BASELINE은 기존 ER 읽기 위치의 원래 관찰값과 복원 후 값을 비교하는 확인 명세입니다. 별도의 고정 복원 기대값이나 제품 assertion을 다시 쓰지 않았다는 이유만으로 누락으로 판정하지 마세요. 실제 대상 누락·기준 변경·확인 미구현은 그대로 지적하며 TC 명세, 계획, 코드, 실행 증거 중 어느 단계의 문제인지 구분하세요.
 한 항목에 여러 조건이 있을 때 일부 조건의 비적용을 항목 전체의 비적용으로 확대하지 마세요. 필요한 정상 범위는 경계값이 없어도 평가합니다. 원인 분류는 원본의 실패·정보 부족·오류·미실행 신호 또는 보고의 원인 주장부터 확인하며, 모든 원본이 정상이고 원인 주장도 없을 때만 해당 없음입니다. 입력이 부족해 이 여부를 알 수 없으면 REVIEW입니다.
 해당 사례에서 관찰한 범위만 설명하세요. 정상 입력의 권한 준수가 확인되어도 실행하지 않은 충돌 지시 방어·다른 경로의 안정성까지 검증했다고 주장하지 마세요.
+이번 실행에서 실제로 시험되지 않은 능력(예: 충돌 지시가 없고 권한 밖 주장도 없는 실행의 C02)은 PASS 5점이 아니라 NOT_APPLICABLE로 두고, 무엇이 없어서 시험되지 않았는지 이유와 근거를 남기세요.
 사용자 TC 예시의 제품별 값/색상을 다른 요구사항에 복사하지 마세요. 요청에 없는 알림 등을 강요하지 마세요.
 TC를 수정하거나 실행 성공/사람 승인/공식 등록을 선언하지 마세요. 개선 제안은 reason에만 설명하세요.
 프로그램 담당 검사는 AI의 채점 대상이 아닙니다. 자동 생성 코드 본문은 기본 입력에서 제외하며, 코드 미전송을 검사 미구현으로 판단하지 마세요. TC·계획·실제 실행 기록의 의미를 요청과 대조하고 근거가 없으면 REVIEW로 남기세요.
@@ -84,7 +85,7 @@ class JudgePacket(StrictModel):
     rubric: list[RubricItem] = Field(min_length=1)
     code_checks: list[CodeCheck]
     oracle_status: Literal["DRAFT", "HUMAN_REVIEWED"] = "DRAFT"
-    rubric_profile: Literal["custom", "role-rubric-2.5"] = "custom"
+    rubric_profile: Literal["custom", "role-rubric-2.5", "role-rubric-2.6"] = "custom"
     scoring_profile: Literal["score-0-5-v1", "score-0-5-v2"] | None = None
 
     @model_validator(mode="after")

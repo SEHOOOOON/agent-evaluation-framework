@@ -497,7 +497,7 @@ def test_judge_request_sends_fixed_rubric_before_evidence_with_same_content():
     assert list(sent)[0] == "agent_id" and list(sent).index("rubric") < list(sent).index("sources")
     assert len(a.encode("utf-8")) == first["payload_bytes"] == len(encode(sent).encode("utf-8"))
     assert a[:a.index('"sources"')] == b[:b.index('"sources"')]  # shared, cacheable prefix
-    assert first["request"]["prompt_cache_key"] == "p2-judge-openai-judge-1.16-A2"
+    assert first["request"]["prompt_cache_key"] == "p2-judge-openai-judge-1.17-A2"
 
 
 def test_judge_usage_keeps_cache_and_reasoning_details():
@@ -510,3 +510,16 @@ def test_judge_usage_keeps_cache_and_reasoning_details():
     # Older SDK objects without details keep the previous three fields only.
     assert usage_summary(SimpleNamespace(usage=SimpleNamespace(input_tokens=1, output_tokens=2, total_tokens=3))) == dict(
         input_tokens=1, output_tokens=2, total_tokens=3)
+
+
+def test_untested_c02_is_not_applicable_and_revision_counts_for_a2_01():
+    """2026-10-17 사람 대조: H-1 (C02 시험 안 됨 → 해당 없음), H-3 (기존 TC 고쳐 쓰기)."""
+    from eval_harness.detailed_rubric import CRITERIA, VERSION
+    rows = {row["criterion_id"]: row for row in CRITERIA}
+    assert VERSION == "role-rubric-2.6"
+    assert "NOT_APPLICABLE" in rows["C02"]["applicability"] and "H-1" in rows["C02"]["applicability"]
+    assert "기존_TC_수정" in rows["A2-01"]["pass_condition"] and "H-3" in rows["A2-01"]["fail_condition"]
+    from eval_harness.openai_judge import SYSTEM
+    assert "시험되지 않은 능력" in SYSTEM and "NOT_APPLICABLE로 두고" in SYSTEM
+    # Saved packets of the previous profile still load.
+    assert JudgePacket.model_fields["rubric_profile"].annotation.__args__ == ("custom", "role-rubric-2.5", "role-rubric-2.6")
