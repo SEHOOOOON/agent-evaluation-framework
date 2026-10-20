@@ -1466,3 +1466,20 @@ def test_judge_input_keeps_identity_of_fixed_instructions_and_unsupported_review
     assert [i["item_id"] for i in summary["not_supported_items"]] == ["B", "C"]
     assert summary["raw_artifact_sha256"] == "h" * 64
     assert compact_grounding_review({"review": "unexpected"}, "h") == {"review": "unexpected"}
+
+
+def test_verified_agent1_pause_marks_execution_checks_not_applicable(tmp_path):
+    """2026-10-20 lock run: a correct question-and-wait is not 'evidence missing'."""
+    from eval_harness.full_flow import python_scores
+    run = tmp_path / "RUN-X"
+    run.mkdir()
+    waiting = {"status": "WAITING_FOR_USER", "questions": ["허용할 명령과 조건은?"]}
+    graded = {j["criterion_id"]: j for j in python_scores(run, [], waiting=waiting)["judgments"]}
+    for cid in ("A3-03", "A4-01", "A4-03"):
+        assert graded[cid]["verdict"] == "NOT_APPLICABLE" and graded[cid]["score"] is None
+    assert graded["E04"]["verdict"] == "REVIEW"
+    broken = [{"rule": "E04.ASSET_PROTECTION", "status": "FAIL"}]
+    assert {j["criterion_id"]: j for j in python_scores(run, broken, waiting=waiting)["judgments"]}["E04"]["verdict"] == "FAIL"
+    # Without a verified pause, missing execution evidence stays REVIEW.
+    plain = {j["criterion_id"]: j for j in python_scores(run, [])["judgments"]}
+    assert plain["A4-01"]["verdict"] == "REVIEW"

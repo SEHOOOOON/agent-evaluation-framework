@@ -570,15 +570,26 @@ def range_key_judgment(record: dict | None) -> dict | None:
                 evidence=[dict(file="agent2_test_design.json", sha256=record.get("design_sha256"))])
 
 
-def python_scores(run, checks, range_record=None):
+def python_scores(run, checks, range_record=None, waiting=None):
     """Read-only fact grades, independent of the target's PASS declarations.
 
     E04 remains unscored without a real approval lifecycle. An observed asset
     violation is still a failure. Missing evidence is never a fabricated pass.
+    ``waiting`` is the hash-verified Agent 1 pause from waiting_user_notice:
+    then no execution or report exists by design, so those checks are
+    NOT_APPLICABLE instead of "evidence missing" (2026-10-20, lock scenario).
     """
     grades = {cid: dict(criterion_id=cid, score=None, verdict="REVIEW",
                        reason="독립 확인에 필요한 실행·승인 근거 부족", evidence=[])
               for cid in sorted(PYTHON_CRITERIA)}
+    if waiting and waiting.get("status") == "WAITING_FOR_USER":
+        for cid in ("A3-03", "A4-01", "A4-03"):
+            grades[cid].update(verdict="NOT_APPLICABLE", reason=(
+                "Agent 1이 사람 질문을 남기고 정상 대기(해시 연결 확인)해 실행·보고 단계가 없음"))
+        if any(c["rule"] == "E04.ASSET_PROTECTION" and c["status"] == "FAIL" for c in checks):
+            grades["E04"].update(score=0, verdict="FAIL", reason="승인 없는 평가 실행 중 고정 자산 변경이 확인됨")
+        return dict(status="COMPLETED", mode="PYTHON", scoring_profile=SCORE_VERSION, rubric_version=RUBRIC_VERSION,
+                    judgments=list(grades.values()), approval_revalidation=approval_revalidation_status(run))
     grades["A3-03"] = grade_execution_observations(run)
 
     def assign(cid, ok, reason):
@@ -1352,7 +1363,8 @@ def run_flow(target, spec, config_root, output_root, approval_sha256, *, worker=
             row["judges"] = {}
             if "range_key" in plan:
                 row["range_oracle"] = range_oracle_record(run, plan["range_key"])
-            row["python_evaluation"] = python_scores(run, row["checks"], row.get("range_oracle"))
+            row["python_evaluation"] = python_scores(run, row["checks"], row.get("range_oracle"),
+                                                     waiting=row["waiting_for_user"])
             observed = {}
             observation_grade = grade_execution_observations(run, observations=observed)
             row["product_expectation"] = classify_product_expectation(
