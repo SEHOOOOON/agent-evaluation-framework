@@ -36,10 +36,10 @@ def tc(tc_id, operations, verifications):
 
 
 def heat_tc():
-    """T-4 (H-5, 2026-10-18): HEAT 16 prepared, decrease to 15 attempted, 16 kept in three locations."""
+    """T-4 (H-6, 2026-10-23): HEAT 16 applied and seen in three locations (any start)."""
     ops = [op(1, "PRECONDITION", "device.select"), op(2, "PRECONDITION", "mode.heat"),
-           op(3, "PRECONDITION", "temperature.set", 16), op(4, "PRECONDITION", "command.apply"),
-           op(5, "TEST", "temperature.decrease"), op(6, "TEST", "command.apply"),
+           op(3, "PRECONDITION", "temperature.set", 24), op(4, "PRECONDITION", "command.apply"),
+           op(5, "TEST", "temperature.set", 16), op(6, "TEST", "command.apply"),
            op(7, "RESTORE", "controller.restore")]
     return tc("TC-HEAT", ops, checks("ACT-006", 16, er=1))
 
@@ -86,7 +86,7 @@ def test_key_expands_to_required_and_recommended_tests():
     rows = {r["id"]: r for r in expectations(load_key(KEY_PATH))}
     assert {k for k, r in rows.items() if r["level"] == "REQUIRED"} == {
         "T-1:APPLY:COOL:20", "T-1:APPLY:COOL:30", "T-2:BLOCK:COOL:19", "T-2:BLOCK:COOL:31",
-        "T-4:BLOCK:HEAT:15"}
+        "T-4:APPLY:HEAT:16"}
     assert {k for k, r in rows.items() if r["level"] == "RECOMMENDED"} == {
         "T-3:BLOCK:HEAT:15", "T-3:BLOCK:HEAT:31"}
     assert rows["T-2:BLOCK:COOL:31"]["expected"] == 30
@@ -102,7 +102,7 @@ def test_synthetic_live_errors_are_all_found():
     assert items["T-5:QUESTION:COOL"]["status"] == "MISSING"
     assert "HEAT 17 → COOL" in items["T-5:QUESTION:COOL"]["detail"]
     # What the design did cover is credited, not flattened into one failure.
-    for met in ("T-2:BLOCK:COOL:19", "T-1:APPLY:COOL:30", "T-4:BLOCK:HEAT:15"):
+    for met in ("T-2:BLOCK:COOL:19", "T-1:APPLY:COOL:30", "T-4:APPLY:HEAT:16"):
         assert items[met]["status"] == "MET", met
     assert items["T-3:BLOCK:HEAT:31"]["status"] == "MISSING"   # recommended: not counted
     assert (result["required_met"], result["required_total"]) == (3, 6)

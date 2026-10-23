@@ -39,10 +39,13 @@ class ModeRange(BaseModel):
 
 
 class RequestedTest(BaseModel):
-    """T-4: a transition the request itself names (e.g. prepare P, apply V)."""
+    """T-4: a transition the request itself names (e.g. prepare P, apply V).
+
+    prepared=None means the request fixes only the applied value (any start).
+    """
     model_config = ConfigDict(extra="forbid", strict=True)
     mode: str = Field(pattern=r"^[A-Z]+$")
-    prepared: int
+    prepared: int | None = None
     applied: int
     expected: int
 
