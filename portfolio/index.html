@@ -2,7 +2,6 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="robots" content="noindex,nofollow">
 <meta name="description" content="여러 상황에서 QA 에이전트의 판단과 실행을 평가하고, 평가 오류를 찾아 보완한 개인 프로젝트.">
 <title>프로젝트2 · 에이전트 결과 검증</title>
 <link rel="stylesheet" href="style.css"><link rel="stylesheet" href="story.css">
@@ -26,103 +25,91 @@
 <header class="story-hero">
 <p class="eyebrow">개인 프로젝트 · 프로젝트1 결과 평가</p>
 <h1>에이전트 결과 검증</h1>
-<p class="story-lead">에이전트가 검사를 제대로 했는지,<br>결과를 근거에 맞게 보고했는지 확인합니다.</p>
-<p>P1을 실무에 활용하려면, 한 번의 성공보다 여러 요청에서 같은 기준을 지키는지 확인해야 한다고 생각했습니다. 에이전트의 분석·설계·실행·보고를 평가하고, 보완할 부분을 찾기 위해 만들었습니다.</p>
-<p><strong>핵심 결과: AI 검토와 AI 채점이 모두 통과시킨 TC에서 필수 시험 3개가 빠진 것을 사람이 찾았고, 이 기준을 규칙으로 옮겨 같은 누락을 자동으로 다시 잡아내게 했습니다.</strong></p>
-<p class="project-responsibility"><strong>담당한 작업</strong> 평가 기준 설계 · P1 산출물 수집·대조 · 평가 오류 분석 · 결과 화면 구성<br><span>AI 코딩 도구를 활용해 개인 환경에서 구현하고 검증했습니다.</span></p>
-<nav class="story-nav" aria-label="페이지 안내"><a href="#purpose">만든 이유</a><a href="#method">평가 방법</a><a href="#results">평가 결과</a><a href="#human-check">사람 대조</a><a href="#improvement">개발 과정</a><a href="#scope">적용과 한계</a></nav>
+<p class="story-lead">AI 에이전트가 검사를 제대로 했는지,<br>결과를 근거에 맞게 보고했는지 평가합니다.</p>
+<p>실무에서는 테스트의 PASS·FAIL뿐 아니라, 요구사항에 맞는 검사를 했는지와 근거가 충분한지를 함께 확인했습니다. 그래서 프로젝트1의 결과를 <strong>어느 단계에서 무엇을 지켰고 놓쳤는지</strong> 나누어 보는 평가 도구를 만들었습니다.</p>
+<p class="story-key">AI 검토와 AI 평가가 모두 통과시킨 시험에서 사람이 빠진 검사를 찾았고, 그 기준을 규칙으로 바꿔 같은 누락이 다시 생기지 않게 했습니다. 평가 AI 자체도 사람 판단과 대조해 후하게 준 점수를 고쳤습니다.</p>
+<p class="project-responsibility"><strong>담당한 작업</strong> 평가 기준 설계 · 결과 수집·대조 · 평가 오류 분석 · 결과 화면 구성<br><span>AI 코딩 도구를 활용해 개인 환경에서 구현하고 검증했습니다.</span></p>
+<nav class="story-nav" aria-label="페이지 안내"><a href="#method">평가 방법</a><a href="#results">핵심 사례</a><a href="#improvement">평가 AI 검증</a><a href="#case-results">사례별 평가 결과</a><a href="#scope">한계</a></nav>
 </header>
-<section id="purpose" class="story-section">
-<p class="eyebrow">01 · 개발 배경</p><h2>AI가 처리한 결과를, 무엇으로 판단할까요?</h2>
-<p class="section-intro">실무에서는 테스트의 PASS·FAIL뿐 아니라, 요구사항에 맞는 검사를 했는지와 실패 근거가 충분한지를 함께 확인했습니다. 반복 업무를 맡기려는 P1에도 같은 관점이 필요했습니다.</p>
-<p>제품의 문제를 정확히 찾아낸 시험과 필요한 검사를 빠뜨린 시험은 다릅니다. <strong>최종 결과만 보는 대신 어느 단계에서 무엇을 지켰고 놓쳤는지 비교하면, 사람이 검토할 부분을 더 구체적으로 찾을 수 있을 것이라 생각했습니다.</strong></p>
-<p>정상 동작뿐 아니라 제품 불일치·정보 부족·기존 TC 재사용 사례를 평가 대상으로 삼았습니다. 상황은 달라도 같은 판단 원칙을 지키는지 확인하는 것이 목표입니다.</p>
-</section>
 <section id="method" class="story-section">
-<p class="eyebrow">02 · 평가 방법</p><h2>요청부터 보고까지, 역할별로 평가합니다.</h2>
-<ol class="evaluation-flow">
-<li><span>1</span><h3>P1 결과 수집</h3><p>요청과 요구사항 문서<br>분석·TC·실행·복원·보고 기록</p></li>
-<li><span>2</span><h3>기준과 근거 대조</h3><p>프로그램은 값·개수·연결 확인<br>AI는 요청과 산출물의 의미 검토</p></li>
-<li><span>3</span><h3>역할별 결과 비교</h3><p>점수와 판단 이유 확인<br>누락·오판과 보완할 부분 구분</p></li>
+<p class="eyebrow">01 · 평가 방법</p><h2>프로그램, AI, 사람이 나눠서 확인합니다.</h2>
+<p class="section-intro">프로젝트1은 Agent 네 개가 요구사항 분석 → 시험 설계 → 자동 실행 → 결과 보고를 이어서 맡습니다. 이 도구는 각 단계의 결과물을 모아, 맡은 일을 제대로 했는지 확인합니다.</p>
+<ol class="evaluation-flow role-flow">
+<li><span>프로그램</span><h3>값과 기록이 맞는가</h3><p>개수·값·실행 기록이 서로 맞는지 계산으로 확인합니다. 몇 번을 돌려도 같은 결과입니다.</p></li>
+<li><span>AI</span><h3>요청을 제대로 이해했는가</h3><p>요청과 결과물의 뜻이 맞는지 읽고, 항목마다 점수와 이유를 남깁니다.</p></li>
+<li><span>사람</span><h3>무엇이 꼭 필요한가</h3><p>필수 기준을 정하고, AI의 평가가 사람 판단과 맞는지 대조합니다.</p></li>
 </ol>
-<p>요구사항 분석·TC 설계·자동화 실행·결과 보고와 공통·연결 기준, 총 26개 항목을 사용합니다. 평가할 근거가 부족하면 판단을 보류합니다.</p>
 <div class="role-checks" aria-label="평가 대상과 확인 내용">
-<div><h3><span>Agent 1</span> 요구사항 분석</h3><p>바꿀 조건과 유지할 조건을 구분했는가?<br>정해지지 않은 값을 추측하지 않았는가?</p></div>
-<div><h3><span>Agent 2</span> TC 설계</h3><p>기존 TC로 충분한지 확인했는가?<br>조작·기대결과·복원 방법이 구체적인가?</p></div>
-<div><h3><span>Agent 3</span> 자동화 실행</h3><p>TC에 적힌 대상·값·시점을 검사했는가?<br>실제 관찰과 복원 기록을 남겼는가?</p></div>
+<div><h3><span>Agent 1</span> 요구사항 분석</h3><p>바꿀 조건과 유지할 조건을 구분했는가?<br>정해지지 않은 값을 추측하지 않고 질문했는가?</p></div>
+<div><h3><span>Agent 2</span> 시험 설계</h3><p>기존 TC로 충분한지, 고쳐 쓸지 먼저 확인했는가?<br>조작·기대결과·복원 방법이 구체적인가?</p></div>
+<div><h3><span>Agent 3</span> 자동 실행</h3><p>TC에 적힌 대상·값·시점을 그대로 검사했는가?<br>실제 관찰과 원래 상태 복원 기록을 남겼는가?</p></div>
 <div><h3><span>Agent 4</span> 결과 보고</h3><p>관찰한 결과에 맞게 보고했는가?<br>실패·미실행·확인할 질문을 빠뜨리지 않았는가?</p></div>
 </div>
-<p class="method-boundary">자료가 다음 단계에 제대로 전달됐는지도 함께 확인합니다.</p>
-<a class="text-link" href="report.html#criteria-details">26개 평가 기준 확인 →</a>
+<p class="method-boundary">공통·연결 기준으로 자료가 다음 단계에 제대로 전달됐는지도 함께 확인해, 프로젝트1에 맞춰 직접 만든 26개 기준을 씁니다. 근거가 부족하면 점수를 주지 않고 판단을 보류합니다. <a href="report.html#criteria-details">평가 기준 보기 →</a></p>
 </section>
 <section id="results" class="story-section">
-<p class="eyebrow">03 · 평가 결과</p><h2>상황이 달라도 판단 기준을 지켰나요?</h2>
-<p class="section-intro">저장된 6개 사례의 결과입니다. 실제 시험과 가상 사본을 구분했으며, 점수는 해당 사례에서 평가한 역할의 항목 평균입니다.</p>
+<p class="eyebrow">02 · 핵심 사례</p><h2>AI가 통과시킨 시험을, 사람이 다시 확인했습니다.</h2>
+<p class="section-intro">"냉방은 20°C 아래로 내려가지 않게, 난방은 16°C 하한 유지" 요청을 프로젝트1로 실제 실행했습니다. 프로젝트1의 검토 AI도, 이 도구의 평가 AI도 시험 설계를 통과로 봤습니다(5점 만점에 5점).</p>
+<ol class="evaluation-flow case-flow">
+<li><span>자동 판단</span><h3>통과 · TC 설계 5점</h3><p>프로젝트1의 검토 AI와<br>이 도구의 평가 AI 모두 통과</p></li>
+<li class="flow-warning"><span>사람 대조</span><h3>필수 시험 5개 중 3개</h3><p>범위 양 끝을 반쪽씩만 확인<br>20°C 적용, 31°C 차단이 빠짐</p></li>
+<li><span>규칙 반영 후</span><h3>5개 모두 채움</h3><p>사람 기준을 규칙으로 옮겨<br>같은 요청을 두 번 다시 실행</p></li>
+</ol>
+<h3 class="story-subhead">무엇이 빠졌나: 범위의 양 끝</h3>
+<p>온도 범위가 바뀌면 양쪽 끝에서 <strong>범위 안의 값이 적용되는지</strong>와 <strong>바로 밖의 값이 막히는지</strong>를 모두 봐야 합니다. 처음 TC는 최저 쪽에서는 막히는지만, 최고 쪽에서는 적용되는지만 확인했습니다. 그래서 새로 바뀐 20°C가 실제로 설정되는지는 시험하지 않은 채 통과했습니다.</p>
+<div class="boundary-map" role="img" aria-label="냉방 허용 범위의 양 끝 네 지점을 처음 TC와 규칙 반영 후 TC가 시험했는지 비교한 그림">
+<div class="bm-row bm-axis"><span></span><span class="bm-out">19°C<small>범위 밖</small></span><span class="bm-in">20°C<small>새 최저</small></span><span class="bm-in">30°C<small>최고</small></span><span class="bm-out">31°C<small>범위 밖</small></span><span class="bm-bar">냉방 허용 범위 20 ~ 30°C</span></div>
+<div class="bm-row"><span class="bm-label">처음 TC<small>자동 판단 통과</small></span><span class="bm-cell">19°C 차단<b class="bm-ok">✓ 있음</b></span><span class="bm-cell is-miss">20°C 적용<b class="bm-miss">✗ 빠짐</b></span><span class="bm-cell">30°C 적용<b class="bm-ok">✓ 있음</b></span><span class="bm-cell is-miss">31°C 차단<b class="bm-miss">✗ 빠짐</b></span></div>
+<div class="bm-row"><span class="bm-label">규칙 반영 후<small>같은 요청 재실행</small></span><span class="bm-cell">19°C 차단<b class="bm-ok">✓ 있음</b></span><span class="bm-cell">20°C 적용<b class="bm-ok">✓ 있음</b></span><span class="bm-cell">30°C 적용<b class="bm-ok">✓ 있음</b></span><span class="bm-cell">31°C 차단<b class="bm-ok">✓ 있음</b></span></div>
+</div>
+<p class="scope-note">난방 쪽 요청 시험(17°C → 16°C 적용)은 두 TC 모두 있었습니다. 냉방 범위 밖에서 모드를 바꾸는 동작은 요청서가 이번 범위에서 빼서 필수에서 제외했습니다. <a href="report.html#human-check-details">시험별 비교표 →</a></p>
+<h3 class="story-subhead">어떻게 고쳤나: 사람의 판단을 규칙으로</h3>
+<ol class="fix-steps">
+<li><b>규칙으로 정리</b><span>"바뀐 범위의 끝은 적용과 차단을 각각 시험한다"처럼, 사람이 본 기준을 한 문장 규칙으로 적었습니다.</span></li>
+<li><b>세 곳에 같은 문장으로</b><span>프로젝트1의 TC 작성 지침, 프로젝트1의 코드 검사, 이 도구의 필수 시험 대조에 같은 규칙을 넣었습니다. 처음 TC를 다시 대조하면 프로그램이 같은 누락을 잡아냅니다.</span></li>
+<li><b>다시 실행해 확인</b><span>같은 요청을 두 번 다시 실행했고, 두 번 모두 필수 시험 5개를 채웠습니다. 다른 요청(풍량)에서는 프로젝트1의 검토 AI가 빠진 화면 확인을 직접 잡아 시험을 다시 쓰게 했습니다.</span></li>
+</ol>
+<p class="scope-note">사람이 누락을 먼저 찾은 뒤 그 판단을 규칙으로 옮긴 것이며, 미리 정해 둔 규칙이 처음부터 찾아낸 것은 아닙니다.</p>
+</section>
+<section id="improvement" class="story-section">
+<p class="eyebrow">03 · 평가 AI 검증</p><h2>평가 AI의 판단도 확인이 필요했습니다.</h2>
+<p class="section-intro">평가 AI가 준 점수 15개를 사람이 하나씩 다시 판단했습니다. 11개는 일치했고, 어긋난 4개는 모두 <strong>점수가 너무 후한 쪽</strong>이었습니다. 높은 점수가 곧 좋은 품질은 아니었습니다.</p>
+<div class="lesson-grid">
+<article><span class="case-label">경계값</span><h4>한쪽 끝만 확인해도 만점</h4><p>"경계값을 확인했는가" 같은 추상적인 기준으로는 반쪽 시험도 통과했습니다. → 필수 시험 목록을 만들어 프로그램이 대조하도록 바꿨습니다.</p></article>
+<article><span class="case-label">시험 절차</span><h4>조작과 확인을 한 줄에 섞어도 만점</h4><p>사람이 따라 하기 어려운 절차였습니다. → 조작과 확인을 한 줄에 함께 쓰면 3점 이하로 기준을 고쳤습니다.</p></article>
+<article><span class="case-label">기존 TC</span><h4>거의 같은 시험을 새로 만들어도 만점</h4><p>적용 확인만 빠진 기존 시험이 있었는데 새로 만들었습니다. → 기존 시험을 고쳐 쓰는 것을 정답으로 기준에 넣었습니다.</p></article>
+<article><span class="case-label">평가 범위</span><h4>시험하지 않은 능력에도 만점</h4><p>그 실행에서 다룰 일이 없던 항목에 5점을 줬습니다. → 실제로 다룬 경우만 점수를 주고, 나머지는 '해당 없음'으로 두게 했습니다.</p></article>
+</div>
+<p class="improvement-takeaway"><strong>반대로, 정상 시험을 깎은 적도 있습니다.</strong> 원래 상태로 되돌린 기록이 있었는데 평가 AI가 3점을 줬습니다. 원본을 대조해 보니 시험의 문제가 아니라 평가 입력에 그 기록이 빠진 문제였고, 전달 방식을 고친 뒤 5점이 됐습니다. 점수만 믿었다면 정상적인 시험부터 고쳤을 수 있습니다.</p>
+<p>그래서 역할을 나눴습니다. <strong>셀 수 있는 필수 조건은 프로그램이, 의미 판단은 AI가, 정답 기준은 사람이</strong> 맡습니다. 재평가 과정에서 평가 기준도 달라졌습니다. 최초 점수와 판단 이유는 상세 기록에 보존했습니다.</p>
+<details id="case-results" class="story-fold"><summary>사례별 평가 결과 · 6개 사례 펼치기</summary><div class="story-fold-body">
+<p>정상 동작, 제품 불일치, 정보 부족, 기존 TC 재사용처럼 서로 다른 상황을 고른 비교 사례입니다. 조건이 달라 점수끼리 비교하거나 평균 내지 않으며, 모두 사람 대조 전 자동 평가입니다.</p>
 <div class="evidence-example" aria-label="제품 불일치와 검사 누락의 평가 비교">
 <div class="example-heading"><h3>제품이 실패한 것과, 검사가 잘못된 것을 구분했습니다.</h3></div>
 <div class="example-columns">
-<article><span class="case-label">실제 로컬 시험 · 개발용 참조 TC</span><h4>기대 16°C → 실제 15°C</h4><p>요구사항과 다른 동작을 찾아 기록한 수행은 적절하다고 평가했습니다.</p><p><strong>실행 역할 5.0 / 5</strong> · AI 평가 3항목 평균</p></article>
-<article><span class="case-label">검사를 일부러 뺀 사본</span><h4>필수 검사 누락과 근거 부족</h4><p>누락된 검사와 근거 없는 완료 주장을 지적했습니다.</p><p><strong>실행 역할 2.33 / 5</strong> · AI 3항목: 2점·5점·0점</p></article>
-</div><p class="scope-note"><a href="report.html#comparison-details">점수와 판단 근거 →</a></p>
+<article><span class="case-label">실제 로컬 시험 · 개발용 참조 TC</span><h4>기대 16°C → 실제 15°C</h4><p>제품의 차이를 찾아 기록했으므로, 에이전트는 제대로 수행한 것으로 평가했습니다.</p><p><strong>실행 역할 5.0 / 5</strong></p></article>
+<article><span class="case-label">검사를 일부러 뺀 사본</span><h4>필수 검사 누락과 근거 부족</h4><p>빠진 검사와 근거 없는 완료 주장을 지적했습니다. AI 3항목: 2점·5점·0점.</p><p><strong>실행 역할 2.33 / 5</strong></p></article>
+</div>
 </div>
 <div class="story-results" role="region" aria-label="사례별 평가 결과" tabindex="0">
-<table class="case-summary"><caption class="visually-hidden">사례별 판단과 평가한 역할의 점수. 세부 평가 범위는 상세 보고서에서 확인할 수 있습니다.</caption>
-  <thead><tr><th scope="col">평가 사례</th><th scope="col">어떻게 판단했나요?</th><th scope="col">AI 평가 · 5점 만점</th></tr></thead><tbody>
-    <tr data-summary="power"><th scope="row">전원 정상 동작<small>새 P1 실행 · 네 역할 평가</small></th><td>시험·복원·보고가 연결됐습니다.<small>26개 기준으로 네 역할을 평가했습니다.</small></td><td><b>각 5.0</b><small>분석·설계·실행·보고</small><a href="report.html#latest-power-evaluation">26개 항목 보기 →</a></td></tr>
-    <tr data-summary="normal"><th scope="row">전원 정상 동작<small>저장된 AI TC · 실행 역할 평가</small></th><td>TC에 적힌 검사를 수행했습니다.</td><td><b>5.0</b><small>실행 역할 · AI 3항목</small><a href="report.html#a3-comparison">평가 근거 →</a></td></tr>
+<table class="case-summary"><caption class="visually-hidden">사례별 판단과 평가한 역할의 점수. 세부 평가 범위는 상세 근거에서 확인할 수 있습니다.</caption>
+  <thead><tr><th scope="col">평가 사례</th><th scope="col">어떻게 판단했나요?</th><th scope="col">AI 자동 평가 · 5점 만점</th></tr></thead><tbody>
+    <tr data-summary="power"><th scope="row">전원 정상 · 전체 흐름<small>새 P1 실행 · 네 역할 평가</small></th><td>저장 자료에서 시험·복원·보고 연결을 확인했습니다.<small>26개 기준으로 네 역할을 평가했고, 단계 연결 기준 4개는 아직 확정하지 않았습니다.</small></td><td><b>각 5.0</b><small>분석·설계·실행·보고</small><a href="report.html#latest-power-evaluation">26개 항목 보기 →</a></td></tr>
+    <tr data-summary="normal"><th scope="row">전원 정상 · 실행 역할만<small>저장된 AI TC · 실행 역할 평가</small></th><td>TC에 적힌 검사를 수행했습니다.</td><td><b>5.0</b><small>실행 역할 · AI 3항목</small><a href="report.html#a3-comparison">평가 근거 →</a></td></tr>
     <tr data-summary="product"><th scope="row">온도 하한 불일치<small>개발용 참조 TC · 로컬 제품 시험</small></th><td>16°C 아래로 내려가는 제품의 차이를 찾아냈습니다.<small>제품 불일치를 검출한 것을 에이전트의 실패로 보지 않았습니다.</small></td><td><b>5.0</b><small>실행 역할 · AI 3항목</small><a href="report.html#a3-comparison">평가 근거 →</a></td></tr>
     <tr data-summary="omission"><th scope="row">필수 검사 누락<small>검사를 일부러 뺀 사본</small></th><td>내부값 검사 누락과 실행 근거 부족을 지적했습니다.</td><td><b class="scenario-warning">2.33</b><small>실행 역할 · AI 3항목</small><a href="report.html#comparison-details">감점 이유 →</a></td></tr>
     <tr data-summary="pause"><th scope="row">정보 부족으로 보류<small>저장된 분석 · 정보 부족 처리</small></th><td>정해지지 않은 온도를 추측하지 않고 질문했습니다.<small>필요한 정보를 받을 때까지 다음 단계로 넘어가지 않았습니다.</small></td><td><b>5.0</b><small>분석 역할 · AI 4항목</small><a href="report.html#pause-reuse-details">평가 근거 →</a></td></tr>
     <tr data-summary="reuse"><th scope="row">기존 강풍 TC 재사용<small>저장된 설계·실행 · 기존 TC 재사용</small></th><td>재사용은 적절했지만 복원 확인 설명이 부족하다고 평가했습니다.</td><td><b class="scenario-warning">4.75</b><small>설계 역할 · AI 8항목</small><a href="report.html#pause-reuse-details">평가 근거 →</a></td></tr>
   </tbody></table>
 </div>
-<p class="scope-note">사례마다 조건이 달라 점수는 평균 내지 않았습니다. AI 평가 점수가 사람의 판단과 맞는지는 다음 절에서 확인합니다.</p>
-<a class="text-link" href="report.html#record-metadata">사례별 평가 시점과 자료 구분 →</a>
-</section>
-<section id="human-check" class="story-section">
-<p class="eyebrow">04 · 사람 대조</p><h2>AI가 통과시킨 TC를, 사람이 다시 확인했습니다.</h2>
-<p class="section-intro">2026년 10월 15일, 프로젝트1에 "냉방은 20°C 아래로 내려가지 않게, 난방은 기존 16°C 하한 유지" 요청을 실제 AI로 실행했습니다. 단계별 자동 검사를 모두 통과했고, 이 평가 도구의 AI도 TC 설계에 5점을 줬습니다.</p>
-<div class="evidence-example" aria-label="자동 판단과 사람 대조의 비교">
-<div class="example-heading"><h3>자동 판단은 통과였지만, 꼭 필요한 시험 3개가 빠져 있었습니다.</h3></div>
-<div class="example-columns">
-<article><span class="case-label">자동 판단 · AI 검토와 AI 평가</span><h4>통과 · TC 설계 5점</h4><p>프로젝트1의 AI 검토와 이 도구의 AI 평가 모두 통과로 판단했습니다.</p></article>
-<article><span class="case-label">사람 대조 · 같은 TC</span><h4>필수 시험 3개 누락</h4><p>바뀐 범위의 양쪽 끝을 모두 확인하지 않았고, 범위 밖 온도에서 모드를 바꿀 때의 동작도 묻지 않았습니다.</p></article>
-</div><p class="scope-note">사람이 정한 기준을 "바뀐 범위의 끝은 적용과 차단을 각각 시험한다" 같은 규칙으로 정리해, 프로젝트1의 지침과 이 도구의 평가 기준에 같은 문장으로 넣었습니다. 그리고 규칙으로 꼭 필요한 시험 목록을 만들어 실제 TC와 프로그램으로 대조했습니다.</p>
-</div>
-<div class="story-results" role="region" aria-label="꼭 필요한 시험과 실제 TC 비교" tabindex="0">
-<table class="case-summary"><caption class="visually-hidden">규칙으로 만든 꼭 필요한 시험 6개와 실제 TC의 비교</caption>
-  <thead><tr><th scope="col">꼭 필요한 시험</th><th scope="col">이유</th><th scope="col">실제 TC</th></tr></thead><tbody>
-    <tr><th scope="row">냉방 20°C 적용</th><td>새로 바뀐 최저 온도<small>준비 단계에서만 설정하고, 적용 결과는 확인하지 않았습니다.</small></td><td><b class="status-word scenario-warning">없음</b></td></tr>
-    <tr><th scope="row">냉방 30°C 적용</th><td>최고 온도</td><td><b class="status-word">있음</b></td></tr>
-    <tr><th scope="row">냉방 19°C 차단</th><td>최저 온도 바로 아래</td><td><b class="status-word">있음</b></td></tr>
-    <tr><th scope="row">냉방 31°C 차단</th><td>최고 온도 바로 위</td><td><b class="status-word scenario-warning">없음</b></td></tr>
-    <tr><th scope="row">난방 17°C → 16°C 적용</th><td>요청에 적힌 시험</td><td><b class="status-word">있음</b></td></tr>
-    <tr><th scope="row">난방 17°C에서 냉방 전환</th><td>요구사항에 정해지지 않은 동작<small>기대값을 만들지 않고 질문으로 남겨야 합니다.</small></td><td><b class="status-word scenario-warning">없음</b></td></tr>
-  </tbody></table>
-</div>
-<p class="scope-note"><strong>꼭 필요한 시험 6개 중 3개만 있어, 규칙 대조 결과는 FAIL이었습니다.</strong> 사람이 찾은 누락 3개가 그대로 나왔고, 같은 규칙을 프로젝트1의 TC 작성 지침에도 반영했습니다.</p>
-</section>
-<section id="improvement" class="story-section">
-<p class="eyebrow">05 · 개발 과정에서 배운 점</p><h2>평가 AI의 판단도 확인이 필요했습니다.</h2>
-<p class="section-intro">전원 시험에서 원래 상태로 복원한 기록이 있었는데도 낮은 점수가 나온 적이 있습니다. 실행 원본과 평가 입력을 대조해, 실제 시험의 문제와 평가자에게 근거가 충분히 전달되지 않은 문제를 구분했습니다.</p>
-<p>복원 기록을 더 분명히 전달한 뒤 같은 사례를 다시 평가했습니다. <strong>점수만 믿었다면 정상적으로 수행한 시험부터 고쳤을 수 있습니다.</strong> AI를 평가하는 도구에도 판단 이유와 원본을 함께 남겨야 한다는 점을 배웠습니다.</p>
-<p>기준도 마찬가지였습니다. 프로젝트1에서 AI에게 QA 기준을 전달하기 어려웠던 문제가 평가 AI에서도 똑같이 나타났습니다. "경계값을 확인했는가" 정도의 기준에서는 한쪽 경계만 있어도 통과했고, 한 실행에서는 AI 평가 20개 중 19개가 5점이었습니다. <strong>높은 점수가 곧 좋은 품질은 아니었습니다.</strong> 그래서 숫자로 셀 수 있는 필수 조건은 프로그램이, 의미 판단은 AI가, 정답 기준은 사람이 정하도록 역할을 나눴습니다.</p>
-<p class="scope-note">재평가 과정에서 평가 기준도 달라졌습니다. 최초 점수와 판단 이유는 상세 기록에 보존했습니다.</p>
-<a class="text-link" href="report.html#historical-results">복원 사례의 점수와 평가 기준 변화 →</a>
+<p class="scope-note"><a href="report.html#record-metadata">사례별 평가 시점과 자료 구분 →</a></p>
+</div></details>
 </section>
 <section id="scope" class="story-section">
-<p class="eyebrow">06 · 실무 적용과 한계</p><h2>점수보다, 어디를 보완할지 설명할 수 있어야 합니다.</h2>
-<p class="section-intro">사례를 비교하면서 제품 문제, 에이전트의 검사 누락, 평가 자료의 부족을 구분할 수 있었습니다. 실무에서도 결과를 일일이 다시 확인하는 데서 그치지 않고, 어떤 부분을 먼저 검토해야 하는지 찾는 도구로 활용하고자 했습니다.</p>
-<div class="story-results" role="region" aria-label="평가 방식별 실무 적용 판단" tabindex="0">
-<table class="case-summary"><caption class="visually-hidden">평가 방식별로 실무에 바로 쓸 수 있는지에 대한 판단</caption>
-  <thead><tr><th scope="col">평가 방식</th><th scope="col">실무 적용 판단</th><th scope="col">이유</th></tr></thead><tbody>
-    <tr><th scope="row">프로그램 대조<small>집계·실제 검사 기록·증거 연결</small></th><td><b class="status-word">바로 쓸 수 있음</b></td><td>계산으로 확인하므로 몇 번을 해도 같은 결과입니다.</td></tr>
-    <tr><th scope="row">규칙으로 필수 시험 확인</th><td><b class="status-word scenario-warning">조건부</b></td><td>요청 유형마다 사람이 먼저 규칙을 정리해야 합니다. 정리된 유형에서는 누락을 정확히 잡았습니다.</td></tr>
-    <tr><th scope="row">AI 평가</th><td><b class="status-word scenario-warning">보조 도구</b></td><td>사람이 먼저 볼 곳을 찾는 데 유용하지만, 점수만으로 합격을 판단할 수는 없습니다.</td></tr>
-  </tbody></table>
-</div>
-<p>다음 단계는 같은 조건으로 여러 번 실행해 평가와 수행이 일관되는지, AI 평가가 사람의 판단과 얼마나 일치하는지 확인하는 것입니다.</p>
-<p class="scope-note"><a href="report.html#latest-repeat">20가지 상황 반복 검사 결과 →</a></p>
+<p class="eyebrow">04 · 한계</p><h2>AI 평가는 보조 도구로 씁니다.</h2>
+<p>AI 평가는 사람이 먼저 볼 곳을 찾는 데 유용하지만, 점수만으로 합격을 판단할 수는 없습니다. 규칙으로 필수 시험을 확인하려면 요청 유형마다 사람이 먼저 규칙을 정해야 하고, 지금은 온도 범위 요청에서 가장 많이 확인했습니다.</p>
+<p>다음 단계는 같은 요청을 여러 번 실행해 결과의 편차, 기준 위반 비율, 사람 판단과의 일치율을 재는 것입니다.</p>
+<div class="story-cta"><a href="report.html">상세 근거 보기 →</a><a href="../../qa-agent-pipeline-v2/project.html">프로젝트1 보기 →</a></div>
 </section>
-<footer class="story-footer"><a href="../../portfolio_export/main.html">메인 포트폴리오 ←</a><a href="../../qa-agent-pipeline-v2/project.html">프로젝트1 보기 →</a><a href="report.html">평가 결과와 근거 →</a></footer>
+<footer class="story-footer"><a href="../../portfolio_export/main.html">메인 포트폴리오 ←</a><a href="../../qa-agent-pipeline-v2/project.html">프로젝트1 보기 →</a><a href="report.html">상세 근거 →</a></footer>
 </main></body></html>

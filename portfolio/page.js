@@ -194,7 +194,7 @@
   displayRatio('restore-result',evidence.matrix.filter(row=>row.restored === true).length,evidence.matrix.length);
   const transactions = evidence.matrix.flatMap(row=>row.branches);
   displayRatio('asset-result',transactions.filter(row=>row.status === 'PASS').length,transactions.length);
-  document.getElementById('show-assets').addEventListener('click',()=>{
+  document.getElementById('show-assets')?.addEventListener('click',()=>{
     const detail = document.getElementById('assets-details');
     showPanelFor(detail);
     detail.open = true;
@@ -202,7 +202,8 @@
     detail.scrollIntoView({block:'start'});
   });
   const branches = ['hold','no-consent','approve','hold-approve','duplicate','stale-srs','rollback'];
-  document.getElementById('asset-matrix').innerHTML = evidence.matrix.map(item => `<tr><th scope="row">${escape(item.title)}</th>${branches.map(branch => {
+  const assetMatrix = document.getElementById('asset-matrix');
+  if (assetMatrix) assetMatrix.innerHTML = evidence.matrix.map(item => `<tr><th scope="row">${escape(item.title)}</th>${branches.map(branch => {
     const result = item.branches.find(x => x.branch === branch);
     return `<td>${result?.status === 'PASS' ? '일치' : result ? escape(result.status) : '미확인'}</td>`;
   }).join('')}</tr>`).join('');

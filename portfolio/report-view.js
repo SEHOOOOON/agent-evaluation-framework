@@ -19,8 +19,8 @@
     button.replaceWith(link);
   });
   document.querySelectorAll('.controls, .disclosure-label').forEach(node => node.remove());
-  const foldIds = new Set(['scenario-role-scores', 'power-result-details', 'pause-reuse-details',
-    'comparison-disclosure', 'assets-details', 'latest-local-checks', 'latest-evaluation',
+  const foldIds = new Set(['scenario-role-scores', 'human-check-details', 'power-result-details', 'pause-reuse-details',
+    'comparison-disclosure',
     'criteria-details', 'method-disclosure', 'improvement-disclosure',
     'prior-srs-improvement', 'historical-results', 'source-details', 'record-metadata']);
   document.querySelectorAll('details').forEach(detail => {

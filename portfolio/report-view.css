@@ -15,14 +15,14 @@
 .report-page .evaluation-evidence{border:0}.report-page #evaluation-evidence>.report-heading{display:none}
 .report-page .report-open>.info-content{padding-top:0}
 .report-page .report-fold{margin:16px 0;border:1px solid var(--line);border-radius:8px;background:var(--surface);scroll-margin-top:90px}
-.report-page .report-fold>summary{cursor:pointer;padding:20px 24px;line-height:1.7;list-style:none;display:flex;align-items:center;gap:14px}
+.report-page .report-fold>summary{cursor:pointer;padding:20px 24px;line-height:1.7;list-style:none;display:flex;align-items:center;justify-content:flex-start;gap:14px}
 .report-page .report-fold>summary::before{content:'+';color:var(--blue);font-size:22px;flex:0 0 18px}
 .report-page .report-fold[open]>summary::before{content:'−'}
 .report-page .report-fold>summary::-webkit-details-marker{display:none}
 .report-page .report-fold>summary::after{content:none}
 .report-page .report-fold>summary:focus-visible{outline:2px solid var(--blue);outline-offset:3px}
 .report-page .report-fold[open]>summary{border-bottom:1px solid var(--line)}
-.report-page .report-fold>summary h2{font-size:20px;margin:0}.report-page .report-fold>summary p{font-size:13px;margin:4px 0 0;color:var(--muted)}
+.report-page .report-fold>summary h2{font-size:inherit;font-weight:inherit;color:var(--blue);margin:0}.report-page .report-fold>summary p{font-size:13px;margin:4px 0 0;color:var(--muted)}
 .report-page .report-fold>.info-content,.report-page .report-fold>.disclosure-body{padding:20px 24px}
 .report-page .record-metadata table{width:100%;border-collapse:collapse;font-size:14px}
 .report-page .record-metadata th,.report-page .record-metadata td{padding:12px;text-align:left;border-bottom:1px solid var(--line);overflow-wrap:anywhere}
@@ -30,3 +30,11 @@
 @media(max-width:700px){.report-page .report-fold>summary{padding:16px}.report-page .report-fold>.info-content,.report-page .report-fold>.disclosure-body{padding:16px}.report-page .record-metadata table{font-size:12px}}
 @media print{.report-page .dashboard-tabs,.report-return{display:none}.report-page .report-fold{background:none}.report-page .report-fold>summary::before{display:none}}
 @media(max-width:700px){.report-page .dashboard-tabs{gap:10px;font-size:12px}.report-page .report-heading{font-size:17px}.report-page .report-heading b{display:block;margin:4px 0 0}.report-page .report-heading span+span{margin-left:0}}
+/* 2026-10-22: 첫 화면 안내 */
+.report-page .report-guide{margin:20px 0 24px;padding:20px 24px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+.report-page .report-guide p{margin:0 0 10px;color:var(--text);font-size:15px}
+.report-page .report-guide ol{margin:0;padding-left:20px;display:grid;gap:8px}
+.report-page .report-guide li{font-size:14px;line-height:1.7}
+.report-page .report-guide li span{color:var(--muted);margin-left:10px}
+@media(max-width:700px){.report-page .report-guide li span{display:block;margin-left:0}}
+.report-page .case-summary td b.status-word{font-size:1rem;line-height:1.5}

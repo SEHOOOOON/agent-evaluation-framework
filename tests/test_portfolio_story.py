@@ -28,8 +28,9 @@ class Links(HTMLParser):
 def test_homepage_is_readable_without_disclosures_or_javascript():
     text = (PAGE / "index.html").read_text(encoding="utf-8")
     page = Links(text)
-    assert "details" not in page.tags and " hidden" not in text
-    positions = [text.index('id="' + name + '"') for name in ("purpose", "method", "results", "improvement", "scope")]
+    # 2026-10-22 사용자 결정: 본문은 펼쳐 두고, 사례별 평가 결과 하나만 펼치기로 붙인다.
+    assert page.tags.count("details") == 1 and '<details id="case-results"' in text and " hidden" not in text
+    positions = [text.index('id="' + name + '"') for name in ("method", "results", "case-results", "scope")]
     assert positions == sorted(positions)
     assert len(page.ids) == len(set(page.ids))
     assert "page.js" not in text and "story.js" in text
@@ -47,11 +48,11 @@ def test_all_six_summary_rows_are_identical_to_preserved_report():
     expected = dict(re.findall(pattern, report, re.S))
     actual = dict(re.findall(pattern, home, re.S))
     assert set(actual) == set(expected) == {"power", "normal", "product", "omission", "pause", "reuse"}
-    # 2026-10-16: the introduction is a shortened summary; the evidence page keeps
-    # the detailed scope notes. Cases, titles and scores must still agree.
+    # The introduction folds a shortened summary; cases, titles and scores must still agree.
     for name, row in actual.items():
         assert re.findall(r'<b[^>]*>([^<]+)</b>', row) == re.findall(r'<b[^>]*>([^<]+)</b>', expected[name])
         assert re.search(r'<th scope="row">([^<]+)', row).group(1) == re.search(r'<th scope="row">([^<]+)', expected[name]).group(1)
+    assert home.index('id="case-results"') < home.index('data-summary="power"')
 
 
 def test_homepage_links_resolve_to_files_and_report_anchors():
@@ -99,11 +100,12 @@ def test_report_exposes_original_details_and_keeps_legacy_anchor_routes():
 
 def test_intro_explains_roles_and_compares_observation_with_missing_checks():
     text = (PAGE / "index.html").read_text(encoding="utf-8")
-    assert 'class="role-checks"' in text
-    assert 'class="evidence-example"' in text
-    assert "기대 16°C → 실제 15°C" in text
-    assert "검사를 일부러 뺀 사본" in text
-    assert "2점·5점·0점" in text
+    assert 'class="evaluation-flow role-flow"' in text
+    for role in ("<span>프로그램</span>", "<span>AI</span>", "<span>사람</span>"):
+        assert role in text
+    assert "필수 시험 5개 중 3개" in text and "5개 모두 채움" in text
+    assert 'class="evidence-example"' in text and "기대 16°C → 실제 15°C" in text
+    assert "검사를 일부러 뺀 사본" in text and "2점·5점·0점" in text
     assert "평가 기준도 달라졌습니다" in text
     assert "자료가 다음 단계에 제대로 전달됐는지도 함께 확인" in text
     assert not re.search(r'10\.0[459]', text)
@@ -123,7 +125,7 @@ def test_portfolio_connects_work_motivation_to_evaluation_without_claiming_savin
     assert "실무에서는 테스트의 PASS·FAIL뿐 아니라" in text
     assert "어느 단계에서 무엇을 지켰고 놓쳤는지" in text
     assert "평가 AI의 판단도 확인이 필요했습니다" in text
-    assert "AI 평가가 사람의 판단과 얼마나 일치하는지" in text
+    assert "사람 판단과의 일치율" in text
     assert "최초 점수와 판단 이유는 상세 기록에 보존" in text
     assert "improvement-line" not in text
 

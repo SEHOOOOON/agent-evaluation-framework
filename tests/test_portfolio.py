@@ -115,14 +115,15 @@ def test_no_credentials_absolute_paths_or_outbound_execution():
 def test_scope_and_keyboard_controls_are_explicit():
     html = (PAGE / 'report.html').read_text(encoding='utf-8')
     js = (PAGE / 'page.js').read_text(encoding='utf-8')
-    for phrase in ('저장된 실행·평가 기록', '일부 과정은 미리 준비한 응답(모델 대역)으로 대신', 'AI가 전체 과정을 70번 실행한 것은 아닙니다',
+    # 2026-10-22 사용자 결정: TC 등록·재실행·불일치 보고 영역은 보고서에서 삭제(자료 파일은 보존).
+    for phrase in ('저장된 실행·평가 기록',
                    '여러 번 잘하는지는 아직 확인하지 않았습니다', '당시 기준 2.2', '원본 점수와 이유는 변경하지 않았습니다'):
         assert phrase in html
     assert 'type="button" class="criteria-link"' in js
     assert 'aria-label=' in js
     assert "querySelector('summary').focus()" in js
     assert '<details id="criteria-details"' in html
-    assert '<details id="assets-details"' in html
+    assert 'id="assets-details"' not in html
 
 
 def test_current_26_definitions_match_runtime_without_regrading_old_scores():
@@ -265,9 +266,6 @@ def test_new_local_asset_replay_is_separate_and_matches_evidence():
     assert data['original_scores_changed'] is False
     assert len(data['cases']) == 2 and sum(len(row['branches']) for row in data['cases']) == 7
     assert len(data['limitations']) == 4
-    html = (PAGE / 'report.html').read_text(encoding='utf-8')
-    assert '<details id="latest-local-checks"' in html
-    assert '기존 70건 및 위 AI 점수와 별도' in html
     original = ROOT.parent / 'qa-agent-pipeline-v2/runs/c1004/summary.json'
     if original.exists():
         assert hashlib.sha256(original.read_bytes()).hexdigest() == data['source_sha256']
@@ -346,15 +344,9 @@ def test_latest_local_comparison_keeps_product_outcome_separate_from_grades():
     assert not data['original_26_scores_changed'] and not data['repeated_stability_claim']
     assert [c['product_status'] for c in data['cases']] == ['PASSED', 'ASSERTION_FAILED']
     assert [c['recommendation'] for c in data['cases']] == ['PASS', 'HUMAN_REVIEW']
-    html = (PAGE / 'report.html').read_text(encoding='utf-8')
-    section = html.split('<details id="latest-evaluation"', 1)[1].split('</details>', 1)[0]
-    assert ' open' not in section.split('>', 1)[0]
     for case in data['cases']:
         assert case['scores'] == {'A3-03': 5, 'A4-01': 5, 'A4-03': 5}
         assert case['evaluated_count'] == 3 and case['remaining_unscored'] == 23
-        for criterion, value in case['scores'].items():
-            row = re.search(r'<tr data-local-criterion="' + criterion + '">(.*?)</tr>', section, re.S).group(1)
-            assert [int(x) for x in re.findall(r'<td>(\d+)</td>', row)] == [value, value]
         for kind in ('scorecard', 'report'):
             source = ROOT / case[kind + '_source']
             assert re.fullmatch('[a-f0-9]{64}', case[kind + '_sha256'])
@@ -365,8 +357,6 @@ def test_latest_local_comparison_keeps_product_outcome_separate_from_grades():
             card = json.loads(source.read_text(encoding='utf-8'))
             assert {r['criterion_id']: r['score'] for r in card['criteria'] if r['score'] is not None} == case['scores']
             assert sum(r['score'] is None for r in card['criteria']) == 23
-    for phrase in ('23개는 미평가', '새로운 AI 평가는 하지 않음', '반복 안정성이나 개선율로 비교하지 않습니다'):
-        assert phrase in section
     assert not re.search(r'sk-[A-Za-z0-9_-]{16,}|[A-Za-z]:[\\/]', json.dumps(data, ensure_ascii=False))
 
 def test_latest_closeout_separates_pending_and_preserves_source_states():
