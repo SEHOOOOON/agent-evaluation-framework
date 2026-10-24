@@ -18,7 +18,9 @@ def test_cli_default_and_explicit_override():
 
 def test_flow_default_does_not_change_generation_or_explicit_judge():
     values=dict(case_id='X',request='r.json',oracle='o.json',generation_model='explicit-generator')
-    assert FlowSpec(**values).judge_model == DEFAULT_JUDGE_MODEL
+    # 2026-10-24: flows are judged by Claude Sonnet 5.5 (high), a different vendor from generation.
+    from eval_harness.claude_judge import DEFAULT_CLAUDE_JUDGE_MODEL
+    assert FlowSpec(**values).judge_model == DEFAULT_CLAUDE_JUDGE_MODEL == 'claude-sonnet-5-5'
     legacy=FlowSpec(**values,judge_model='gpt-5.6-terra')
     assert legacy.judge_model == 'gpt-5.6-terra'
     assert legacy.generation_model == 'explicit-generator'

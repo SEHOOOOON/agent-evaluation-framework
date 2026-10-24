@@ -24,11 +24,12 @@ from .range_oracle import RangeKey, grade as grade_range
 from .rejudge import _extract, _trial
 from .v2_recorded import digest, read, write
 
-VERSION = "a2-repeat-1.0"
+VERSION = "a2-repeat-1.1"
 # Agent 2 writes once, may rewrite once, and each is reviewed once.
 CALLS_PER_REPETITION = 4
 MAX_TIMES = 5
 # Files Agent 1 leaves behind. Everything Agent 2 or later produced is dropped.
+ATTEMPT_FILE = re.compile(r"^(agent2_.*|checkpoint2)_attempt_\d+\.json$")
 A1_FILE = re.compile(r"^(agent1_.*\.json|checkpoint1(_attempt_\d+)?\.json|request\.json|"
                      r"srs_snapshot\.md|run_manifest\.json)$")
 
@@ -137,10 +138,18 @@ def execute(flow: Path, trial: int, target: Path, times: int, approval_sha256: s
                        usage=[a.get("usage") for a in ledger["attempts"]])
             out = root / f"rep-{index + 1}"
             write(out / "call_ledger.json", ledger)
-            for name in ("agent2_test_design.json", "checkpoint2.json", "agent2_manifest.json"):
+            # Attempt files (2026-10-24): first designs failed CP2 in 4 of 6 mode/temperature
+            # repetitions and only the final checkpoint was kept, so the cause was unknown.
+            names = ["agent2_test_design.json", "checkpoint2.json", "agent2_manifest.json"] + sorted(
+                f.name for f in run.glob("*_attempt_*.json") if ATTEMPT_FILE.match(f.name))
+            for name in names:
                 if (run / name).is_file():
                     out.mkdir(parents=True, exist_ok=True)
                     shutil.copyfile(run / name, out / name)
+            first = run / "checkpoint2_attempt_1.json"
+            if first.is_file():
+                row["first_attempt_cp2_failures"] = [c.get("rule_id") for c in read(first).get("checks", [])
+                                                     if c.get("status") == "FAIL"]
             design = run / "agent2_test_design.json"
             row["design_sha256"] = digest(design) if design.is_file() else None
             if (run / "checkpoint2.json").is_file():

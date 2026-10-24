@@ -4,7 +4,7 @@
  "human_reviewed": true,
  "author": "Claude (2026-10-17)",
  "request_sha256": "2d3207ddac3df75a77ede3785a18fc1ff1b05e3fe1aaed3f6207c00d5165955d",
- "rubric_version": "role-rubric-2.6",
+ "rubric_version": "role-rubric-2.7",
  "note": "대표 요청 5개 중 모드 전환. 역할별 조건은 2026-10-17 사용자 확정 규칙(M-1~M-4, C 규칙)과 정답지 초안 K-3을 옮긴 것(조건 문장 자체는 사람 검토 전). 제품은 이 동작을 이미 지원하므로 PASS가 예상된다. 2026-10-20 사람 대조 결정 반영(H-3·H-4): 기존 TC-MODE-003(적용 없이 제습→냉방 버튼만 확인)을 고쳐 쓰는 것이 정답, 절차 한 줄에는 조작만.",
  "expectations": [
   {

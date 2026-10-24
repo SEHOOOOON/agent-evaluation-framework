@@ -37,6 +37,9 @@ python -m eval_harness full-flow --target ../qa-agent-pipeline-v2 --spec benchma
 python -m eval_harness rejudge-flow --flow evaluation-runs/<FLOW-...> --roles A1 A2 A3 A4
 
 # 같은 저장 실행을 Claude로 채점 (모델 이름이 claude-로 시작하면 Claude 채점기, ANTHROPIC_API_KEY 필요)
+# 기본 생각 깊이는 high. 다른 깊이는 이름 뒤에 붙임(예: claude-sonnet-5-5:medium).
+# 2026-10-24부터 대표 시나리오 명세의 채점 기본 모델은 claude-sonnet-5-5(생성은 OpenAI, 채점은 다른 회사 모델).
+# OpenAI로 채점하려면 --model gpt-6.1-sol.
 python -m eval_harness rejudge-flow --flow evaluation-runs/<FLOW-...> --roles A1 A2 A3 A4 --model claude-sonnet-5-5
 
 # 저장된 분석 결과로 시험 설계(A2)만 반복

@@ -130,7 +130,7 @@ def test_current_26_definitions_match_runtime_without_regrading_old_scores():
     from eval_harness.detailed_rubric import CRITERIA, VERSION, SCORE_VERSION, evaluation_method
     raw = (PAGE / 'rubric.js').read_text(encoding='utf-8')
     data = json.loads(raw.split('window.PORTFOLIO_RUBRIC = ', 1)[1].strip().removesuffix(';'))
-    assert data['version'] == VERSION == 'role-rubric-2.6'
+    assert data['version'] == VERSION == 'role-rubric-2.7'
     assert data['score_version'] == SCORE_VERSION
     assert data['criteria'] == [dict(**row, method=evaluation_method(row['criterion_id'])) for row in CRITERIA]
     assert {c['criterion_id'] for c in data['criteria']} == {c['criterion_id'] for c in evidence()['criteria']}
@@ -218,7 +218,7 @@ def test_plain_explanations_cover_all_items_without_changing_scoring_data():
     raw = (PAGE / 'plain-language.js').read_text(encoding='utf-8')
     data = json.loads(raw.split('window.PORTFOLIO_PLAIN = ', 1)[1].strip().removesuffix(';'))
     rows = data['criteria']
-    assert data['version'] == 'role-rubric-2.6'
+    assert data['version'] == 'role-rubric-2.7'
     assert len(rows) == len({row['criterion_id'] for row in rows}) == 26
     assert {row['criterion_id'] for row in rows} == {row['criterion_id'] for row in evidence()['criteria']}
     for row in rows:

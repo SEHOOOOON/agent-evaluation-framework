@@ -3,7 +3,7 @@
  "request": "examples/change_request.heat-range-narrowing.json",
  "oracle": "full_flow.heat-range.oracle.json",
  "generation_model": "gpt-6.1-sol",
- "judge_model": "gpt-6.1-sol",
+ "judge_model": "claude-sonnet-5-5",
  "trials": 1,
  "max_candidates": 3,
  "generation_calls_per_trial": 10,

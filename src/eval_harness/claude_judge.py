@@ -12,20 +12,40 @@ import os
 from pathlib import Path
 from uuid import uuid4
 
-from pydantic import BaseModel
+from typing import Literal
+
+from pydantic import BaseModel, Field
 
 from .openai_judge import (JUDGE_TIMEOUT_SECONDS, MAX_JUDGE_PAYLOAD_BYTES, SYSTEM, JudgePacket, JudgmentError,
-                           ReferencedResponse, cache_ordered, encode, evidence_catalog, judge_payload,
+                           StrictModel, cache_ordered, encode, evidence_catalog, judge_payload,
                            resolve_references, scan_payload)
 
-VERSION = "claude-judge-1.0"
+VERSION = "claude-judge-1.4"
 DEFAULT_CLAUDE_JUDGE_MODEL = "claude-sonnet-5-5"
 DESTINATION = "https://api.anthropic.com/v1/messages"
-# Room for adaptive thinking plus the structured judgments; non-streaming stays
-# under the SDK timeout at this size.
-MAX_TOKENS = 16000
+# Room for adaptive thinking plus the structured judgments. Haiku at effort high used all
+# 16K on 2026-10-24, so 1.3 streams the response (no HTTP timeout) with a 32K cap.
+MAX_TOKENS = 32000
 # USD per million tokens (Claude API, checked 2026-10-24). Cache writes 1.25x, reads 0.1x input.
 PRICES = {"claude-sonnet-5-5": (2.0, 10.0), "claude-opus-5-5": (4.0, 20.0), "claude-haiku-5-5": (0.10, 0.50)}
+# Haiku 5.5 prices prompts over 100K tokens at a higher rate.
+LONG_PROMPT_PRICES = {"claude-haiku-5-5": (0.50, 2.50)}
+
+
+class ClaudeReferencedJudgment(StrictModel):
+    criterion_id: str
+    verdict: Literal["PASS", "FAIL", "REVIEW", "NOT_APPLICABLE"]
+    reason: str = Field(min_length=1)
+    evidence_ids: list[str] = Field(min_length=1)
+    # Required but nullable (1.1): with an optional score Claude returned FAIL without a
+    # score on 2026-10-24. Same accepted values as the OpenAI judge; validation unchanged.
+    score: int | None = Field(ge=0, le=5)
+
+
+class ClaudeReferencedResponse(StrictModel):
+    packet_sha256: str
+    judgments: list[ClaudeReferencedJudgment]
+    limitations: list[str]
 
 
 def is_claude_model(model) -> bool:
@@ -39,11 +59,30 @@ def usage_summary(response):
     return {k: v for k in keys if isinstance(v := getattr(usage, k, None), int)}
 
 
+EFFORTS = {"low", "medium", "high", "xhigh", "max"}
+
+
+def split_model(model):
+    """'claude-sonnet-5-5:low' -> ('claude-sonnet-5-5', 'low'). Default effort high (1.4, 2026-10-24):
+    at medium Sonnet missed a restore check and changed its verdicts between runs; at high it
+    matched the people on the same design."""
+    base, _, effort = model.partition(":")
+    effort = effort or "high"
+    if effort not in EFFORTS:
+        raise ValueError(f"Unknown effort: {effort}")
+    return base, effort
+
+
 def estimated_cost_usd(model, usage):
     """Estimate only; not a billed amount."""
+    model = split_model(model)[0]
     if model not in PRICES:
         return None
     rate_in, rate_out = PRICES[model]
+    prompt = (usage.get("input_tokens", 0) + usage.get("cache_creation_input_tokens", 0)
+              + usage.get("cache_read_input_tokens", 0))
+    if model in LONG_PROMPT_PRICES and prompt > 100_000:
+        rate_in, rate_out = LONG_PROMPT_PRICES[model]
     total = (usage.get("input_tokens", 0) * rate_in + usage.get("output_tokens", 0) * rate_out
              + usage.get("cache_creation_input_tokens", 0) * rate_in * 1.25
              + usage.get("cache_read_input_tokens", 0) * rate_in * 0.1)
@@ -55,18 +94,19 @@ def preview(packet: JudgePacket, model: str):
         raise ValueError("Claude judge requires a claude-* model")
     packet, payload, catalog, rubric_coverage, payload_bytes = judge_payload(packet, model)
     # The fixed instructions are the cacheable prefix; the per-packet JSON follows.
-    request = dict(model=model, max_tokens=MAX_TOKENS,
+    base, effort = split_model(model)
+    request = dict(model=base, max_tokens=MAX_TOKENS,
                    system=[{"type": "text", "text": SYSTEM, "cache_control": {"type": "ephemeral"}}],
                    messages=[{"role": "user", "content": cache_ordered(payload)}],
-                   output_config={"effort": "medium"})
-    binding = dict(request=request, packet=packet.model_dump(), schema=ReferencedResponse.model_json_schema(),
+                   output_config={"effort": effort})
+    binding = dict(request=request, packet=packet.model_dump(), schema=ClaudeReferencedResponse.model_json_schema(),
                    evidence_catalog=catalog, timeout_seconds=JUDGE_TIMEOUT_SECONDS, max_retries=0, version=VERSION)
     return dict(destination=DESTINATION, maximum_calls=1,
                 payload_bytes=payload_bytes, payload_limit_bytes=MAX_JUDGE_PAYLOAD_BYTES,
                 request_bytes=len(encode(request).encode("utf-8")),
                 rubric_coverage=rubric_coverage,
                 max_retries=0, timeout_seconds=JUDGE_TIMEOUT_SECONDS, request=request,
-                response_schema=ReferencedResponse.model_json_schema(),
+                response_schema=ClaudeReferencedResponse.model_json_schema(),
                 approval_sha256=sha256(encode(binding).encode("utf-8")).hexdigest(),
                 note="전송 전 미리보기. 코드 검사 결과는 AI에 보여주지 않고 최종 결과에서 별도 보존합니다.")
 
@@ -113,7 +153,8 @@ def evaluate(packet, model, approval_sha256, output_root, *, client_factory=None
                   rubric_version=RUBRIC_VERSION if packet.scoring_profile else None,
                   evaluator_version=VERSION, evaluator_sha256=sha256(Path(__file__).read_bytes()).hexdigest())
     try:
-        response = client.messages.parse(**info["request"], output_format=ReferencedResponse)
+        with client.messages.stream(**info["request"], output_format=ClaudeReferencedResponse) as stream:
+            response = stream.get_final_message()
         result["response_received"] = True
         result["response_id"] = getattr(response, "id", None)
         result["request_id"] = getattr(response, "_request_id", None)

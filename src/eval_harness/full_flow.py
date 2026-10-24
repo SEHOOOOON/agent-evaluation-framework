@@ -40,7 +40,8 @@ class FlowSpec(BaseModel):
     request: str
     oracle: str
     generation_model: str = Field(pattern=r"^[A-Za-z0-9._:-]{1,100}$")
-    judge_model: str = Field(default="gpt-6.1-sol", pattern=r"^[A-Za-z0-9._:-]{1,100}$")
+    # 2026-10-24 사용자 결정: 채점은 생성(OpenAI)과 다른 회사 모델인 Claude Sonnet 5.5 high.
+    judge_model: str = Field(default="claude-sonnet-5-5", pattern=r"^[A-Za-z0-9._:-]{1,100}$")
     trials: Literal[1, 5] = 1
     max_candidates: int = Field(default=3, ge=1, le=10)
     generation_calls_per_trial: int = Field(default=10, ge=1, le=24)

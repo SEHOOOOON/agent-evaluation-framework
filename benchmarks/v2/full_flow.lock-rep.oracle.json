@@ -4,7 +4,7 @@
  "human_reviewed": true,
  "author": "Claude (2026-10-18)",
  "request_sha256": "2f7a9101a24af4368e54be7290bcbacb0e7ace56a88e6e760075e039d4a27bce",
- "rubric_version": "role-rubric-2.6",
+ "rubric_version": "role-rubric-2.7",
  "note": "대표 요청 5개 중 잠금 정책 미정. 허용할 명령과 조건이 정해지지 않았으므로 분석 단계에서 질문하고 멈추는 것이 정답이다(10-11에도 정상 대기). 시험 설계·자동화·실행이 없어도 실패가 아니다. 사람 검토 전. 2026-10-18 사용자 확정: 분석에서 질문하고 멈춤이 정답, 질문에는 허용할 명령과 허용 조건이 둘 다 있어야 함.",
  "expectations": [
   {

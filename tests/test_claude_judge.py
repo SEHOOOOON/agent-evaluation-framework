@@ -5,7 +5,7 @@ from types import SimpleNamespace
 import pytest
 
 from eval_harness import claude_judge, judges, openai_judge
-from eval_harness.openai_judge import ReferencedResponse
+from eval_harness.claude_judge import ClaudeReferencedResponse
 
 from test_openai_judge import packet, reference_judgment
 
@@ -16,13 +16,26 @@ class FakeClaude:
     def __init__(self, value=None, stop_reason="end_turn", error=None):
         self.value, self.stop_reason, self.error = value, stop_reason, error
         self.calls = []
-        self.messages = SimpleNamespace(parse=self.parse)
+        self.messages = SimpleNamespace(stream=self.stream)
+
+    def stream(self, **kwargs):
+        message = self.parse(**kwargs)
+
+        class Stream:
+            def __enter__(self):
+                return SimpleNamespace(get_final_message=lambda: message)
+
+            def __exit__(self, *exc):
+                return False
+        return Stream()
 
     def parse(self, **kwargs):
         self.calls.append(kwargs)
         if self.error:
             raise self.error
-        parsed = None if self.value is None else ReferencedResponse.model_validate(self.value)
+        value = None if self.value is None else {**self.value, "judgments": [
+            {"score": None, **j} for j in self.value["judgments"]]}
+        parsed = None if value is None else ClaudeReferencedResponse.model_validate(value)
         return SimpleNamespace(id="msg-test", _request_id="req-test", stop_reason=self.stop_reason,
                                parsed_output=parsed,
                                usage=SimpleNamespace(input_tokens=1000, output_tokens=200,
@@ -42,11 +55,14 @@ def test_preview_sends_the_same_judge_input_as_openai_with_a_cached_system_promp
     openai = openai_judge.preview(p, "configured-model")
     request = claude["request"]
     assert claude["destination"] == "https://api.anthropic.com/v1/messages" and claude["maximum_calls"] == 1
-    assert request["model"] == MODEL and request["output_config"] == {"effort": "medium"}
+    assert request["model"] == MODEL and request["output_config"] == {"effort": "high"}
     assert request["system"] == [{"type": "text", "text": openai_judge.SYSTEM, "cache_control": {"type": "ephemeral"}}]
     # Identical evidence payload, so the two judges are compared on the same input.
     assert request["messages"][0]["content"] == openai["request"]["input"][1]["content"]
-    assert claude["response_schema"] == openai["response_schema"]
+    # Same fields as the OpenAI schema; only score is required (nullable) for Claude (1.1).
+    judgment = claude["response_schema"]["$defs"]["ClaudeReferencedJudgment"]
+    assert "score" in judgment["required"]
+    assert set(judgment["properties"]) == set(openai["response_schema"]["$defs"]["ReferencedJudgment"]["properties"])
     assert claude["approval_sha256"] != openai["approval_sha256"]
 
 
@@ -66,7 +82,7 @@ def test_valid_response_is_resolved_and_costed(tmp_path):
     assert result["usage"]["cache_creation_input_tokens"] == 3000
     # 1000*2 + 200*10 + 3000*2*1.25 per million tokens
     assert result["estimated_cost_usd"] == round((2000 + 2000 + 7500) / 1_000_000, 4)
-    assert client.calls[0]["output_format"] is ReferencedResponse and len(client.calls) == 1
+    assert client.calls[0]["output_format"] is ClaudeReferencedResponse and len(client.calls) == 1
 
 
 @pytest.mark.parametrize("stop_reason", ["refusal", "max_tokens"])
@@ -92,3 +108,32 @@ def test_approval_is_bound_to_model_and_key_is_required(tmp_path, monkeypatch):
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
     with pytest.raises(ValueError, match="ANTHROPIC_API_KEY"):
         claude_judge.new_client()
+
+
+def test_sdk_schema_requires_score():
+    """2026-10-24: Claude left score empty on a FAIL when score was optional."""
+    from pydantic import TypeAdapter
+    from anthropic.lib._parse._transform import transform_schema
+    schema = transform_schema(TypeAdapter(ClaudeReferencedResponse).json_schema())
+    assert "score" in schema["$defs"]["ClaudeReferencedJudgment"]["required"]
+
+
+def test_effort_can_be_chosen_in_the_model_name():
+    """1.2 (2026-10-24): 'claude-sonnet-5-5:high' sends model claude-sonnet-5-5 at effort high."""
+    p = packet()
+    high = claude_judge.preview(p, "claude-sonnet-5-5:high")
+    assert high["request"]["model"] == "claude-sonnet-5-5" and high["request"]["output_config"] == {"effort": "high"}
+    # 1.4: high is the default, so the bare name sends the same request.
+    assert high["approval_sha256"] != claude_judge.preview(p, "claude-sonnet-5-5:medium")["approval_sha256"]
+    assert claude_judge.preview(p, MODEL)["request"] == high["request"]
+    assert judges.preview(p, "claude-sonnet-5-5:high")["destination"].startswith("https://api.anthropic.com")
+    with pytest.raises(ValueError, match="effort"):
+        claude_judge.preview(p, "claude-sonnet-5-5:fast")
+    assert claude_judge.estimated_cost_usd("claude-sonnet-5-5:high", {"input_tokens": 1_000_000}) == 2.0
+
+
+def test_haiku_long_prompt_rate():
+    short = {"input_tokens": 90_000, "output_tokens": 1_000}
+    long = {"input_tokens": 110_000, "output_tokens": 1_000}
+    assert claude_judge.estimated_cost_usd("claude-haiku-5-5:high", short) == round((90_000 * 0.1 + 1_000 * 0.5) / 1e6, 4)
+    assert claude_judge.estimated_cost_usd("claude-haiku-5-5:high", long) == round((110_000 * 0.5 + 1_000 * 2.5) / 1e6, 4)

@@ -85,3 +85,25 @@ def test_over_budget_repetition_stops_the_batch(stored, tmp_path):
     out = a2_repeat.execute(flow, 1, target, 2, info["approval_sha256"], tmp_path / "out", worker=worker)
     result = read(out / "result.json")
     assert result["status"] == "STOPPED" and len(result["rows"]) == 1
+
+
+def test_first_attempt_checkpoint_is_kept(stored, tmp_path):
+    """1.1 (2026-10-24): a rewritten design used to keep only the final checkpoint."""
+    flow, target = stored
+    info = a2_repeat.make_preview(flow, 1, target, 1)
+    def worker(work, config):
+        run = work / "p1/runs" / config["run_id"]
+        write(work / "call_ledger.json", {"attempts": [{"role": "A2"}] * 4})
+        write(run / "agent2_test_design_attempt_1.json", {"test_cases": []})
+        write(run / "checkpoint2_attempt_1.json", {"status": "FAIL", "checks": [
+            {"rule_id": "CP2-023", "status": "FAIL"}, {"rule_id": "CP2-001", "status": "PASS"}]})
+        write(run / "agent3_plan_attempt_1.json", {})  # not an Agent 2 file
+        write(run / "agent2_test_design.json", {"test_cases": []})
+        write(run / "checkpoint2.json", {"status": "PASS"})
+        return {"status": "COMPLETED", "stages": {"agent2": 0}}
+    out = a2_repeat.execute(flow, 1, target, 1, info["approval_sha256"], tmp_path / "out", worker=worker)
+    row = read(out / "result.json")["rows"][0]
+    assert row["first_attempt_cp2_failures"] == ["CP2-023"] and row["checkpoint2_status"] == "PASS"
+    assert (out / "rep-1" / "checkpoint2_attempt_1.json").is_file()
+    assert (out / "rep-1" / "agent2_test_design_attempt_1.json").is_file()
+    assert not (out / "rep-1" / "agent3_plan_attempt_1.json").exists()

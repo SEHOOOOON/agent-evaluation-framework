@@ -3,8 +3,8 @@
  "status": "HUMAN_REVIEWED",
  "human_reviewed": true,
  "author": "Codex assistant",
- "request_sha256": "1a85b4eb45fd87d03a804a293b2c5a4c0688bb37d18fa50ac147fc2cbdaff873",
- "rubric_version": "role-rubric-2.6",
+ "request_sha256": "6226d0d76753cb9d320b641bf651bb6b532871bf4a45991d1a93ca44d609ccc1",
+ "rubric_version": "role-rubric-2.7",
  "note": "2026-10-15 oracle.draft.json의 역할별 조건을 다시 사용(사람 확정 정답 아님). A2의 필수 시험·질문은 사람 확정 범위 정답지 range_keys/representative-temperature.json(HUMAN_CONFIRMED, 2026-10-17)으로 코드 채점한다. 2026-10-20 사람 대조 결정 반영(H-2·H-3 보충·H-4·H-5): 난방은 16에서 15 시도 → 16 유지, 요청서가 제외한 전환 정책 질문은 선택, 냉방 상한 시험은 기존 TC-TEMP-001을 고쳐 쓰는 것이 정답, 절차 한 줄에는 조작만. A2 필수 시험은 범위 정답지로 코드 채점. 2026-10-23 H-6(H-5 대체): 난방은 경계 차단 대신 16°C 적용 1개(냉방 변경이 난방에 번지지 않았는지).",
  "expectations": [
   {

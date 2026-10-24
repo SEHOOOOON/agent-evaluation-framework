@@ -4,7 +4,7 @@
  "human_reviewed": true,
  "author": "Claude (2026-10-18)",
  "request_sha256": "c9acdfb7ba64ac4e91c570d3758e7da579f1ae7b8fbeef07e3827660d2dde080",
- "rubric_version": "role-rubric-2.6",
+ "rubric_version": "role-rubric-2.7",
  "note": "대표 요청 5개 중 전원 정지. 역할별 조건은 2026-10-17 사용자 확정 규칙(P-1, M-4 방식의 유지값, F-2 라벨, C 규칙)을 요청서에 적용해 옮긴 것(사람 검토 전). 제품은 정지 시 설정을 유지하므로 PASS가 예상된다. 2026-10-18 사용자 확정: 정지 후 STOP과 난방·27°C·중풍 유지를 패널·카드·내부 세 곳 모두 확인(필수), SRS 수정 제안은 내면 틀림.",
  "expectations": [
   {
