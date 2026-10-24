@@ -12,6 +12,8 @@
   - 10-23 A2 4건 사람 대조 12개: OpenAI 12/12, Sonnet medium 10~11/12(같은 입력에서 판정 흔들림). Sonnet high는 온도 1건에서 사람 대조 3/3(원인은 생각 깊이). Haiku high는 출력 한도 16K·32K 모두 초과로 답을 못 냄 → 제외.
   - 10-15 온도(필수 2개 누락, 당시 OpenAI 놓침): 지금 OpenAI(1.17·기준 2.7)·Sonnet 모두 잡음 → 당시 놓친 원인은 같은 회사 모델이 아니라 막연한 기준.
   - 기준 2.7: TC-R07에 "준비·시험으로 바꾼 값마다 복원 확인, 일부 누락 3점 이하" 명시(사람 대조 반영).
+  - 기준 2.8 (10-24, IMP-015): 준비에서만 바꾼 값을 준비 확인 번호(precondition_indexes)로 연결한 복원 확인은 정상 구조로 보고 감점하지 않음(Claude가 이 이유로 1점 감점).
+  - claude-judge-1.5 (10-24, IMP-017): 응답에 기준이 빠지면(CRITERION_SET_MISMATCH) 같은 요청을 1번만 더 보냄. 다른 오류는 재시도 없음. 미리보기 최대 호출 수에 반영(Claude는 역할당 2), 거절된 응답은 `received_response_attempt_1.json`으로 보존.
   - **최종 사용자 결정(같은 날 변경): P2 채점 기본 모델을 Claude Sonnet 5.5 high로 바꿈**(생성 OpenAI와 다른 회사 모델로 독립 평가). 바꾸기 전 확인: 10-23 A2 4건을 Sonnet high로 채점 → 사람 대조 12개 판정 모두 일치(점수는 풍량 TC-R02 4점 1건만 1점 차, 맞게 한 TC에 실패 판정 없음), 3건 추정 $0.751. 대표 명세 6개(`full_flow.*-rep.json`, `heat-range`)·`FlowSpec` 기본값을 `claude-sonnet-5-5`로, 시험 갱신·P2 전체 통과. 예전 명세(`gpt-5.6-terra` 고정)는 그대로.
   - (이전 결정) 채점 메인은 OpenAI 유지, Claude 채점 기본값은 Sonnet 5.5 high(claude-judge-1.4, 이름 뒤 `:medium` 등으로 변경 가능, 스트리밍·출력 한도 32K, Haiku 10만 토큰 초과 단가 반영).
   - 비용(추정, 같은 온도 A2 1건): OpenAI $0.20, Sonnet medium $0.26, Sonnet high $0.33. 오늘 비교 유료 합계 약 $3.2.

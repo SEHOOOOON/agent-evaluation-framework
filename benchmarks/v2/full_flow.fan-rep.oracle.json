@@ -4,7 +4,7 @@
  "human_reviewed": true,
  "author": "Claude (2026-10-18)",
  "request_sha256": "9d1fb041ece8980b64f58ab64c8a6528a8fc1684a8ee3e041017369a10c4ca6a",
- "rubric_version": "role-rubric-2.7",
+ "rubric_version": "role-rubric-2.8",
  "note": "대표 요청 5개 중 풍량 강풍(이미 반영된 정책의 회귀 확인). 역할별 조건은 2026-10-17 사용자 확정 규칙(F-1·F-2, 기존 TC 재사용·고쳐 쓰기 H-3)을 옮긴 것(사람 검토 전). 10-11에는 기존 풍량 TC 재사용으로 통과했다. 제품은 이미 지원하므로 PASS가 예상된다. 2026-10-18 사용자 확정: HIGH 적용 후 패널·카드·내부 세 곳 모두 필수. 기존 TC-V2-001은 패널 확인만 빠졌으므로 패널 확인을 보탠 고쳐 쓰기 후보(기존_TC_수정에 TC-V2-001 연결)가 정답.",
  "expectations": [
   {

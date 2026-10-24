@@ -1,5 +1,6 @@
 """Separate Claude judge (2026-10-24): same packet, rubric, evidence IDs and validation as
-the OpenAI judge. Preview first, one explicitly approved call, no retries, no fallback.
+the OpenAI judge. Preview first, one explicitly approved call, no fallback. One retry only when the
+answer leaves out criteria (1.5, 2026-10-24 user decision, IMP-017).
 
 No server-side refusal fallback on purpose: a fallback would answer with a different
 model, and this judge exists to compare one fixed model against people and OpenAI.
@@ -20,7 +21,11 @@ from .openai_judge import (JUDGE_TIMEOUT_SECONDS, MAX_JUDGE_PAYLOAD_BYTES, SYSTE
                            StrictModel, cache_ordered, encode, evidence_catalog, judge_payload,
                            resolve_references, scan_payload)
 
-VERSION = "claude-judge-1.4"
+VERSION = "claude-judge-1.5"
+# 1.5 (2026-10-24, IMP-017): A1 came back with 1 of 6 criteria and end_turn. The same
+# request is sent once more only for CRITERION_SET_MISMATCH; other errors still stop.
+MAX_CALLS = 2
+RETRY_CODES = {"CRITERION_SET_MISMATCH"}
 DEFAULT_CLAUDE_JUDGE_MODEL = "claude-sonnet-5-5"
 DESTINATION = "https://api.anthropic.com/v1/messages"
 # Room for adaptive thinking plus the structured judgments. Haiku at effort high used all
@@ -100,8 +105,9 @@ def preview(packet: JudgePacket, model: str):
                    messages=[{"role": "user", "content": cache_ordered(payload)}],
                    output_config={"effort": effort})
     binding = dict(request=request, packet=packet.model_dump(), schema=ClaudeReferencedResponse.model_json_schema(),
-                   evidence_catalog=catalog, timeout_seconds=JUDGE_TIMEOUT_SECONDS, max_retries=0, version=VERSION)
-    return dict(destination=DESTINATION, maximum_calls=1,
+                   evidence_catalog=catalog, timeout_seconds=JUDGE_TIMEOUT_SECONDS, max_retries=0,
+                   criterion_retries=MAX_CALLS - 1, retry_codes=sorted(RETRY_CODES), version=VERSION)
+    return dict(destination=DESTINATION, maximum_calls=MAX_CALLS, criterion_retry_codes=sorted(RETRY_CODES),
                 payload_bytes=payload_bytes, payload_limit_bytes=MAX_JUDGE_PAYLOAD_BYTES,
                 request_bytes=len(encode(request).encode("utf-8")),
                 rubric_coverage=rubric_coverage,
@@ -152,7 +158,7 @@ def evaluate(packet, model, approval_sha256, output_root, *, client_factory=None
                   judge_model=model, judge_provider="anthropic",
                   rubric_version=RUBRIC_VERSION if packet.scoring_profile else None,
                   evaluator_version=VERSION, evaluator_sha256=sha256(Path(__file__).read_bytes()).hexdigest())
-    try:
+    def call(attempt):
         with client.messages.stream(**info["request"], output_format=ClaudeReferencedResponse) as stream:
             response = stream.get_final_message()
         result["response_received"] = True
@@ -162,7 +168,9 @@ def evaluate(packet, model, approval_sha256, output_root, *, client_factory=None
         result["stop_reason"] = stop_reason
         # end_turn is the only complete answer; refusal/max_tokens are recorded, not retried.
         result["server_completion"] = "completed" if stop_reason == "end_turn" else (stop_reason or "UNKNOWN")
-        result["usage"] = usage_summary(response)
+        usage = usage_summary(response)
+        for key, value in usage.items():
+            result["usage"][key] = result["usage"].get(key, 0) + value
         result["estimated_cost_usd"] = estimated_cost_usd(model, result["usage"])
         if not result["response_id"] or result["server_completion"] != "completed":
             raise ValueError("Response incomplete or identity missing")
@@ -176,11 +184,27 @@ def evaluate(packet, model, approval_sha256, output_root, *, client_factory=None
         except (ValueError, TypeError):
             result["response_diagnostic"] = "OMITTED_UNSAFE_OR_OVERSIZED"
             raise JudgmentError("UNSAFE_OR_OVERSIZED_RESPONSE") from None
-        else:
-            save("received_response.json", received)
-            result["response_diagnostic"] = "SAVED_UNVALIDATED"
-            result["received_sha256"] = sha256(encoded.encode("utf-8")).hexdigest()
-        parsed = resolve_references(packet, received)
+        save("received_response.json", received)
+        result["response_diagnostic"] = "SAVED_UNVALIDATED"
+        result["received_sha256"] = sha256(encoded.encode("utf-8")).hexdigest()
+        return received, resolve_references(packet, received)
+
+    result["usage"] = {}
+    try:
+        for attempt in range(1, MAX_CALLS + 1):
+            result["sdk_parse_attempts"] = attempt
+            if mode == "LIVE_JUDGE":
+                result["api_request_attempts"] = attempt
+            try:
+                received, parsed = call(attempt)
+                break
+            except JudgmentError as exc:
+                if exc.diagnostic.get("code") not in RETRY_CODES or attempt == MAX_CALLS:
+                    raise
+                result.setdefault("retried_after", []).append(exc.diagnostic)
+                # Keep the rejected answer; received_response.json is always the latest one.
+                if (out / "received_response.json").is_file():
+                    (out / "received_response.json").replace(out / f"received_response_attempt_{attempt}.json")
         result.update(status="COMPLETED", structured_response_valid=True,
                       judgments=[j.model_dump(exclude_none=True) for j in parsed.judgments],
                       limitations=parsed.limitations)
@@ -215,6 +239,7 @@ def evaluate(packet, model, approval_sha256, output_root, *, client_factory=None
     save("result.json", result)
     save("attempt.json", dict(mode=mode, status="FINISHED", started_at=result["started_at"],
                               finished_at=result["finished_at"], elapsed_seconds=result["elapsed_seconds"],
-                              sdk_parse_attempts=1, automatic_retries=0, server_completion=result["server_completion"],
+                              sdk_parse_attempts=result["sdk_parse_attempts"],
+                              automatic_retries=result["sdk_parse_attempts"] - 1, server_completion=result["server_completion"],
                               response_received=result["response_received"]))
     return out

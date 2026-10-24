@@ -19,6 +19,7 @@ import zipfile
 
 from .full_flow import ROLES, FlowSpec, collect_packets
 from .openai_judge import encode
+from .claude_judge import MAX_CALLS as CLAUDE_MAX_CALLS, is_claude_model
 from .judges import evaluate, preview as judge_preview
 from .v2_recorded import digest, inventory, read, write
 
@@ -93,7 +94,8 @@ def make_preview(flow: Path, trial: int, roles, model: str | None = None):
                        roles={r: v.get("approval_sha256") for r, v in rows.items()})
         return dict(version=VERSION, flow=flow.resolve().name, trial=trial, run_id=record["run_id"],
                     model=model, roles=rows,
-                    maximum_api_attempts=sum(v["status"] == "READY" for v in rows.values()),
+                    maximum_api_attempts=sum(v["status"] == "READY" for v in rows.values())
+                    * (CLAUDE_MAX_CALLS if is_claude_model(model) else 1),
                     executable=all(v["status"] == "READY" for v in rows.values()),
                     original_scores_unchanged=True,
                     note="미리보기는 호출하지 않습니다. 실행 결과는 새 출력 폴더에만 쓰며 원래 FLOW 기록과 점수는 바꾸지 않습니다.",

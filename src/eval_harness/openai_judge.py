@@ -85,7 +85,7 @@ class JudgePacket(StrictModel):
     rubric: list[RubricItem] = Field(min_length=1)
     code_checks: list[CodeCheck]
     oracle_status: Literal["DRAFT", "HUMAN_REVIEWED"] = "DRAFT"
-    rubric_profile: Literal["custom", "role-rubric-2.5", "role-rubric-2.6", "role-rubric-2.7"] = "custom"
+    rubric_profile: Literal["custom", "role-rubric-2.5", "role-rubric-2.6", "role-rubric-2.7", "role-rubric-2.8"] = "custom"
     scoring_profile: Literal["score-0-5-v1", "score-0-5-v2"] | None = None
 
     @model_validator(mode="after")

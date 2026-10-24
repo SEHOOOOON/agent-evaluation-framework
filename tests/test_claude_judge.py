@@ -13,8 +13,9 @@ MODEL = "claude-sonnet-5-5"
 
 
 class FakeClaude:
-    def __init__(self, value=None, stop_reason="end_turn", error=None):
+    def __init__(self, value=None, stop_reason="end_turn", error=None, values=None):
         self.value, self.stop_reason, self.error = value, stop_reason, error
+        self.values = list(values or [])  # one value per call, for retry tests
         self.calls = []
         self.messages = SimpleNamespace(stream=self.stream)
 
@@ -33,10 +34,12 @@ class FakeClaude:
         self.calls.append(kwargs)
         if self.error:
             raise self.error
+        if self.values:
+            self.value = self.values.pop(0)
         value = None if self.value is None else {**self.value, "judgments": [
             {"score": None, **j} for j in self.value["judgments"]]}
         parsed = None if value is None else ClaudeReferencedResponse.model_validate(value)
-        return SimpleNamespace(id="msg-test", _request_id="req-test", stop_reason=self.stop_reason,
+        return SimpleNamespace(id=f"msg-test-{len(self.calls)}", _request_id="req-test", stop_reason=self.stop_reason,
                                parsed_output=parsed,
                                usage=SimpleNamespace(input_tokens=1000, output_tokens=200,
                                                      cache_creation_input_tokens=3000, cache_read_input_tokens=0))
@@ -54,7 +57,7 @@ def test_preview_sends_the_same_judge_input_as_openai_with_a_cached_system_promp
     claude = claude_judge.preview(p, MODEL)
     openai = openai_judge.preview(p, "configured-model")
     request = claude["request"]
-    assert claude["destination"] == "https://api.anthropic.com/v1/messages" and claude["maximum_calls"] == 1
+    assert claude["destination"] == "https://api.anthropic.com/v1/messages" and claude["maximum_calls"] == 2
     assert request["model"] == MODEL and request["output_config"] == {"effort": "high"}
     assert request["system"] == [{"type": "text", "text": openai_judge.SYSTEM, "cache_control": {"type": "ephemeral"}}]
     # Identical evidence payload, so the two judges are compared on the same input.
@@ -137,3 +140,31 @@ def test_haiku_long_prompt_rate():
     long = {"input_tokens": 110_000, "output_tokens": 1_000}
     assert claude_judge.estimated_cost_usd("claude-haiku-5-5:high", short) == round((90_000 * 0.1 + 1_000 * 0.5) / 1e6, 4)
     assert claude_judge.estimated_cost_usd("claude-haiku-5-5:high", long) == round((110_000 * 0.5 + 1_000 * 2.5) / 1e6, 4)
+
+
+def test_missing_criteria_are_requested_once_more(tmp_path):
+    """1.5 (2026-10-24, IMP-017): Claude answered 1 of 6 criteria with end_turn."""
+    full = reference_judgment()
+    partial = {**full, "judgments": full["judgments"][:0]}
+    client = FakeClaude(values=[partial, full])
+    result = run(tmp_path, client)
+    out = next(tmp_path.glob("JUDGE-*"))
+    assert result["status"] == "COMPLETED" and len(client.calls) == 2
+    assert result["sdk_parse_attempts"] == 2 and result["retried_after"][0]["code"] == "CRITERION_SET_MISMATCH"
+    # Both calls are billed: usage is summed.
+    assert result["usage"]["input_tokens"] == 2000
+    assert (out / "received_response_attempt_1.json").is_file() and (out / "received_response.json").is_file()
+    assert json.loads((out / "attempt.json").read_text(encoding="utf-8"))["automatic_retries"] == 1
+
+
+def test_missing_criteria_twice_is_an_error_and_other_errors_are_not_retried(tmp_path):
+    full = reference_judgment()
+    partial = {**full, "judgments": []}
+    client = FakeClaude(values=[partial, partial, full])
+    result = run(tmp_path / "a", client)
+    assert result["status"] == "ERROR" and len(client.calls) == 2
+    assert result["validation_error"]["code"] == "CRITERION_SET_MISMATCH"
+    bad = reference_judgment()
+    bad["judgments"][0]["evidence_ids"] = ["E999"]
+    client = FakeClaude(value=bad)
+    assert run(tmp_path / "b", client)["status"] == "ERROR" and len(client.calls) == 1

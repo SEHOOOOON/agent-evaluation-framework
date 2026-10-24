@@ -27,7 +27,7 @@ from .product_expectations import ExpectedMismatch, classify as classify_product
 from .range_oracle import RangeKey, grade as grade_range
 from .openai_judge import JudgePacket, encode, scan_payload, _unique_json_fields
 from .judges import preview as judge_preview, evaluate as judge_evaluate
-from .claude_judge import DESTINATION as CLAUDE_DESTINATION, is_claude_model
+from .claude_judge import DESTINATION as CLAUDE_DESTINATION, MAX_CALLS as CLAUDE_MAX_CALLS, is_claude_model
 from .v2_recorded import (child, digest, read, write, target_pin, inventory, execution_rows,
                           finding_matches_execution, report_counts_match, handoff_checks)
 
@@ -145,7 +145,9 @@ def make_preview(target: Path, spec: FlowSpec, config_root: Path):
         "checkpoint_rewrites": "P1 existing bounded policy; every parse attempt is charged",
         "p1_call_budget_includes": ["generation", "checkpoint rewrites", "grounding reviews"],
         "external_publish": False, "official_registration": False,
-        "maximum_api_attempts": spec.generation_calls_total + spec.judge_calls_total,
+        # Claude judge 1.5 may resend once when criteria are missing (IMP-017).
+        "maximum_api_attempts": spec.generation_calls_total + spec.judge_calls_total * (
+            CLAUDE_MAX_CALLS if is_claude_model(spec.judge_model) else 1),
         "scope": "A1-A4 + checkpoint artifacts + partial E2E code checks",
         "transmission": {
             "generation": ["request", "related SRS", "existing TC catalog", "actual upstream outputs",
