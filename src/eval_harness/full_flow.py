@@ -27,6 +27,7 @@ from .product_expectations import ExpectedMismatch, classify as classify_product
 from .range_oracle import RangeKey, grade as grade_range
 from .openai_judge import JudgePacket, encode, scan_payload, _unique_json_fields
 from .judges import preview as judge_preview, evaluate as judge_evaluate
+from .claude_judge import DESTINATION as CLAUDE_DESTINATION, is_claude_model
 from .v2_recorded import (child, digest, read, write, target_pin, inventory, execution_rows,
                           finding_matches_execution, report_counts_match, handoff_checks)
 
@@ -137,7 +138,9 @@ def make_preview(target: Path, spec: FlowSpec, config_root: Path):
         **({"range_key": range_key} if range_key is not None else {}),
         "python_criteria": sorted(PYTHON_CRITERIA | (KEY_CRITERIA if (range_key or {}).get("status") == "HUMAN_CONFIRMED" else set())),
         "generation_destination": "https://api.openai.com/v1/responses",
-        "judge_destination": "https://api.openai.com/v1/responses",
+        # Was fixed to OpenAI; the Claude default (2026-10-24) is routed by judges.py.
+        "judge_destination": (CLAUDE_DESTINATION if is_claude_model(spec.judge_model)
+                              else "https://api.openai.com/v1/responses"),
         "generation_sdk_retries": 0, "judge_sdk_retries": 0,
         "checkpoint_rewrites": "P1 existing bounded policy; every parse attempt is charged",
         "p1_call_budget_includes": ["generation", "checkpoint rewrites", "grounding reviews"],
