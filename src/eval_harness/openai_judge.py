@@ -240,7 +240,8 @@ def scan_payload(value):
                 raise ValueError("Secret, local path, or HTML is not allowed")
 
 
-def preview(packet: JudgePacket, model: str):
+def judge_payload(packet: JudgePacket, model: str):
+    """Provider-neutral judge input shared by the OpenAI and Claude judges."""
     from .detailed_rubric import coverage
     packet = JudgePacket.model_validate(packet.model_dump())
     rubric_coverage = coverage(packet)
@@ -275,6 +276,11 @@ def preview(packet: JudgePacket, model: str):
     payload_bytes = len(encoded_payload.encode("utf-8"))
     if payload_bytes > MAX_JUDGE_PAYLOAD_BYTES:
         raise ValueError(f"Judge payload is too large: {payload_bytes} > {MAX_JUDGE_PAYLOAD_BYTES} bytes; select relevant source content")
+    return packet, payload, catalog, rubric_coverage, payload_bytes
+
+
+def preview(packet: JudgePacket, model: str):
+    packet, payload, catalog, rubric_coverage, payload_bytes = judge_payload(packet, model)
     request = dict(model=model,store=False,max_output_tokens=6000,
                    prompt_cache_key=f"p2-judge-{VERSION}-{packet.agent_id}",
                    input=[{"role":"system","content":SYSTEM},{"role":"user","content":cache_ordered(payload)}])

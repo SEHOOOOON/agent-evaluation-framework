@@ -36,6 +36,9 @@ python -m eval_harness full-flow --target ../qa-agent-pipeline-v2 --spec benchma
 # 저장된 실행을 다시 채점 (프로젝트 1을 다시 돌리지 않음)
 python -m eval_harness rejudge-flow --flow evaluation-runs/<FLOW-...> --roles A1 A2 A3 A4
 
+# 같은 저장 실행을 Claude로 채점 (모델 이름이 claude-로 시작하면 Claude 채점기, ANTHROPIC_API_KEY 필요)
+python -m eval_harness rejudge-flow --flow evaluation-runs/<FLOW-...> --roles A1 A2 A3 A4 --model claude-sonnet-5-5
+
 # 저장된 분석 결과로 시험 설계(A2)만 반복
 python -m eval_harness repeat-a2 --flow evaluation-runs/<FLOW-...> --target ../qa-agent-pipeline-v2 --times 2
 

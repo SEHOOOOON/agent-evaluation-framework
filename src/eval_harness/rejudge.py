@@ -18,7 +18,8 @@ import tempfile
 import zipfile
 
 from .full_flow import ROLES, FlowSpec, collect_packets
-from .openai_judge import encode, evaluate, preview as judge_preview
+from .openai_judge import encode
+from .judges import evaluate, preview as judge_preview
 from .v2_recorded import digest, inventory, read, write
 
 VERSION = "rejudge-flow-1.0"

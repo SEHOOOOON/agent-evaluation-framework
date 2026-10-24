@@ -25,8 +25,8 @@ from .detailed_rubric import role_items, VERSION as RUBRIC_VERSION, SCORE_VERSIO
 from .execution_observations import grade_run as grade_execution_observations
 from .product_expectations import ExpectedMismatch, classify as classify_product_expectation
 from .range_oracle import RangeKey, grade as grade_range
-from .openai_judge import (JudgePacket, encode, preview as judge_preview, evaluate as judge_evaluate,
-                           scan_payload, _unique_json_fields)
+from .openai_judge import JudgePacket, encode, scan_payload, _unique_json_fields
+from .judges import preview as judge_preview, evaluate as judge_evaluate
 from .v2_recorded import (child, digest, read, write, target_pin, inventory, execution_rows,
                           finding_matches_execution, report_counts_match, handoff_checks)
 
