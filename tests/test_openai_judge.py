@@ -497,7 +497,7 @@ def test_judge_request_sends_fixed_rubric_before_evidence_with_same_content():
     assert list(sent)[0] == "agent_id" and list(sent).index("rubric") < list(sent).index("sources")
     assert len(a.encode("utf-8")) == first["payload_bytes"] == len(encode(sent).encode("utf-8"))
     assert a[:a.index('"sources"')] == b[:b.index('"sources"')]  # shared, cacheable prefix
-    assert first["request"]["prompt_cache_key"] == "p2-judge-openai-judge-1.17-A2"
+    assert first["request"]["prompt_cache_key"] == "p2-judge-openai-judge-1.18-A2"
 
 
 def test_judge_usage_keeps_cache_and_reasoning_details():
@@ -540,3 +540,35 @@ def test_tc_r07_requires_restore_check_for_every_changed_value():
     row = next(r for r in CRITERIA if r["criterion_id"] == "TC-R07")
     assert "바꾼 값마다" in row["pass_condition"]
     assert "일부" in row["fail_condition"] and "모드" in row["fail_condition"] and "3점 이하" in row["fail_condition"]
+
+
+def test_reason_in_chinese_or_japanese_is_rejected_unless_quoted():
+    """openai-judge-1.18 (2026-10-25, IMP-018)."""
+    from eval_harness import openai_judge
+    from eval_harness.openai_judge import evidence_catalog
+    p = packet()
+    _, catalog, fingerprint = evidence_catalog(p)
+    value = reference_judgment()
+    value["packet_sha256"] = fingerprint
+    for reason, ok in (("请求与计划相符。", False), ("候補内で確認した。", False), ("카드 표시가 맞다.", True),
+                       ("패널・카드 표시가 맞다.", True)):   # 2026-10-25 review: "・" is a Korean separator
+        value["judgments"][0]["reason"] = reason
+        if ok:
+            openai_judge.resolve_references(p, value)
+        else:
+            with pytest.raises(openai_judge.JudgmentError) as error:
+                openai_judge.resolve_references(p, value)
+            assert error.value.diagnostic["code"] == "NON_KOREAN_REASON"
+    # Han quoted from the evidence is allowed; limitations are checked too.
+    quoted = packet()
+    quoted.sources["tc"]["expected"] = "카드 표시 冷房 18"
+    _, _, quoted_fingerprint = evidence_catalog(quoted)
+    value["packet_sha256"] = quoted_fingerprint
+    value["judgments"][0]["reason"] = "원문 표기 '冷房'을 그대로 인용했다."
+    value["judgments"][0]["evidence_ids"] = [next(ref for ref, entry in evidence_catalog(quoted)[1].items()
+                                                  if "冷房" in str(entry["quote"]))]
+    openai_judge.resolve_references(quoted, value)
+    value["limitations"] = ["证据不足"]
+    with pytest.raises(openai_judge.JudgmentError) as error:
+        openai_judge.resolve_references(quoted, value)
+    assert error.value.diagnostic["code"] == "NON_KOREAN_REASON"

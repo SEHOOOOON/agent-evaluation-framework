@@ -379,6 +379,21 @@ def test_preview_no_transmission_and_bound_models(flow_setup):
                  worker=worker_for(), judge=fake_judge)
 
 
+def test_claude_judge_problems_stop_before_paid_generation(flow_setup, monkeypatch):
+    """2026-10-25 review: a bad effort or a missing ANTHROPIC_API_KEY used to surface
+    only at the judge step, after all paid generation calls."""
+    target, config, spec, output = flow_setup
+    with pytest.raises(ValueError, match="effort"):
+        make_preview(target, spec.model_copy(update={"judge_model": "claude-sonnet-5-5:fast"}), config)
+    claude = spec.model_copy(update={"judge_model": "claude-sonnet-5-5"})
+    info = make_preview(target, claude, config)
+    monkeypatch.setenv("OPENAI_API_KEY", "offline-fixture")
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    with pytest.raises(ValueError, match="ANTHROPIC_API_KEY"):
+        run_flow(target, claude, config, output, info["approval_sha256"])
+    assert not output.exists() or not any(output.glob("FLOW-*"))
+
+
 def test_preview_pins_basic_tc_details(flow_setup):
     target, config, spec, _ = flow_setup
     hashes = make_preview(target, spec, config)["plan"]["runtime_hashes"]

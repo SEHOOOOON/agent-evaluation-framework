@@ -10,7 +10,13 @@ from uuid import uuid4
 
 from pydantic import BaseModel, ConfigDict, Field, JsonValue, model_validator
 
-VERSION = "openai-judge-1.17"
+VERSION = "openai-judge-1.18"
+# 1.18 (2026-10-25, IMP-018): a judge reason came back entirely in Chinese on 2026-10-23.
+# Han/Kana not quoted from the evidence is rejected as NON_KOREAN_REASON.
+# Kana, CJK ideographs (incl. compatibility, iteration mark, half-width kana). U+30FB and
+# U+30FC are excluded: Korean text uses them as separators (2026-10-25 review). Same range as P1.
+_FOREIGN_SCRIPT_RUN = re.compile(
+    r"[\u3005\u3040-\u30fa\u30fd-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\uff66-\uff9f]+")
 # Same reason as flow_worker.GENERATION_TIMEOUT_SECONDS: a 120 s cap can end a
 # large structured response before it arrives. One attempt, no retries.
 JUDGE_TIMEOUT_SECONDS = 600
@@ -192,13 +198,21 @@ def resolve_references(packet, response):
     if parsed.packet_sha256 != fingerprint:
         raise JudgmentError("EVIDENCE_PACKET_MISMATCH")
     judgments = []
+    corpus = "\n".join(entry["quote"] for entry in catalog.values())
+
+    def foreign(text):
+        return any(run not in corpus for run in _FOREIGN_SCRIPT_RUN.findall(text or ""))
     for index, item in enumerate(parsed.judgments):
+        if foreign(item.reason):
+            raise JudgmentError("NON_KOREAN_REASON", index)
         if len(set(item.evidence_ids)) != len(item.evidence_ids):
             raise JudgmentError("DUPLICATE_EVIDENCE_ID", index)
         if any(ref not in catalog for ref in item.evidence_ids):
             raise JudgmentError("UNKNOWN_EVIDENCE_ID", index)
         judgments.append(dict(criterion_id=item.criterion_id, verdict=item.verdict, reason=item.reason, score=item.score,
                               evidence=[catalog[ref] for ref in item.evidence_ids]))
+    if any(foreign(text) for text in parsed.limitations):
+        raise JudgmentError("NON_KOREAN_REASON")
     return validate_judgment(packet, dict(judgments=judgments, limitations=parsed.limitations))
 
 

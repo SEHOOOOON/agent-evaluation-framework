@@ -27,7 +27,8 @@ from .product_expectations import ExpectedMismatch, classify as classify_product
 from .range_oracle import RangeKey, grade as grade_range
 from .openai_judge import JudgePacket, encode, scan_payload, _unique_json_fields
 from .judges import preview as judge_preview, evaluate as judge_evaluate
-from .claude_judge import DESTINATION as CLAUDE_DESTINATION, MAX_CALLS as CLAUDE_MAX_CALLS, is_claude_model
+from .claude_judge import (DESTINATION as CLAUDE_DESTINATION, MAX_CALLS as CLAUDE_MAX_CALLS, is_claude_model,
+                           split_model as split_claude_model)
 from .v2_recorded import (child, digest, read, write, target_pin, inventory, execution_rows,
                           finding_matches_execution, report_counts_match, handoff_checks)
 
@@ -98,6 +99,8 @@ def selected_files(target, request, pin):
 def make_preview(target: Path, spec: FlowSpec, config_root: Path):
     target = target.resolve()
     spec = FlowSpec.model_validate(spec.model_dump())
+    if is_claude_model(spec.judge_model):
+        split_claude_model(spec.judge_model)  # an unknown effort fails at preview, not after generation
     pin = target_pin(target)
     selected = selected_files(target, spec.request, pin)
     if not runtime_unchanged(target, selected):
@@ -1276,6 +1279,9 @@ def run_flow(target, spec, config_root, output_root, approval_sha256, *, worker=
     test_mode = worker is not None
     if not test_mode:
         clean_environment(include_key=True)
+        # 2026-10-25 review: check the judge key before any paid generation call.
+        if is_claude_model(spec.judge_model) and not os.environ.get("ANTHROPIC_API_KEY"):
+            raise ValueError("ANTHROPIC_API_KEY environment variable is required for the Claude judge")
     worker = worker or run_worker
     judge = judge or judge_evaluate
     plan = info["plan"]
@@ -1413,11 +1419,12 @@ def run_flow(target, spec, config_root, output_root, approval_sha256, *, worker=
                     judged = judge(packet, spec.judge_model, preview["approval_sha256"], destination)
                     verdict = read(judged / "result.json")
                     result["judge_attempts"] += verdict.get("sdk_parse_attempts", 0)
-                    response_id = verdict.get("response_id")
-                    if response_id and response_id in seen_response_ids:
+                    # Every billed attempt counts, including a rejected first answer (Claude 1.7).
+                    response_ids = [a.get("response_id") for a in verdict.get("attempts", [])] or [verdict.get("response_id")]
+                    response_ids = [rid for rid in response_ids if rid]
+                    if any(rid in seen_response_ids for rid in response_ids) or len(set(response_ids)) != len(response_ids):
                         verdict.update(status="ERROR", assessment="INCOMPLETE", reason="DUPLICATE_JUDGE_RESPONSE")
-                    if response_id:
-                        seen_response_ids.add(response_id)
+                    seen_response_ids.update(response_ids)
                     row["judges"][role] = verdict
                     if verdict.get("status") == "ERROR":
                         result["stop_reason"] = "JUDGE_ERROR"

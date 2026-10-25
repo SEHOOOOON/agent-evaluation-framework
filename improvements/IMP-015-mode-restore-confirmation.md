@@ -40,7 +40,7 @@ H-6 온도 요청서(냉방 하한 19°C, 난방 16°C 적용)에서 TC는 준�
 
 ## 비교 조건
 
-- 수정 전·후 커밋 / 파일 해시: 수정 전 P1 `e2b0ec2`(branch `claude/fixes-20261015`) / 수정 후 미커밋(커밋 시 기록)
+- 수정 전·후 커밋 / 파일 해시: 수정 전 P1 `e2b0ec2`(branch `claude/fixes-20261015`) / 수정 후 P1 `2a39ad9`
 - 요청·SRS·공식 TC / 모델·작성 지침: `examples/change_request.representative-temperature.json`(H-6) / 생성·검토 OpenAI gpt-6.1-sol, 채점 Claude Sonnet 5.5 high(claude-judge-1.4)
 - 평가 기준·정답 검토 상태 / 생성·평가 호출 한도: role-rubric-2.7 TC-R07(바꾼 값마다 복원 확인, 누락 시 3점 이하), 사람 확정 / 실패 시 정지, 재작성 1번
 - 비교 조건 차이와 해석 제한: 반복 3회는 A2만 실행하고 코드 대조로 판정(AI 채점 없음). 표본 4회.

@@ -13,18 +13,28 @@ MODEL = "claude-sonnet-5-5"
 
 
 class FakeClaude:
-    def __init__(self, value=None, stop_reason="end_turn", error=None, values=None):
+    def __init__(self, value=None, stop_reason="end_turn", error=None, values=None, stream_errors=None):
         self.value, self.stop_reason, self.error = value, stop_reason, error
         self.values = list(values or [])  # one value per call, for retry tests
+        # Like SDK 2.3: output validation can raise inside the stream after the call is billed.
+        self.stream_errors = list(stream_errors or [])
         self.calls = []
         self.messages = SimpleNamespace(stream=self.stream)
 
     def stream(self, **kwargs):
         message = self.parse(**kwargs)
+        error = self.stream_errors.pop(0) if self.stream_errors else None
+
+        def final():
+            if error:
+                raise error
+            return message
 
         class Stream:
             def __enter__(self):
-                return SimpleNamespace(get_final_message=lambda: message)
+                # SDK 2.3: the request id is a stream header, not on the final message.
+                return SimpleNamespace(get_final_message=final, request_id=f"req-{message.id[-1]}",
+                                       _current_snapshot_or_none=lambda: message)
 
             def __exit__(self, *exc):
                 return False
@@ -39,7 +49,7 @@ class FakeClaude:
         value = None if self.value is None else {**self.value, "judgments": [
             {"score": None, **j} for j in self.value["judgments"]]}
         parsed = None if value is None else ClaudeReferencedResponse.model_validate(value)
-        return SimpleNamespace(id=f"msg-test-{len(self.calls)}", _request_id="req-test", stop_reason=self.stop_reason,
+        return SimpleNamespace(id=f"msg-test-{len(self.calls)}", stop_reason=self.stop_reason,
                                parsed_output=parsed,
                                usage=SimpleNamespace(input_tokens=1000, output_tokens=200,
                                                      cache_creation_input_tokens=3000, cache_read_input_tokens=0))
@@ -155,6 +165,11 @@ def test_missing_criteria_are_requested_once_more(tmp_path):
     assert result["usage"]["input_tokens"] == 2000
     assert (out / "received_response_attempt_1.json").is_file() and (out / "received_response.json").is_file()
     assert json.loads((out / "attempt.json").read_text(encoding="utf-8"))["automatic_retries"] == 1
+    # Final fields describe the accepted second answer (1.7).
+    assert result["response_id"] == "msg-test-2" and result["request_id"] == "req-2"
+    assert [a["response_id"] for a in result["attempts"]] == ["msg-test-1", "msg-test-2"]
+    first_saved = json.loads((out / "received_response_attempt_1.json").read_text(encoding="utf-8"))
+    assert first_saved["judgments"] == [] and result["received_sha256"]
 
 
 def test_missing_criteria_twice_is_an_error_and_other_errors_are_not_retried(tmp_path):
@@ -168,3 +183,40 @@ def test_missing_criteria_twice_is_an_error_and_other_errors_are_not_retried(tmp
     bad["judgments"][0]["evidence_ids"] = ["E999"]
     client = FakeClaude(value=bad)
     assert run(tmp_path / "b", client)["status"] == "ERROR" and len(client.calls) == 1
+
+
+def test_non_korean_reason_is_requested_once_more(tmp_path):
+    """1.6 (2026-10-25, IMP-018): a judge reason came back entirely in Chinese on 2026-10-23."""
+    full = reference_judgment()
+    chinese = {**full, "judgments": [{**j, "reason": "请求与计划相符。"} for j in full["judgments"]]}
+    client = FakeClaude(values=[chinese, full])
+    result = run(tmp_path, client)
+    assert result["status"] == "COMPLETED" and len(client.calls) == 2
+    assert result["retried_after"][0]["code"] == "NON_KOREAN_REASON"
+
+
+
+def test_failed_second_attempt_does_not_keep_first_attempt_fields(tmp_path):
+    """1.7 (2026-10-25 review): attempt 1 misses criteria, attempt 2 fails inside the SDK stream."""
+    full = reference_judgment()
+    partial = {**full, "judgments": []}
+    client = FakeClaude(values=[partial, full], stream_errors=[None, ValueError("score out of range")])
+    result = run(tmp_path, client)
+    out = next(tmp_path.glob("JUDGE-*"))
+    assert result["status"] == "ERROR" and len(client.calls) == 2
+    first, second = result["attempts"]
+    assert (first["response_id"], first["request_id"]) == ("msg-test-1", "req-1")
+    # The SDK rejected the second output, but the billed call keeps its id and usage.
+    assert (second["response_id"], second["request_id"]) == ("msg-test-2", "req-2")
+    assert result["response_id"] == "msg-test-2" and "received_sha256" not in result
+    assert result["usage"]["input_tokens"] == 2000
+    assert not (out / "received_response.json").exists() and (out / "received_response_attempt_1.json").is_file()
+    attempt = json.loads((out / "attempt.json").read_text(encoding="utf-8"))
+    assert attempt["sdk_parse_attempts"] == 2 and attempt["automatic_retries"] == 1
+
+
+def test_retry_cost_is_per_attempt():
+    """Haiku's long-prompt rate applies per request, not to the sum of two attempts."""
+    one = {"input_tokens": 60_000, "output_tokens": 1_000}
+    each = claude_judge.estimated_cost_usd("claude-haiku-5-5", one)
+    assert each == round((60_000 * 0.1 + 1_000 * 0.5) / 1e6, 4)

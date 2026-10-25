@@ -21,11 +21,14 @@ from .openai_judge import (JUDGE_TIMEOUT_SECONDS, MAX_JUDGE_PAYLOAD_BYTES, SYSTE
                            StrictModel, cache_ordered, encode, evidence_catalog, judge_payload,
                            resolve_references, scan_payload)
 
-VERSION = "claude-judge-1.5"
+VERSION = "claude-judge-1.7"
+# 1.6 (2026-10-25, IMP-018): a reason in Chinese/Japanese is also resent once.
+# 1.7 (2026-10-25 review): per-attempt records (id, request id, stop reason, usage, cost),
+# request id from the stream header, billed usage kept when the SDK rejects the output.
 # 1.5 (2026-10-24, IMP-017): A1 came back with 1 of 6 criteria and end_turn. The same
 # request is sent once more only for CRITERION_SET_MISMATCH; other errors still stop.
 MAX_CALLS = 2
-RETRY_CODES = {"CRITERION_SET_MISMATCH"}
+RETRY_CODES = {"CRITERION_SET_MISMATCH", "NON_KOREAN_REASON"}
 DEFAULT_CLAUDE_JUDGE_MODEL = "claude-sonnet-5-5"
 DESTINATION = "https://api.anthropic.com/v1/messages"
 # Room for adaptive thinking plus the structured judgments. Haiku at effort high used all
@@ -158,21 +161,51 @@ def evaluate(packet, model, approval_sha256, output_root, *, client_factory=None
                   judge_model=model, judge_provider="anthropic",
                   rubric_version=RUBRIC_VERSION if packet.scoring_profile else None,
                   evaluator_version=VERSION, evaluator_sha256=sha256(Path(__file__).read_bytes()).hexdigest())
-    def call(attempt):
-        with client.messages.stream(**info["request"], output_format=ClaudeReferencedResponse) as stream:
-            response = stream.get_final_message()
+    def note(message, record):
+        """Record a billed message (final or a partial snapshot) for this attempt."""
+        if message is None:
+            return
         result["response_received"] = True
-        result["response_id"] = getattr(response, "id", None)
-        result["request_id"] = getattr(response, "_request_id", None)
-        stop_reason = getattr(response, "stop_reason", None)
-        result["stop_reason"] = stop_reason
+        record.update(response_id=getattr(message, "id", None),
+                      stop_reason=getattr(message, "stop_reason", None), usage=usage_summary(message))
+        record["request_id"] = record.get("request_id") or getattr(message, "_request_id", None)
+        result.update(response_id=record["response_id"], request_id=record["request_id"],
+                      stop_reason=record["stop_reason"])
         # end_turn is the only complete answer; refusal/max_tokens are recorded, not retried.
+        stop_reason = record["stop_reason"]
         result["server_completion"] = "completed" if stop_reason == "end_turn" else (stop_reason or "UNKNOWN")
-        usage = usage_summary(response)
-        for key, value in usage.items():
-            result["usage"][key] = result["usage"].get(key, 0) + value
-        result["estimated_cost_usd"] = estimated_cost_usd(model, result["usage"])
-        if not result["response_id"] or result["server_completion"] != "completed":
+        # 1.7: usage and cost per attempt, then summed (Haiku's long-prompt rate is per request).
+        result["usage"] = {}
+        for item in result["attempts"]:
+            for key, value in item.get("usage", {}).items():
+                result["usage"][key] = result["usage"].get(key, 0) + value
+        costs = [estimated_cost_usd(model, item.get("usage", {})) for item in result["attempts"]]
+        result["estimated_cost_usd"] = None if None in costs else round(sum(costs), 4)
+
+    def call(attempt):
+        # 1.7 (2026-10-25 review): each attempt starts from empty response fields, so a
+        # failed second attempt never leaves the first attempt's id or hash behind.
+        for key in ("response_id", "request_id", "stop_reason", "received_sha256", "response_diagnostic"):
+            result.pop(key, None)
+        result["server_completion"] = "UNKNOWN"
+        record = dict(attempt=attempt, response_id=None, request_id=None, stop_reason=None, usage={})
+        result["attempts"].append(record)
+        save("attempt.json", dict(mode=mode, status="STARTED", started_at=started.isoformat(),
+                                  sdk_parse_attempts=attempt, automatic_retries=attempt - 1,
+                                  server_completion="UNKNOWN"))
+        with client.messages.stream(**info["request"], output_format=ClaudeReferencedResponse) as stream:
+            # The streamed final message has no _request_id; the header is on the stream (SDK 2.3).
+            record["request_id"] = getattr(stream, "request_id", None)
+            try:
+                response = stream.get_final_message()
+            except Exception:
+                # The SDK validates structured output while streaming (e.g. score 6, empty
+                # reason, cut JSON). The call is still billed: keep its id and usage.
+                snapshot = getattr(stream, "_current_snapshot_or_none", lambda: None)()
+                note(snapshot, record)
+                raise
+        note(response, record)
+        if not result.get("response_id") or result["server_completion"] != "completed":
             raise ValueError("Response incomplete or identity missing")
         received = getattr(response, "parsed_output", None)
         received = received.model_dump(mode="json") if isinstance(received, BaseModel) else received
@@ -189,7 +222,7 @@ def evaluate(packet, model, approval_sha256, output_root, *, client_factory=None
         result["received_sha256"] = sha256(encoded.encode("utf-8")).hexdigest()
         return received, resolve_references(packet, received)
 
-    result["usage"] = {}
+    result.update(usage={}, attempts=[])
     try:
         for attempt in range(1, MAX_CALLS + 1):
             result["sdk_parse_attempts"] = attempt
