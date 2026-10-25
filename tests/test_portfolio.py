@@ -21,7 +21,7 @@ class PageParser(HTMLParser):
     def __init__(self):
         super().__init__()
         self.ids, self.links, self.resources = [], [], []
-        self.feed((PAGE / 'report.html').read_text(encoding='utf-8'))
+        self.feed((PAGE / 'report-detail.html').read_text(encoding='utf-8'))
 
     def handle_starttag(self, tag, attrs):
         attrs = dict(attrs)
@@ -105,7 +105,7 @@ def test_snapshot_matches_available_originals():
 
 
 def test_no_credentials_absolute_paths_or_outbound_execution():
-    files = [PAGE / name for name in ('index.html', 'report.html', 'story.css', 'story.js', 'report-view.css', 'report-view.js', 'style.css', 'page.js', 'evidence.js', 'rubric.js', 'plain-language.js')]
+    files = [PAGE / name for name in ('index.html', 'report-detail.html', 'story.css', 'story.js', 'report-view.css', 'report-view.js', 'style.css', 'page.js', 'evidence.js', 'rubric.js', 'plain-language.js')]
     text = '\n'.join(p.read_text(encoding='utf-8') for p in files)
     assert not re.search(r'sk-[A-Za-z0-9_-]{16,}|(?<![A-Za-z])[A-Za-z]:[\\/]|file://|OPENAI_API_KEY=', text)
     scripts = '\n'.join(p.read_text(encoding='utf-8') for p in files if p.suffix == '.js')
@@ -113,7 +113,7 @@ def test_no_credentials_absolute_paths_or_outbound_execution():
 
 
 def test_scope_and_keyboard_controls_are_explicit():
-    html = (PAGE / 'report.html').read_text(encoding='utf-8')
+    html = (PAGE / 'report-detail.html').read_text(encoding='utf-8')
     js = (PAGE / 'page.js').read_text(encoding='utf-8')
     # 2026-10-22 사용자 결정: TC 등록·재실행·불일치 보고 영역은 보고서에서 삭제(자료 파일은 보존).
     for phrase in ('저장된 실행·평가 기록',
@@ -149,7 +149,7 @@ def test_current_26_definitions_match_runtime_without_regrading_old_scores():
 
 def test_dashboard_collapses_groups():
     js = (PAGE / 'page.js').read_text(encoding='utf-8')
-    html = (PAGE / 'report.html').read_text(encoding='utf-8')
+    html = (PAGE / 'report-detail.html').read_text(encoding='utf-8')
     assert 'class="role-group"' in js and 'class="criterion"' in js
     assert 'group.open = true' in js and 'detail.open = false' in js
     assert ' open' not in re.search(r'<details class="role-group"[^>]*>', js).group()
@@ -159,7 +159,7 @@ def test_dashboard_collapses_groups():
 
 
 def test_summary_scores_have_no_bars_and_keep_source_based_counts():
-    html = (PAGE / 'report.html').read_text(encoding='utf-8')
+    html = (PAGE / 'report-detail.html').read_text(encoding='utf-8')
     js = (PAGE / 'page.js').read_text(encoding='utf-8')
     assert html.count('role="tab"') == 3
     assert 'id="score-chart"' in html
@@ -178,7 +178,7 @@ def test_summary_scores_have_no_bars_and_keep_source_based_counts():
 
 
 def test_role_context_is_explained():
-    html = (PAGE / 'report.html').read_text(encoding='utf-8')
+    html = (PAGE / 'report-detail.html').read_text(encoding='utf-8')
     js = (PAGE / 'page.js').read_text(encoding='utf-8')
     assert '이 프로젝트에 맞춘 26개 항목' in html
     assert '공인된 평가 점수는 아닙니다' in html
@@ -235,7 +235,7 @@ def test_plain_explanations_cover_all_items_without_changing_scoring_data():
 
 def test_six_area_summary_and_clean_pending_display():
     js = (PAGE / 'page.js').read_text(encoding='utf-8')
-    html = (PAGE / 'report.html').read_text(encoding='utf-8')
+    html = (PAGE / 'report-detail.html').read_text(encoding='utf-8')
     assert "roles.map(([key,name,description])" in js
     assert 'roles.filter(' not in js
     assert "['COMMON','공통 기준'" in js and "['E2E','연결 기준'" in js
@@ -251,7 +251,7 @@ def test_six_area_summary_and_clean_pending_display():
 
 
 def test_improvement_and_sources_keep_scope_in_short_sections():
-    html = (PAGE / 'report.html').read_text(encoding='utf-8')
+    html = (PAGE / 'report-detail.html').read_text(encoding='utf-8')
     for phrase in ('발견한 문제', '바꾼 부분', '확인한 결과', '새 응답 1건',
                    '전체 과정은 다른 문제로 중단', '중단 기록을 읽고 코드를 검토해 원인을 확인',
                    '과거 점수를 다시 계산한 것은 아님'):
@@ -311,7 +311,7 @@ def test_a3_comparison_snapshot_matches_original_scores_and_separates_sources():
 
 
 def test_a3_comparison_html_preserves_scope_and_all_snapshot_values():
-    html = (PAGE / 'report.html').read_text(encoding='utf-8')
+    html = (PAGE / 'report-detail.html').read_text(encoding='utf-8')
     section = html.split('<section id="a3-comparison"', 1)[1].split('</section>', 1)[0]
     data = json.loads((PAGE / 'a3-comparison.json').read_text(encoding='utf-8'))
     assert '<details id="comparison-details" class="info">' in section  # closed by default
@@ -330,7 +330,7 @@ def test_a3_comparison_html_preserves_scope_and_all_snapshot_values():
 
 
 def test_decision_examples_precede_counts_without_claiming_a_new_evaluation():
-    html = (PAGE / 'report.html').read_text(encoding='utf-8')
+    html = (PAGE / 'report-detail.html').read_text(encoding='utf-8')
     assert html.index('id="a3-comparison"') < html.index('id="latest-repeat"') < html.index('id="qa-improvement"')
     assert html.index('id="latest-repeat"') < html.index('id="score-chart"')
     assert '세 사례의 평가 결과와 원본 해시' in html
@@ -383,7 +383,7 @@ def test_latest_closeout_separates_pending_and_preserves_source_states():
             ]
             expected = {k: v for k, v in old["python"].items() if k in ("score", "verdict", "reason")} if isinstance(old["python"], dict) else None
             assert got["program_assessment"] == expected
-    html = (PAGE / "report.html").read_text(encoding="utf-8")
+    html = (PAGE / "report-detail.html").read_text(encoding="utf-8")
     assert html.index('id="latest-power-evaluation"') < html.index('id="score-chart"')
     assert "전체 평균은 계산하지 않았으며" in html
 
@@ -398,7 +398,7 @@ def test_connection_proposals_are_not_final_scores_or_approval():
 
 
 def test_current_criteria_and_latest_results_are_separate_from_historical_scores():
-    html = (PAGE / 'report.html').read_text(encoding='utf-8')
+    html = (PAGE / 'report-detail.html').read_text(encoding='utf-8')
     js = (PAGE / 'page.js').read_text(encoding='utf-8')
     assert html.index('id="latest-power-evaluation"') < html.index('id="a3-comparison"') < html.index('id="evaluation-method"')
     assert '<details id="historical-results" class="disclosure-section">' in html
@@ -415,7 +415,7 @@ def test_current_criteria_and_latest_results_are_separate_from_historical_scores
 
 
 def test_evaluation_diagram_explains_roles_without_claiming_new_results():
-    html = (PAGE / 'report.html').read_text(encoding='utf-8')
+    html = (PAGE / 'report-detail.html').read_text(encoding='utf-8')
     section = html.split('<section id="evaluation-method"', 1)[1].split('</section>', 1)[0]
     assert section.count('class="flow-stage ') == 3
     for text in ('P1에서 남긴 기록', '프로그램', 'AI', '근거 부족은 평가 보류', '사람이 검토', '26개 세부 기준'):
@@ -431,7 +431,7 @@ def test_evaluation_diagram_explains_roles_without_claiming_new_results():
 def test_latest_role_scores_use_unique_owners_and_keep_pending_separate():
     from html import escape
     data = json.loads((PAGE / 'evidence/closeout-20261009/criteria.json').read_text(encoding='utf-8'))
-    html = (PAGE / 'report.html').read_text(encoding='utf-8')
+    html = (PAGE / 'report-detail.html').read_text(encoding='utf-8')
     assert html.count('class="latest-role"') == 6
     assert html.count('class="latest-item"') == 26
     assert len(set(re.findall(r'id="latest-criterion-([^"]+)"', html))) == 26
@@ -456,7 +456,7 @@ def test_latest_role_scores_use_unique_owners_and_keep_pending_separate():
 def test_latest_reasons_and_statuses_match_saved_evidence_without_rescoring():
     from html import escape
     data = json.loads((PAGE / 'evidence/closeout-20261009/criteria.json').read_text(encoding='utf-8'))
-    html = (PAGE / 'report.html').read_text(encoding='utf-8')
+    html = (PAGE / 'report-detail.html').read_text(encoding='utf-8')
     for item in data['criteria']:
         block = html.split('id="latest-criterion-' + item['criterion_id'] + '"',1)[1].split('</details>',1)[0]
         assert 'data-status="' + item['status'] + '"' in block
@@ -475,7 +475,7 @@ def test_latest_reasons_and_statuses_match_saved_evidence_without_rescoring():
 
 
 def test_compact_dashboard_tabs_preserve_evidence_navigation():
-    html = (PAGE / 'report.html').read_text(encoding='utf-8')
+    html = (PAGE / 'report-detail.html').read_text(encoding='utf-8')
     js = (PAGE / 'page.js').read_text(encoding='utf-8')
     panels = ['evaluation', 'validation', 'reference']
     assert html.count('role="tabpanel"') == 3
@@ -495,7 +495,7 @@ def test_compact_dashboard_tabs_preserve_evidence_navigation():
 
 
 def test_portfolio_explains_evaluation_goal_without_claiming_repeated_ai_success():
-    html = (PAGE / 'report.html').read_text(encoding='utf-8')
+    html = (PAGE / 'report-detail.html').read_text(encoding='utf-8')
     section = html.split('id="qa-purpose"', 1)[-1] if 'id="qa-purpose"' in html else html
     for phrase in ('개인 프로젝트', '여러 시나리오에서 기준을 지키는지',
                    '같은 조건에서도 결과가 일관되는지', '새 AI 실행의 반복 일관성 검증은 아직 남아'):
@@ -504,7 +504,7 @@ def test_portfolio_explains_evaluation_goal_without_claiming_repeated_ai_success
 
 
 def test_purpose_and_readable_summary_precede_detailed_score_matrix():
-    html = (PAGE / 'report.html').read_text(encoding='utf-8')
+    html = (PAGE / 'report-detail.html').read_text(encoding='utf-8')
     assert html.index('id="evaluation-intent"') < html.index('class="case-summary"')
     assert html.index('class="case-summary"') < html.index('id="scenario-role-scores"')
     assert '<details id="scenario-role-scores" class="info compact-fold">' in html
@@ -518,7 +518,7 @@ def test_purpose_and_readable_summary_precede_detailed_score_matrix():
 
 
 def test_readable_summary_preserves_detailed_role_scores_and_limits():
-    html = (PAGE / 'report.html').read_text(encoding='utf-8')
+    html = (PAGE / 'report-detail.html').read_text(encoding='utf-8')
     expected_roles = {'normal':'실행 역할 · AI 3항목','product':'실행 역할 · AI 3항목',
                       'omission':'실행 역할 · AI 3항목','pause':'분석 역할 · AI 4항목',
                       'reuse':'설계 역할 · AI 8항목'}
@@ -546,7 +546,7 @@ def test_readable_summary_preserves_detailed_role_scores_and_limits():
 
 
 def test_scenario_overview_keeps_role_means_and_scope_separate():
-    html = (PAGE / 'report.html').read_text(encoding='utf-8')
+    html = (PAGE / 'report-detail.html').read_text(encoding='utf-8')
     section = html.split('<section id="scenario-overview"', 1)[1].split('</section>', 1)[0]
     assert html.index('id="scenario-overview"') < html.index('id="latest-power-evaluation"')
     assert set(re.findall(r'data-scenario="([^"]+)"', section)) == {'power','normal','product','omission','pause','reuse'}
@@ -572,7 +572,7 @@ def test_pause_reuse_extract_preserves_saved_judgments_and_source_hashes():
     assert data['new_api_calls'] == data['p1_new_executions'] == 0
     assert data['human_review'] == 'PENDING' and not data['same_condition_repetition']
     assert data['kind'] == 'SAVED_ASSESSMENT_EXTRACT_NOT_NEW_EVALUATION'
-    html = (PAGE / 'report.html').read_text(encoding='utf-8')
+    html = (PAGE / 'report-detail.html').read_text(encoding='utf-8')
     rows = {r['label']: r for r in data['rows']}
     assert set(rows) == {'pause-A1','reuse-A2','reuse-A3'}
     for row in rows.values():
@@ -608,7 +608,7 @@ def test_current_evaluator_documentation_matches_code_without_rewriting_history(
 
 
 def test_zero_review_and_non_applicable_are_distinct_and_old_zero_is_preserved():
-    html = (PAGE / 'report.html').read_text(encoding='utf-8')
+    html = (PAGE / 'report-detail.html').read_text(encoding='utf-8')
     assert '충족하지 못했다는 근거가 있음' in html
     assert '판단할 근거가 부족하면 <b>판단 보류</b>' in html
     assert '적용되지 않는다는 근거가 있으면 <b>해당 없음</b>' in html
@@ -626,7 +626,7 @@ def plain_copy():
 
 
 def test_compact_result_summary_uses_original_scores_without_a_selector():
-    html = (PAGE / 'report.html').read_text(encoding='utf-8')
+    html = (PAGE / 'report-detail.html').read_text(encoding='utf-8')
     js = (PAGE / 'page.js').read_text(encoding='utf-8')
     reader = js.split('function buildResultOverview()', 1)[1].split('buildResultOverview();', 1)[0]
     assert 'id="result-overview"' in html and 'id="result-rows"' in html
@@ -643,7 +643,7 @@ def test_compact_result_summary_uses_original_scores_without_a_selector():
 
 
 def test_compact_result_summary_keeps_limits_and_an_open_no_script_source():
-    html = (PAGE / 'report.html').read_text(encoding='utf-8')
+    html = (PAGE / 'report-detail.html').read_text(encoding='utf-8')
     js = (PAGE / 'page.js').read_text(encoding='utf-8')
     reader = js.split('function buildResultOverview()', 1)[1].split('buildResultOverview();', 1)[0]
     first = html.split('id="evaluation-evidence"', 1)[0]
@@ -687,7 +687,7 @@ def test_review_copy_does_not_turn_confirmed_violations_into_missing_evidence():
 
 
 def test_historical_display_labels_do_not_imply_current_evaluation_completion():
-    html = (PAGE / 'report.html').read_text(encoding='utf-8')
+    html = (PAGE / 'report-detail.html').read_text(encoding='utf-8')
     js = (PAGE / 'page.js').read_text(encoding='utf-8')
     assert '점수가 있는 항목 <strong id="count-scored">' in html
     assert '당시 판단 대기 <strong id="count-review">' in html
@@ -699,7 +699,7 @@ def test_historical_display_labels_do_not_imply_current_evaluation_completion():
 
 
 def test_improvement_copy_distinguishes_existing_requirements_and_rechecked_records():
-    html = (PAGE / 'report.html').read_text(encoding='utf-8')
+    html = (PAGE / 'report-detail.html').read_text(encoding='utf-8')
     assert '이미 반영된 요구사항을 다시 제안' in html
     assert '100회에 포함된 5건의 실행 기록을 묶음 종료 후 다시 대조' in html
     assert '추가로 5회 실행한 것은 아니며' in html
