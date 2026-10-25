@@ -115,7 +115,7 @@
             <section><h4>미충족 예시</h4><p data-field="negative_example">${escape(easy.negative_example)}</p></section>
           </div></details>
           <p class="version-note">현재 기준을 쉽게 설명한 내용입니다. 과거 점수를 다시 매긴 것은 아닙니다.</p>
-          <details class="criterion-extra technical-source"><summary>개발용 기준 원문 보기 · 2.5</summary><dl>${sourceFields.map(([name,key])=>`<dt>${name}</dt><dd data-source-field="${key}">${escape(definition[key])}</dd>`).join('')}</dl></details>
+          <details class="criterion-extra technical-source"><summary>개발용 기준 원문 보기 · ${(window.PORTFOLIO_RUBRIC && window.PORTFOLIO_RUBRIC.version || '').replace('role-rubric-', '')}</summary><dl>${sourceFields.map(([name,key])=>`<dt>${name}</dt><dd data-source-field="${key}">${escape(definition[key])}</dd>`).join('')}</dl></details>
         </div>
         <p><a href="#latest-criterion-${escape(item.criterion_id)}">10월 9일 평가 결과와 이유 보기 ↑</a></p>
       </div>

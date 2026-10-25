@@ -10,7 +10,8 @@ from uuid import uuid4
 
 from pydantic import BaseModel, ConfigDict, Field, JsonValue, model_validator
 
-VERSION = "openai-judge-1.18"
+VERSION = "openai-judge-1.19"
+# 1.19 (2026-10-25): a quote must match an evidence run or be a 2+ character part of one.
 # 1.18 (2026-10-25, IMP-018): a judge reason came back entirely in Chinese on 2026-10-23.
 # Han/Kana not quoted from the evidence is rejected as NON_KOREAN_REASON.
 # Kana, CJK ideographs (incl. compatibility, iteration mark, half-width kana). U+30FB and
@@ -198,10 +199,15 @@ def resolve_references(packet, response):
     if parsed.packet_sha256 != fingerprint:
         raise JudgmentError("EVIDENCE_PACKET_MISMATCH")
     judgments = []
-    corpus = "\n".join(entry["quote"] for entry in catalog.values())
+    # A quote must match an evidence run exactly or be a 2+ character part of one (same rule as P1).
+    source_runs = _FOREIGN_SCRIPT_RUN.findall("\n".join(str(entry["quote"]) for entry in catalog.values()))
+    exact = set(source_runs)
+
+    def quoted(run):
+        return run in exact or (len(run) >= 2 and any(run in source for source in source_runs))
 
     def foreign(text):
-        return any(run not in corpus for run in _FOREIGN_SCRIPT_RUN.findall(text or ""))
+        return any(not quoted(run) for run in _FOREIGN_SCRIPT_RUN.findall(text or ""))
     for index, item in enumerate(parsed.judgments):
         if foreign(item.reason):
             raise JudgmentError("NON_KOREAN_REASON", index)

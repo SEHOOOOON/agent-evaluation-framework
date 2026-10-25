@@ -497,7 +497,7 @@ def test_judge_request_sends_fixed_rubric_before_evidence_with_same_content():
     assert list(sent)[0] == "agent_id" and list(sent).index("rubric") < list(sent).index("sources")
     assert len(a.encode("utf-8")) == first["payload_bytes"] == len(encode(sent).encode("utf-8"))
     assert a[:a.index('"sources"')] == b[:b.index('"sources"')]  # shared, cacheable prefix
-    assert first["request"]["prompt_cache_key"] == "p2-judge-openai-judge-1.18-A2"
+    assert first["request"]["prompt_cache_key"] == "p2-judge-openai-judge-1.19-A2"
 
 
 def test_judge_usage_keeps_cache_and_reasoning_details():
@@ -568,6 +568,10 @@ def test_reason_in_chinese_or_japanese_is_rejected_unless_quoted():
     value["judgments"][0]["evidence_ids"] = [next(ref for ref, entry in evidence_catalog(quoted)[1].items()
                                                   if "冷房" in str(entry["quote"]))]
     openai_judge.resolve_references(quoted, value)
+    value["judgments"][0]["reason"] = "원문 표기 '冷'만 떼어 썼다."   # one character cut out of a quote
+    with pytest.raises(openai_judge.JudgmentError):
+        openai_judge.resolve_references(quoted, value)
+    value["judgments"][0]["reason"] = "원문 표기 '冷房'을 그대로 인용했다."
     value["limitations"] = ["证据不足"]
     with pytest.raises(openai_judge.JudgmentError) as error:
         openai_judge.resolve_references(quoted, value)
