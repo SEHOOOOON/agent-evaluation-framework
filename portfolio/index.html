@@ -36,11 +36,11 @@
 /* 평가하는 결과물: 왼쪽에서 오른쪽으로 이어지는 4칸 */
 .block-title{margin:34px 0 12px!important;font-size:17px!important;color:#fff}
 .artifact-flow{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:22px}
-.artifact-flow li{position:relative;padding:18px 18px 16px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
-.artifact-flow li:not(:last-child)::after{content:'→';position:absolute;right:-17px;top:22px;color:var(--muted)}
+.artifact-flow>li{position:relative;padding:18px 18px 16px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+.artifact-flow>li:not(:last-child)::after{content:'→';position:absolute;right:-17px;top:22px;color:var(--muted)}
 .artifact-flow .by{display:block;font-size:12px;color:var(--blue)}
 .artifact-flow h4{margin:4px 0 10px;font-size:16px;color:#fff}
-.artifact-flow ul{margin:0;padding:10px 0 0 16px;border-top:1px solid var(--line);color:var(--muted);font-size:13.5px;line-height:1.75;display:grid;gap:4px}
+.artifact-flow ul{list-style:none;margin:0;padding:10px 0 0;border-top:1px solid var(--line);color:var(--muted);font-size:13.5px;line-height:1.75;display:grid;gap:4px}
 /* 누가 채점하나 */
 .graders{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;border:1px solid var(--line);border-radius:10px;overflow:hidden}
 .graders div{padding:18px 20px;background:var(--surface)}
@@ -65,7 +65,7 @@
  .judge-three,.graders{grid-template-columns:1fr}
  .graders div+div{border-left:0;border-top:1px solid var(--line)}
  .artifact-flow{grid-template-columns:1fr 1fr}
- .artifact-flow li:not(:last-child)::after{content:none}
+ .artifact-flow>li:not(:last-child)::after{content:none}
  .rubric-example{grid-template-columns:1fr}.rubric-example>div:nth-child(odd){border-bottom:0;padding-bottom:4px}
 }
 @media(max-width:520px){.artifact-flow{grid-template-columns:1fr}}
