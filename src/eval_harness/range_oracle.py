@@ -18,7 +18,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-VERSION = "range-oracle-1.3"
+VERSION = "range-oracle-1.4"  # 1.4 (2026-10-25): start after a blocked attempt, any correct probe passes
 LOCATIONS = ("panel", "card", "internal")
 # Block verdicts are value retention only (T-8); these readers judge something else.
 NON_VALUE_TARGETS = {"notification.toast", "temperature.controls", "temperature.increase",
@@ -117,6 +117,24 @@ def _expected_temp(verification: dict) -> tuple[str, Any] | None:
     return location, None
 
 
+def _settled(spec: dict, window: list) -> float | None:
+    """setTemp the TC expects right after the latest TEST attempt (internal value first).
+
+    2026-10-25 review: after a blocked attempt (18 -> 17 refused) the next button press
+    starts from the kept 18, not from the attempted 17.
+    """
+    found = {}
+    for v in spec.get("verifications") or []:
+        if v.get("after_action_id") in window:
+            hit = _expected_temp(v)
+            if hit and hit[1] is not None:
+                found.setdefault(hit[0], hit[1])
+    for location in ("internal", "panel", "card"):
+        if location in found:
+            return found[location]
+    return None
+
+
 def walk_design(design: dict) -> dict[str, list[dict]]:
     """Follow each TC's operations in order and collect TEST probes/mode switches."""
     probes, switches = [], []
@@ -142,8 +160,9 @@ def walk_design(design: dict) -> dict[str, list[dict]]:
                 attempted = _number(op.get("value"))
                 start = temp
             elif target in {"temperature.increase", "temperature.decrease"} and temp is not None:
-                start = temp
-                attempted = temp + (1 if target.endswith("increase") else -1)
+                settled = _settled(spec, tc_probes[-1]["window"]) if tc_probes else None
+                start = temp if settled is None else settled
+                attempted = start + (1 if target.endswith("increase") else -1)
             if attempted is None:
                 if phase == "TEST" and tc_probes:
                     tc_probes[-1]["window"].append(op.get("action_id"))
@@ -182,17 +201,30 @@ def grade(key: RangeKey, design: dict, analysis: dict | None = None) -> dict[str
         matches = [p for p in probes if p["mode"] == row["mode"] and p["attempted"] == row["attempted"]
                    and (row["start"] is None or p["start"] == row["start"])]
         status, detail = "MISSING", "TEST 단계에서 이 값을 시도하는 조작이 없음"
+        # Any correct probe meets the row; otherwise a wrong value is reported before a gap
+        # (1.4: the first matching TC no longer decides alone).
+        found = []
         for p in matches:
             values = p["expected"]
             wrong = {loc: v for loc, v in values.items() if v is not None and v != row["expected"]}
             missing = [loc for loc in LOCATIONS if values.get(loc) != row["expected"]]
+            if not wrong and not missing:
+                found = [("MET", p["tc_id"])]
+                break
             if wrong:
-                status, detail = "WRONG_EXPECTATION", f"{p['tc_id']}: 기대값 {wrong}, 정답 {row['expected']}"
-                break
-            if not missing:
-                status, detail = "MET", p["tc_id"]
-                break
-            status, detail = "PARTIAL", f"{p['tc_id']}: {', '.join(missing)} 확인 없음 (C-3)"
+                found.append(("WRONG_EXPECTATION", f"{p['tc_id']}: 기대값 {wrong}, 정답 {row['expected']}"))
+            else:
+                found.append(("PARTIAL", f"{p['tc_id']}: {', '.join(missing)} 확인 없음 (C-3)"))
+        if found:
+            order = {"MET": 0, "WRONG_EXPECTATION": 1, "PARTIAL": 2}
+            status, detail = min(found, key=lambda item: order[item[0]])
+        if status == "MET":
+            # The row is met, but a wrong expectation for the same attempt elsewhere is kept.
+            for p in matches:
+                wrong = {loc: v for loc, v in p["expected"].items() if v is not None and v != row["expected"]}
+                if wrong:
+                    issues.append(dict(rule="WRONG_OTHER_TC", tc_id=p["tc_id"], detail=row["id"],
+                                       reason=f"같은 시도를 다른 TC가 맞게 확인했지만 이 TC의 기대값 {wrong}은 정답 {row['expected']}와 다름"))
         if row["kind"] == "BLOCK":
             for p in matches:
                 if p["non_value_checks"]:

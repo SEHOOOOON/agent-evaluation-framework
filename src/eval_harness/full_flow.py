@@ -566,8 +566,25 @@ def range_key_judgment(record: dict | None) -> dict | None:
         return None
     recommended = [i for i in record.get("items", []) if i.get("level") == "RECOMMENDED"]
     missing = [i["id"] for i in record.get("items", []) if i.get("level") == "REQUIRED" and i.get("status") != "MET"]
+    # 2026-10-25 review: the key's own verdict also counts rule issues. T-8 (a block judged by
+    # something other than the kept value) makes the key FAIL, so the scorecard must not say 5.
+    issues = record.get("issues") or []
+    t8 = sorted({str(i.get("tc_id")) for i in issues if i.get("rule") == "T-8"})
+    if not missing and t8:
+        return dict(criterion_id="TC-R05", verdict="FAIL", score=3,
+                    reason=f"사람 확정 범위 정답지 {record['key_id']}: 필수 {met}/{total} 충족, "
+                           f"차단 판정에 값 유지 외 확인 사용(T-8): " + ", ".join(t8),
+                    evidence=[dict(file="agent2_test_design.json", sha256=record.get("design_sha256"))])
     if not missing:
         partial = any(i.get("status") != "MET" for i in recommended)
+        split = [i for i in issues if i.get("rule") == "T-7"]
+        other = sorted({str(i.get("tc_id")) for i in issues if i.get("rule") == "WRONG_OTHER_TC"})
+        if split or other:
+            notes = (["같은 모드 범위 확인이 TC 여러 개로 나뉨(T-7, 사람 확인)"] if split else []) + (
+                [f"다른 TC가 같은 시도를 틀린 기대값으로 확인({', '.join(other)})"] if other else [])
+            return dict(criterion_id="TC-R05", verdict="PASS", score=4,
+                        reason=f"사람 확정 범위 정답지 {record['key_id']}: 필수 {met}/{total} 충족, " + "; ".join(notes),
+                        evidence=[dict(file="agent2_test_design.json", sha256=record.get("design_sha256"))])
         return dict(criterion_id="TC-R05", verdict="PASS", score=4 if partial else 5,
                     reason=f"사람 확정 범위 정답지 {record['key_id']}: 필수 {met}/{total} 충족"
                            + (", 권장 일부 미충족" if partial else ""),

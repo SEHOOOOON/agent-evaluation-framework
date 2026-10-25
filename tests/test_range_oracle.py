@@ -301,3 +301,43 @@ def test_english_field_names_count_for_t5():
     assert _t5(design)["status"] == "MISSING"
     design["final_review_notes"] = question
     assert _t5(design)["status"] == "MET"
+
+def _blocked_then_increase_design():
+    """2026-10-25 review: 18 set in preparation, decrease to 17 is refused (kept 18), then increase -> 19."""
+    def op(i, phase, target, value=None):
+        return {"action_id": f"ACT-{i:03}", "phase": phase, "target": target, "value": value}
+    def check(rid, after, location, value):
+        return {"result_id": rid, "after_action_id": after, "target": f"{location}.setTemp", "expected_number": value}
+    blocked = {"tc_id": "TC-CAND-001", "execution_spec": {
+        "operations": [op(1, "PRECONDITION", "mode.cool"), op(2, "PRECONDITION", "temperature.set", 18),
+                       op(3, "TEST", "temperature.decrease"), op(4, "TEST", "command.apply"),
+                       op(5, "TEST", "temperature.increase"), op(6, "TEST", "command.apply")],
+        "verifications": [check("ER-001", "ACT-004", "internal", 18), check("ER-002", "ACT-006", "internal", 19)]}}
+    applied = {"tc_id": "TC-CAND-002", "execution_spec": {
+        "operations": [op(1, "PRECONDITION", "mode.cool"), op(2, "TEST", "temperature.set", 18), op(3, "TEST", "command.apply")],
+        "verifications": [check("ER-003", "ACT-003", loc, 18) for loc in ("internal", "panel", "card")]}}
+    return {"test_cases": [blocked, applied]}
+
+
+def test_walk_design_starts_after_a_blocked_attempt_from_the_kept_value():
+    """range-oracle-1.4."""
+    from eval_harness.range_oracle import walk_design
+    probes = walk_design(_blocked_then_increase_design())["probes"]
+    assert [(p["tc_id"], p["start"], p["attempted"]) for p in probes] == [
+        ("TC-CAND-001", 18, 17), ("TC-CAND-001", 18, 19), ("TC-CAND-002", None, 18)]
+
+
+
+def test_wrong_expectation_in_another_tc_is_kept_when_one_tc_meets_the_row():
+    """range-oracle-1.4 (2026-10-25): the row is MET, the other TC's wrong value stays visible."""
+    design = correct_design()
+    wrong = [op(1, "PRECONDITION", "device.select"), op(2, "PRECONDITION", "mode.cool"),
+             op(3, "TEST", "temperature.set", 20), op(4, "TEST", "command.apply"),
+             op(5, "RESTORE", "controller.restore")]
+    design["test_cases"].append(tc("TC-WRONG", wrong, checks("ACT-004", 21, er=50)))
+    result = grade(load_key(KEY_PATH), design)
+    apply20 = next(i for i in result["items"] if i["mode"] == "COOL" and i["attempted"] == 20
+                   and i["kind"] == "APPLY")
+    assert apply20["status"] == "MET"
+    assert any(i["rule"] == "WRONG_OTHER_TC" and i["tc_id"] == "TC-WRONG" for i in result["issues"])
+    assert result["verdict"] == "REVIEW"

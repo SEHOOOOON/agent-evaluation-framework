@@ -1423,7 +1423,12 @@ def test_confirmed_range_key_scores_tc_r05_by_code_and_draft_does_not():
     assert range_key_judgment(record("DRAFT", ["MET"])) is None
     assert range_key_judgment(record("HUMAN_CONFIRMED", ["MET", "MET"]))["score"] == 5
     assert range_key_judgment(record("HUMAN_CONFIRMED", ["MET"], ["MISSING"]))["score"] == 4
-    real = range_key_judgment(record("HUMAN_CONFIRMED", ["MET", "MISSING", "MET", "MISSING", "MET", "MISSING"]))
+    # 2026-10-25 review: the key's rule issues count too (T-8 made the key FAIL but TC-R05 said 5).
+    t8 = dict(record("HUMAN_CONFIRMED", ["MET", "MET"]), issues=[dict(rule="T-8", tc_id="TC-CAND-001")])
+    assert (range_key_judgment(t8)["verdict"], range_key_judgment(t8)["score"]) == ("FAIL", 3)
+    t7 = dict(record("HUMAN_CONFIRMED", ["MET", "MET"]), issues=[dict(rule="T-7", tc_id=["A", "B"])])
+    assert (range_key_judgment(t7)["verdict"], range_key_judgment(t7)["score"]) == ("PASS", 4)
+    real =range_key_judgment(record("HUMAN_CONFIRMED", ["MET", "MISSING", "MET", "MISSING", "MET", "MISSING"]))
     assert (real["verdict"], real["score"]) == ("FAIL", 2)  # 10-15: required 3/6
     assert range_key_judgment(record("HUMAN_CONFIRMED", ["MISSING"]))["score"] == 0
     # The scorecard takes the code result; the AI's own 5 stays in the judge record.
