@@ -15,9 +15,17 @@ from types import SimpleNamespace
 from .openai_judge import encode, scan_payload
 from .v2_recorded import digest, read, write
 
+# Same as the OpenAI SDK default that P1 uses when run on its own. A 120 s cap
+# cut off a full-size A2 design response (FLOW-20261015-104803-e84cbf).
+GENERATION_TIMEOUT_SECONDS = 600
+# A complete single-TC Agent 3 review was 251,361 bytes (FLOW-20261017-073532-43e9b8,
+# 1,018 sources) and was blocked by the former 250,000 cap. Same bound as the
+# judge input (MAX_JUDGE_PAYLOAD_BYTES); content is never truncated to fit.
+MAX_GENERATION_PAYLOAD_BYTES = 500_000
+
 
 class MeteredResponses:
-    def __init__(self, client, role, work, ledger, limit, seen, max_output_tokens=12000, purpose="generation"):
+    def __init__(self, client, role, work, ledger, limit, seen, max_output_tokens=24000, purpose="generation"):
         self.client, self.role, self.work = client, role, work
         self.ledger, self.limit, self.seen = ledger, limit, seen
         self.max_output_tokens = max_output_tokens
@@ -39,7 +47,13 @@ class MeteredResponses:
         scan_payload(payload)
         if payload.get("store") is not False or payload.get("tools"):
             raise ValueError("Unsupported generation transmission")
-        if len(encode(payload).encode("utf-8")) > 250_000:
+        size = len(encode(payload).encode("utf-8"))
+        if size > MAX_GENERATION_PAYLOAD_BYTES:
+            # Not sent, not billed; record why so the stop is visible without replaying.
+            self.ledger["fatal"] = "GENERATION_PAYLOAD_TOO_LARGE"
+            self.ledger["blocked_before_send"] = dict(role=self.role, purpose=self.purpose, payload_bytes=size,
+                                                      limit_bytes=MAX_GENERATION_PAYLOAD_BYTES)
+            self.persist()
             raise ValueError("Generation payload too large")
         seq = len(self.ledger["attempts"]) + 1
         folder = self.work / "calls" / f"{seq:03d}"
@@ -53,6 +67,10 @@ class MeteredResponses:
         self.persist()
         try:
             response = self.client.responses.parse(**kwargs)
+            # Billed even when the response is later rejected (incomplete, no
+            # identity, no structured output), so keep usage before any check.
+            usage = getattr(response, "usage", None)
+            item["usage"] = usage.model_dump() if hasattr(usage, "model_dump") else None
             item["server_completion"] = getattr(response, "status", "UNKNOWN")
             if item["server_completion"] != "completed":
                 raise ValueError("Generation response did not complete")
@@ -67,10 +85,8 @@ class MeteredResponses:
             if parsed is None:
                 raise ValueError("Structured output missing")
             write(folder / "response.json", parsed.model_dump(mode="json", by_alias=True))
-            usage = getattr(response, "usage", None)
             item.update(status="RECEIVED", server_completion="completed",
-                        response_sha256=digest(folder / "response.json"),
-                        usage=usage.model_dump() if hasattr(usage, "model_dump") else None)
+                        response_sha256=digest(folder / "response.json"))
             return response
         except Exception as exc:
             item.update(status="ERROR", error_type=type(exc).__name__)
@@ -95,7 +111,8 @@ def generation_client(key, work, ledger, *, transport=None):
             "role": ledger["attempts"][-1]["role"], "status": "SEND_ATTEMPT",
             "time": datetime.now(timezone.utc).isoformat()})
         write(work / "call_ledger.json", ledger)
-    return OpenAI(api_key=key, base_url="https://api.openai.com/v1", max_retries=0, timeout=120,
+    return OpenAI(api_key=key, base_url="https://api.openai.com/v1", max_retries=0,
+                  timeout=GENERATION_TIMEOUT_SECONDS,
                   http_client=httpx.Client(transport=transport, trust_env=False,
                                            follow_redirects=False, event_hooks={"request": [on_request]}))
 
@@ -225,9 +242,52 @@ def execute_trial(work: Path, config: dict, *, client=None):
     return outcome
 
 
+def execute_agent2_repeat(work: Path, config: dict, *, client=None):
+    """Run only P1 Agent 2 on an Agent 1 Run already placed in the copy (a2-repeat-1.0)."""
+    copy = work / "p1"
+    if not copy.is_dir() or not (copy / "src/qa_pipeline_orchestrator.py").is_file():
+        raise ValueError("Isolated target copy is missing")
+    ledger = {"attempts": [], "fatal": None, "automatic_retries": 0}
+    write(work / "call_ledger.json", ledger)
+    key = os.environ.pop("OPENAI_API_KEY", None)
+    for name in list(os.environ):
+        if name.startswith(("NOTION_", "SLACK_", "OPENAI_")):
+            os.environ.pop(name, None)
+    sys.path.insert(0, str(copy / "src"))
+    os.chdir(copy)
+    stages = {}
+    outcome = {"status": "STARTED", "stages": stages}
+    try:
+        execution = importlib.import_module("qa_pipeline_execution")
+        pipeline = importlib.import_module("qa_pipeline_orchestrator")
+        execution.load_approved_regression_catalog(copy / "approved_assets")
+        if client is None:
+            if not key:
+                raise ValueError("API key unavailable")
+            client = generation_client(key, work, ledger)
+        bind_model_clients(execution, client, work, ledger, config)
+        code = pipeline.run_agent2(argparse.Namespace(
+            run_id=config["run_id"], runs_root=str(copy / "runs"), model=config["generation_model"],
+            approved_assets_root=str(copy / "approved_assets")))
+        stages["agent2"] = code
+        outcome.update(status="COMPLETED" if code == 0 and not ledger["fatal"] else "BLOCKED" if code == 2
+                       else "ERROR", reason=ledger["fatal"] or (None if code == 0 else "AGENT2_STOP"))
+    except Exception as exc:
+        outcome.update(status="ERROR", reason=type(exc).__name__)
+    finally:
+        outcome["generation_by_role"] = dict(Counter(x["role"] for x in ledger["attempts"]))
+        write(work / "worker_result.json", outcome)
+        write(work / "call_ledger.json", ledger)
+    return outcome
+
+
 def main():
     path = Path(sys.argv[1]).resolve()
-    execute_trial(path.parent, read(path))
+    config = read(path)
+    if config.get("mode") == "AGENT2_REPEAT":
+        execute_agent2_repeat(path.parent, config)
+    else:
+        execute_trial(path.parent, config)
 
 
 if __name__ == "__main__":

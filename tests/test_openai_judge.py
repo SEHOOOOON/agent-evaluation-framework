@@ -386,11 +386,11 @@ def test_numbering_does_not_disable_payload_limit():
 
 def test_larger_evidence_is_preserved_and_size_visible():
     p = packet()
-    p.sources['large'] = '한' * 45_000
+    p.sources['large'] = '한' * 105_000
     before = p.model_dump_json()
     info = preview(p, 'configured-model')
     body = info['request']['input'][1]['content']
-    assert 120_000 < info['payload_bytes'] < info['payload_limit_bytes'] == 250_000
+    assert 250_000 < info['payload_bytes'] < info['payload_limit_bytes'] == 500_000
     assert info['payload_bytes'] == len(body.encode('utf-8'))
     assert info['request_bytes'] > info['payload_bytes']
     assert json.loads(body)['sources']['large'][1] == p.sources['large']
@@ -407,7 +407,7 @@ def test_payload_limit_counts_utf8_bytes_at_boundary():
     p.sources['large'] += 'x' * (MAX_JUDGE_PAYLOAD_BYTES - size)
     assert preview(p, 'configured-model')['payload_bytes'] == MAX_JUDGE_PAYLOAD_BYTES
     p.sources['large'] += 'x'
-    with pytest.raises(ValueError, match='250001 > 250000'):
+    with pytest.raises(ValueError, match='500001 > 500000'):
         preview(p, 'configured-model')
 
 
@@ -421,7 +421,8 @@ def test_real_client_constructor_fixed_origin_no_retries(monkeypatch):
     monkeypatch.setitem(sys.modules,"openai",SimpleNamespace(OpenAI=constructor))
     new_client()
     assert seen["base_url"]=="https://api.openai.com/v1"
-    assert seen["max_retries"]==0 and seen["timeout"]==120
+    # 2026-10-15: 120 s matched neither P1 nor the generation worker (600 s).
+    assert seen["max_retries"]==0 and seen["timeout"]==600
 
 
 def test_cli_preview_does_not_call_network(tmp_path,capsys,monkeypatch):
@@ -458,3 +459,120 @@ def test_real_sdk_with_mock_transport_only_one_request(tmp_path,http_status):
     assert sent["store"] is False
     assert result["status"]==("COMPLETED" if http_status==200 else "ERROR")
     assert result["api_request_attempts"]==0
+
+
+def test_judge_records_start_finish_and_elapsed_time(tmp_path):
+    """Timing must survive the FINISHED rewrite of attempt.json so a slow call
+    can be told apart from a timeout without reading process logs."""
+    import json
+    from datetime import datetime
+    from eval_harness.openai_judge import JUDGE_TIMEOUT_SECONDS, evaluate, preview
+    p = packet()
+    info = preview(p, "configured-model")
+    assert info["timeout_seconds"] == JUDGE_TIMEOUT_SECONDS == 600
+    class Broken:
+        class responses:
+            @staticmethod
+            def parse(**_):
+                raise TimeoutError("simulated")
+    out = evaluate(p, "configured-model", info["approval_sha256"], tmp_path, client_factory=lambda: Broken())
+    attempt = json.loads((out / "attempt.json").read_text(encoding="utf-8"))
+    result = json.loads((out / "result.json").read_text(encoding="utf-8"))
+    assert attempt["status"] == "FINISHED" and result["error_type"] == "TimeoutError"
+    for record in (attempt, result):
+        start = datetime.fromisoformat(record["started_at"])
+        end = datetime.fromisoformat(record["finished_at"])
+        assert end >= start and record["elapsed_seconds"] >= 0
+
+
+def test_judge_request_sends_fixed_rubric_before_evidence_with_same_content():
+    """openai-judge-1.16: only the top-level order changes, for prompt caching."""
+    from eval_harness.openai_judge import encode
+    first = preview(packet(), "offline")
+    second = preview(packet().model_copy(update={"trial_id": "T002", "sources": {
+        "request": {"text": "Set temperature to 20 degrees."}, "tc": {"steps": ["Apply"]}}}), "offline")
+    a, b = (p["request"]["input"][1]["content"] for p in (first, second))
+    sent = json.loads(a)
+    assert list(sent)[-4:] == ["sources", "case_id", "trial_id", "packet_sha256"]
+    assert list(sent)[0] == "agent_id" and list(sent).index("rubric") < list(sent).index("sources")
+    assert len(a.encode("utf-8")) == first["payload_bytes"] == len(encode(sent).encode("utf-8"))
+    assert a[:a.index('"sources"')] == b[:b.index('"sources"')]  # shared, cacheable prefix
+    assert first["request"]["prompt_cache_key"] == "p2-judge-openai-judge-1.19-A2"
+
+
+def test_judge_usage_keeps_cache_and_reasoning_details():
+    from eval_harness.openai_judge import usage_summary
+    usage = SimpleNamespace(input_tokens=100, output_tokens=40, total_tokens=140,
+                            input_tokens_details=SimpleNamespace(cached_tokens=64),
+                            output_tokens_details=SimpleNamespace(reasoning_tokens=25))
+    assert usage_summary(SimpleNamespace(usage=usage)) == dict(
+        input_tokens=100, output_tokens=40, total_tokens=140, cached_input_tokens=64, reasoning_tokens=25)
+    # Older SDK objects without details keep the previous three fields only.
+    assert usage_summary(SimpleNamespace(usage=SimpleNamespace(input_tokens=1, output_tokens=2, total_tokens=3))) == dict(
+        input_tokens=1, output_tokens=2, total_tokens=3)
+
+
+def test_untested_c02_is_not_applicable_and_revision_counts_for_a2_01():
+    """2026-10-17 사람 대조: H-1 (C02 시험 안 됨 → 해당 없음), H-3 (기존 TC 고쳐 쓰기)."""
+    from eval_harness.detailed_rubric import CRITERIA, VERSION
+    rows = {row["criterion_id"]: row for row in CRITERIA}
+    assert VERSION == "role-rubric-2.8"
+    assert "NOT_APPLICABLE" in rows["C02"]["applicability"] and "H-1" in rows["C02"]["applicability"]
+    assert "기존_TC_수정" in rows["A2-01"]["pass_condition"] and "H-3" in rows["A2-01"]["fail_condition"]
+    from eval_harness.openai_judge import SYSTEM
+    assert "시험되지 않은 능력" in SYSTEM and "NOT_APPLICABLE로 두고" in SYSTEM
+    # Saved packets of the previous profile still load.
+    assert JudgePacket.model_fields["rubric_profile"].annotation.__args__ == ("custom", "role-rubric-2.5", "role-rubric-2.6", "role-rubric-2.7", "role-rubric-2.8")
+
+
+def test_operation_and_check_in_one_step_line_is_tc_r02_failure():
+    """2026-10-18 사람 대조 H-4: '적용하고 모드를 확인한다'처럼 한 줄에 쓰면 3점 이하."""
+    from eval_harness.detailed_rubric import CRITERIA
+    from eval_harness.openai_judge import SYSTEM
+    row = next(r for r in CRITERIA if r["criterion_id"] == "TC-R02")
+    assert "H-4" in row["pass_condition"] and "3점 이하" in row["fail_condition"]
+    assert "조작과 확인을 한 절차 줄에 함께 쓴 경우" in SYSTEM and "TC-R02 FAIL, 3점 이하" in SYSTEM
+
+
+def test_tc_r07_requires_restore_check_for_every_changed_value():
+    """2026-10-24 사람 대조: 준비에서 모드를 바꾸고 온도만 복원 확인한 TC는 3점이 맞음."""
+    from eval_harness.detailed_rubric import CRITERIA
+    row = next(r for r in CRITERIA if r["criterion_id"] == "TC-R07")
+    assert "바꾼 값마다" in row["pass_condition"]
+    assert "일부" in row["fail_condition"] and "모드" in row["fail_condition"] and "3점 이하" in row["fail_condition"]
+
+
+def test_reason_in_chinese_or_japanese_is_rejected_unless_quoted():
+    """openai-judge-1.18 (2026-10-25, IMP-018)."""
+    from eval_harness import openai_judge
+    from eval_harness.openai_judge import evidence_catalog
+    p = packet()
+    _, catalog, fingerprint = evidence_catalog(p)
+    value = reference_judgment()
+    value["packet_sha256"] = fingerprint
+    for reason, ok in (("请求与计划相符。", False), ("候補内で確認した。", False), ("카드 표시가 맞다.", True),
+                       ("패널・카드 표시가 맞다.", True)):   # 2026-10-25 review: "・" is a Korean separator
+        value["judgments"][0]["reason"] = reason
+        if ok:
+            openai_judge.resolve_references(p, value)
+        else:
+            with pytest.raises(openai_judge.JudgmentError) as error:
+                openai_judge.resolve_references(p, value)
+            assert error.value.diagnostic["code"] == "NON_KOREAN_REASON"
+    # Han quoted from the evidence is allowed; limitations are checked too.
+    quoted = packet()
+    quoted.sources["tc"]["expected"] = "카드 표시 冷房 18"
+    _, _, quoted_fingerprint = evidence_catalog(quoted)
+    value["packet_sha256"] = quoted_fingerprint
+    value["judgments"][0]["reason"] = "원문 표기 '冷房'을 그대로 인용했다."
+    value["judgments"][0]["evidence_ids"] = [next(ref for ref, entry in evidence_catalog(quoted)[1].items()
+                                                  if "冷房" in str(entry["quote"]))]
+    openai_judge.resolve_references(quoted, value)
+    value["judgments"][0]["reason"] = "원문 표기 '冷'만 떼어 썼다."   # one character cut out of a quote
+    with pytest.raises(openai_judge.JudgmentError):
+        openai_judge.resolve_references(quoted, value)
+    value["judgments"][0]["reason"] = "원문 표기 '冷房'을 그대로 인용했다."
+    value["limitations"] = ["证据不足"]
+    with pytest.raises(openai_judge.JudgmentError) as error:
+        openai_judge.resolve_references(quoted, value)
+    assert error.value.diagnostic["code"] == "NON_KOREAN_REASON"

@@ -218,12 +218,37 @@ def test_reused_code_and_logs_verified_by_hash_not_case_name(tmp_path):
 
 
 def test_large_log_not_silently_cut_or_assumed_complete(tmp_path):
+    """The end of a long pytest log (failure, observations) is kept and marked."""
     run, execution, *_ = saved_run(tmp_path)
-    (run / "stdout.txt").write_text("x" * 25000, encoding="utf-8")
+    lines = [f"traceback line {i:05d} 관찰" for i in range(1500)] + ["E   AssertionError: PRODUCT_MISMATCH 19"]
+    (run / "stdout.txt").write_bytes(("\n".join(lines) + "\n").encode("utf-8"))
+    full = (run / "stdout.txt").read_bytes()
     execution["candidate_results"][0]["evidence_sha256"]["stdout.txt"] = digest(run / "stdout.txt")
     result = execution_support(run, tmp_path, execution)
-    assert result["files"] == {}
-    assert result["omissions"][0]["reason"] == "SIZE_LIMIT"
+    item = result["files"]["stdout.txt"]
+    assert item["delivery"] == "TAIL_ONLY" and item["sha256"] == digest(run / "stdout.txt")
+    assert item["bytes_total"] == len(full) > 24_000 >= item["bytes_included"]
+    assert item["content"].endswith("E   AssertionError: PRODUCT_MISMATCH 19\n")
+    assert item["content"].startswith("traceback line ")  # starts on a whole line
+    assert full.endswith(item["content"].encode("utf-8"))
+    assert result["omissions"] == []
+    # A wrong hash still excludes the whole log.
+    execution["candidate_results"][0]["evidence_sha256"]["stdout.txt"] = "0" * 64
+    result = execution_support(run, tmp_path, execution)
+    assert result["files"] == {} and result["omissions"][0]["reason"] == "MISSING_OR_UNVERIFIED"
+
+
+def test_tail_only_log_respects_shared_budget(tmp_path):
+    run, execution, *_ = saved_run(tmp_path)
+    (run / "stdout.txt").write_bytes(b"line\n" * 9000)
+    row = execution["candidate_results"][0]
+    row["evidence_sha256"]["stdout.txt"] = digest(run / "stdout.txt")
+    (run / "stderr.txt").write_bytes(b"err\n" * 9000)
+    row.update(stderr_file="stderr.txt")
+    row["evidence_sha256"]["stderr.txt"] = digest(run / "stderr.txt")
+    result = execution_support(run, tmp_path, execution)
+    sent = sum(f["bytes_included"] for f in result["files"].values())
+    assert sent <= 40_000 and all(f["delivery"] == "TAIL_ONLY" for f in result["files"].values())
 
 
 @pytest.mark.parametrize("byte_count", [23999, 24000, 24001, 35713])
@@ -697,3 +722,42 @@ def test_fullflow_only_sends_semantic_a4_items(tmp_path):
     assert {r.criterion_id for r in packets["A4"].rubric} == {"C01", "C02", "A4-02", "A4-04"}
     assert packets["A4"].scoring_profile == SCORE_VERSION
     assert preview(packets["A4"], "offline")["request"]["store"] is False
+
+
+def _failing_logs(run, base, sizes):
+    rows = []
+    for i, size in enumerate(sizes):
+        name = f"stdout-{i:02d}.txt"
+        body = ("".join(f"trace {i} line {n:05d}\n" for n in range(size // 20))
+                + f"E   AssertionError: TC-{i:02d} FAILED\n").encode()
+        (run / name).write_bytes(body)
+        rows.append(dict(base, test_id=f"TC-{i:02d}", status="FAILED", stdout_file=name,
+                         evidence_files=[name], evidence_sha256={name: digest(run / name)}))
+    return rows
+
+
+def test_several_failing_logs_share_the_budget_instead_of_dropping_later_ones(tmp_path):
+    """2026-10-15: three 30 KB failing logs + one small log under the shared
+    40,000-byte budget. Before, logs 0 and 1 took 24,000+16,000 bytes and the
+    third failure line and the small log were omitted."""
+    run, execution, *_ = saved_run(tmp_path)
+    rows = _failing_logs(run, execution["candidate_results"][0], [30000, 30000, 30000, 2000])
+    result = execution_support(run, tmp_path, {"candidate_results": rows})
+    assert result["omissions"] == []
+    assert len(result["files"]) == 4
+    for i, item in enumerate(sorted(result["files"].items())):
+        assert item[1]["content"].endswith(f"E   AssertionError: TC-{i:02d} FAILED\n")
+    assert "delivery" not in result["files"]["stdout-03.txt"]          # small log kept whole
+    sent = sum(f.get("bytes_included", len(f["content"].encode())) for f in result["files"].values())
+    assert sent <= 40_000
+
+
+def test_too_many_failing_logs_are_omitted_visibly_not_cut_below_minimum(tmp_path):
+    run, execution, *_ = saved_run(tmp_path)
+    rows = _failing_logs(run, execution["candidate_results"][0], [30000] * 12)
+    result = execution_support(run, tmp_path, {"candidate_results": rows})
+    tails = [f for f in result["files"].values() if f.get("delivery") == "TAIL_ONLY"]
+    assert len(tails) == 10 and all(f["bytes_included"] >= 3_900 for f in tails)
+    assert sum(f["bytes_included"] for f in tails) <= 40_000
+    assert [o["reason"] for o in result["omissions"]] == ["SIZE_LIMIT", "SIZE_LIMIT"]
+    assert len(result["files"]) + len(result["omissions"]) == 12        # nothing disappears

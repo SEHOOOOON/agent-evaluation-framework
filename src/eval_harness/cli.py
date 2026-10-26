@@ -59,17 +59,44 @@ def parser() -> argparse.ArgumentParser:
 
     judge = commands.add_parser("judge-openai", help="별도 OpenAI 의미 평가. 기본은 전송 미리보기이며 호출하지 않습니다.")
     judge.add_argument("--packet", type=Path, required=True)
-    judge.add_argument("--model", required=True)
+    from .openai_judge import DEFAULT_JUDGE_MODEL
+    judge.add_argument("--model", default=DEFAULT_JUDGE_MODEL)
     judge.add_argument("--role-rubric", action="store_true", help="담당 Agent의 전체 세부 기준을 적용합니다. 근거 누락은 Preview에 표시합니다.")
     judge.add_argument("--score-rubric", action="store_true", help="기존 26항목의 0~5점 기준을 적용합니다. 과거 결과를 환산하지 않습니다.")
     judge.add_argument("--execute", action="store_true")
     judge.add_argument("--approval-sha256")
     judge.add_argument("--output",type=Path,default=Path(__file__).resolve().parents[2]/"evaluation-runs")
 
+    rejudge = commands.add_parser("rejudge-flow", help="저장된 FLOW 회차의 evidence.zip으로 선택 역할을 다시 채점합니다. 기본은 미리보기이며 호출하지 않습니다.")
+    rejudge.add_argument("--flow", type=Path, required=True, help="FLOW-... 폴더")
+    rejudge.add_argument("--trial", type=int, default=1)
+    rejudge.add_argument("--roles", nargs="+", choices=["A1", "A2", "A3", "A4"], required=True)
+    rejudge.add_argument("--model", help="기본: 저장된 명세의 judge_model")
+    rejudge.add_argument("--execute", action="store_true")
+    rejudge.add_argument("--approval-sha256")
+    rejudge.add_argument("--output", type=Path, default=Path(__file__).resolve().parents[2]/"evaluation-runs")
+
+    repeat = commands.add_parser("repeat-a2", help="저장된 FLOW 회차의 A1 결과로 A2만 현재 P1 코드로 반복합니다. 채점은 정답지 코드 대조만. 기본은 미리보기이며 호출하지 않습니다.")
+    repeat.add_argument("--flow", type=Path, required=True, help="FLOW-... 폴더")
+    repeat.add_argument("--trial", type=int, default=1)
+    repeat.add_argument("--target", type=Path, required=True, help="현재 P1 폴더")
+    repeat.add_argument("--times", type=int, default=2)
+    repeat.add_argument("--range-key", type=Path, help="범위 정답지 키(선택)")
+    repeat.add_argument("--model", help="기본: 저장된 명세의 generation_model")
+    repeat.add_argument("--execute", action="store_true")
+    repeat.add_argument("--approval-sha256")
+    repeat.add_argument("--output", type=Path, default=Path(__file__).resolve().parents[2]/"evaluation-runs")
+
+    oracle = commands.add_parser("range-oracle", help="범위 변경 요청의 규칙 기반 정답지로 A2 TC 설계를 대조합니다. API 호출 없음.")
+    oracle.add_argument("--key", type=Path, required=True)
+    oracle.add_argument("--design", type=Path, required=True, help="agent2_test_design.json")
+    oracle.add_argument("--analysis", type=Path, help="agent1_change_analysis.json (T-5 질문 확인에 함께 사용)")
+
     dashboard = commands.add_parser("dashboard", help="로컬 평가 대시보드를 실행합니다.")
     dashboard.add_argument("--project1-root", type=Path, default=DEFAULT_PROJECT1_ROOT)
     dashboard.add_argument("--runs-root", type=Path, default=DEFAULT_RUNS_ROOT)
-    dashboard.add_argument("--port", type=int, default=8765)
+    # 8765 is the Project 1 UI default; keep the two local servers apart.
+    dashboard.add_argument("--port", type=int, default=8766)
     dashboard.add_argument("--no-browser", action="store_true")
     return root
 
@@ -80,8 +107,36 @@ def evaluation_exit_code(status: str, decision: str | None) -> int:
     return {"PASS": 0, "HOLD": 2, "HUMAN_REVIEW": 3}.get(decision or "", 4)
 
 
+def source_mismatch(cwd: Path | None = None) -> str | None:
+    """Refuse a stale installed copy when run from a checkout that has newer source."""
+    loaded = Path(__file__).resolve().parent
+    source = (Path(cwd or Path.cwd()) / "src" / "eval_harness").resolve()
+    if not (source / "__init__.py").is_file() or source == loaded:
+        return None
+    return (f"저장소 소스({source}) 대신 다른 위치의 eval_harness({loaded})가 실행되었습니다. "
+            "설치본이 수정 전 코드일 수 있습니다. 저장소 루트에서 PYTHONPATH=src로 실행하거나 "
+            "`python -m pip install -e .`로 소스 연결 설치를 하세요.")
+
+
 def main(argv: list[str] | None = None) -> int:
     args = parser().parse_args(argv)
+    mismatch = source_mismatch()
+    if mismatch:
+        print(json.dumps({"status": "ERROR", "reason": "STALE_INSTALLED_COPY", "detail": mismatch},
+                         ensure_ascii=False))
+        return 4
+    if args.command == "range-oracle":
+        from .range_oracle import grade, load_key
+        try:
+            if args.design.stat().st_size > 2_000_000 or (args.analysis and args.analysis.stat().st_size > 2_000_000):
+                raise ValueError("Design too large")
+            analysis = json.loads(args.analysis.read_text(encoding="utf-8")) if args.analysis else None
+            result = grade(load_key(args.key), json.loads(args.design.read_text(encoding="utf-8")), analysis)
+        except (OSError, ValueError) as exc:
+            print(json.dumps({"status": "ERROR", "reason": type(exc).__name__}, ensure_ascii=False))
+            return 4
+        print(json.dumps(result, ensure_ascii=False, indent=2))
+        return {"PASS": 0, "FAIL": 2, "REVIEW": 3}[result["verdict"]]
     if args.command == "full-flow":
         from .full_flow import FlowSpec, make_preview, run_flow
         try:
@@ -101,6 +156,40 @@ def main(argv: list[str] | None = None) -> int:
             return 3 if result["status"] == "COMPLETED" else 4
         except (OSError, ValueError, ImportError, subprocess.SubprocessError) as exc:
             print("Full flow blocked:", type(exc).__name__)
+            return 4
+    if args.command == "repeat-a2":
+        from .a2_repeat import make_preview as repeat_preview, execute as repeat_execute
+        try:
+            if not args.execute:
+                print(json.dumps(repeat_preview(args.flow, args.trial, args.target, args.times,
+                                                range_key=args.range_key, model=args.model), ensure_ascii=False, indent=2))
+                return 0
+            if not args.approval_sha256:
+                raise ValueError("Exact preview approval required")
+            out = repeat_execute(args.flow, args.trial, args.target, args.times, args.approval_sha256, args.output,
+                                 range_key=args.range_key, model=args.model)
+            result = json.loads((out / "result.json").read_text(encoding="utf-8"))
+            print(json.dumps({"output": str(out), "status": result["status"], "summary": result.get("summary")},
+                             ensure_ascii=False))
+            return 0 if result["status"] == "COMPLETED" else 4
+        except (OSError, ValueError, ImportError, subprocess.SubprocessError) as exc:
+            print(json.dumps({"status": "ERROR", "reason": type(exc).__name__, "detail": str(exc)[:300]}, ensure_ascii=False))
+            return 4
+    if args.command == "rejudge-flow":
+        from .rejudge import make_preview as rejudge_preview, execute as rejudge_execute
+        try:
+            if not args.execute:
+                print(json.dumps(rejudge_preview(args.flow, args.trial, args.roles, args.model), ensure_ascii=False, indent=2))
+                return 0
+            if not args.approval_sha256:
+                raise ValueError("Exact preview approval required")
+            out = rejudge_execute(args.flow, args.trial, args.roles, args.approval_sha256, args.output, args.model)
+            summary = json.loads((out / "summary.json").read_text(encoding="utf-8"))
+            print(json.dumps({"output": str(out), "status": summary["status"],
+                              "results": summary["results"]}, ensure_ascii=False))
+            return 0 if summary["status"] == "COMPLETED" else 4
+        except (OSError, ValueError, ImportError) as exc:
+            print(json.dumps({"status": "ERROR", "reason": type(exc).__name__, "detail": str(exc)[:300]}, ensure_ascii=False))
             return 4
     if args.command == "judge-openai":
         from .openai_judge import JudgePacket,preview,evaluate

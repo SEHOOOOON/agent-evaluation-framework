@@ -1,0 +1,2988 @@
+{
+  "version": "local-stability-1.0",
+  "mode": "OFFLINE_LOCAL",
+  "date_kst": "2026-10-09T12:11:38.728930",
+  "repetitions": 5,
+  "cases": [
+    {
+      "title": "전원 정지→운전",
+      "kind": "direct",
+      "group": "실제 브라우저",
+      "origin": "사람이 준비한 공통 TC",
+      "tc": {
+        "tc_id": "TC-CAND-090",
+        "title": "전원 STOP → OPERATION: 준비·시험·원상 복원",
+        "purpose": "CHANGE_VALIDATION",
+        "test_type": "STATE_CONSISTENCY",
+        "requirement_ids": [
+          "REQ-POWER-001"
+        ],
+        "source_condition_ids": [
+          "COND-090"
+        ],
+        "control_path": "CENTRAL",
+        "target_role": "NEW_CONTROL_POINT",
+        "test_data": {
+          "initial_mode": null,
+          "requested_mode": null,
+          "requested_modes": [],
+          "initial_temperature_c": null,
+          "requested_temperature_c": null,
+          "requested_temperatures_c": [],
+          "restore_observed_hvac_state": false
+        },
+        "condition_execution": "SINGLE_FLOW",
+        "grouping_reason": null,
+        "intermediate_reset_steps": [],
+        "preconditions": [
+          "대상 장비의 status 값은 STOP이다.",
+          "시험 대상 장비 카드를 선택한 상태인지 확인한다."
+        ],
+        "steps": [
+          "대상 장비의 status 값 OPERATION를 선택한다.",
+          "선택한 값을 적용한다."
+        ],
+        "expected_results": [
+          {
+            "result_id": "ER-090",
+            "statement": "대상 장비 카드의 status 표시 값은 OPERATION이다.",
+            "observation_layer": "UI",
+            "source_condition_ids": [
+              "COND-090"
+            ],
+            "verify_after_step": "선택한 값을 적용한다.",
+            "observation_target": "대상 장비 카드의 status 표시"
+          },
+          {
+            "result_id": "ER-091",
+            "statement": "대상 장비의 내부 status 값은 OPERATION이다.",
+            "observation_layer": "INTERNAL_STATE",
+            "source_condition_ids": [
+              "COND-090"
+            ],
+            "verify_after_step": "선택한 값을 적용한다.",
+            "observation_target": "대상 장비의 내부 status"
+          }
+        ],
+        "common_qa_criteria": [],
+        "domain_qa_criteria": [],
+        "feature_requirement_ids": [],
+        "independent_execution": false,
+        "independence_reason": null,
+        "double_assert_policy": "NOT_APPLICABLE",
+        "double_assert_reason": null,
+        "restore_required": true,
+        "state_effect": "STATE_CHANGE",
+        "restore_steps": [
+          "준비와 시험으로 바뀐 관제점 값을 준비 전 관찰한 원래 상태로 복원하고 적용한다.",
+          "대상 장비 카드의 status 표시를 준비 전 관찰값과 비교한다.",
+          "대상 장비의 내부 status를 준비 전 관찰값과 비교한다."
+        ],
+        "restoration": {
+          "operation_steps": [
+            "준비와 시험으로 바뀐 관제점 값을 준비 전 관찰한 원래 상태로 복원하고 적용한다."
+          ],
+          "confirmations": [
+            {
+              "source_text": "대상 장비 카드의 status 표시를 준비 전 관찰값과 비교한다.",
+              "result_ids": [
+                "ER-090"
+              ],
+              "comparisons": [
+                {
+                  "result_id": "ER-090",
+                  "source_excerpt": "대상 장비 카드의 status 표시를 준비 전 관찰값과 비교한다.",
+                  "basis": "OBSERVED_BASELINE"
+                }
+              ]
+            },
+            {
+              "source_text": "대상 장비의 내부 status를 준비 전 관찰값과 비교한다.",
+              "result_ids": [
+                "ER-091"
+              ],
+              "comparisons": [
+                {
+                  "result_id": "ER-091",
+                  "source_excerpt": "대상 장비의 내부 status를 준비 전 관찰값과 비교한다.",
+                  "basis": "OBSERVED_BASELINE"
+                }
+              ]
+            }
+          ],
+          "verify_when": "AFTER_RESTORE"
+        },
+        "automation_candidate": true,
+        "automation_reason": "The new control is expected to expose UI and state evidence.",
+        "execution_spec": {
+          "operations": [
+            {
+              "action_id": "ACT-001",
+              "phase": "PRECONDITION",
+              "action_type": "SELECT_DEVICE",
+              "value": 1,
+              "source_text": "대상 장비의 status 값은 STOP이다.",
+              "target": "device.select"
+            },
+            {
+              "action_id": "ACT-002",
+              "phase": "PRECONDITION",
+              "action_type": "CLICK",
+              "value": null,
+              "source_text": "대상 장비의 status 값은 STOP이다.",
+              "target": "status.stop"
+            },
+            {
+              "action_id": "ACT-003",
+              "phase": "PRECONDITION",
+              "action_type": "APPLY_COMMANDS",
+              "value": null,
+              "source_text": "대상 장비의 status 값은 STOP이다.",
+              "target": "command.apply"
+            },
+            {
+              "action_id": "ACT-004",
+              "phase": "TEST",
+              "action_type": "CLICK",
+              "value": null,
+              "source_text": "대상 장비의 status 값 OPERATION를 선택한다.",
+              "target": "status.operation"
+            },
+            {
+              "action_id": "ACT-005",
+              "phase": "TEST",
+              "action_type": "APPLY_COMMANDS",
+              "value": null,
+              "source_text": "선택한 값을 적용한다.",
+              "target": "command.apply"
+            },
+            {
+              "action_id": "ACT-006",
+              "phase": "RESTORE",
+              "action_type": "RESTORE_OBSERVED_CONTROLLER",
+              "value": null,
+              "source_text": "준비와 시험으로 바뀐 관제점 값을 준비 전 관찰한 원래 상태로 복원하고 적용한다.",
+              "target": "controller.restore"
+            }
+          ],
+          "verifications": [
+            {
+              "result_id": "ER-090",
+              "observation_layer": "UI",
+              "strategy": "CONTROLLER_UI_FIELDS_EQUALS",
+              "expected_number": null,
+              "expected_text": null,
+              "expected_value": null,
+              "expected_fields": [
+                {
+                  "field_name": "status",
+                  "expected_value": "OPERATION"
+                }
+              ],
+              "after_action_id": "ACT-005",
+              "target": "card.status"
+            },
+            {
+              "result_id": "ER-091",
+              "observation_layer": "INTERNAL_STATE",
+              "strategy": "INTERNAL_DEVICE_FIELDS_EQUALS",
+              "expected_number": null,
+              "expected_text": null,
+              "expected_value": null,
+              "expected_fields": [
+                {
+                  "field_name": "status",
+                  "expected_value": "OPERATION"
+                }
+              ],
+              "after_action_id": "ACT-005",
+              "target": "internal.status"
+            }
+          ],
+          "precondition_verifications": [
+            {
+              "source_text": "대상 장비의 status 값은 STOP이다.",
+              "read_kind": "INTERNAL_VALUE",
+              "expected_value": "STOP",
+              "observation_target": "internal.status"
+            },
+            {
+              "source_text": "대상 장비의 status 값은 STOP이다.",
+              "read_kind": "CONTROLLER_UI_FIELD",
+              "expected_value": "STOP",
+              "observation_target": "card.status"
+            },
+            {
+              "source_text": "대상 장비의 status 값은 STOP이다.",
+              "read_kind": "CONTROLLER_UI_FIELD",
+              "expected_value": "STOP",
+              "observation_target": "panel.status"
+            },
+            {
+              "source_text": "시험 대상 장비 카드를 선택한 상태인지 확인한다.",
+              "read_kind": "CONTROLLER_UI_FIELD",
+              "expected_value": true,
+              "observation_target": "card.selected"
+            }
+          ],
+          "binding_contract": "controller-map-1.0"
+        }
+      },
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "id": "S01"
+    },
+    {
+      "title": "전원 운전→정지",
+      "kind": "direct",
+      "group": "실제 브라우저",
+      "origin": "사람이 준비한 공통 TC",
+      "tc": {
+        "tc_id": "TC-CAND-090",
+        "title": "전원 OPERATION → STOP: 준비·시험·원상 복원",
+        "purpose": "CHANGE_VALIDATION",
+        "test_type": "STATE_CONSISTENCY",
+        "requirement_ids": [
+          "REQ-POWER-001"
+        ],
+        "source_condition_ids": [
+          "COND-090"
+        ],
+        "control_path": "CENTRAL",
+        "target_role": "NEW_CONTROL_POINT",
+        "test_data": {
+          "initial_mode": null,
+          "requested_mode": null,
+          "requested_modes": [],
+          "initial_temperature_c": null,
+          "requested_temperature_c": null,
+          "requested_temperatures_c": [],
+          "restore_observed_hvac_state": false
+        },
+        "condition_execution": "SINGLE_FLOW",
+        "grouping_reason": null,
+        "intermediate_reset_steps": [],
+        "preconditions": [
+          "대상 장비의 status 값은 OPERATION이다.",
+          "시험 대상 장비 카드를 선택한 상태인지 확인한다."
+        ],
+        "steps": [
+          "대상 장비의 status 값 STOP를 선택한다.",
+          "선택한 값을 적용한다."
+        ],
+        "expected_results": [
+          {
+            "result_id": "ER-090",
+            "statement": "대상 장비 카드의 status 표시 값은 STOP이다.",
+            "observation_layer": "UI",
+            "source_condition_ids": [
+              "COND-090"
+            ],
+            "verify_after_step": "선택한 값을 적용한다.",
+            "observation_target": "대상 장비 카드의 status 표시"
+          },
+          {
+            "result_id": "ER-091",
+            "statement": "대상 장비의 내부 status 값은 STOP이다.",
+            "observation_layer": "INTERNAL_STATE",
+            "source_condition_ids": [
+              "COND-090"
+            ],
+            "verify_after_step": "선택한 값을 적용한다.",
+            "observation_target": "대상 장비의 내부 status"
+          }
+        ],
+        "common_qa_criteria": [],
+        "domain_qa_criteria": [],
+        "feature_requirement_ids": [],
+        "independent_execution": false,
+        "independence_reason": null,
+        "double_assert_policy": "NOT_APPLICABLE",
+        "double_assert_reason": null,
+        "restore_required": true,
+        "state_effect": "STATE_CHANGE",
+        "restore_steps": [
+          "준비와 시험으로 바뀐 관제점 값을 준비 전 관찰한 원래 상태로 복원하고 적용한다.",
+          "대상 장비 카드의 status 표시를 준비 전 관찰값과 비교한다.",
+          "대상 장비의 내부 status를 준비 전 관찰값과 비교한다."
+        ],
+        "restoration": {
+          "operation_steps": [
+            "준비와 시험으로 바뀐 관제점 값을 준비 전 관찰한 원래 상태로 복원하고 적용한다."
+          ],
+          "confirmations": [
+            {
+              "source_text": "대상 장비 카드의 status 표시를 준비 전 관찰값과 비교한다.",
+              "result_ids": [
+                "ER-090"
+              ],
+              "comparisons": [
+                {
+                  "result_id": "ER-090",
+                  "source_excerpt": "대상 장비 카드의 status 표시를 준비 전 관찰값과 비교한다.",
+                  "basis": "OBSERVED_BASELINE"
+                }
+              ]
+            },
+            {
+              "source_text": "대상 장비의 내부 status를 준비 전 관찰값과 비교한다.",
+              "result_ids": [
+                "ER-091"
+              ],
+              "comparisons": [
+                {
+                  "result_id": "ER-091",
+                  "source_excerpt": "대상 장비의 내부 status를 준비 전 관찰값과 비교한다.",
+                  "basis": "OBSERVED_BASELINE"
+                }
+              ]
+            }
+          ],
+          "verify_when": "AFTER_RESTORE"
+        },
+        "automation_candidate": true,
+        "automation_reason": "The new control is expected to expose UI and state evidence.",
+        "execution_spec": {
+          "operations": [
+            {
+              "action_id": "ACT-001",
+              "phase": "PRECONDITION",
+              "action_type": "SELECT_DEVICE",
+              "value": 1,
+              "source_text": "대상 장비의 status 값은 OPERATION이다.",
+              "target": "device.select"
+            },
+            {
+              "action_id": "ACT-002",
+              "phase": "PRECONDITION",
+              "action_type": "CLICK",
+              "value": null,
+              "source_text": "대상 장비의 status 값은 OPERATION이다.",
+              "target": "status.operation"
+            },
+            {
+              "action_id": "ACT-003",
+              "phase": "PRECONDITION",
+              "action_type": "APPLY_COMMANDS",
+              "value": null,
+              "source_text": "대상 장비의 status 값은 OPERATION이다.",
+              "target": "command.apply"
+            },
+            {
+              "action_id": "ACT-004",
+              "phase": "TEST",
+              "action_type": "CLICK",
+              "value": null,
+              "source_text": "대상 장비의 status 값 STOP를 선택한다.",
+              "target": "status.stop"
+            },
+            {
+              "action_id": "ACT-005",
+              "phase": "TEST",
+              "action_type": "APPLY_COMMANDS",
+              "value": null,
+              "source_text": "선택한 값을 적용한다.",
+              "target": "command.apply"
+            },
+            {
+              "action_id": "ACT-006",
+              "phase": "RESTORE",
+              "action_type": "RESTORE_OBSERVED_CONTROLLER",
+              "value": null,
+              "source_text": "준비와 시험으로 바뀐 관제점 값을 준비 전 관찰한 원래 상태로 복원하고 적용한다.",
+              "target": "controller.restore"
+            }
+          ],
+          "verifications": [
+            {
+              "result_id": "ER-090",
+              "observation_layer": "UI",
+              "strategy": "CONTROLLER_UI_FIELDS_EQUALS",
+              "expected_number": null,
+              "expected_text": null,
+              "expected_value": null,
+              "expected_fields": [
+                {
+                  "field_name": "status",
+                  "expected_value": "STOP"
+                }
+              ],
+              "after_action_id": "ACT-005",
+              "target": "card.status"
+            },
+            {
+              "result_id": "ER-091",
+              "observation_layer": "INTERNAL_STATE",
+              "strategy": "INTERNAL_DEVICE_FIELDS_EQUALS",
+              "expected_number": null,
+              "expected_text": null,
+              "expected_value": null,
+              "expected_fields": [
+                {
+                  "field_name": "status",
+                  "expected_value": "STOP"
+                }
+              ],
+              "after_action_id": "ACT-005",
+              "target": "internal.status"
+            }
+          ],
+          "precondition_verifications": [
+            {
+              "source_text": "대상 장비의 status 값은 OPERATION이다.",
+              "read_kind": "INTERNAL_VALUE",
+              "expected_value": "OPERATION",
+              "observation_target": "internal.status"
+            },
+            {
+              "source_text": "대상 장비의 status 값은 OPERATION이다.",
+              "read_kind": "CONTROLLER_UI_FIELD",
+              "expected_value": "OPERATION",
+              "observation_target": "card.status"
+            },
+            {
+              "source_text": "대상 장비의 status 값은 OPERATION이다.",
+              "read_kind": "CONTROLLER_UI_FIELD",
+              "expected_value": "OPERATION",
+              "observation_target": "panel.status"
+            },
+            {
+              "source_text": "시험 대상 장비 카드를 선택한 상태인지 확인한다.",
+              "read_kind": "CONTROLLER_UI_FIELD",
+              "expected_value": true,
+              "observation_target": "card.selected"
+            }
+          ],
+          "binding_contract": "controller-map-1.0"
+        }
+      },
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "id": "S02"
+    },
+    {
+      "title": "모드 냉방→난방",
+      "kind": "direct",
+      "group": "실제 브라우저",
+      "origin": "사람이 준비한 공통 TC",
+      "tc": {
+        "tc_id": "TC-CAND-090",
+        "title": "모드 COOL → HEAT: 준비·시험·원상 복원",
+        "purpose": "CHANGE_VALIDATION",
+        "test_type": "STATE_CONSISTENCY",
+        "requirement_ids": [
+          "REQ-MODE-001"
+        ],
+        "source_condition_ids": [
+          "COND-090"
+        ],
+        "control_path": "CENTRAL",
+        "target_role": "NEW_CONTROL_POINT",
+        "test_data": {
+          "initial_mode": "COOL",
+          "requested_mode": "HEAT",
+          "requested_modes": [],
+          "initial_temperature_c": null,
+          "requested_temperature_c": null,
+          "requested_temperatures_c": [],
+          "restore_observed_hvac_state": false
+        },
+        "condition_execution": "SINGLE_FLOW",
+        "grouping_reason": null,
+        "intermediate_reset_steps": [],
+        "preconditions": [
+          "대상 장비의 mode 값은 COOL이다.",
+          "시험 대상 장비 카드를 선택한 상태인지 확인한다."
+        ],
+        "steps": [
+          "대상 장비의 mode 값 HEAT를 선택한다.",
+          "선택한 값을 적용한다."
+        ],
+        "expected_results": [
+          {
+            "result_id": "ER-090",
+            "statement": "대상 장비 카드의 mode 표시 값은 HEAT이다.",
+            "observation_layer": "UI",
+            "source_condition_ids": [
+              "COND-090"
+            ],
+            "verify_after_step": "선택한 값을 적용한다.",
+            "observation_target": "대상 장비 카드의 mode 표시"
+          },
+          {
+            "result_id": "ER-091",
+            "statement": "대상 장비의 내부 mode 값은 HEAT이다.",
+            "observation_layer": "INTERNAL_STATE",
+            "source_condition_ids": [
+              "COND-090"
+            ],
+            "verify_after_step": "선택한 값을 적용한다.",
+            "observation_target": "대상 장비의 내부 mode"
+          }
+        ],
+        "common_qa_criteria": [],
+        "domain_qa_criteria": [],
+        "feature_requirement_ids": [],
+        "independent_execution": false,
+        "independence_reason": null,
+        "double_assert_policy": "NOT_APPLICABLE",
+        "double_assert_reason": null,
+        "restore_required": true,
+        "state_effect": "STATE_CHANGE",
+        "restore_steps": [
+          "준비와 시험으로 바뀐 관제점 값을 준비 전 관찰한 원래 상태로 복원하고 적용한다.",
+          "대상 장비 카드의 mode 표시를 준비 전 관찰값과 비교한다.",
+          "대상 장비의 내부 mode를 준비 전 관찰값과 비교한다."
+        ],
+        "restoration": {
+          "operation_steps": [
+            "준비와 시험으로 바뀐 관제점 값을 준비 전 관찰한 원래 상태로 복원하고 적용한다."
+          ],
+          "confirmations": [
+            {
+              "source_text": "대상 장비 카드의 mode 표시를 준비 전 관찰값과 비교한다.",
+              "result_ids": [
+                "ER-090"
+              ],
+              "comparisons": [
+                {
+                  "result_id": "ER-090",
+                  "source_excerpt": "대상 장비 카드의 mode 표시를 준비 전 관찰값과 비교한다.",
+                  "basis": "OBSERVED_BASELINE"
+                }
+              ]
+            },
+            {
+              "source_text": "대상 장비의 내부 mode를 준비 전 관찰값과 비교한다.",
+              "result_ids": [
+                "ER-091"
+              ],
+              "comparisons": [
+                {
+                  "result_id": "ER-091",
+                  "source_excerpt": "대상 장비의 내부 mode를 준비 전 관찰값과 비교한다.",
+                  "basis": "OBSERVED_BASELINE"
+                }
+              ]
+            }
+          ],
+          "verify_when": "AFTER_RESTORE"
+        },
+        "automation_candidate": true,
+        "automation_reason": "The new control is expected to expose UI and state evidence.",
+        "execution_spec": {
+          "operations": [
+            {
+              "action_id": "ACT-001",
+              "phase": "PRECONDITION",
+              "action_type": "SELECT_DEVICE",
+              "value": 1,
+              "source_text": "대상 장비의 mode 값은 COOL이다.",
+              "target": "device.select"
+            },
+            {
+              "action_id": "ACT-002",
+              "phase": "PRECONDITION",
+              "action_type": "SET_MODE",
+              "value": "COOL",
+              "source_text": "대상 장비의 mode 값은 COOL이다.",
+              "target": "mode.cool"
+            },
+            {
+              "action_id": "ACT-003",
+              "phase": "PRECONDITION",
+              "action_type": "APPLY_COMMANDS",
+              "value": null,
+              "source_text": "대상 장비의 mode 값은 COOL이다.",
+              "target": "command.apply"
+            },
+            {
+              "action_id": "ACT-004",
+              "phase": "TEST",
+              "action_type": "SET_MODE",
+              "value": "HEAT",
+              "source_text": "대상 장비의 mode 값 HEAT를 선택한다.",
+              "target": "mode.heat"
+            },
+            {
+              "action_id": "ACT-005",
+              "phase": "TEST",
+              "action_type": "APPLY_COMMANDS",
+              "value": null,
+              "source_text": "선택한 값을 적용한다.",
+              "target": "command.apply"
+            },
+            {
+              "action_id": "ACT-006",
+              "phase": "RESTORE",
+              "action_type": "RESTORE_OBSERVED_CONTROLLER",
+              "value": null,
+              "source_text": "준비와 시험으로 바뀐 관제점 값을 준비 전 관찰한 원래 상태로 복원하고 적용한다.",
+              "target": "controller.restore"
+            }
+          ],
+          "verifications": [
+            {
+              "result_id": "ER-090",
+              "observation_layer": "UI",
+              "strategy": "CONTROLLER_UI_FIELDS_EQUALS",
+              "expected_number": null,
+              "expected_text": null,
+              "expected_value": null,
+              "expected_fields": [
+                {
+                  "field_name": "mode",
+                  "expected_value": "HEAT"
+                }
+              ],
+              "after_action_id": "ACT-005",
+              "target": "card.mode"
+            },
+            {
+              "result_id": "ER-091",
+              "observation_layer": "INTERNAL_STATE",
+              "strategy": "INTERNAL_DEVICE_FIELDS_EQUALS",
+              "expected_number": null,
+              "expected_text": null,
+              "expected_value": null,
+              "expected_fields": [
+                {
+                  "field_name": "mode",
+                  "expected_value": "HEAT"
+                }
+              ],
+              "after_action_id": "ACT-005",
+              "target": "internal.mode"
+            }
+          ],
+          "precondition_verifications": [
+            {
+              "source_text": "대상 장비의 mode 값은 COOL이다.",
+              "read_kind": "INTERNAL_VALUE",
+              "expected_value": "COOL",
+              "observation_target": "internal.mode"
+            },
+            {
+              "source_text": "대상 장비의 mode 값은 COOL이다.",
+              "read_kind": "CONTROLLER_UI_FIELD",
+              "expected_value": "COOL",
+              "observation_target": "card.mode"
+            },
+            {
+              "source_text": "대상 장비의 mode 값은 COOL이다.",
+              "read_kind": "CONTROLLER_UI_FIELD",
+              "expected_value": "COOL",
+              "observation_target": "panel.mode"
+            },
+            {
+              "source_text": "시험 대상 장비 카드를 선택한 상태인지 확인한다.",
+              "read_kind": "CONTROLLER_UI_FIELD",
+              "expected_value": true,
+              "observation_target": "card.selected"
+            }
+          ],
+          "binding_contract": "controller-map-1.0"
+        }
+      },
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "id": "S03"
+    },
+    {
+      "title": "모드 난방→제습",
+      "kind": "direct",
+      "group": "실제 브라우저",
+      "origin": "사람이 준비한 공통 TC",
+      "tc": {
+        "tc_id": "TC-CAND-090",
+        "title": "모드 HEAT → DRY: 준비·시험·원상 복원",
+        "purpose": "CHANGE_VALIDATION",
+        "test_type": "STATE_CONSISTENCY",
+        "requirement_ids": [
+          "REQ-MODE-001"
+        ],
+        "source_condition_ids": [
+          "COND-090"
+        ],
+        "control_path": "CENTRAL",
+        "target_role": "NEW_CONTROL_POINT",
+        "test_data": {
+          "initial_mode": "HEAT",
+          "requested_mode": "DRY",
+          "requested_modes": [],
+          "initial_temperature_c": null,
+          "requested_temperature_c": null,
+          "requested_temperatures_c": [],
+          "restore_observed_hvac_state": false
+        },
+        "condition_execution": "SINGLE_FLOW",
+        "grouping_reason": null,
+        "intermediate_reset_steps": [],
+        "preconditions": [
+          "대상 장비의 mode 값은 HEAT이다.",
+          "시험 대상 장비 카드를 선택한 상태인지 확인한다."
+        ],
+        "steps": [
+          "대상 장비의 mode 값 DRY를 선택한다.",
+          "선택한 값을 적용한다."
+        ],
+        "expected_results": [
+          {
+            "result_id": "ER-090",
+            "statement": "대상 장비 카드의 mode 표시 값은 DRY이다.",
+            "observation_layer": "UI",
+            "source_condition_ids": [
+              "COND-090"
+            ],
+            "verify_after_step": "선택한 값을 적용한다.",
+            "observation_target": "대상 장비 카드의 mode 표시"
+          },
+          {
+            "result_id": "ER-091",
+            "statement": "대상 장비의 내부 mode 값은 DRY이다.",
+            "observation_layer": "INTERNAL_STATE",
+            "source_condition_ids": [
+              "COND-090"
+            ],
+            "verify_after_step": "선택한 값을 적용한다.",
+            "observation_target": "대상 장비의 내부 mode"
+          }
+        ],
+        "common_qa_criteria": [],
+        "domain_qa_criteria": [],
+        "feature_requirement_ids": [],
+        "independent_execution": false,
+        "independence_reason": null,
+        "double_assert_policy": "NOT_APPLICABLE",
+        "double_assert_reason": null,
+        "restore_required": true,
+        "state_effect": "STATE_CHANGE",
+        "restore_steps": [
+          "준비와 시험으로 바뀐 관제점 값을 준비 전 관찰한 원래 상태로 복원하고 적용한다.",
+          "대상 장비 카드의 mode 표시를 준비 전 관찰값과 비교한다.",
+          "대상 장비의 내부 mode를 준비 전 관찰값과 비교한다."
+        ],
+        "restoration": {
+          "operation_steps": [
+            "준비와 시험으로 바뀐 관제점 값을 준비 전 관찰한 원래 상태로 복원하고 적용한다."
+          ],
+          "confirmations": [
+            {
+              "source_text": "대상 장비 카드의 mode 표시를 준비 전 관찰값과 비교한다.",
+              "result_ids": [
+                "ER-090"
+              ],
+              "comparisons": [
+                {
+                  "result_id": "ER-090",
+                  "source_excerpt": "대상 장비 카드의 mode 표시를 준비 전 관찰값과 비교한다.",
+                  "basis": "OBSERVED_BASELINE"
+                }
+              ]
+            },
+            {
+              "source_text": "대상 장비의 내부 mode를 준비 전 관찰값과 비교한다.",
+              "result_ids": [
+                "ER-091"
+              ],
+              "comparisons": [
+                {
+                  "result_id": "ER-091",
+                  "source_excerpt": "대상 장비의 내부 mode를 준비 전 관찰값과 비교한다.",
+                  "basis": "OBSERVED_BASELINE"
+                }
+              ]
+            }
+          ],
+          "verify_when": "AFTER_RESTORE"
+        },
+        "automation_candidate": true,
+        "automation_reason": "The new control is expected to expose UI and state evidence.",
+        "execution_spec": {
+          "operations": [
+            {
+              "action_id": "ACT-001",
+              "phase": "PRECONDITION",
+              "action_type": "SELECT_DEVICE",
+              "value": 1,
+              "source_text": "대상 장비의 mode 값은 HEAT이다.",
+              "target": "device.select"
+            },
+            {
+              "action_id": "ACT-002",
+              "phase": "PRECONDITION",
+              "action_type": "SET_MODE",
+              "value": "HEAT",
+              "source_text": "대상 장비의 mode 값은 HEAT이다.",
+              "target": "mode.heat"
+            },
+            {
+              "action_id": "ACT-003",
+              "phase": "PRECONDITION",
+              "action_type": "APPLY_COMMANDS",
+              "value": null,
+              "source_text": "대상 장비의 mode 값은 HEAT이다.",
+              "target": "command.apply"
+            },
+            {
+              "action_id": "ACT-004",
+              "phase": "TEST",
+              "action_type": "SET_MODE",
+              "value": "DRY",
+              "source_text": "대상 장비의 mode 값 DRY를 선택한다.",
+              "target": "mode.dry"
+            },
+            {
+              "action_id": "ACT-005",
+              "phase": "TEST",
+              "action_type": "APPLY_COMMANDS",
+              "value": null,
+              "source_text": "선택한 값을 적용한다.",
+              "target": "command.apply"
+            },
+            {
+              "action_id": "ACT-006",
+              "phase": "RESTORE",
+              "action_type": "RESTORE_OBSERVED_CONTROLLER",
+              "value": null,
+              "source_text": "준비와 시험으로 바뀐 관제점 값을 준비 전 관찰한 원래 상태로 복원하고 적용한다.",
+              "target": "controller.restore"
+            }
+          ],
+          "verifications": [
+            {
+              "result_id": "ER-090",
+              "observation_layer": "UI",
+              "strategy": "CONTROLLER_UI_FIELDS_EQUALS",
+              "expected_number": null,
+              "expected_text": null,
+              "expected_value": null,
+              "expected_fields": [
+                {
+                  "field_name": "mode",
+                  "expected_value": "DRY"
+                }
+              ],
+              "after_action_id": "ACT-005",
+              "target": "card.mode"
+            },
+            {
+              "result_id": "ER-091",
+              "observation_layer": "INTERNAL_STATE",
+              "strategy": "INTERNAL_DEVICE_FIELDS_EQUALS",
+              "expected_number": null,
+              "expected_text": null,
+              "expected_value": null,
+              "expected_fields": [
+                {
+                  "field_name": "mode",
+                  "expected_value": "DRY"
+                }
+              ],
+              "after_action_id": "ACT-005",
+              "target": "internal.mode"
+            }
+          ],
+          "precondition_verifications": [
+            {
+              "source_text": "대상 장비의 mode 값은 HEAT이다.",
+              "read_kind": "INTERNAL_VALUE",
+              "expected_value": "HEAT",
+              "observation_target": "internal.mode"
+            },
+            {
+              "source_text": "대상 장비의 mode 값은 HEAT이다.",
+              "read_kind": "CONTROLLER_UI_FIELD",
+              "expected_value": "HEAT",
+              "observation_target": "card.mode"
+            },
+            {
+              "source_text": "대상 장비의 mode 값은 HEAT이다.",
+              "read_kind": "CONTROLLER_UI_FIELD",
+              "expected_value": "HEAT",
+              "observation_target": "panel.mode"
+            },
+            {
+              "source_text": "시험 대상 장비 카드를 선택한 상태인지 확인한다.",
+              "read_kind": "CONTROLLER_UI_FIELD",
+              "expected_value": true,
+              "observation_target": "card.selected"
+            }
+          ],
+          "binding_contract": "controller-map-1.0"
+        }
+      },
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "id": "S04"
+    },
+    {
+      "title": "풍량 자동→강풍",
+      "kind": "direct",
+      "group": "실제 브라우저",
+      "origin": "사람이 준비한 공통 TC",
+      "tc": {
+        "tc_id": "TC-CAND-090",
+        "title": "풍량 AUTO → HIGH: 준비·시험·원상 복원",
+        "purpose": "CHANGE_VALIDATION",
+        "test_type": "STATE_CONSISTENCY",
+        "requirement_ids": [
+          "REQ-FAN-001"
+        ],
+        "source_condition_ids": [
+          "COND-090"
+        ],
+        "control_path": "CENTRAL",
+        "target_role": "NEW_CONTROL_POINT",
+        "test_data": {
+          "initial_mode": null,
+          "requested_mode": null,
+          "requested_modes": [],
+          "initial_temperature_c": null,
+          "requested_temperature_c": null,
+          "requested_temperatures_c": [],
+          "restore_observed_hvac_state": false
+        },
+        "condition_execution": "SINGLE_FLOW",
+        "grouping_reason": null,
+        "intermediate_reset_steps": [],
+        "preconditions": [
+          "대상 장비의 fanSpeed 값은 AUTO이다.",
+          "시험 대상 장비 카드를 선택한 상태인지 확인한다."
+        ],
+        "steps": [
+          "대상 장비의 fanSpeed 값 HIGH를 선택한다.",
+          "선택한 값을 적용한다."
+        ],
+        "expected_results": [
+          {
+            "result_id": "ER-090",
+            "statement": "대상 장비 카드의 fanSpeed 표시 값은 HIGH이다.",
+            "observation_layer": "UI",
+            "source_condition_ids": [
+              "COND-090"
+            ],
+            "verify_after_step": "선택한 값을 적용한다.",
+            "observation_target": "대상 장비 카드의 fanSpeed 표시"
+          },
+          {
+            "result_id": "ER-091",
+            "statement": "대상 장비의 내부 fanSpeed 값은 HIGH이다.",
+            "observation_layer": "INTERNAL_STATE",
+            "source_condition_ids": [
+              "COND-090"
+            ],
+            "verify_after_step": "선택한 값을 적용한다.",
+            "observation_target": "대상 장비의 내부 fanSpeed"
+          }
+        ],
+        "common_qa_criteria": [],
+        "domain_qa_criteria": [],
+        "feature_requirement_ids": [],
+        "independent_execution": false,
+        "independence_reason": null,
+        "double_assert_policy": "NOT_APPLICABLE",
+        "double_assert_reason": null,
+        "restore_required": true,
+        "state_effect": "STATE_CHANGE",
+        "restore_steps": [
+          "준비와 시험으로 바뀐 관제점 값을 준비 전 관찰한 원래 상태로 복원하고 적용한다.",
+          "대상 장비 카드의 fanSpeed 표시를 준비 전 관찰값과 비교한다.",
+          "대상 장비의 내부 fanSpeed를 준비 전 관찰값과 비교한다."
+        ],
+        "restoration": {
+          "operation_steps": [
+            "준비와 시험으로 바뀐 관제점 값을 준비 전 관찰한 원래 상태로 복원하고 적용한다."
+          ],
+          "confirmations": [
+            {
+              "source_text": "대상 장비 카드의 fanSpeed 표시를 준비 전 관찰값과 비교한다.",
+              "result_ids": [
+                "ER-090"
+              ],
+              "comparisons": [
+                {
+                  "result_id": "ER-090",
+                  "source_excerpt": "대상 장비 카드의 fanSpeed 표시를 준비 전 관찰값과 비교한다.",
+                  "basis": "OBSERVED_BASELINE"
+                }
+              ]
+            },
+            {
+              "source_text": "대상 장비의 내부 fanSpeed를 준비 전 관찰값과 비교한다.",
+              "result_ids": [
+                "ER-091"
+              ],
+              "comparisons": [
+                {
+                  "result_id": "ER-091",
+                  "source_excerpt": "대상 장비의 내부 fanSpeed를 준비 전 관찰값과 비교한다.",
+                  "basis": "OBSERVED_BASELINE"
+                }
+              ]
+            }
+          ],
+          "verify_when": "AFTER_RESTORE"
+        },
+        "automation_candidate": true,
+        "automation_reason": "The new control is expected to expose UI and state evidence.",
+        "execution_spec": {
+          "operations": [
+            {
+              "action_id": "ACT-001",
+              "phase": "PRECONDITION",
+              "action_type": "SELECT_DEVICE",
+              "value": 1,
+              "source_text": "대상 장비의 fanSpeed 값은 AUTO이다.",
+              "target": "device.select"
+            },
+            {
+              "action_id": "ACT-002",
+              "phase": "PRECONDITION",
+              "action_type": "CLICK",
+              "value": null,
+              "source_text": "대상 장비의 fanSpeed 값은 AUTO이다.",
+              "target": "fanSpeed.auto"
+            },
+            {
+              "action_id": "ACT-003",
+              "phase": "PRECONDITION",
+              "action_type": "APPLY_COMMANDS",
+              "value": null,
+              "source_text": "대상 장비의 fanSpeed 값은 AUTO이다.",
+              "target": "command.apply"
+            },
+            {
+              "action_id": "ACT-004",
+              "phase": "TEST",
+              "action_type": "CLICK",
+              "value": null,
+              "source_text": "대상 장비의 fanSpeed 값 HIGH를 선택한다.",
+              "target": "fanSpeed.high"
+            },
+            {
+              "action_id": "ACT-005",
+              "phase": "TEST",
+              "action_type": "APPLY_COMMANDS",
+              "value": null,
+              "source_text": "선택한 값을 적용한다.",
+              "target": "command.apply"
+            },
+            {
+              "action_id": "ACT-006",
+              "phase": "RESTORE",
+              "action_type": "RESTORE_OBSERVED_CONTROLLER",
+              "value": null,
+              "source_text": "준비와 시험으로 바뀐 관제점 값을 준비 전 관찰한 원래 상태로 복원하고 적용한다.",
+              "target": "controller.restore"
+            }
+          ],
+          "verifications": [
+            {
+              "result_id": "ER-090",
+              "observation_layer": "UI",
+              "strategy": "CONTROLLER_UI_FIELDS_EQUALS",
+              "expected_number": null,
+              "expected_text": null,
+              "expected_value": null,
+              "expected_fields": [
+                {
+                  "field_name": "fanSpeed",
+                  "expected_value": "HIGH"
+                }
+              ],
+              "after_action_id": "ACT-005",
+              "target": "card.fanSpeed"
+            },
+            {
+              "result_id": "ER-091",
+              "observation_layer": "INTERNAL_STATE",
+              "strategy": "INTERNAL_DEVICE_FIELDS_EQUALS",
+              "expected_number": null,
+              "expected_text": null,
+              "expected_value": null,
+              "expected_fields": [
+                {
+                  "field_name": "fanSpeed",
+                  "expected_value": "HIGH"
+                }
+              ],
+              "after_action_id": "ACT-005",
+              "target": "internal.fanSpeed"
+            }
+          ],
+          "precondition_verifications": [
+            {
+              "source_text": "대상 장비의 fanSpeed 값은 AUTO이다.",
+              "read_kind": "INTERNAL_VALUE",
+              "expected_value": "AUTO",
+              "observation_target": "internal.fanSpeed"
+            },
+            {
+              "source_text": "대상 장비의 fanSpeed 값은 AUTO이다.",
+              "read_kind": "CONTROLLER_UI_FIELD",
+              "expected_value": "AUTO",
+              "observation_target": "card.fanSpeed"
+            },
+            {
+              "source_text": "대상 장비의 fanSpeed 값은 AUTO이다.",
+              "read_kind": "CONTROLLER_UI_FIELD",
+              "expected_value": "AUTO",
+              "observation_target": "panel.fanSpeed"
+            },
+            {
+              "source_text": "시험 대상 장비 카드를 선택한 상태인지 확인한다.",
+              "read_kind": "CONTROLLER_UI_FIELD",
+              "expected_value": true,
+              "observation_target": "card.selected"
+            }
+          ],
+          "binding_contract": "controller-map-1.0"
+        }
+      },
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "id": "S05"
+    },
+    {
+      "title": "풍량 강풍→약풍",
+      "kind": "direct",
+      "group": "실제 브라우저",
+      "origin": "사람이 준비한 공통 TC",
+      "tc": {
+        "tc_id": "TC-CAND-090",
+        "title": "풍량 HIGH → LOW: 준비·시험·원상 복원",
+        "purpose": "CHANGE_VALIDATION",
+        "test_type": "STATE_CONSISTENCY",
+        "requirement_ids": [
+          "REQ-FAN-001"
+        ],
+        "source_condition_ids": [
+          "COND-090"
+        ],
+        "control_path": "CENTRAL",
+        "target_role": "NEW_CONTROL_POINT",
+        "test_data": {
+          "initial_mode": null,
+          "requested_mode": null,
+          "requested_modes": [],
+          "initial_temperature_c": null,
+          "requested_temperature_c": null,
+          "requested_temperatures_c": [],
+          "restore_observed_hvac_state": false
+        },
+        "condition_execution": "SINGLE_FLOW",
+        "grouping_reason": null,
+        "intermediate_reset_steps": [],
+        "preconditions": [
+          "대상 장비의 fanSpeed 값은 HIGH이다.",
+          "시험 대상 장비 카드를 선택한 상태인지 확인한다."
+        ],
+        "steps": [
+          "대상 장비의 fanSpeed 값 LOW를 선택한다.",
+          "선택한 값을 적용한다."
+        ],
+        "expected_results": [
+          {
+            "result_id": "ER-090",
+            "statement": "대상 장비 카드의 fanSpeed 표시 값은 LOW이다.",
+            "observation_layer": "UI",
+            "source_condition_ids": [
+              "COND-090"
+            ],
+            "verify_after_step": "선택한 값을 적용한다.",
+            "observation_target": "대상 장비 카드의 fanSpeed 표시"
+          },
+          {
+            "result_id": "ER-091",
+            "statement": "대상 장비의 내부 fanSpeed 값은 LOW이다.",
+            "observation_layer": "INTERNAL_STATE",
+            "source_condition_ids": [
+              "COND-090"
+            ],
+            "verify_after_step": "선택한 값을 적용한다.",
+            "observation_target": "대상 장비의 내부 fanSpeed"
+          }
+        ],
+        "common_qa_criteria": [],
+        "domain_qa_criteria": [],
+        "feature_requirement_ids": [],
+        "independent_execution": false,
+        "independence_reason": null,
+        "double_assert_policy": "NOT_APPLICABLE",
+        "double_assert_reason": null,
+        "restore_required": true,
+        "state_effect": "STATE_CHANGE",
+        "restore_steps": [
+          "준비와 시험으로 바뀐 관제점 값을 준비 전 관찰한 원래 상태로 복원하고 적용한다.",
+          "대상 장비 카드의 fanSpeed 표시를 준비 전 관찰값과 비교한다.",
+          "대상 장비의 내부 fanSpeed를 준비 전 관찰값과 비교한다."
+        ],
+        "restoration": {
+          "operation_steps": [
+            "준비와 시험으로 바뀐 관제점 값을 준비 전 관찰한 원래 상태로 복원하고 적용한다."
+          ],
+          "confirmations": [
+            {
+              "source_text": "대상 장비 카드의 fanSpeed 표시를 준비 전 관찰값과 비교한다.",
+              "result_ids": [
+                "ER-090"
+              ],
+              "comparisons": [
+                {
+                  "result_id": "ER-090",
+                  "source_excerpt": "대상 장비 카드의 fanSpeed 표시를 준비 전 관찰값과 비교한다.",
+                  "basis": "OBSERVED_BASELINE"
+                }
+              ]
+            },
+            {
+              "source_text": "대상 장비의 내부 fanSpeed를 준비 전 관찰값과 비교한다.",
+              "result_ids": [
+                "ER-091"
+              ],
+              "comparisons": [
+                {
+                  "result_id": "ER-091",
+                  "source_excerpt": "대상 장비의 내부 fanSpeed를 준비 전 관찰값과 비교한다.",
+                  "basis": "OBSERVED_BASELINE"
+                }
+              ]
+            }
+          ],
+          "verify_when": "AFTER_RESTORE"
+        },
+        "automation_candidate": true,
+        "automation_reason": "The new control is expected to expose UI and state evidence.",
+        "execution_spec": {
+          "operations": [
+            {
+              "action_id": "ACT-001",
+              "phase": "PRECONDITION",
+              "action_type": "SELECT_DEVICE",
+              "value": 1,
+              "source_text": "대상 장비의 fanSpeed 값은 HIGH이다.",
+              "target": "device.select"
+            },
+            {
+              "action_id": "ACT-002",
+              "phase": "PRECONDITION",
+              "action_type": "CLICK",
+              "value": null,
+              "source_text": "대상 장비의 fanSpeed 값은 HIGH이다.",
+              "target": "fanSpeed.high"
+            },
+            {
+              "action_id": "ACT-003",
+              "phase": "PRECONDITION",
+              "action_type": "APPLY_COMMANDS",
+              "value": null,
+              "source_text": "대상 장비의 fanSpeed 값은 HIGH이다.",
+              "target": "command.apply"
+            },
+            {
+              "action_id": "ACT-004",
+              "phase": "TEST",
+              "action_type": "CLICK",
+              "value": null,
+              "source_text": "대상 장비의 fanSpeed 값 LOW를 선택한다.",
+              "target": "fanSpeed.low"
+            },
+            {
+              "action_id": "ACT-005",
+              "phase": "TEST",
+              "action_type": "APPLY_COMMANDS",
+              "value": null,
+              "source_text": "선택한 값을 적용한다.",
+              "target": "command.apply"
+            },
+            {
+              "action_id": "ACT-006",
+              "phase": "RESTORE",
+              "action_type": "RESTORE_OBSERVED_CONTROLLER",
+              "value": null,
+              "source_text": "준비와 시험으로 바뀐 관제점 값을 준비 전 관찰한 원래 상태로 복원하고 적용한다.",
+              "target": "controller.restore"
+            }
+          ],
+          "verifications": [
+            {
+              "result_id": "ER-090",
+              "observation_layer": "UI",
+              "strategy": "CONTROLLER_UI_FIELDS_EQUALS",
+              "expected_number": null,
+              "expected_text": null,
+              "expected_value": null,
+              "expected_fields": [
+                {
+                  "field_name": "fanSpeed",
+                  "expected_value": "LOW"
+                }
+              ],
+              "after_action_id": "ACT-005",
+              "target": "card.fanSpeed"
+            },
+            {
+              "result_id": "ER-091",
+              "observation_layer": "INTERNAL_STATE",
+              "strategy": "INTERNAL_DEVICE_FIELDS_EQUALS",
+              "expected_number": null,
+              "expected_text": null,
+              "expected_value": null,
+              "expected_fields": [
+                {
+                  "field_name": "fanSpeed",
+                  "expected_value": "LOW"
+                }
+              ],
+              "after_action_id": "ACT-005",
+              "target": "internal.fanSpeed"
+            }
+          ],
+          "precondition_verifications": [
+            {
+              "source_text": "대상 장비의 fanSpeed 값은 HIGH이다.",
+              "read_kind": "INTERNAL_VALUE",
+              "expected_value": "HIGH",
+              "observation_target": "internal.fanSpeed"
+            },
+            {
+              "source_text": "대상 장비의 fanSpeed 값은 HIGH이다.",
+              "read_kind": "CONTROLLER_UI_FIELD",
+              "expected_value": "HIGH",
+              "observation_target": "card.fanSpeed"
+            },
+            {
+              "source_text": "대상 장비의 fanSpeed 값은 HIGH이다.",
+              "read_kind": "CONTROLLER_UI_FIELD",
+              "expected_value": "HIGH",
+              "observation_target": "panel.fanSpeed"
+            },
+            {
+              "source_text": "시험 대상 장비 카드를 선택한 상태인지 확인한다.",
+              "read_kind": "CONTROLLER_UI_FIELD",
+              "expected_value": true,
+              "observation_target": "card.selected"
+            }
+          ],
+          "binding_contract": "controller-map-1.0"
+        }
+      },
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "id": "S06"
+    },
+    {
+      "title": "난방 온도 27→21°C",
+      "kind": "direct",
+      "group": "실제 브라우저",
+      "origin": "사람이 준비한 공통 TC",
+      "tc": {
+        "tc_id": "TC-CAND-090",
+        "title": "온도 27 → 21: 준비·시험·원상 복원",
+        "purpose": "CHANGE_VALIDATION",
+        "test_type": "STATE_CONSISTENCY",
+        "requirement_ids": [
+          "REQ-TEMP-001"
+        ],
+        "source_condition_ids": [
+          "COND-090"
+        ],
+        "control_path": "CENTRAL",
+        "target_role": "NEW_CONTROL_POINT",
+        "test_data": {
+          "initial_mode": "HEAT",
+          "requested_mode": null,
+          "requested_modes": [],
+          "initial_temperature_c": 27.0,
+          "requested_temperature_c": 21.0,
+          "requested_temperatures_c": [],
+          "restore_observed_hvac_state": false
+        },
+        "condition_execution": "SINGLE_FLOW",
+        "grouping_reason": null,
+        "intermediate_reset_steps": [],
+        "preconditions": [
+          "대상 장비의 mode 값은 HEAT이다.",
+          "대상 장비의 setTemp 값은 27이다.",
+          "시험 대상 장비 카드를 선택한 상태인지 확인한다."
+        ],
+        "steps": [
+          "대상 장비의 setTemp 값 21를 선택한다.",
+          "선택한 값을 적용한다."
+        ],
+        "expected_results": [
+          {
+            "result_id": "ER-090",
+            "statement": "대상 장비 카드의 setTemp 표시 값은 21이다.",
+            "observation_layer": "UI",
+            "source_condition_ids": [
+              "COND-090"
+            ],
+            "verify_after_step": "선택한 값을 적용한다.",
+            "observation_target": "대상 장비 카드의 setTemp 표시"
+          },
+          {
+            "result_id": "ER-091",
+            "statement": "대상 장비의 내부 setTemp 값은 21이다.",
+            "observation_layer": "INTERNAL_STATE",
+            "source_condition_ids": [
+              "COND-090"
+            ],
+            "verify_after_step": "선택한 값을 적용한다.",
+            "observation_target": "대상 장비의 내부 setTemp"
+          }
+        ],
+        "common_qa_criteria": [],
+        "domain_qa_criteria": [],
+        "feature_requirement_ids": [],
+        "independent_execution": false,
+        "independence_reason": null,
+        "double_assert_policy": "NOT_APPLICABLE",
+        "double_assert_reason": null,
+        "restore_required": true,
+        "state_effect": "STATE_CHANGE",
+        "restore_steps": [
+          "준비와 시험으로 바뀐 관제점 값을 준비 전 관찰한 원래 상태로 복원하고 적용한다.",
+          "대상 장비 카드의 setTemp 표시를 준비 전 관찰값과 비교한다.",
+          "대상 장비의 내부 setTemp를 준비 전 관찰값과 비교한다."
+        ],
+        "restoration": {
+          "operation_steps": [
+            "준비와 시험으로 바뀐 관제점 값을 준비 전 관찰한 원래 상태로 복원하고 적용한다."
+          ],
+          "confirmations": [
+            {
+              "source_text": "대상 장비 카드의 setTemp 표시를 준비 전 관찰값과 비교한다.",
+              "result_ids": [
+                "ER-090"
+              ],
+              "comparisons": [
+                {
+                  "result_id": "ER-090",
+                  "source_excerpt": "대상 장비 카드의 setTemp 표시를 준비 전 관찰값과 비교한다.",
+                  "basis": "OBSERVED_BASELINE"
+                }
+              ]
+            },
+            {
+              "source_text": "대상 장비의 내부 setTemp를 준비 전 관찰값과 비교한다.",
+              "result_ids": [
+                "ER-091"
+              ],
+              "comparisons": [
+                {
+                  "result_id": "ER-091",
+                  "source_excerpt": "대상 장비의 내부 setTemp를 준비 전 관찰값과 비교한다.",
+                  "basis": "OBSERVED_BASELINE"
+                }
+              ]
+            }
+          ],
+          "verify_when": "AFTER_RESTORE"
+        },
+        "automation_candidate": true,
+        "automation_reason": "The new control is expected to expose UI and state evidence.",
+        "execution_spec": {
+          "operations": [
+            {
+              "action_id": "ACT-001",
+              "phase": "PRECONDITION",
+              "action_type": "SELECT_DEVICE",
+              "value": 1,
+              "source_text": "대상 장비의 mode 값은 HEAT이다.",
+              "target": "device.select"
+            },
+            {
+              "action_id": "ACT-002",
+              "phase": "PRECONDITION",
+              "action_type": "SET_MODE",
+              "value": "HEAT",
+              "source_text": "대상 장비의 mode 값은 HEAT이다.",
+              "target": "mode.heat"
+            },
+            {
+              "action_id": "ACT-003",
+              "phase": "PRECONDITION",
+              "action_type": "APPLY_COMMANDS",
+              "value": null,
+              "source_text": "대상 장비의 mode 값은 HEAT이다.",
+              "target": "command.apply"
+            },
+            {
+              "action_id": "ACT-004",
+              "phase": "PRECONDITION",
+              "action_type": "SET_TEMPERATURE",
+              "value": 27,
+              "source_text": "대상 장비의 setTemp 값은 27이다.",
+              "target": "temperature.set"
+            },
+            {
+              "action_id": "ACT-005",
+              "phase": "PRECONDITION",
+              "action_type": "APPLY_COMMANDS",
+              "value": null,
+              "source_text": "대상 장비의 setTemp 값은 27이다.",
+              "target": "command.apply"
+            },
+            {
+              "action_id": "ACT-006",
+              "phase": "TEST",
+              "action_type": "SET_TEMPERATURE",
+              "value": 21,
+              "source_text": "대상 장비의 setTemp 값 21를 선택한다.",
+              "target": "temperature.set"
+            },
+            {
+              "action_id": "ACT-007",
+              "phase": "TEST",
+              "action_type": "APPLY_COMMANDS",
+              "value": null,
+              "source_text": "선택한 값을 적용한다.",
+              "target": "command.apply"
+            },
+            {
+              "action_id": "ACT-008",
+              "phase": "RESTORE",
+              "action_type": "RESTORE_OBSERVED_CONTROLLER",
+              "value": null,
+              "source_text": "준비와 시험으로 바뀐 관제점 값을 준비 전 관찰한 원래 상태로 복원하고 적용한다.",
+              "target": "controller.restore"
+            }
+          ],
+          "verifications": [
+            {
+              "result_id": "ER-090",
+              "observation_layer": "UI",
+              "strategy": "CONTROLLER_UI_FIELDS_EQUALS",
+              "expected_number": null,
+              "expected_text": null,
+              "expected_value": null,
+              "expected_fields": [
+                {
+                  "field_name": "setTemp",
+                  "expected_value": 21
+                }
+              ],
+              "after_action_id": "ACT-007",
+              "target": "card.setTemp"
+            },
+            {
+              "result_id": "ER-091",
+              "observation_layer": "INTERNAL_STATE",
+              "strategy": "INTERNAL_DEVICE_FIELDS_EQUALS",
+              "expected_number": null,
+              "expected_text": null,
+              "expected_value": null,
+              "expected_fields": [
+                {
+                  "field_name": "setTemp",
+                  "expected_value": 21
+                }
+              ],
+              "after_action_id": "ACT-007",
+              "target": "internal.setTemp"
+            }
+          ],
+          "precondition_verifications": [
+            {
+              "source_text": "대상 장비의 mode 값은 HEAT이다.",
+              "read_kind": "INTERNAL_VALUE",
+              "expected_value": "HEAT",
+              "observation_target": "internal.mode"
+            },
+            {
+              "source_text": "대상 장비의 setTemp 값은 27이다.",
+              "read_kind": "INTERNAL_VALUE",
+              "expected_value": 27,
+              "observation_target": "internal.setTemp"
+            },
+            {
+              "source_text": "대상 장비의 mode 값은 HEAT이다.",
+              "read_kind": "CONTROLLER_UI_FIELD",
+              "expected_value": "HEAT",
+              "observation_target": "card.mode"
+            },
+            {
+              "source_text": "대상 장비의 mode 값은 HEAT이다.",
+              "read_kind": "CONTROLLER_UI_FIELD",
+              "expected_value": "HEAT",
+              "observation_target": "panel.mode"
+            },
+            {
+              "source_text": "대상 장비의 setTemp 값은 27이다.",
+              "read_kind": "CONTROLLER_UI_FIELD",
+              "expected_value": 27,
+              "observation_target": "card.setTemp"
+            },
+            {
+              "source_text": "대상 장비의 setTemp 값은 27이다.",
+              "read_kind": "CONTROLLER_UI_FIELD",
+              "expected_value": 27,
+              "observation_target": "panel.setTemp"
+            },
+            {
+              "source_text": "시험 대상 장비 카드를 선택한 상태인지 확인한다.",
+              "read_kind": "CONTROLLER_UI_FIELD",
+              "expected_value": true,
+              "observation_target": "card.selected"
+            }
+          ],
+          "binding_contract": "controller-map-1.0"
+        }
+      },
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "id": "S07"
+    },
+    {
+      "title": "자동 모드 온도 24→18°C",
+      "kind": "direct",
+      "group": "실제 브라우저",
+      "origin": "사람이 준비한 공통 TC",
+      "tc": {
+        "tc_id": "TC-CAND-090",
+        "title": "온도 24 → 18: 준비·시험·원상 복원",
+        "purpose": "CHANGE_VALIDATION",
+        "test_type": "STATE_CONSISTENCY",
+        "requirement_ids": [
+          "REQ-TEMP-001"
+        ],
+        "source_condition_ids": [
+          "COND-090"
+        ],
+        "control_path": "CENTRAL",
+        "target_role": "NEW_CONTROL_POINT",
+        "test_data": {
+          "initial_mode": "AUTO",
+          "requested_mode": null,
+          "requested_modes": [],
+          "initial_temperature_c": 24.0,
+          "requested_temperature_c": 18.0,
+          "requested_temperatures_c": [],
+          "restore_observed_hvac_state": false
+        },
+        "condition_execution": "SINGLE_FLOW",
+        "grouping_reason": null,
+        "intermediate_reset_steps": [],
+        "preconditions": [
+          "대상 장비의 mode 값은 AUTO이다.",
+          "대상 장비의 setTemp 값은 24이다.",
+          "시험 대상 장비 카드를 선택한 상태인지 확인한다."
+        ],
+        "steps": [
+          "대상 장비의 setTemp 값 18를 선택한다.",
+          "선택한 값을 적용한다."
+        ],
+        "expected_results": [
+          {
+            "result_id": "ER-090",
+            "statement": "대상 장비 카드의 setTemp 표시 값은 18이다.",
+            "observation_layer": "UI",
+            "source_condition_ids": [
+              "COND-090"
+            ],
+            "verify_after_step": "선택한 값을 적용한다.",
+            "observation_target": "대상 장비 카드의 setTemp 표시"
+          },
+          {
+            "result_id": "ER-091",
+            "statement": "대상 장비의 내부 setTemp 값은 18이다.",
+            "observation_layer": "INTERNAL_STATE",
+            "source_condition_ids": [
+              "COND-090"
+            ],
+            "verify_after_step": "선택한 값을 적용한다.",
+            "observation_target": "대상 장비의 내부 setTemp"
+          }
+        ],
+        "common_qa_criteria": [],
+        "domain_qa_criteria": [],
+        "feature_requirement_ids": [],
+        "independent_execution": false,
+        "independence_reason": null,
+        "double_assert_policy": "NOT_APPLICABLE",
+        "double_assert_reason": null,
+        "restore_required": true,
+        "state_effect": "STATE_CHANGE",
+        "restore_steps": [
+          "준비와 시험으로 바뀐 관제점 값을 준비 전 관찰한 원래 상태로 복원하고 적용한다.",
+          "대상 장비 카드의 setTemp 표시를 준비 전 관찰값과 비교한다.",
+          "대상 장비의 내부 setTemp를 준비 전 관찰값과 비교한다."
+        ],
+        "restoration": {
+          "operation_steps": [
+            "준비와 시험으로 바뀐 관제점 값을 준비 전 관찰한 원래 상태로 복원하고 적용한다."
+          ],
+          "confirmations": [
+            {
+              "source_text": "대상 장비 카드의 setTemp 표시를 준비 전 관찰값과 비교한다.",
+              "result_ids": [
+                "ER-090"
+              ],
+              "comparisons": [
+                {
+                  "result_id": "ER-090",
+                  "source_excerpt": "대상 장비 카드의 setTemp 표시를 준비 전 관찰값과 비교한다.",
+                  "basis": "OBSERVED_BASELINE"
+                }
+              ]
+            },
+            {
+              "source_text": "대상 장비의 내부 setTemp를 준비 전 관찰값과 비교한다.",
+              "result_ids": [
+                "ER-091"
+              ],
+              "comparisons": [
+                {
+                  "result_id": "ER-091",
+                  "source_excerpt": "대상 장비의 내부 setTemp를 준비 전 관찰값과 비교한다.",
+                  "basis": "OBSERVED_BASELINE"
+                }
+              ]
+            }
+          ],
+          "verify_when": "AFTER_RESTORE"
+        },
+        "automation_candidate": true,
+        "automation_reason": "The new control is expected to expose UI and state evidence.",
+        "execution_spec": {
+          "operations": [
+            {
+              "action_id": "ACT-001",
+              "phase": "PRECONDITION",
+              "action_type": "SELECT_DEVICE",
+              "value": 1,
+              "source_text": "대상 장비의 mode 값은 AUTO이다.",
+              "target": "device.select"
+            },
+            {
+              "action_id": "ACT-002",
+              "phase": "PRECONDITION",
+              "action_type": "SET_MODE",
+              "value": "AUTO",
+              "source_text": "대상 장비의 mode 값은 AUTO이다.",
+              "target": "mode.auto"
+            },
+            {
+              "action_id": "ACT-003",
+              "phase": "PRECONDITION",
+              "action_type": "APPLY_COMMANDS",
+              "value": null,
+              "source_text": "대상 장비의 mode 값은 AUTO이다.",
+              "target": "command.apply"
+            },
+            {
+              "action_id": "ACT-004",
+              "phase": "PRECONDITION",
+              "action_type": "SET_TEMPERATURE",
+              "value": 24,
+              "source_text": "대상 장비의 setTemp 값은 24이다.",
+              "target": "temperature.set"
+            },
+            {
+              "action_id": "ACT-005",
+              "phase": "PRECONDITION",
+              "action_type": "APPLY_COMMANDS",
+              "value": null,
+              "source_text": "대상 장비의 setTemp 값은 24이다.",
+              "target": "command.apply"
+            },
+            {
+              "action_id": "ACT-006",
+              "phase": "TEST",
+              "action_type": "SET_TEMPERATURE",
+              "value": 18,
+              "source_text": "대상 장비의 setTemp 값 18를 선택한다.",
+              "target": "temperature.set"
+            },
+            {
+              "action_id": "ACT-007",
+              "phase": "TEST",
+              "action_type": "APPLY_COMMANDS",
+              "value": null,
+              "source_text": "선택한 값을 적용한다.",
+              "target": "command.apply"
+            },
+            {
+              "action_id": "ACT-008",
+              "phase": "RESTORE",
+              "action_type": "RESTORE_OBSERVED_CONTROLLER",
+              "value": null,
+              "source_text": "준비와 시험으로 바뀐 관제점 값을 준비 전 관찰한 원래 상태로 복원하고 적용한다.",
+              "target": "controller.restore"
+            }
+          ],
+          "verifications": [
+            {
+              "result_id": "ER-090",
+              "observation_layer": "UI",
+              "strategy": "CONTROLLER_UI_FIELDS_EQUALS",
+              "expected_number": null,
+              "expected_text": null,
+              "expected_value": null,
+              "expected_fields": [
+                {
+                  "field_name": "setTemp",
+                  "expected_value": 18
+                }
+              ],
+              "after_action_id": "ACT-007",
+              "target": "card.setTemp"
+            },
+            {
+              "result_id": "ER-091",
+              "observation_layer": "INTERNAL_STATE",
+              "strategy": "INTERNAL_DEVICE_FIELDS_EQUALS",
+              "expected_number": null,
+              "expected_text": null,
+              "expected_value": null,
+              "expected_fields": [
+                {
+                  "field_name": "setTemp",
+                  "expected_value": 18
+                }
+              ],
+              "after_action_id": "ACT-007",
+              "target": "internal.setTemp"
+            }
+          ],
+          "precondition_verifications": [
+            {
+              "source_text": "대상 장비의 mode 값은 AUTO이다.",
+              "read_kind": "INTERNAL_VALUE",
+              "expected_value": "AUTO",
+              "observation_target": "internal.mode"
+            },
+            {
+              "source_text": "대상 장비의 setTemp 값은 24이다.",
+              "read_kind": "INTERNAL_VALUE",
+              "expected_value": 24,
+              "observation_target": "internal.setTemp"
+            },
+            {
+              "source_text": "대상 장비의 mode 값은 AUTO이다.",
+              "read_kind": "CONTROLLER_UI_FIELD",
+              "expected_value": "AUTO",
+              "observation_target": "card.mode"
+            },
+            {
+              "source_text": "대상 장비의 mode 값은 AUTO이다.",
+              "read_kind": "CONTROLLER_UI_FIELD",
+              "expected_value": "AUTO",
+              "observation_target": "panel.mode"
+            },
+            {
+              "source_text": "대상 장비의 setTemp 값은 24이다.",
+              "read_kind": "CONTROLLER_UI_FIELD",
+              "expected_value": 24,
+              "observation_target": "card.setTemp"
+            },
+            {
+              "source_text": "대상 장비의 setTemp 값은 24이다.",
+              "read_kind": "CONTROLLER_UI_FIELD",
+              "expected_value": 24,
+              "observation_target": "panel.setTemp"
+            },
+            {
+              "source_text": "시험 대상 장비 카드를 선택한 상태인지 확인한다.",
+              "read_kind": "CONTROLLER_UI_FIELD",
+              "expected_value": true,
+              "observation_target": "card.selected"
+            }
+          ],
+          "binding_contract": "controller-map-1.0"
+        }
+      },
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "id": "S08"
+    },
+    {
+      "title": "잠금 해제→설정",
+      "kind": "direct",
+      "group": "실제 브라우저",
+      "origin": "사람이 준비한 공통 TC",
+      "tc": {
+        "tc_id": "TC-CAND-090",
+        "title": "잠금 False → True: 준비·시험·원상 복원",
+        "purpose": "CHANGE_VALIDATION",
+        "test_type": "STATE_CONSISTENCY",
+        "requirement_ids": [
+          "REQ-LOCK-001"
+        ],
+        "source_condition_ids": [
+          "COND-090"
+        ],
+        "control_path": "CENTRAL",
+        "target_role": "NEW_CONTROL_POINT",
+        "test_data": {
+          "initial_mode": null,
+          "requested_mode": null,
+          "requested_modes": [],
+          "initial_temperature_c": null,
+          "requested_temperature_c": null,
+          "requested_temperatures_c": [],
+          "restore_observed_hvac_state": false
+        },
+        "condition_execution": "SINGLE_FLOW",
+        "grouping_reason": null,
+        "intermediate_reset_steps": [],
+        "preconditions": [
+          "대상 장비의 locked 값은 false이다.",
+          "시험 대상 장비 카드를 선택한 상태인지 확인한다."
+        ],
+        "steps": [
+          "대상 장비의 locked 값 true를 선택한다.",
+          "선택한 값을 적용한다."
+        ],
+        "expected_results": [
+          {
+            "result_id": "ER-090",
+            "statement": "대상 장비 카드의 locked 표시 값은 true이다.",
+            "observation_layer": "UI",
+            "source_condition_ids": [
+              "COND-090"
+            ],
+            "verify_after_step": "선택한 값을 적용한다.",
+            "observation_target": "대상 장비 카드의 locked 표시"
+          },
+          {
+            "result_id": "ER-091",
+            "statement": "대상 장비의 내부 locked 값은 true이다.",
+            "observation_layer": "INTERNAL_STATE",
+            "source_condition_ids": [
+              "COND-090"
+            ],
+            "verify_after_step": "선택한 값을 적용한다.",
+            "observation_target": "대상 장비의 내부 locked"
+          }
+        ],
+        "common_qa_criteria": [],
+        "domain_qa_criteria": [],
+        "feature_requirement_ids": [],
+        "independent_execution": false,
+        "independence_reason": null,
+        "double_assert_policy": "NOT_APPLICABLE",
+        "double_assert_reason": null,
+        "restore_required": true,
+        "state_effect": "STATE_CHANGE",
+        "restore_steps": [
+          "준비와 시험으로 바뀐 관제점 값을 준비 전 관찰한 원래 상태로 복원하고 적용한다.",
+          "대상 장비 카드의 locked 표시를 준비 전 관찰값과 비교한다.",
+          "대상 장비의 내부 locked를 준비 전 관찰값과 비교한다."
+        ],
+        "restoration": {
+          "operation_steps": [
+            "준비와 시험으로 바뀐 관제점 값을 준비 전 관찰한 원래 상태로 복원하고 적용한다."
+          ],
+          "confirmations": [
+            {
+              "source_text": "대상 장비 카드의 locked 표시를 준비 전 관찰값과 비교한다.",
+              "result_ids": [
+                "ER-090"
+              ],
+              "comparisons": [
+                {
+                  "result_id": "ER-090",
+                  "source_excerpt": "대상 장비 카드의 locked 표시를 준비 전 관찰값과 비교한다.",
+                  "basis": "OBSERVED_BASELINE"
+                }
+              ]
+            },
+            {
+              "source_text": "대상 장비의 내부 locked를 준비 전 관찰값과 비교한다.",
+              "result_ids": [
+                "ER-091"
+              ],
+              "comparisons": [
+                {
+                  "result_id": "ER-091",
+                  "source_excerpt": "대상 장비의 내부 locked를 준비 전 관찰값과 비교한다.",
+                  "basis": "OBSERVED_BASELINE"
+                }
+              ]
+            }
+          ],
+          "verify_when": "AFTER_RESTORE"
+        },
+        "automation_candidate": true,
+        "automation_reason": "The new control is expected to expose UI and state evidence.",
+        "execution_spec": {
+          "operations": [
+            {
+              "action_id": "ACT-001",
+              "phase": "PRECONDITION",
+              "action_type": "SELECT_DEVICE",
+              "value": 1,
+              "source_text": "대상 장비의 locked 값은 false이다.",
+              "target": "device.select"
+            },
+            {
+              "action_id": "ACT-002",
+              "phase": "PRECONDITION",
+              "action_type": "CLICK",
+              "value": null,
+              "source_text": "대상 장비의 locked 값은 false이다.",
+              "target": "locked.off"
+            },
+            {
+              "action_id": "ACT-003",
+              "phase": "PRECONDITION",
+              "action_type": "APPLY_COMMANDS",
+              "value": null,
+              "source_text": "대상 장비의 locked 값은 false이다.",
+              "target": "command.apply"
+            },
+            {
+              "action_id": "ACT-004",
+              "phase": "TEST",
+              "action_type": "CLICK",
+              "value": null,
+              "source_text": "대상 장비의 locked 값 true를 선택한다.",
+              "target": "locked.on"
+            },
+            {
+              "action_id": "ACT-005",
+              "phase": "TEST",
+              "action_type": "APPLY_COMMANDS",
+              "value": null,
+              "source_text": "선택한 값을 적용한다.",
+              "target": "command.apply"
+            },
+            {
+              "action_id": "ACT-006",
+              "phase": "RESTORE",
+              "action_type": "RESTORE_OBSERVED_CONTROLLER",
+              "value": null,
+              "source_text": "준비와 시험으로 바뀐 관제점 값을 준비 전 관찰한 원래 상태로 복원하고 적용한다.",
+              "target": "controller.restore"
+            }
+          ],
+          "verifications": [
+            {
+              "result_id": "ER-090",
+              "observation_layer": "UI",
+              "strategy": "CONTROLLER_UI_FIELDS_EQUALS",
+              "expected_number": null,
+              "expected_text": null,
+              "expected_value": null,
+              "expected_fields": [
+                {
+                  "field_name": "locked",
+                  "expected_value": true
+                }
+              ],
+              "after_action_id": "ACT-005",
+              "target": "card.locked"
+            },
+            {
+              "result_id": "ER-091",
+              "observation_layer": "INTERNAL_STATE",
+              "strategy": "INTERNAL_DEVICE_FIELDS_EQUALS",
+              "expected_number": null,
+              "expected_text": null,
+              "expected_value": null,
+              "expected_fields": [
+                {
+                  "field_name": "locked",
+                  "expected_value": true
+                }
+              ],
+              "after_action_id": "ACT-005",
+              "target": "internal.locked"
+            }
+          ],
+          "precondition_verifications": [
+            {
+              "source_text": "대상 장비의 locked 값은 false이다.",
+              "read_kind": "INTERNAL_VALUE",
+              "expected_value": false,
+              "observation_target": "internal.locked"
+            },
+            {
+              "source_text": "대상 장비의 locked 값은 false이다.",
+              "read_kind": "CONTROLLER_UI_FIELD",
+              "expected_value": false,
+              "observation_target": "card.locked"
+            },
+            {
+              "source_text": "대상 장비의 locked 값은 false이다.",
+              "read_kind": "CONTROLLER_UI_FIELD",
+              "expected_value": false,
+              "observation_target": "panel.locked"
+            },
+            {
+              "source_text": "시험 대상 장비 카드를 선택한 상태인지 확인한다.",
+              "read_kind": "CONTROLLER_UI_FIELD",
+              "expected_value": true,
+              "observation_target": "card.selected"
+            }
+          ],
+          "binding_contract": "controller-map-1.0"
+        }
+      },
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "id": "S09"
+    },
+    {
+      "title": "잠금 설정→해제",
+      "kind": "direct",
+      "group": "실제 브라우저",
+      "origin": "사람이 준비한 공통 TC",
+      "tc": {
+        "tc_id": "TC-CAND-090",
+        "title": "잠금 True → False: 준비·시험·원상 복원",
+        "purpose": "CHANGE_VALIDATION",
+        "test_type": "STATE_CONSISTENCY",
+        "requirement_ids": [
+          "REQ-LOCK-001"
+        ],
+        "source_condition_ids": [
+          "COND-090"
+        ],
+        "control_path": "CENTRAL",
+        "target_role": "NEW_CONTROL_POINT",
+        "test_data": {
+          "initial_mode": null,
+          "requested_mode": null,
+          "requested_modes": [],
+          "initial_temperature_c": null,
+          "requested_temperature_c": null,
+          "requested_temperatures_c": [],
+          "restore_observed_hvac_state": false
+        },
+        "condition_execution": "SINGLE_FLOW",
+        "grouping_reason": null,
+        "intermediate_reset_steps": [],
+        "preconditions": [
+          "대상 장비의 locked 값은 true이다.",
+          "시험 대상 장비 카드를 선택한 상태인지 확인한다."
+        ],
+        "steps": [
+          "대상 장비의 locked 값 false를 선택한다.",
+          "선택한 값을 적용한다."
+        ],
+        "expected_results": [
+          {
+            "result_id": "ER-090",
+            "statement": "대상 장비 카드의 locked 표시 값은 false이다.",
+            "observation_layer": "UI",
+            "source_condition_ids": [
+              "COND-090"
+            ],
+            "verify_after_step": "선택한 값을 적용한다.",
+            "observation_target": "대상 장비 카드의 locked 표시"
+          },
+          {
+            "result_id": "ER-091",
+            "statement": "대상 장비의 내부 locked 값은 false이다.",
+            "observation_layer": "INTERNAL_STATE",
+            "source_condition_ids": [
+              "COND-090"
+            ],
+            "verify_after_step": "선택한 값을 적용한다.",
+            "observation_target": "대상 장비의 내부 locked"
+          }
+        ],
+        "common_qa_criteria": [],
+        "domain_qa_criteria": [],
+        "feature_requirement_ids": [],
+        "independent_execution": false,
+        "independence_reason": null,
+        "double_assert_policy": "NOT_APPLICABLE",
+        "double_assert_reason": null,
+        "restore_required": true,
+        "state_effect": "STATE_CHANGE",
+        "restore_steps": [
+          "준비와 시험으로 바뀐 관제점 값을 준비 전 관찰한 원래 상태로 복원하고 적용한다.",
+          "대상 장비 카드의 locked 표시를 준비 전 관찰값과 비교한다.",
+          "대상 장비의 내부 locked를 준비 전 관찰값과 비교한다."
+        ],
+        "restoration": {
+          "operation_steps": [
+            "준비와 시험으로 바뀐 관제점 값을 준비 전 관찰한 원래 상태로 복원하고 적용한다."
+          ],
+          "confirmations": [
+            {
+              "source_text": "대상 장비 카드의 locked 표시를 준비 전 관찰값과 비교한다.",
+              "result_ids": [
+                "ER-090"
+              ],
+              "comparisons": [
+                {
+                  "result_id": "ER-090",
+                  "source_excerpt": "대상 장비 카드의 locked 표시를 준비 전 관찰값과 비교한다.",
+                  "basis": "OBSERVED_BASELINE"
+                }
+              ]
+            },
+            {
+              "source_text": "대상 장비의 내부 locked를 준비 전 관찰값과 비교한다.",
+              "result_ids": [
+                "ER-091"
+              ],
+              "comparisons": [
+                {
+                  "result_id": "ER-091",
+                  "source_excerpt": "대상 장비의 내부 locked를 준비 전 관찰값과 비교한다.",
+                  "basis": "OBSERVED_BASELINE"
+                }
+              ]
+            }
+          ],
+          "verify_when": "AFTER_RESTORE"
+        },
+        "automation_candidate": true,
+        "automation_reason": "The new control is expected to expose UI and state evidence.",
+        "execution_spec": {
+          "operations": [
+            {
+              "action_id": "ACT-001",
+              "phase": "PRECONDITION",
+              "action_type": "SELECT_DEVICE",
+              "value": 1,
+              "source_text": "대상 장비의 locked 값은 true이다.",
+              "target": "device.select"
+            },
+            {
+              "action_id": "ACT-002",
+              "phase": "PRECONDITION",
+              "action_type": "CLICK",
+              "value": null,
+              "source_text": "대상 장비의 locked 값은 true이다.",
+              "target": "locked.on"
+            },
+            {
+              "action_id": "ACT-003",
+              "phase": "PRECONDITION",
+              "action_type": "APPLY_COMMANDS",
+              "value": null,
+              "source_text": "대상 장비의 locked 값은 true이다.",
+              "target": "command.apply"
+            },
+            {
+              "action_id": "ACT-004",
+              "phase": "TEST",
+              "action_type": "CLICK",
+              "value": null,
+              "source_text": "대상 장비의 locked 값 false를 선택한다.",
+              "target": "locked.off"
+            },
+            {
+              "action_id": "ACT-005",
+              "phase": "TEST",
+              "action_type": "APPLY_COMMANDS",
+              "value": null,
+              "source_text": "선택한 값을 적용한다.",
+              "target": "command.apply"
+            },
+            {
+              "action_id": "ACT-006",
+              "phase": "RESTORE",
+              "action_type": "RESTORE_OBSERVED_CONTROLLER",
+              "value": null,
+              "source_text": "준비와 시험으로 바뀐 관제점 값을 준비 전 관찰한 원래 상태로 복원하고 적용한다.",
+              "target": "controller.restore"
+            }
+          ],
+          "verifications": [
+            {
+              "result_id": "ER-090",
+              "observation_layer": "UI",
+              "strategy": "CONTROLLER_UI_FIELDS_EQUALS",
+              "expected_number": null,
+              "expected_text": null,
+              "expected_value": null,
+              "expected_fields": [
+                {
+                  "field_name": "locked",
+                  "expected_value": false
+                }
+              ],
+              "after_action_id": "ACT-005",
+              "target": "card.locked"
+            },
+            {
+              "result_id": "ER-091",
+              "observation_layer": "INTERNAL_STATE",
+              "strategy": "INTERNAL_DEVICE_FIELDS_EQUALS",
+              "expected_number": null,
+              "expected_text": null,
+              "expected_value": null,
+              "expected_fields": [
+                {
+                  "field_name": "locked",
+                  "expected_value": false
+                }
+              ],
+              "after_action_id": "ACT-005",
+              "target": "internal.locked"
+            }
+          ],
+          "precondition_verifications": [
+            {
+              "source_text": "대상 장비의 locked 값은 true이다.",
+              "read_kind": "INTERNAL_VALUE",
+              "expected_value": true,
+              "observation_target": "internal.locked"
+            },
+            {
+              "source_text": "대상 장비의 locked 값은 true이다.",
+              "read_kind": "CONTROLLER_UI_FIELD",
+              "expected_value": true,
+              "observation_target": "card.locked"
+            },
+            {
+              "source_text": "대상 장비의 locked 값은 true이다.",
+              "read_kind": "CONTROLLER_UI_FIELD",
+              "expected_value": true,
+              "observation_target": "panel.locked"
+            },
+            {
+              "source_text": "시험 대상 장비 카드를 선택한 상태인지 확인한다.",
+              "read_kind": "CONTROLLER_UI_FIELD",
+              "expected_value": true,
+              "observation_target": "card.selected"
+            }
+          ],
+          "binding_contract": "controller-map-1.0"
+        }
+      },
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "id": "S10"
+    },
+    {
+      "title": "하한 16°C에서 감소 차단 시험",
+      "kind": "direct",
+      "group": "제품 불일치 검출",
+      "origin": "사람이 준비한 경계 TC · 기존 SRS 하한 16°C",
+      "tc": {
+        "tc_id": "TC-CAND-090",
+        "title": "온도 16 → 16: 준비·시험·원상 복원",
+        "purpose": "CHANGE_VALIDATION",
+        "test_type": "STATE_CONSISTENCY",
+        "requirement_ids": [
+          "REQ-TEMP-001"
+        ],
+        "source_condition_ids": [
+          "COND-090"
+        ],
+        "control_path": "CENTRAL",
+        "target_role": "NEW_CONTROL_POINT",
+        "test_data": {
+          "initial_mode": "COOL",
+          "requested_mode": null,
+          "requested_modes": [],
+          "initial_temperature_c": 16.0,
+          "requested_temperature_c": 16.0,
+          "requested_temperatures_c": [],
+          "restore_observed_hvac_state": false
+        },
+        "condition_execution": "SINGLE_FLOW",
+        "grouping_reason": null,
+        "intermediate_reset_steps": [],
+        "preconditions": [
+          "대상 장비의 mode 값은 COOL이다.",
+          "대상 장비의 setTemp 값은 16이다.",
+          "시험 대상 장비 카드를 선택한 상태인지 확인한다."
+        ],
+        "steps": [
+          "16°C에서 온도 내림 버튼을 한 번 선택한다.",
+          "선택한 값을 적용한다."
+        ],
+        "expected_results": [
+          {
+            "result_id": "ER-090",
+            "statement": "대상 장비 카드의 setTemp 표시 값은 16이다.",
+            "observation_layer": "UI",
+            "source_condition_ids": [
+              "COND-090"
+            ],
+            "verify_after_step": "선택한 값을 적용한다.",
+            "observation_target": "대상 장비 카드의 setTemp 표시"
+          },
+          {
+            "result_id": "ER-091",
+            "statement": "대상 장비의 내부 setTemp 값은 16이다.",
+            "observation_layer": "INTERNAL_STATE",
+            "source_condition_ids": [
+              "COND-090"
+            ],
+            "verify_after_step": "선택한 값을 적용한다.",
+            "observation_target": "대상 장비의 내부 setTemp"
+          }
+        ],
+        "common_qa_criteria": [],
+        "domain_qa_criteria": [],
+        "feature_requirement_ids": [],
+        "independent_execution": false,
+        "independence_reason": null,
+        "double_assert_policy": "NOT_APPLICABLE",
+        "double_assert_reason": null,
+        "restore_required": true,
+        "state_effect": "BLOCKED_CHANGE",
+        "restore_steps": [
+          "준비와 시험으로 바뀐 관제점 값을 준비 전 관찰한 원래 상태로 복원하고 적용한다.",
+          "대상 장비 카드의 setTemp 표시를 준비 전 관찰값과 비교한다.",
+          "대상 장비의 내부 setTemp를 준비 전 관찰값과 비교한다."
+        ],
+        "restoration": {
+          "operation_steps": [
+            "준비와 시험으로 바뀐 관제점 값을 준비 전 관찰한 원래 상태로 복원하고 적용한다."
+          ],
+          "confirmations": [
+            {
+              "source_text": "대상 장비 카드의 setTemp 표시를 준비 전 관찰값과 비교한다.",
+              "result_ids": [
+                "ER-090"
+              ],
+              "comparisons": [
+                {
+                  "result_id": "ER-090",
+                  "source_excerpt": "대상 장비 카드의 setTemp 표시를 준비 전 관찰값과 비교한다.",
+                  "basis": "OBSERVED_BASELINE"
+                }
+              ]
+            },
+            {
+              "source_text": "대상 장비의 내부 setTemp를 준비 전 관찰값과 비교한다.",
+              "result_ids": [
+                "ER-091"
+              ],
+              "comparisons": [
+                {
+                  "result_id": "ER-091",
+                  "source_excerpt": "대상 장비의 내부 setTemp를 준비 전 관찰값과 비교한다.",
+                  "basis": "OBSERVED_BASELINE"
+                }
+              ]
+            }
+          ],
+          "verify_when": "AFTER_RESTORE"
+        },
+        "automation_candidate": true,
+        "automation_reason": "The new control is expected to expose UI and state evidence.",
+        "execution_spec": {
+          "operations": [
+            {
+              "action_id": "ACT-001",
+              "phase": "PRECONDITION",
+              "action_type": "SELECT_DEVICE",
+              "value": 1,
+              "source_text": "대상 장비의 mode 값은 COOL이다.",
+              "target": "device.select"
+            },
+            {
+              "action_id": "ACT-002",
+              "phase": "PRECONDITION",
+              "action_type": "SET_MODE",
+              "value": "COOL",
+              "source_text": "대상 장비의 mode 값은 COOL이다.",
+              "target": "mode.cool"
+            },
+            {
+              "action_id": "ACT-003",
+              "phase": "PRECONDITION",
+              "action_type": "APPLY_COMMANDS",
+              "value": null,
+              "source_text": "대상 장비의 mode 값은 COOL이다.",
+              "target": "command.apply"
+            },
+            {
+              "action_id": "ACT-004",
+              "phase": "PRECONDITION",
+              "action_type": "SET_TEMPERATURE",
+              "value": 16,
+              "source_text": "대상 장비의 setTemp 값은 16이다.",
+              "target": "temperature.set"
+            },
+            {
+              "action_id": "ACT-005",
+              "phase": "PRECONDITION",
+              "action_type": "APPLY_COMMANDS",
+              "value": null,
+              "source_text": "대상 장비의 setTemp 값은 16이다.",
+              "target": "command.apply"
+            },
+            {
+              "action_id": "ACT-006",
+              "phase": "TEST",
+              "action_type": "CLICK",
+              "value": null,
+              "source_text": "16°C에서 온도 내림 버튼을 한 번 선택한다.",
+              "target": "temperature.decrease"
+            },
+            {
+              "action_id": "ACT-007",
+              "phase": "TEST",
+              "action_type": "APPLY_COMMANDS",
+              "value": null,
+              "source_text": "선택한 값을 적용한다.",
+              "target": "command.apply"
+            },
+            {
+              "action_id": "ACT-008",
+              "phase": "RESTORE",
+              "action_type": "RESTORE_OBSERVED_CONTROLLER",
+              "value": null,
+              "source_text": "준비와 시험으로 바뀐 관제점 값을 준비 전 관찰한 원래 상태로 복원하고 적용한다.",
+              "target": "controller.restore"
+            }
+          ],
+          "verifications": [
+            {
+              "result_id": "ER-090",
+              "observation_layer": "UI",
+              "strategy": "CONTROLLER_UI_FIELDS_EQUALS",
+              "expected_number": null,
+              "expected_text": null,
+              "expected_value": null,
+              "expected_fields": [
+                {
+                  "field_name": "setTemp",
+                  "expected_value": 16
+                }
+              ],
+              "after_action_id": "ACT-007",
+              "target": "card.setTemp"
+            },
+            {
+              "result_id": "ER-091",
+              "observation_layer": "INTERNAL_STATE",
+              "strategy": "INTERNAL_DEVICE_FIELDS_EQUALS",
+              "expected_number": null,
+              "expected_text": null,
+              "expected_value": null,
+              "expected_fields": [
+                {
+                  "field_name": "setTemp",
+                  "expected_value": 16
+                }
+              ],
+              "after_action_id": "ACT-007",
+              "target": "internal.setTemp"
+            }
+          ],
+          "precondition_verifications": [
+            {
+              "source_text": "대상 장비의 mode 값은 COOL이다.",
+              "read_kind": "INTERNAL_VALUE",
+              "expected_value": "COOL",
+              "observation_target": "internal.mode"
+            },
+            {
+              "source_text": "대상 장비의 setTemp 값은 16이다.",
+              "read_kind": "INTERNAL_VALUE",
+              "expected_value": 16,
+              "observation_target": "internal.setTemp"
+            },
+            {
+              "source_text": "대상 장비의 mode 값은 COOL이다.",
+              "read_kind": "CONTROLLER_UI_FIELD",
+              "expected_value": "COOL",
+              "observation_target": "card.mode"
+            },
+            {
+              "source_text": "대상 장비의 mode 값은 COOL이다.",
+              "read_kind": "CONTROLLER_UI_FIELD",
+              "expected_value": "COOL",
+              "observation_target": "panel.mode"
+            },
+            {
+              "source_text": "대상 장비의 setTemp 값은 16이다.",
+              "read_kind": "CONTROLLER_UI_FIELD",
+              "expected_value": 16,
+              "observation_target": "card.setTemp"
+            },
+            {
+              "source_text": "대상 장비의 setTemp 값은 16이다.",
+              "read_kind": "CONTROLLER_UI_FIELD",
+              "expected_value": 16,
+              "observation_target": "panel.setTemp"
+            },
+            {
+              "source_text": "시험 대상 장비 카드를 선택한 상태인지 확인한다.",
+              "read_kind": "CONTROLLER_UI_FIELD",
+              "expected_value": true,
+              "observation_target": "card.selected"
+            }
+          ],
+          "binding_contract": "controller-map-1.0"
+        }
+      },
+      "expected": {
+        "outcome": "PRODUCT_MISMATCH_CANDIDATE",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "id": "S11"
+    },
+    {
+      "title": "없는 자동 전환 기능의 실행 제외",
+      "kind": "direct",
+      "group": "실행 불가",
+      "origin": "사람이 준비한 미지원 TC · 모델 분석은 미실행",
+      "tc": {
+        "tc_id": "TC-CAND-090",
+        "title": "모드 COOL → AUTO: 준비·시험·원상 복원",
+        "purpose": "CHANGE_VALIDATION",
+        "test_type": "STATE_CONSISTENCY",
+        "requirement_ids": [
+          "REQ-MODE-001"
+        ],
+        "source_condition_ids": [
+          "COND-090"
+        ],
+        "control_path": "CENTRAL",
+        "target_role": "NEW_CONTROL_POINT",
+        "test_data": {
+          "initial_mode": "COOL",
+          "requested_mode": "AUTO",
+          "requested_modes": [],
+          "initial_temperature_c": null,
+          "requested_temperature_c": null,
+          "requested_temperatures_c": [],
+          "restore_observed_hvac_state": false
+        },
+        "condition_execution": "SINGLE_FLOW",
+        "grouping_reason": null,
+        "intermediate_reset_steps": [],
+        "preconditions": [
+          "대상 장비의 mode 값은 COOL이다.",
+          "시험 대상 장비 카드를 선택한 상태인지 확인한다."
+        ],
+        "steps": [
+          "기존 AUTO 모드와 별개인 자동 전환을 켠다.",
+          "선택한 값을 적용한다."
+        ],
+        "expected_results": [
+          {
+            "result_id": "ER-090",
+            "statement": "대상 장비 카드의 mode 표시 값은 AUTO이다.",
+            "observation_layer": "UI",
+            "source_condition_ids": [
+              "COND-090"
+            ],
+            "verify_after_step": "선택한 값을 적용한다.",
+            "observation_target": "대상 장비 카드의 mode 표시"
+          },
+          {
+            "result_id": "ER-091",
+            "statement": "대상 장비의 내부 mode 값은 AUTO이다.",
+            "observation_layer": "INTERNAL_STATE",
+            "source_condition_ids": [
+              "COND-090"
+            ],
+            "verify_after_step": "선택한 값을 적용한다.",
+            "observation_target": "대상 장비의 내부 mode"
+          }
+        ],
+        "common_qa_criteria": [],
+        "domain_qa_criteria": [],
+        "feature_requirement_ids": [],
+        "independent_execution": false,
+        "independence_reason": null,
+        "double_assert_policy": "NOT_APPLICABLE",
+        "double_assert_reason": null,
+        "restore_required": true,
+        "state_effect": "STATE_CHANGE",
+        "restore_steps": [
+          "준비와 시험으로 바뀐 관제점 값을 준비 전 관찰한 원래 상태로 복원하고 적용한다.",
+          "대상 장비 카드의 mode 표시를 준비 전 관찰값과 비교한다.",
+          "대상 장비의 내부 mode를 준비 전 관찰값과 비교한다."
+        ],
+        "restoration": {
+          "operation_steps": [
+            "준비와 시험으로 바뀐 관제점 값을 준비 전 관찰한 원래 상태로 복원하고 적용한다."
+          ],
+          "confirmations": [
+            {
+              "source_text": "대상 장비 카드의 mode 표시를 준비 전 관찰값과 비교한다.",
+              "result_ids": [
+                "ER-090"
+              ],
+              "comparisons": [
+                {
+                  "result_id": "ER-090",
+                  "source_excerpt": "대상 장비 카드의 mode 표시를 준비 전 관찰값과 비교한다.",
+                  "basis": "OBSERVED_BASELINE"
+                }
+              ]
+            },
+            {
+              "source_text": "대상 장비의 내부 mode를 준비 전 관찰값과 비교한다.",
+              "result_ids": [
+                "ER-091"
+              ],
+              "comparisons": [
+                {
+                  "result_id": "ER-091",
+                  "source_excerpt": "대상 장비의 내부 mode를 준비 전 관찰값과 비교한다.",
+                  "basis": "OBSERVED_BASELINE"
+                }
+              ]
+            }
+          ],
+          "verify_when": "AFTER_RESTORE"
+        },
+        "automation_candidate": true,
+        "automation_reason": "The new control is expected to expose UI and state evidence.",
+        "execution_spec": {
+          "operations": [
+            {
+              "action_id": "ACT-001",
+              "phase": "PRECONDITION",
+              "action_type": "SELECT_DEVICE",
+              "value": 1,
+              "source_text": "대상 장비의 mode 값은 COOL이다.",
+              "target": "device.select"
+            },
+            {
+              "action_id": "ACT-002",
+              "phase": "PRECONDITION",
+              "action_type": "SET_MODE",
+              "value": "COOL",
+              "source_text": "대상 장비의 mode 값은 COOL이다.",
+              "target": "mode.cool"
+            },
+            {
+              "action_id": "ACT-003",
+              "phase": "PRECONDITION",
+              "action_type": "APPLY_COMMANDS",
+              "value": null,
+              "source_text": "대상 장비의 mode 값은 COOL이다.",
+              "target": "command.apply"
+            },
+            {
+              "action_id": "ACT-004",
+              "phase": "TEST",
+              "action_type": "SET_MODE",
+              "value": "AUTO",
+              "source_text": "기존 AUTO 모드와 별개인 자동 전환을 켠다.",
+              "target": "unsupported.automatic_switch"
+            },
+            {
+              "action_id": "ACT-005",
+              "phase": "TEST",
+              "action_type": "APPLY_COMMANDS",
+              "value": null,
+              "source_text": "선택한 값을 적용한다.",
+              "target": "command.apply"
+            },
+            {
+              "action_id": "ACT-006",
+              "phase": "RESTORE",
+              "action_type": "RESTORE_OBSERVED_CONTROLLER",
+              "value": null,
+              "source_text": "준비와 시험으로 바뀐 관제점 값을 준비 전 관찰한 원래 상태로 복원하고 적용한다.",
+              "target": "controller.restore"
+            }
+          ],
+          "verifications": [
+            {
+              "result_id": "ER-090",
+              "observation_layer": "UI",
+              "strategy": "CONTROLLER_UI_FIELDS_EQUALS",
+              "expected_number": null,
+              "expected_text": null,
+              "expected_value": null,
+              "expected_fields": [
+                {
+                  "field_name": "mode",
+                  "expected_value": "AUTO"
+                }
+              ],
+              "after_action_id": "ACT-005",
+              "target": "card.mode"
+            },
+            {
+              "result_id": "ER-091",
+              "observation_layer": "INTERNAL_STATE",
+              "strategy": "INTERNAL_DEVICE_FIELDS_EQUALS",
+              "expected_number": null,
+              "expected_text": null,
+              "expected_value": null,
+              "expected_fields": [
+                {
+                  "field_name": "mode",
+                  "expected_value": "AUTO"
+                }
+              ],
+              "after_action_id": "ACT-005",
+              "target": "internal.mode"
+            }
+          ],
+          "precondition_verifications": [
+            {
+              "source_text": "대상 장비의 mode 값은 COOL이다.",
+              "read_kind": "INTERNAL_VALUE",
+              "expected_value": "COOL",
+              "observation_target": "internal.mode"
+            },
+            {
+              "source_text": "대상 장비의 mode 값은 COOL이다.",
+              "read_kind": "CONTROLLER_UI_FIELD",
+              "expected_value": "COOL",
+              "observation_target": "card.mode"
+            },
+            {
+              "source_text": "대상 장비의 mode 값은 COOL이다.",
+              "read_kind": "CONTROLLER_UI_FIELD",
+              "expected_value": "COOL",
+              "observation_target": "panel.mode"
+            },
+            {
+              "source_text": "시험 대상 장비 카드를 선택한 상태인지 확인한다.",
+              "read_kind": "CONTROLLER_UI_FIELD",
+              "expected_value": true,
+              "observation_target": "card.selected"
+            }
+          ],
+          "binding_contract": "controller-map-1.0"
+        }
+      },
+      "expected": {
+        "outcome": "NOT_AUTOMATABLE",
+        "browser_executed": false
+      },
+      "id": "S12"
+    },
+    {
+      "title": "저장된 냉방→제습 전체 후속 흐름",
+      "kind": "saved",
+      "group": "실제 브라우저·보고",
+      "origin": "실제 AI 저장 TC·검토 재사용",
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "recommendation": "PASS",
+        "roles_collected": [
+          "A1",
+          "A2",
+          "A3",
+          "A4"
+        ]
+      },
+      "id": "S13"
+    },
+    {
+      "title": "온도 목표 미정 → 질문 후 대기",
+      "kind": "waiting",
+      "group": "정보 부족 보류",
+      "origin": "실제 AI 저장 분석 재검사",
+      "expected": {
+        "outcome": "WAITING_FOR_USER",
+        "questions_preserved": true,
+        "next_stage_blocked": true
+      },
+      "id": "S14"
+    },
+    {
+      "title": "등록된 강풍 TC 재사용",
+      "kind": "reuse",
+      "group": "기존 TC 재사용",
+      "origin": "등록된 AI TC의 유지보수 버전",
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "id": "S15"
+    },
+    {
+      "title": "시험용 자산에 새 TC 추가",
+      "kind": "ADD",
+      "group": "자산 선택 사본",
+      "origin": "실제 저장 Run의 독립 사본 · 승인 함수 호출",
+      "expected": {
+        "outcome": "APPROVED",
+        "asset_contract_ok": true,
+        "srs_unchanged": true
+      },
+      "id": "S16"
+    },
+    {
+      "title": "선택한 기존 TC 대체",
+      "kind": "REPLACE",
+      "group": "자산 선택 사본",
+      "origin": "실제 저장 Run의 독립 사본 · 승인 함수 호출",
+      "expected": {
+        "outcome": "REPLACED",
+        "asset_contract_ok": true,
+        "srs_unchanged": true
+      },
+      "id": "S17"
+    },
+    {
+      "title": "등록하지 않음",
+      "kind": "DECLINE",
+      "group": "자산 선택 사본",
+      "origin": "실제 저장 Run의 독립 사본 · 승인 함수 호출",
+      "expected": {
+        "outcome": "DECLINED",
+        "asset_contract_ok": true,
+        "srs_unchanged": true
+      },
+      "id": "S18"
+    },
+    {
+      "title": "사람 판단 보류",
+      "kind": "HOLD",
+      "group": "자산 선택 사본",
+      "origin": "실제 저장 Run의 독립 사본 · 승인 함수 호출",
+      "expected": {
+        "outcome": "HELD",
+        "asset_contract_ok": true,
+        "srs_unchanged": true
+      },
+      "id": "S19"
+    },
+    {
+      "title": "같은 TC 중복 승인",
+      "kind": "DUPLICATE",
+      "group": "자산 선택 사본",
+      "origin": "실제 저장 Run의 독립 사본 · 승인 함수 호출",
+      "expected": {
+        "outcome": "DUPLICATE_UNCHANGED",
+        "asset_contract_ok": true,
+        "srs_unchanged": true
+      },
+      "id": "S20"
+    }
+  ],
+  "api_calls": 0,
+  "semantic_review": "NOT_PERFORMED"
+}

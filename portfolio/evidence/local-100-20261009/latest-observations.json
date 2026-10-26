@@ -1,0 +1,617 @@
+[
+  {
+    "trial_id": "T013",
+    "previous": [
+      {
+        "criterion_id": "A3-03",
+        "verdict": "PASS",
+        "score": 5,
+        "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+        "evidence": [
+          {
+            "file": "agent3_manifest.json",
+            "sha256": "a4d4e8697785815ce94de39f670649650f19b136d9e7a0fdae4889868cb6fa7d"
+          },
+          {
+            "file": "agent2_test_design.json",
+            "sha256": "0d0c3a40bd9e5b439e80b837d974b7fac761f428fa7a894af403c521b96b43df"
+          },
+          {
+            "file": "agent2_manifest.json",
+            "sha256": "88b7685a036231fe2690ff754269f6dd22a0279dfadeaf09564f58eeebe5b34b"
+          },
+          {
+            "file": "agent3_automation_plan.json",
+            "sha256": "68ff4e623fc59ca877d7ee45f002444a1b3c7f1e8c32af04ea4ad6e7ae9451d2"
+          },
+          {
+            "file": "agent3_trial.json",
+            "sha256": "cef4c27a9fb897a56cffa7eb68f5103852ff4631adb8cca8e887ed0146f4ea49"
+          },
+          {
+            "file": "candidates/test_tc_cand_001.py",
+            "sha256": "4d1f2db26ccb73e4286401458088b5336cb7f9741f5b2cabc4e37a3e1dd4c188"
+          },
+          {
+            "file": "evidence/TC-CAND-001/trial-stdout.txt",
+            "sha256": "b0736ba04048cb286356dd9d1d0bd7a95ee2683cb42444af4c33cce2972d85a7"
+          }
+        ]
+      },
+      {
+        "criterion_id": "A4-01",
+        "score": 5,
+        "verdict": "PASS",
+        "reason": "원본 실행 행의 중복·상태·제품·환경·고정 사례 합계를 독립 대조",
+        "evidence": [
+          {
+            "file": "validation_execution.json",
+            "sha256": "6dc2858a17100b61f779ea553e1fb0157367f7775ef82e520ddbf2ef5d6944c6"
+          },
+          {
+            "file": "final_report.json",
+            "sha256": "2c0e4b2665d3736520259ff3bc53436caa6a40e3bba903400aeb9c33f5b3c819"
+          }
+        ]
+      },
+      {
+        "criterion_id": "A4-03",
+        "score": 5,
+        "verdict": "PASS",
+        "reason": "Run·TC·상태·분류 근거 연결과 참조 파일 해시를 대조; 화면 내용의 의미 판정은 아님",
+        "evidence": [
+          {
+            "file": "agent4_analysis.json",
+            "sha256": "31231d89bfbc3ad87980b365a9bc6a830b92f45337ce4a7eb2453a6bdc796457"
+          }
+        ]
+      }
+    ],
+    "current": {
+      "criterion_id": "A3-03",
+      "verdict": "PASS",
+      "score": 5,
+      "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+      "evidence": [
+        {
+          "file": "agent3_manifest.json",
+          "sha256": "a4d4e8697785815ce94de39f670649650f19b136d9e7a0fdae4889868cb6fa7d"
+        },
+        {
+          "file": "agent2_test_design.json",
+          "sha256": "0d0c3a40bd9e5b439e80b837d974b7fac761f428fa7a894af403c521b96b43df"
+        },
+        {
+          "file": "agent2_manifest.json",
+          "sha256": "88b7685a036231fe2690ff754269f6dd22a0279dfadeaf09564f58eeebe5b34b"
+        },
+        {
+          "file": "agent3_automation_plan.json",
+          "sha256": "68ff4e623fc59ca877d7ee45f002444a1b3c7f1e8c32af04ea4ad6e7ae9451d2"
+        },
+        {
+          "file": "agent3_trial.json",
+          "sha256": "cef4c27a9fb897a56cffa7eb68f5103852ff4631adb8cca8e887ed0146f4ea49"
+        },
+        {
+          "file": "candidates/test_tc_cand_001.py",
+          "sha256": "4d1f2db26ccb73e4286401458088b5336cb7f9741f5b2cabc4e37a3e1dd4c188"
+        },
+        {
+          "file": "evidence/TC-CAND-001/trial-stdout.txt",
+          "sha256": "b0736ba04048cb286356dd9d1d0bd7a95ee2683cb42444af4c33cce2972d85a7"
+        },
+        {
+          "file": "validation_execution.json",
+          "sha256": "6dc2858a17100b61f779ea553e1fb0157367f7775ef82e520ddbf2ef5d6944c6"
+        },
+        {
+          "file": "validation_candidates/test_tc_cand_001.py",
+          "sha256": "ffee0a1eeca389329c198a1e2c52a8b502191010b3723199d95c3540acf0db87"
+        },
+        {
+          "file": "validation_evidence/TC-CAND-001/trial-stdout.txt",
+          "sha256": "cc811a9c1ea40ac9b6ec4c1085f61bfe3e1f491d0e9390b001abe732cc3d14b2"
+        }
+      ]
+    },
+    "latest_log_verified": [
+      {
+        "file": "validation_evidence/TC-CAND-001/trial-stdout.txt",
+        "sha256": "cc811a9c1ea40ac9b6ec4c1085f61bfe3e1f491d0e9390b001abe732cc3d14b2"
+      }
+    ]
+  },
+  {
+    "trial_id": "T033",
+    "previous": [
+      {
+        "criterion_id": "A3-03",
+        "verdict": "PASS",
+        "score": 5,
+        "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+        "evidence": [
+          {
+            "file": "agent3_manifest.json",
+            "sha256": "a4d4e8697785815ce94de39f670649650f19b136d9e7a0fdae4889868cb6fa7d"
+          },
+          {
+            "file": "agent2_test_design.json",
+            "sha256": "0d0c3a40bd9e5b439e80b837d974b7fac761f428fa7a894af403c521b96b43df"
+          },
+          {
+            "file": "agent2_manifest.json",
+            "sha256": "88b7685a036231fe2690ff754269f6dd22a0279dfadeaf09564f58eeebe5b34b"
+          },
+          {
+            "file": "agent3_automation_plan.json",
+            "sha256": "68ff4e623fc59ca877d7ee45f002444a1b3c7f1e8c32af04ea4ad6e7ae9451d2"
+          },
+          {
+            "file": "agent3_trial.json",
+            "sha256": "cef4c27a9fb897a56cffa7eb68f5103852ff4631adb8cca8e887ed0146f4ea49"
+          },
+          {
+            "file": "candidates/test_tc_cand_001.py",
+            "sha256": "4d1f2db26ccb73e4286401458088b5336cb7f9741f5b2cabc4e37a3e1dd4c188"
+          },
+          {
+            "file": "evidence/TC-CAND-001/trial-stdout.txt",
+            "sha256": "b0736ba04048cb286356dd9d1d0bd7a95ee2683cb42444af4c33cce2972d85a7"
+          }
+        ]
+      },
+      {
+        "criterion_id": "A4-01",
+        "score": 5,
+        "verdict": "PASS",
+        "reason": "원본 실행 행의 중복·상태·제품·환경·고정 사례 합계를 독립 대조",
+        "evidence": [
+          {
+            "file": "validation_execution.json",
+            "sha256": "e3c20d49d9778d1b20d800e9f2fda24eb2736644ae5251186c1d5139d3c57ba1"
+          },
+          {
+            "file": "final_report.json",
+            "sha256": "5528b46578e0e6290e815eee92bb2947e6505243043983651d4fc31ec510756e"
+          }
+        ]
+      },
+      {
+        "criterion_id": "A4-03",
+        "score": 5,
+        "verdict": "PASS",
+        "reason": "Run·TC·상태·분류 근거 연결과 참조 파일 해시를 대조; 화면 내용의 의미 판정은 아님",
+        "evidence": [
+          {
+            "file": "agent4_analysis.json",
+            "sha256": "8fcf97bb75079dc81dbb5c842ce9611790c4ed0d8b2a78466c2453a0b8b21de8"
+          }
+        ]
+      }
+    ],
+    "current": {
+      "criterion_id": "A3-03",
+      "verdict": "PASS",
+      "score": 5,
+      "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+      "evidence": [
+        {
+          "file": "agent3_manifest.json",
+          "sha256": "a4d4e8697785815ce94de39f670649650f19b136d9e7a0fdae4889868cb6fa7d"
+        },
+        {
+          "file": "agent2_test_design.json",
+          "sha256": "0d0c3a40bd9e5b439e80b837d974b7fac761f428fa7a894af403c521b96b43df"
+        },
+        {
+          "file": "agent2_manifest.json",
+          "sha256": "88b7685a036231fe2690ff754269f6dd22a0279dfadeaf09564f58eeebe5b34b"
+        },
+        {
+          "file": "agent3_automation_plan.json",
+          "sha256": "68ff4e623fc59ca877d7ee45f002444a1b3c7f1e8c32af04ea4ad6e7ae9451d2"
+        },
+        {
+          "file": "agent3_trial.json",
+          "sha256": "cef4c27a9fb897a56cffa7eb68f5103852ff4631adb8cca8e887ed0146f4ea49"
+        },
+        {
+          "file": "candidates/test_tc_cand_001.py",
+          "sha256": "4d1f2db26ccb73e4286401458088b5336cb7f9741f5b2cabc4e37a3e1dd4c188"
+        },
+        {
+          "file": "evidence/TC-CAND-001/trial-stdout.txt",
+          "sha256": "b0736ba04048cb286356dd9d1d0bd7a95ee2683cb42444af4c33cce2972d85a7"
+        },
+        {
+          "file": "validation_execution.json",
+          "sha256": "e3c20d49d9778d1b20d800e9f2fda24eb2736644ae5251186c1d5139d3c57ba1"
+        },
+        {
+          "file": "validation_candidates/test_tc_cand_001.py",
+          "sha256": "ffee0a1eeca389329c198a1e2c52a8b502191010b3723199d95c3540acf0db87"
+        },
+        {
+          "file": "validation_evidence/TC-CAND-001/trial-stdout.txt",
+          "sha256": "1f198e33a1fa26fa1911a7a1e60f76576d32e7de40315ff1f9ac3628b057f4a1"
+        }
+      ]
+    },
+    "latest_log_verified": [
+      {
+        "file": "validation_evidence/TC-CAND-001/trial-stdout.txt",
+        "sha256": "1f198e33a1fa26fa1911a7a1e60f76576d32e7de40315ff1f9ac3628b057f4a1"
+      }
+    ]
+  },
+  {
+    "trial_id": "T053",
+    "previous": [
+      {
+        "criterion_id": "A3-03",
+        "verdict": "PASS",
+        "score": 5,
+        "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+        "evidence": [
+          {
+            "file": "agent3_manifest.json",
+            "sha256": "a4d4e8697785815ce94de39f670649650f19b136d9e7a0fdae4889868cb6fa7d"
+          },
+          {
+            "file": "agent2_test_design.json",
+            "sha256": "0d0c3a40bd9e5b439e80b837d974b7fac761f428fa7a894af403c521b96b43df"
+          },
+          {
+            "file": "agent2_manifest.json",
+            "sha256": "88b7685a036231fe2690ff754269f6dd22a0279dfadeaf09564f58eeebe5b34b"
+          },
+          {
+            "file": "agent3_automation_plan.json",
+            "sha256": "68ff4e623fc59ca877d7ee45f002444a1b3c7f1e8c32af04ea4ad6e7ae9451d2"
+          },
+          {
+            "file": "agent3_trial.json",
+            "sha256": "cef4c27a9fb897a56cffa7eb68f5103852ff4631adb8cca8e887ed0146f4ea49"
+          },
+          {
+            "file": "candidates/test_tc_cand_001.py",
+            "sha256": "4d1f2db26ccb73e4286401458088b5336cb7f9741f5b2cabc4e37a3e1dd4c188"
+          },
+          {
+            "file": "evidence/TC-CAND-001/trial-stdout.txt",
+            "sha256": "b0736ba04048cb286356dd9d1d0bd7a95ee2683cb42444af4c33cce2972d85a7"
+          }
+        ]
+      },
+      {
+        "criterion_id": "A4-01",
+        "score": 5,
+        "verdict": "PASS",
+        "reason": "원본 실행 행의 중복·상태·제품·환경·고정 사례 합계를 독립 대조",
+        "evidence": [
+          {
+            "file": "validation_execution.json",
+            "sha256": "41338bd65cd0132aa5c3fae1c4f2de7ca374a6cd68a3957c0d8bfcc0ae4dbb8f"
+          },
+          {
+            "file": "final_report.json",
+            "sha256": "e153eccad28726622bb65d1c3e9bf359c7a636abc50be21786821b79bb14b655"
+          }
+        ]
+      },
+      {
+        "criterion_id": "A4-03",
+        "score": 5,
+        "verdict": "PASS",
+        "reason": "Run·TC·상태·분류 근거 연결과 참조 파일 해시를 대조; 화면 내용의 의미 판정은 아님",
+        "evidence": [
+          {
+            "file": "agent4_analysis.json",
+            "sha256": "1068741794a442b5c42ed8b73c3b727d05a57de6935bdf0423a17e66d6997163"
+          }
+        ]
+      }
+    ],
+    "current": {
+      "criterion_id": "A3-03",
+      "verdict": "PASS",
+      "score": 5,
+      "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+      "evidence": [
+        {
+          "file": "agent3_manifest.json",
+          "sha256": "a4d4e8697785815ce94de39f670649650f19b136d9e7a0fdae4889868cb6fa7d"
+        },
+        {
+          "file": "agent2_test_design.json",
+          "sha256": "0d0c3a40bd9e5b439e80b837d974b7fac761f428fa7a894af403c521b96b43df"
+        },
+        {
+          "file": "agent2_manifest.json",
+          "sha256": "88b7685a036231fe2690ff754269f6dd22a0279dfadeaf09564f58eeebe5b34b"
+        },
+        {
+          "file": "agent3_automation_plan.json",
+          "sha256": "68ff4e623fc59ca877d7ee45f002444a1b3c7f1e8c32af04ea4ad6e7ae9451d2"
+        },
+        {
+          "file": "agent3_trial.json",
+          "sha256": "cef4c27a9fb897a56cffa7eb68f5103852ff4631adb8cca8e887ed0146f4ea49"
+        },
+        {
+          "file": "candidates/test_tc_cand_001.py",
+          "sha256": "4d1f2db26ccb73e4286401458088b5336cb7f9741f5b2cabc4e37a3e1dd4c188"
+        },
+        {
+          "file": "evidence/TC-CAND-001/trial-stdout.txt",
+          "sha256": "b0736ba04048cb286356dd9d1d0bd7a95ee2683cb42444af4c33cce2972d85a7"
+        },
+        {
+          "file": "validation_execution.json",
+          "sha256": "41338bd65cd0132aa5c3fae1c4f2de7ca374a6cd68a3957c0d8bfcc0ae4dbb8f"
+        },
+        {
+          "file": "validation_candidates/test_tc_cand_001.py",
+          "sha256": "ffee0a1eeca389329c198a1e2c52a8b502191010b3723199d95c3540acf0db87"
+        },
+        {
+          "file": "validation_evidence/TC-CAND-001/trial-stdout.txt",
+          "sha256": "b7499a63a0d983e020ef8a809721ed14dd6ec0fec5fc3fe6a8a3a94ffee79e46"
+        }
+      ]
+    },
+    "latest_log_verified": [
+      {
+        "file": "validation_evidence/TC-CAND-001/trial-stdout.txt",
+        "sha256": "b7499a63a0d983e020ef8a809721ed14dd6ec0fec5fc3fe6a8a3a94ffee79e46"
+      }
+    ]
+  },
+  {
+    "trial_id": "T073",
+    "previous": [
+      {
+        "criterion_id": "A3-03",
+        "verdict": "PASS",
+        "score": 5,
+        "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+        "evidence": [
+          {
+            "file": "agent3_manifest.json",
+            "sha256": "a4d4e8697785815ce94de39f670649650f19b136d9e7a0fdae4889868cb6fa7d"
+          },
+          {
+            "file": "agent2_test_design.json",
+            "sha256": "0d0c3a40bd9e5b439e80b837d974b7fac761f428fa7a894af403c521b96b43df"
+          },
+          {
+            "file": "agent2_manifest.json",
+            "sha256": "88b7685a036231fe2690ff754269f6dd22a0279dfadeaf09564f58eeebe5b34b"
+          },
+          {
+            "file": "agent3_automation_plan.json",
+            "sha256": "68ff4e623fc59ca877d7ee45f002444a1b3c7f1e8c32af04ea4ad6e7ae9451d2"
+          },
+          {
+            "file": "agent3_trial.json",
+            "sha256": "cef4c27a9fb897a56cffa7eb68f5103852ff4631adb8cca8e887ed0146f4ea49"
+          },
+          {
+            "file": "candidates/test_tc_cand_001.py",
+            "sha256": "4d1f2db26ccb73e4286401458088b5336cb7f9741f5b2cabc4e37a3e1dd4c188"
+          },
+          {
+            "file": "evidence/TC-CAND-001/trial-stdout.txt",
+            "sha256": "b0736ba04048cb286356dd9d1d0bd7a95ee2683cb42444af4c33cce2972d85a7"
+          }
+        ]
+      },
+      {
+        "criterion_id": "A4-01",
+        "score": 5,
+        "verdict": "PASS",
+        "reason": "원본 실행 행의 중복·상태·제품·환경·고정 사례 합계를 독립 대조",
+        "evidence": [
+          {
+            "file": "validation_execution.json",
+            "sha256": "39008f6b374eabc933faa43f68bc1a6f04ce48ad8f3defd8d8d0657ed966eca8"
+          },
+          {
+            "file": "final_report.json",
+            "sha256": "849abc5a567559f4541e573471d0094c359dbafb9116343fc6f1c67da9832393"
+          }
+        ]
+      },
+      {
+        "criterion_id": "A4-03",
+        "score": 5,
+        "verdict": "PASS",
+        "reason": "Run·TC·상태·분류 근거 연결과 참조 파일 해시를 대조; 화면 내용의 의미 판정은 아님",
+        "evidence": [
+          {
+            "file": "agent4_analysis.json",
+            "sha256": "44b0ae6a74046975947b53d1eeb92bbe52f80bb3d3b00b86b3e1422b5cf8d9cd"
+          }
+        ]
+      }
+    ],
+    "current": {
+      "criterion_id": "A3-03",
+      "verdict": "PASS",
+      "score": 5,
+      "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+      "evidence": [
+        {
+          "file": "agent3_manifest.json",
+          "sha256": "a4d4e8697785815ce94de39f670649650f19b136d9e7a0fdae4889868cb6fa7d"
+        },
+        {
+          "file": "agent2_test_design.json",
+          "sha256": "0d0c3a40bd9e5b439e80b837d974b7fac761f428fa7a894af403c521b96b43df"
+        },
+        {
+          "file": "agent2_manifest.json",
+          "sha256": "88b7685a036231fe2690ff754269f6dd22a0279dfadeaf09564f58eeebe5b34b"
+        },
+        {
+          "file": "agent3_automation_plan.json",
+          "sha256": "68ff4e623fc59ca877d7ee45f002444a1b3c7f1e8c32af04ea4ad6e7ae9451d2"
+        },
+        {
+          "file": "agent3_trial.json",
+          "sha256": "cef4c27a9fb897a56cffa7eb68f5103852ff4631adb8cca8e887ed0146f4ea49"
+        },
+        {
+          "file": "candidates/test_tc_cand_001.py",
+          "sha256": "4d1f2db26ccb73e4286401458088b5336cb7f9741f5b2cabc4e37a3e1dd4c188"
+        },
+        {
+          "file": "evidence/TC-CAND-001/trial-stdout.txt",
+          "sha256": "b0736ba04048cb286356dd9d1d0bd7a95ee2683cb42444af4c33cce2972d85a7"
+        },
+        {
+          "file": "validation_execution.json",
+          "sha256": "39008f6b374eabc933faa43f68bc1a6f04ce48ad8f3defd8d8d0657ed966eca8"
+        },
+        {
+          "file": "validation_candidates/test_tc_cand_001.py",
+          "sha256": "ffee0a1eeca389329c198a1e2c52a8b502191010b3723199d95c3540acf0db87"
+        },
+        {
+          "file": "validation_evidence/TC-CAND-001/trial-stdout.txt",
+          "sha256": "361476fdae9ca1c0532744ac1eef081a22bbabe3d897e2489355dc8929b92179"
+        }
+      ]
+    },
+    "latest_log_verified": [
+      {
+        "file": "validation_evidence/TC-CAND-001/trial-stdout.txt",
+        "sha256": "361476fdae9ca1c0532744ac1eef081a22bbabe3d897e2489355dc8929b92179"
+      }
+    ]
+  },
+  {
+    "trial_id": "T093",
+    "previous": [
+      {
+        "criterion_id": "A3-03",
+        "verdict": "PASS",
+        "score": 5,
+        "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+        "evidence": [
+          {
+            "file": "agent3_manifest.json",
+            "sha256": "a4d4e8697785815ce94de39f670649650f19b136d9e7a0fdae4889868cb6fa7d"
+          },
+          {
+            "file": "agent2_test_design.json",
+            "sha256": "0d0c3a40bd9e5b439e80b837d974b7fac761f428fa7a894af403c521b96b43df"
+          },
+          {
+            "file": "agent2_manifest.json",
+            "sha256": "88b7685a036231fe2690ff754269f6dd22a0279dfadeaf09564f58eeebe5b34b"
+          },
+          {
+            "file": "agent3_automation_plan.json",
+            "sha256": "68ff4e623fc59ca877d7ee45f002444a1b3c7f1e8c32af04ea4ad6e7ae9451d2"
+          },
+          {
+            "file": "agent3_trial.json",
+            "sha256": "cef4c27a9fb897a56cffa7eb68f5103852ff4631adb8cca8e887ed0146f4ea49"
+          },
+          {
+            "file": "candidates/test_tc_cand_001.py",
+            "sha256": "4d1f2db26ccb73e4286401458088b5336cb7f9741f5b2cabc4e37a3e1dd4c188"
+          },
+          {
+            "file": "evidence/TC-CAND-001/trial-stdout.txt",
+            "sha256": "b0736ba04048cb286356dd9d1d0bd7a95ee2683cb42444af4c33cce2972d85a7"
+          }
+        ]
+      },
+      {
+        "criterion_id": "A4-01",
+        "score": 5,
+        "verdict": "PASS",
+        "reason": "원본 실행 행의 중복·상태·제품·환경·고정 사례 합계를 독립 대조",
+        "evidence": [
+          {
+            "file": "validation_execution.json",
+            "sha256": "b8d231a3de25f62ad272752f0fc8542ea1cc1376976ec96cd184e98ed88a0806"
+          },
+          {
+            "file": "final_report.json",
+            "sha256": "842f15efdedbdb5068caecd89cb6ee4d0ff904a810c9ca3fea1fe6a917277402"
+          }
+        ]
+      },
+      {
+        "criterion_id": "A4-03",
+        "score": 5,
+        "verdict": "PASS",
+        "reason": "Run·TC·상태·분류 근거 연결과 참조 파일 해시를 대조; 화면 내용의 의미 판정은 아님",
+        "evidence": [
+          {
+            "file": "agent4_analysis.json",
+            "sha256": "43e4e77f3f65381d06d375195da9f113a1e060e7bfa1256a30654d6ac5902f83"
+          }
+        ]
+      }
+    ],
+    "current": {
+      "criterion_id": "A3-03",
+      "verdict": "PASS",
+      "score": 5,
+      "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+      "evidence": [
+        {
+          "file": "agent3_manifest.json",
+          "sha256": "a4d4e8697785815ce94de39f670649650f19b136d9e7a0fdae4889868cb6fa7d"
+        },
+        {
+          "file": "agent2_test_design.json",
+          "sha256": "0d0c3a40bd9e5b439e80b837d974b7fac761f428fa7a894af403c521b96b43df"
+        },
+        {
+          "file": "agent2_manifest.json",
+          "sha256": "88b7685a036231fe2690ff754269f6dd22a0279dfadeaf09564f58eeebe5b34b"
+        },
+        {
+          "file": "agent3_automation_plan.json",
+          "sha256": "68ff4e623fc59ca877d7ee45f002444a1b3c7f1e8c32af04ea4ad6e7ae9451d2"
+        },
+        {
+          "file": "agent3_trial.json",
+          "sha256": "cef4c27a9fb897a56cffa7eb68f5103852ff4631adb8cca8e887ed0146f4ea49"
+        },
+        {
+          "file": "candidates/test_tc_cand_001.py",
+          "sha256": "4d1f2db26ccb73e4286401458088b5336cb7f9741f5b2cabc4e37a3e1dd4c188"
+        },
+        {
+          "file": "evidence/TC-CAND-001/trial-stdout.txt",
+          "sha256": "b0736ba04048cb286356dd9d1d0bd7a95ee2683cb42444af4c33cce2972d85a7"
+        },
+        {
+          "file": "validation_execution.json",
+          "sha256": "b8d231a3de25f62ad272752f0fc8542ea1cc1376976ec96cd184e98ed88a0806"
+        },
+        {
+          "file": "validation_candidates/test_tc_cand_001.py",
+          "sha256": "ffee0a1eeca389329c198a1e2c52a8b502191010b3723199d95c3540acf0db87"
+        },
+        {
+          "file": "validation_evidence/TC-CAND-001/trial-stdout.txt",
+          "sha256": "6a6802fb72352edaf8fd607a4b6a64621621ba40f276cb517c815eaf133d14d5"
+        }
+      ]
+    },
+    "latest_log_verified": [
+      {
+        "file": "validation_evidence/TC-CAND-001/trial-stdout.txt",
+        "sha256": "6a6802fb72352edaf8fd607a4b6a64621621ba40f276cb517c815eaf133d14d5"
+      }
+    ]
+  }
+]

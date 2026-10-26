@@ -1,0 +1,1130 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="변경 범위·시험 기준·실행 증거·사람 승인을 연결하고, 반복 오류의 공통 원인을 보완한 개인 QA 프로세스 프로젝트입니다.">
+  <meta name="color-scheme" content="dark">
+  <title>중앙제어 AI QA 파이프라인 V2 · 오세훈</title>
+  <style>
+
+:root{--section-title-size:clamp(1.375rem,2.4vw,1.75rem);--bg:#080c13;--panel:#111824;--line:#252d39;--text:#dce6f3;--muted:#a1adbf;--blue:#58a6ff;--green:#3fb950;--orange:#f59e0b;--red:#f85149;--mono:Consolas,monospace;--sans:Pretendard,"Noto Sans KR",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:82px}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.7;word-break:keep-all}
+a{color:inherit;text-decoration:none}a:hover{color:var(--blue)}button{font:inherit;cursor:pointer}
+a:focus-visible,button:focus-visible,summary:focus-visible,.table-wrap:focus-visible{outline:2px solid var(--blue);outline-offset:4px}
+[hidden]{display:none!important}.wrap{width:min(1100px,calc(100% - 48px));margin:auto}
+.skip{position:fixed;top:-100px;background:var(--panel);padding:12px;z-index:100}.skip:focus{top:8px}
+header{position:sticky;top:0;z-index:20;background:#080c13f5;border-bottom:1px solid var(--line)}
+nav{height:62px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.brand{font-size:14px;font-weight:750}.brand span,.navlinks{color:var(--muted)}.navlinks{display:flex;gap:24px;font-size:13px}.version{font-size:11px;color:var(--blue)}
+.button{display:inline-flex;align-items:center;justify-content:center;padding:9px 14px;border:1px solid var(--line);border-radius:8px;background:var(--panel);font-size:13px;font-weight:650}
+.button.primary{background:var(--blue);color:#07111f;border-color:var(--blue)}.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
+.hero{padding:62px 0 38px}.hero-grid{display:block}.hero-grid>div{max-width:1000px}
+.eyebrow{font-size:11px;letter-spacing:.04em;color:var(--blue)}
+h1{font-size:clamp(34px,4.2vw,54px);letter-spacing:-.045em;line-height:1.12;color:#fff;margin:18px 0 16px}h1 em{font-style:normal;color:var(--blue)}
+.lead{font-size:15px;line-height:1.85;color:var(--muted);margin:0}.fine{font-size:12px;color:var(--muted)}.hero .fine{margin-top:16px}
+.core{padding:22px 26px;border:1px solid var(--line);border-radius:8px;background:rgba(17,24,36,.46)}
+.core-title{display:flex;justify-content:space-between;align-items:center;padding-bottom:12px;border-bottom:1px solid var(--line);font-size:14px;font-weight:650}
+.core-row{padding:13px 0;border-bottom:1px solid var(--line)}.core-row:last-child{border-bottom:0;padding-bottom:0}.core-row b{font-size:14px;color:#fff}.core-row p{font-size:12px;color:var(--muted);margin:3px 0 0}
+section{padding:52px 0}.section-head{display:grid;grid-template-columns:minmax(280px,.82fr) minmax(0,1.18fr);gap:36px;align-items:end;margin-bottom:24px}
+.num{display:inline-flex;gap:10px;align-items:center;font-size:12px;color:var(--blue)}
+.num>b{display:inline-grid;place-items:center;min-width:25px;height:25px;padding:0 7px;border-radius:7px;background:rgba(88,166,255,.1);font-weight:500}
+h2{font-size:var(--section-title-size);letter-spacing:-.035em;line-height:1.25;margin:12px 0 0;color:#fff}.section-head p{font-size:14px;color:var(--muted);margin:0}
+h3{font-size:16px;color:#fff;margin:0 0 10px}.grid3,.info-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.card,.info{padding:20px;border:1px solid var(--line);border-radius:12px;background:linear-gradient(180deg,rgba(21,30,45,.93),rgba(14,20,31,.93))}
+.card p,.card li,.info p{font-size:13px;color:var(--muted)}.card p{margin:8px 0 0}.card h3{margin:9px 0}.index{color:var(--blue);font-size:11px}
+.info b{font-size:11px}.info h3{margin:10px 0}.confirmed b{color:var(--green)}.inferred b{color:var(--orange)}.gap b{color:var(--red)}
+.callout{padding:13px 17px;border:1px solid var(--line);background:#0d131e;border-radius:8px;font-size:13px;color:var(--text);margin-top:14px}.callout p{margin:0}.callout small{display:block;font-size:12px;color:var(--muted);margin-top:4px}
+.unified-three-panel{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;border:1px solid var(--line);border-radius:8px;background:rgba(17,24,36,.46);overflow:hidden}
+.unified-three-panel>article{padding:24px;border-right:1px solid var(--line)}.unified-three-panel>article:last-child{border:0}
+.unified-three-panel span{font-size:11px;color:var(--blue)}.unified-three-panel>article:nth-child(2)>span{color:var(--orange)}.unified-three-panel>article:nth-child(3)>span{color:var(--green)}
+.unified-three-panel h3{margin:10px 0}.unified-three-panel p,.unified-three-panel li{font-size:13px;color:var(--muted)}.unified-three-panel ul{padding-left:18px;margin-bottom:0}
+.review-guide{padding:22px 24px;border:1px solid var(--line);border-radius:8px;background:rgba(17,24,36,.46);margin-top:24px}
+.review-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:1px solid var(--line)}
+.review-grid>div{padding:18px 16px;border-right:1px solid var(--line)}.review-grid>div:last-child{border:0}
+.review-grid b{font-size:13px;color:var(--blue)}.review-grid p{font-size:13px;color:var(--muted);margin:8px 0 0}
+.ba-grid{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);border-radius:8px;background:rgba(17,24,36,.46);overflow:hidden;margin-top:24px}
+.ba-card{padding:26px 30px;display:flex;flex-direction:column;align-items:flex-start;gap:12px}
+.ba-card.after{border-left:1px solid var(--line)}.ba-card h3{margin:0}.ba-card p{font-size:13px;color:var(--muted);margin:0 0 8px}
+.ba-label{display:flex;align-items:baseline;gap:8px;font-size:13px;font-weight:750;letter-spacing:.04em}.comparison-icon{flex-shrink:0;font-family:var(--sans);font-size:17px;line-height:1}.before .ba-label,.before .ba-verdict{color:var(--red)}.after .ba-label,.after .ba-verdict{color:var(--green)}
+.ba-verdict{margin-top:auto;padding:10px 14px;border-radius:6px;font-size:13px;line-height:1.65;font-weight:700}
+.before .ba-verdict{background:rgba(248,81,73,.1)}.after .ba-verdict{background:rgba(63,185,80,.1)}
+.report-flow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-bottom:20px}
+.report-step{padding:20px;border:1px solid var(--line);border-radius:10px;background:var(--panel)}.report-step span{font-size:11px;color:var(--blue)}.report-step h3{margin:8px 0}.report-step p{font-size:13px;color:var(--muted);margin:0}
+.report-step:nth-child(2)>span{color:var(--orange)}.report-step:nth-child(3)>span{color:var(--green)}
+.report-delivery{display:flex;align-items:center;gap:18px;flex-wrap:wrap;font-size:13px;padding:18px 0}.report-delivery b,.report-delivery a{color:var(--blue)}.report-delivery span{color:var(--muted)}
+.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:10px}
+table{width:100%;border-collapse:collapse;font-size:13px;text-align:left;background:var(--panel)}
+th{background:#0d131e;color:var(--blue);font-size:12px;font-weight:500}td,th{padding:14px 18px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td,tr:last-child th[scope=row]{border-bottom:0}td{color:var(--muted)}td:first-child{color:var(--text)}.report-table{min-width:680px}.report-table th[scope=row]{color:var(--text);font-size:13px}
+.pass{color:var(--green)}.review{color:var(--orange)}.mismatch{color:var(--red)}
+.tag{font-size:11px;color:var(--blue);border:1px solid #345171;border-radius:5px;padding:2px 7px}.tag.orange{color:var(--orange);border-color:#66503a}.tag.green{color:var(--green)}
+details{background:var(--panel);border:1px solid var(--line);border-radius:9px;margin-top:10px}
+summary{cursor:pointer;padding:15px 18px;font-size:13px}details[open]>summary{border-bottom:1px solid var(--line)}
+.approval{display:grid;grid-template-columns:1.1fr .9fr;gap:25px;align-items:center;border:1px solid var(--line);border-radius:11px;padding:23px;background:var(--panel)}
+.approval-list{list-style:none;counter-reset:step;padding:0;margin:0;display:flex;gap:20px}
+.approval-list li{flex:1;font-size:13px;counter-increment:step}.approval-list li:before{content:counter(step,decimal-leading-zero);display:block;color:var(--orange);font-size:12px;margin-bottom:6px}.approval-list span{display:block;font-size:12px;color:var(--muted);margin-top:5px}
+.approval-box{border-left:1px solid var(--line);padding-left:23px}.approval-box h3{font-size:15px;margin:10px 0}.approval-box p{font-size:12px;color:var(--muted)}
+.docs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px 24px}.doc{padding:18px 0;border-top:1px solid var(--line)}
+.doc small{font-size:10px;color:var(--blue)}.doc b{display:block;font-size:14px;margin:5px 0}.doc span{color:var(--muted);font-size:12px}.doc:hover{border-color:var(--blue)}
+footer{border-top:1px solid var(--line);padding:24px 0 32px;font-size:12px;color:var(--muted)}.footer-inner{display:flex;justify-content:space-between;gap:15px}
+
+.arch-stepper{padding:24px;border:1px solid var(--line);border-radius:16px;background:linear-gradient(180deg,rgba(17,24,36,.94),rgba(10,15,24,.96));box-shadow:0 18px 48px rgba(0,0,0,.2)}
+.arch-flow{position:relative;display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}.arch-flow:before{content:"";position:absolute;z-index:0;left:12.5%;right:12.5%;top:20px;height:1px;background:linear-gradient(90deg,rgba(88,166,255,.25),rgba(88,166,255,.65),rgba(88,166,255,.25))}
+.arch-step{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:5px;padding:0 8px;border:0;background:transparent;color:var(--muted);cursor:pointer;font-family:var(--sans)}.arch-node{width:40px;height:40px;display:grid;place-items:center;border:1px solid rgba(88,166,255,.32);border-radius:50%;background:#0d131e;color:var(--blue);font:10px var(--mono);transition:.2s}.arch-step b{color:var(--muted);font-size:12px;transition:.2s}.arch-step small{color:#66758a;font:8px var(--mono);letter-spacing:.08em}.arch-step:hover .arch-node,.arch-step.on .arch-node{background:var(--blue);border-color:var(--blue);color:#07111f;box-shadow:0 0 0 5px rgba(88,166,255,.1)}.arch-step.on b{color:#fff}.arch-step.on small{color:var(--blue)}
+.arch-panel{overflow:hidden;border:1px solid rgba(88,166,255,.24);border-radius:13px;background:rgba(8,12,19,.56);animation:archFade .2s ease}.arch-panel[hidden]{display:none}.arch-panel-head{display:flex;align-items:center;gap:10px;padding:13px 18px;border-bottom:1px solid rgba(148,163,184,.12);background:rgba(88,166,255,.045)}.arch-panel-head span{color:var(--blue);font:9px var(--mono);letter-spacing:.08em}.arch-panel-head b{color:#fff;font:11px var(--mono);font-weight:500}.arch-role-grid{display:grid;grid-template-columns:1fr 1fr}.arch-role{min-height:190px;padding:24px}.arch-role+.arch-role{border-left:1px solid rgba(148,163,184,.14)}.arch-role>span{color:var(--blue);font:9px var(--mono);letter-spacing:.08em}.arch-role.checkpoint{background:rgba(88,166,255,.025)}.arch-role h3{margin:9px 0 8px;color:#fff;font-size:19px}.arch-role p{min-height:48px;margin:0;color:var(--muted);font-size:13px;line-height:1.75}.arch-result{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:20px;padding:11px 13px;border:1px solid rgba(88,166,255,.17);border-radius:9px;background:#0d131e}.arch-result small{color:#718096;font:8px var(--mono);letter-spacing:.1em}.arch-result b{color:var(--blue);font-size:11px;text-align:right}@keyframes archFade{from{opacity:.25;transform:translateY(3px)}to{opacity:1;transform:none}}
+@media(max-width:700px){.arch-stepper{padding:16px}.arch-flow{grid-template-columns:repeat(2,1fr);row-gap:18px}.arch-flow:before{display:none}.arch-role-grid{grid-template-columns:1fr}.arch-role{min-height:0;padding:20px}.arch-role+.arch-role{border-left:0;border-top:1px solid rgba(148,163,184,.14)}.arch-role p{min-height:0}.arch-result{align-items:flex-start;flex-direction:column}.arch-result b{text-align:left}}
+
+.arch-stepper{padding:22px}.arch-panel{border:0;background:transparent;overflow:visible}.arch-panel-head{border:0;background:transparent;padding:4px 0 20px}
+.arch-role-grid{gap:0;grid-template-columns:1fr 1fr}.arch-role{display:flex;flex-direction:column;min-height:285px;padding:20px 10px;background:transparent}
+.arch-role.checkpoint{padding-left:32px;background:transparent}.arch-role.checkpoint>span{color:var(--orange)}
+.arch-role h3{font-size:21px;margin:10px 0 14px}.arch-role p{font-size:14px;min-height:0;margin-bottom:12px}
+.arch-action-list{display:grid;gap:5px;margin:0 0 24px;padding:0;list-style:none}
+.arch-action-list li{position:relative;padding-left:12px;color:var(--muted);font-size:13px}.arch-action-list li:before{content:"·";position:absolute;left:0;color:var(--blue)}.checkpoint .arch-action-list li:before{color:var(--orange)}
+.arch-result{display:block;align-self:flex-start;margin-top:auto;padding:10px 12px;border:0;border-radius:6px;background:rgba(88,166,255,.1)}
+.arch-result b{font-size:13px;text-align:left}.checkpoint .arch-result{background:rgba(245,158,11,.1)}.checkpoint .arch-result b{color:var(--orange)}
+.arch-step small{display:none}.arch-flow{margin-bottom:22px}.arch-node{width:44px;height:44px}.arch-flow:before{top:22px}.arch-step b{font-size:13px}
+.scenario-list{display:grid;gap:14px}.scenario{margin:0;overflow:hidden}.scenario>summary{list-style:none;display:grid;grid-template-columns:30px 1fr auto 24px;align-items:center;gap:16px;padding:20px 22px;transition:background .18s}
+.scenario>summary::-webkit-details-marker{display:none}.scenario>summary:hover{background:#162235}.scenario[open]>summary{background:#131e2d}
+.scenario-number{color:var(--blue);font:12px var(--mono)}.scenario-title b{font-size:16px;color:#fff}.scenario-title small{display:block;font-size:12px;color:var(--muted);margin-top:4px}
+.expand-label:before{content:"+";font-size:22px;color:var(--muted)}.scenario[open] .expand-label:before{content:"−"}
+.scenario-body{padding:24px;background:#0d131e}.request-line{margin:0 0 22px;font-size:14px;line-height:1.85}.request-line>b{display:block;color:var(--blue);font-size:12px;margin-bottom:6px}
+.tc-heading{display:flex;align-items:center;flex-wrap:wrap;gap:12px;margin:24px 0 12px}.tc-heading h3{margin:0;font-size:15px}
+.setup{font-size:13px;color:var(--muted);margin:0 0 14px}.setup b{color:var(--text);margin-right:8px}
+.scenario-tc{table-layout:fixed;min-width:550px}.scenario-tc th{width:33.333%}.scenario-tc td{line-height:1.85}
+.case-conclusion{margin-top:20px;padding-top:18px;border-top:1px solid var(--line);font-size:13px}.case-conclusion p{margin:0 0 12px;color:var(--muted)}.case-conclusion b{display:block;margin-bottom:6px}.case-conclusion a{color:var(--blue);display:inline-block;margin-right:18px}
+@media(max-width:700px){.scenario>summary{grid-template-columns:24px 1fr auto;gap:10px;padding:16px}.scenario-title b{font-size:14px}.scenario>summary>.expand-label{display:none}.scenario-body{padding:16px}.scenario>summary>.pass,.scenario>summary>.mismatch{font-size:12px}}
+
+@media(max-width:900px){.section-head{grid-template-columns:1fr;gap:14px}.review-grid{grid-template-columns:1fr 1fr}.review-grid>div{border-bottom:1px solid var(--line)}.approval{grid-template-columns:1fr}.approval-box{border-left:0;border-top:1px solid var(--line);padding:18px 0 0}}
+@media(max-width:700px){.wrap{width:calc(100% - 24px)}.navlinks{display:none}.hero{padding:36px 0}.hero-grid,.grid3,.info-grid,.unified-three-panel,.docs,.report-flow,.ba-grid,.review-grid{grid-template-columns:1fr}h1{font-size:34px}section{padding:36px 0}.ba-card.after{border-left:0;border-top:1px solid var(--line)}.unified-three-panel>article{border-right:0;border-bottom:1px solid var(--line)}.review-grid>div{border-right:0}.arch-role-grid{grid-template-columns:1fr}.arch-role,.arch-role.checkpoint{min-height:0;padding:20px 0}.arch-role+.arch-role{border-left:0;border-top:1px solid var(--line)}.arch-result{margin-top:0}.approval-list,.footer-inner{flex-direction:column}.scenario-tc th,.scenario-tc td{padding:12px}.ba-card{padding:22px}}
+
+.subsection-title{margin:32px 0 18px;font-size:19px}.asset-catalog{margin:24px 0 32px}.catalog-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}.catalog-head h3{margin:0}.catalog-head>span,.catalog-status{font-size:12px;color:var(--muted)}
+.asset-table{min-width:720px}.asset-table th[scope=row]{font-family:var(--mono);color:var(--text)}.asset-table td{font-size:13px}.asset-table a{color:var(--blue)}.asset-detail{border:0;background:transparent;margin:0}.asset-detail summary{padding:0;color:var(--text)}.asset-detail[open]>summary{border:0;margin-bottom:14px}.asset-detail>div{font-size:13px}.asset-detail ul{padding-left:18px}.asset-detail p{font-size:12px;color:var(--muted)}
+.reuse-flow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin-top:24px;border:1px solid var(--line);border-radius:8px;overflow:hidden}.reuse-flow article{padding:22px;border-right:1px solid var(--line)}.reuse-flow article:last-child{border:0}.reuse-flow span{color:var(--blue);font-size:11px}.reuse-flow h3{margin:10px 0}.reuse-flow p{font-size:13px;color:var(--muted);margin:0}
+.reuse-example{margin-top:24px}.reuse-example>div{padding:0 22px 12px;font-size:13px;color:var(--muted)}.reuse-example b{color:var(--text)}
+.video-slot{padding:24px;border:1px solid var(--line);border-radius:10px;background:var(--panel)}.video-slot>span{font-size:13px;color:var(--orange)}.video-slot p{font-size:14px;color:var(--muted)}
+.video-slot video{display:block;width:100%;height:auto;aspect-ratio:16/9;margin:20px 0;border-radius:8px;background:#050e16}.video-slot .video-cases{display:flex;flex-wrap:wrap;gap:8px 24px;padding-left:20px;color:var(--muted);font-size:14px}.video-slot .video-cases li::marker{color:var(--blue)}
+.limits-grid{border:1px solid var(--line);border-radius:8px;background:var(--panel)}.road-list{border-left:1px solid var(--line);padding-left:24px}.road-list article+article{margin-top:24px}.road-list h3{color:var(--blue)}.road-list p{font-size:14px;color:var(--muted);margin:0}
+@media(max-width:700px){.reuse-flow{grid-template-columns:1fr}.reuse-flow article{border-right:0;border-bottom:1px solid var(--line)}}
+
+/* Sections 3–4 read as continuous content, not stacks of nested cards. */
+#requirements .info-grid{gap:30px;border-top:1px solid var(--line);padding-top:24px}
+#requirements .info{padding:0;border:0;border-radius:0;background:transparent}
+#requirements .info h3{font-size:18px}#requirements .info p{font-size:14px;line-height:1.85}
+.inline-example{margin:24px 0 0;padding:18px 0;border-top:1px solid var(--line);font-size:14px;color:var(--muted)}
+.inline-example>b{color:var(--blue);margin-right:12px}
+.flat-subhead{font-size:18px;margin:24px 0 12px}
+#requirements .reuse-flow{border:0;border-radius:0;margin-top:0;gap:30px}
+#requirements .reuse-flow article{padding:0;border:0}
+#requirements .reuse-flow p{font-size:14px;line-height:1.85}
+#criteria .unified-three-panel{border:0;border-radius:0;background:transparent;border-top:1px solid var(--line);gap:30px;overflow:visible}
+#criteria .unified-three-panel>article{padding:24px 0 0;border:0}
+#criteria .unified-three-panel p,#criteria .unified-three-panel li{font-size:14px;line-height:1.85}
+#criteria .review-guide{border:0;border-top:1px solid var(--line);border-radius:0;padding:24px 0 0;background:transparent;margin-top:28px}
+#criteria .review-grid{border:0;gap:24px}
+#criteria .review-grid>div{border:0;padding:8px 0}
+#criteria .review-grid b,#criteria .review-grid p{font-size:14px}
+.design-example,.reuse-example{border:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);border-radius:0;background:transparent}
+.design-example>summary,.reuse-example>summary{font-size:14px;padding:18px 0}
+.design-example .ba-grid{border:0;background:transparent;margin:0;border-radius:0}
+.design-example .ba-card{padding:22px 24px 22px 0}
+.design-example .ba-card.after{padding-left:24px}.design-example .ba-verdict{background:transparent;padding:0}
+.reuse-example{margin-top:0;border-top:0}.reuse-example>div{padding-left:0;padding-right:0}
+.approval-ending{margin-top:26px;padding:26px 0 0;border-top:1px solid var(--line)}
+.approval-label{color:var(--blue);font-size:12px}.approval-ending h3{margin:10px 0;font-size:19px}
+.approval-ending p{font-size:14px;color:var(--muted);margin:0}.approval-ending ol{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;padding:0;margin:22px 0;list-style:none}
+.approval-ending li{display:flex;gap:12px;font-size:14px}.approval-ending li>b{color:var(--blue);font:12px var(--mono);padding-top:3px}
+.approval-ending>a{font-size:14px;color:var(--blue)}
+.asset-table{table-layout:fixed;min-width:680px}.asset-table th:nth-child(1){width:145px}.asset-table th:nth-child(3){width:128px}
+.asset-table td,.asset-detail summary,.asset-detail>div{font-size:14px;line-height:1.85}
+.asset-detail li{overflow-wrap:anywhere}.asset-detail p{font-size:12px;overflow-wrap:anywhere}
+.catalog-head>span{font-size:13px}.asset-table td.pass{color:var(--green)}
+.section-head{grid-template-columns:minmax(0,1fr) minmax(0,1.1fr)}
+#scenarios .section-head{grid-template-columns:1fr;gap:14px}
+#scenarios .section-head p{max-width:780px}.scenario-title small{font-size:13px}
+@media(max-width:700px){
+.section-head{grid-template-columns:1fr}
+#requirements .info-grid,#requirements .reuse-flow,#criteria .unified-three-panel{gap:22px}
+#requirements .info+.info,#requirements .reuse-flow article+article,#criteria .unified-three-panel>article+article{border-top:1px solid var(--line);padding-top:20px}
+#criteria .review-grid{gap:14px}.approval-ending ol{grid-template-columns:1fr;gap:14px}
+.design-example .ba-card,.design-example .ba-card.after{padding:20px 0}
+}
+
+
+.model-contract{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:30px;padding:24px 0;border-top:1px solid var(--line)}
+.model-contract article{min-width:0}.model-contract article>span{font-size:12px;color:var(--blue)}.model-contract article:nth-child(3)>span{color:var(--orange)}
+.model-contract h3{margin:12px 0;font-size:18px;line-height:1.5}.model-contract p,.model-contract li{font-size:14px;color:var(--muted);line-height:1.85}
+.model-contract p{margin:0 0 12px}.model-contract ul{padding-left:18px;margin:12px 0 0}.model-contract li+li{margin-top:6px}
+.handoff-rule{display:grid;grid-template-columns:minmax(180px,.65fr) minmax(0,1.7fr);gap:24px;padding:20px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin:0 0 24px}
+.handoff-rule>b{font-size:14px;color:var(--text)}.handoff-rule p{font-size:14px;line-height:1.85;color:var(--muted);margin:0}
+.implementation-example{border:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);border-radius:0;background:transparent}
+.implementation-example>summary{padding:18px 0;font-size:14px}.implementation-example .table-wrap{margin-bottom:20px}
+.implementation-example table{min-width:600px}.implementation-example th[scope=row]{width:160px}.implementation-example td{font-size:14px;line-height:1.85}
+@media(max-width:850px){.model-contract{grid-template-columns:1fr;gap:24px}.model-contract article+article{padding-top:20px;border-top:1px solid var(--line)}.handoff-rule{grid-template-columns:1fr;gap:12px}}
+
+
+/* Distinct reading patterns: analysis summary / design comparison / execution sequence. */
+.analysis-summary{display:grid;grid-template-columns:minmax(0,.7fr) minmax(0,1.3fr);gap:50px;border-top:1px solid var(--line);padding:28px 0}
+.analysis-summary article>span,.design-input article>span,.design-comparison article>span,.execution-step-title>span{font-size:12px;color:var(--blue)}
+.analysis-summary h3,.design-input h3,.design-comparison h3,.execution-sequence h3{font-size:19px;line-height:1.5;margin:10px 0 14px}
+.analysis-summary p,.analysis-summary li,.design-input p,.design-comparison p,.design-comparison li,.execution-sequence p,.execution-sequence li{font-size:14px;line-height:1.85;color:var(--muted)}
+.analysis-summary p,.design-input p,.design-comparison p,.execution-sequence p{margin:0 0 12px}
+.analysis-summary ul,.design-comparison ul,.execution-step-content ul{padding-left:18px;margin:12px 0 0}
+.analysis-source{padding-right:12px}.analysis-output{border-left:1px solid var(--line);padding-left:30px}
+.analysis-output>article+article{border-top:1px solid var(--line);margin-top:24px;padding-top:22px}
+.analysis-output>article+article>span{color:var(--orange)}
+.analysis-output>article:first-child ul{list-style:none;padding:0}
+.analysis-output>article:first-child li{padding:9px 0;border-bottom:1px solid var(--line)}
+.analysis-output>article:first-child li:last-child{border:0}
+.design-input{border-top:1px solid var(--line);padding:22px 0}
+.design-input article{display:grid;grid-template-columns:minmax(220px,.8fr) minmax(0,1.5fr);gap:4px 28px}
+.design-input article>span{grid-column:1}.design-input h3{grid-column:1;margin:0}.design-input p{grid-column:2;grid-row:1/3;align-self:center;margin:0}
+.design-comparison{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--line);padding:24px 0;gap:0}
+.design-comparison article{padding:0 32px 0 0}.design-comparison article+article{padding:0 0 0 32px;border-left:1px solid var(--line)}
+.design-comparison article+article>span{color:var(--orange)}
+.execution-sequence{list-style:none;counter-reset:execution;display:block;padding:0;margin:0 0 24px}
+.execution-sequence>li{position:relative;display:grid;grid-template-columns:minmax(210px,.8fr) minmax(0,1.5fr);gap:34px;padding:26px 0 26px 28px;margin:0;border-left:1px solid #345171}
+.execution-sequence>li:before{content:"";position:absolute;left:-4px;top:34px;width:7px;height:7px;border-radius:50%;background:var(--blue)}
+.execution-sequence>li+li{border-top:1px solid var(--line)}.execution-sequence>li:last-child{padding-bottom:8px}
+.execution-step-title h3{max-width:270px}.execution-step-content{min-width:0}
+.execution-sequence>li:nth-child(2) .execution-step-title>span{color:var(--orange)}
+@media(max-width:700px){
+.analysis-summary{grid-template-columns:1fr;gap:22px}.analysis-source{padding:0}.analysis-output{border-left:0;border-top:1px solid var(--line);padding:22px 0 0}
+.design-input article{grid-template-columns:1fr;gap:8px}.design-input p{grid-column:1;grid-row:auto}
+.design-comparison{grid-template-columns:1fr;gap:22px}.design-comparison article{padding:0}.design-comparison article+article{padding:22px 0 0;border-left:0;border-top:1px solid var(--line)}
+.execution-sequence>li{grid-template-columns:1fr;gap:8px;padding:22px 0 22px 20px}.execution-step-title h3{max-width:none}
+}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.arch-panel{animation:none}.arch-node,.arch-step b{transition:none}}
+@media(max-width:800px){
+}
+@media(max-width:560px){
+}
+</style>
+<style id="v1-presentation-alignment">
+:root{--line:#28344a;--muted:#94a3b8;--sans:Pretendard,"Noto Sans KR",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+body{background:radial-gradient(circle at 14% 0,rgba(88,166,255,.13),transparent 30rem),var(--bg);line-height:1.65}
+.wrap{width:min(1380px,calc(100% - 48px))}section{border-top:1px solid #94a3b824}
+.section-head{grid-template-columns:minmax(320px,.82fr) minmax(0,1.18fr)}.section-head h2{margin-top:6px;line-height:1.2}
+.eyebrow{display:inline-flex;padding:7px 11px;border:1px solid #58a6ff47;border-radius:999px;background:#58a6ff19;font:11px var(--mono)}
+.core{padding:18px;border-radius:16px;background:linear-gradient(180deg,#151e2df0,#0e141ff0)}
+.core-row{position:relative;margin-top:9px;padding:13px 14px 13px 18px;border:1px solid #94a3b824;border-radius:11px;background:#080c1380}.core-row:last-child{border:1px solid #94a3b824;padding-bottom:13px}.core-row:before{content:"";position:absolute;left:0;top:12px;bottom:12px;width:3px;background:var(--blue)}
+#requirements .info-grid{gap:14px;border:0;padding:0}#requirements .info{padding:20px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,#151e2ded,#0e141fed)}
+#requirements .info h3{font-size:18px;margin:12px 0}#requirements .info p{font-size:14px;line-height:1.75}
+#criteria .unified-three-panel{border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,#151e2ded,#0e141fed);gap:0}
+#criteria .unified-three-panel>article{padding:24px;border-right:1px solid var(--line)}#criteria .unified-three-panel>article:last-child{border:0}
+#criteria .unified-three-panel h3{font-size:18px}#criteria .unified-three-panel p,#criteria .unified-three-panel li{font-size:14px}
+.v1-review{margin-top:24px;padding:22px;border:1px solid var(--line);border-radius:12px;background:#0d131e99}.v1-review>h3{font-size:16px}.v1-review .review-grid{border:0;gap:16px}.v1-review .review-grid>div{padding:8px 0;border:0}.v1-review p{font-size:14px}
+#requirements .ba-grid,#criteria .ba-grid{gap:0;border:1px solid var(--line);border-radius:12px;background:#0d131e;overflow:hidden}
+#requirements .ba-card,#criteria .ba-card{padding:24px;border-radius:0}
+#requirements .ba-card.before,#criteria .ba-card.before{background:transparent;border:0;border-right:1px solid var(--line)}
+#requirements .ba-card.after,#criteria .ba-card.after{background:transparent;border:0}
+#requirements .ba-card p,#criteria .ba-card p{font-size:14px}
+.v1-table-note{color:var(--muted);font-size:12px}.v1-tc-list{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--panel)}
+.v1-tc-head,.v1-tc-row>summary{display:grid;grid-template-columns:140px minmax(0,1fr) 90px 24px;gap:20px;align-items:center;padding:17px 22px}
+.v1-tc-head{background:#0d131e;color:var(--blue);font-size:12px}.v1-tc-row{margin:0;border:0;border-top:1px solid var(--line);border-radius:0}
+.v1-tc-row>summary{list-style:none}.v1-tc-row>summary::-webkit-details-marker{display:none}.v1-tc-row>summary:hover,.v1-tc-row[open]>summary{background:#182539}
+.tc-id{font:12px var(--mono);color:var(--blue)}.tc-name b{font-size:15px}.tc-name small{display:block;font-size:12px;color:var(--muted);margin-top:5px}
+.type{font-size:12px;color:var(--blue)}.type.state{color:var(--orange)}.type.approved{color:var(--green)}.toggle:before{content:"+";font-size:22px;color:var(--blue)}.v1-tc-row[open] .toggle:before{content:"−"}
+.tc-detail{padding:24px;background:#0b111c;overflow-wrap:anywhere}.detail-head{display:flex;justify-content:space-between;gap:16px;color:var(--muted);font-size:12px;margin-bottom:20px}.detail-head a{color:var(--blue)}
+.tc-detail h3{font-size:18px}.tc-detail h4{font-size:13px;color:var(--blue);margin:22px 0 10px}.tc-detail ul,.tc-detail ol{font-size:14px;color:var(--muted);padding-left:22px}.tc-detail li+li{margin-top:6px}
+.table-scroll{overflow:auto;border:1px solid var(--line);border-radius:8px}.table-scroll table{min-width:560px}.table-scroll th small{display:block;font:11px var(--mono);color:var(--muted)}.timing{white-space:nowrap;font-size:12px}.term,.trace{font-size:12px;color:var(--muted)}.trace{margin-top:18px}
+@media(max-width:1050px){.section-head{grid-template-columns:1fr}.v1-review .review-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:700px){.wrap{width:calc(100% - 24px)}#criteria .unified-three-panel>article{border-right:0;border-bottom:1px solid var(--line)}#requirements .ba-grid,#criteria .ba-grid{grid-template-columns:1fr}#requirements .ba-card.before,#criteria .ba-card.before{border-right:0;border-bottom:1px solid var(--line)}.v1-tc-head{display:none}.v1-tc-row>summary{grid-template-columns:minmax(0,1fr) 60px 20px;gap:5px 10px;padding:18px 14px}.tc-id{grid-column:1}.tc-name{grid-column:1;grid-row:2}.type{grid-column:2;grid-row:1/3}.toggle{grid-column:3;grid-row:1/3}.tc-detail{padding:18px 14px}.detail-head{display:block}.v1-review .review-grid{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.arch-panel{animation:none}}
+</style><style id="plain-language-controls">
+/* Compact width, meaningful color, and plain-language AI control tables. */
+.wrap{width:min(1100px,calc(100% - 48px))}
+.ai-control{margin:24px 0;background:var(--panel)}.ai-control table{min-width:660px;table-layout:fixed;font-size:14px}
+.ai-control th:first-child{width:135px}.ai-control th:nth-child(2){width:150px}
+.ai-control tbody th{color:var(--text);font-size:14px;background:transparent}
+.ai-control tbody td{font-size:14px;line-height:1.8}
+.ai-control .model-row{background:rgba(88,166,255,.065)}.ai-control .model-row th,.ai-control .model-row td:nth-child(2){color:var(--blue)}
+.ai-control .check-row{background:rgba(245,158,11,.065)}.ai-control .check-row th,.ai-control .check-row td:nth-child(2){color:var(--orange)}
+.arch-role.agent{background:linear-gradient(135deg,#58a6ff0b,transparent);padding-left:18px}
+.arch-role.checkpoint{background:transparent}
+.arch-role.checkpoint>span,.cp-strip>b{color:var(--orange)}
+#requirements .info.confirmed{background:linear-gradient(180deg,#3fb95010,#111824)}
+#requirements .info.inferred{background:linear-gradient(180deg,#f59e0b10,#111824)}
+#requirements .info.gap{background:linear-gradient(180deg,#f8514910,#111824)}
+#criteria .criterion:nth-child(1){background:#58a6ff07}
+#criteria .criterion:nth-child(2){background:#f59e0b07}
+#criteria .criterion:nth-child(3){background:#3fb95007}
+.pass{color:#3fb950}.mismatch{color:#f85149}.review{color:#f59e0b}
+@media(max-width:700px){.wrap{width:calc(100% - 24px)}.arch-role.agent{padding-left:0}}
+</style>
+<style id="v1-intent-background">
+.core-intent{padding:0;border:0;border-radius:0;background:transparent;box-shadow:none}
+.core-intent .core-title{margin:0 0 12px;padding:0 0 8px;border-bottom:1px solid rgba(88,166,255,.28);font-size:14px}
+.intent-list{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.intent-list li{padding:12px 0 0;border-top:1px solid rgba(88,166,255,.28)}
+.intent-list>li>span{display:block;margin-bottom:7px;color:var(--blue);font:10px var(--mono)}
+.intent-list b{display:block;color:#fff;font-size:13px;line-height:1.45}
+.intent-list small{display:block;margin-top:4px;color:var(--muted);font-size:11px;line-height:1.55}
+.background-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+#why .background-grid .card{padding:20px}
+.background-icon{width:38px;height:38px;display:grid;place-items:center;margin-bottom:14px;border-radius:11px;font-weight:800}
+.background-icon.warn{color:var(--red);background:rgba(248,81,73,.09)}
+.background-icon.ok{color:var(--green);background:rgba(63,185,80,.09)}
+.background-grid ul{padding-left:18px;margin:10px 0 0}
+.background-grid li{color:var(--muted);font-size:13px;line-height:1.8}
+.background-goal{display:grid;grid-template-columns:115px 1fr;gap:18px;align-items:center;min-height:74px;margin-top:14px;padding:18px 20px;border:1px solid rgba(88,166,255,.3);border-radius:14px;background:rgba(88,166,255,.045)}
+.background-goal b{color:var(--blue);font-size:12px}.background-goal span{font-size:13px}
+@media(max-width:700px){.intent-list,.background-grid,.background-goal{grid-template-columns:1fr}.intent-list{gap:12px}.background-goal{gap:8px}}
+</style>
+
+<style id="v1-public-intent-report-copy">
+/* Copied from the public V1 page on 2026-09-14; selectors scoped to the two requested areas. */
+#v1-intent,#reporting{--line:#252d39;--focused-panel-line:#252d39;--muted:#94a3b8;--slate:#8291a8}
+#v1-intent{color:#dce6f3}
+#reporting .ba-card{align-items:stretch}
+#reporting .ba-card.after{border-top:0}
+#reporting .label{color:var(--blue);font:11px var(--mono);letter-spacing:.07em}
+#v1-intent.core{padding:18px;border:1px solid var(--line);border-radius:16px;background:linear-gradient(180deg,rgba(21,30,45,.94),rgba(14,20,31,.94));box-shadow:0 18px 48px rgba(0,0,0,.22)}
+#v1-intent .corehead{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;color:#fff;font-weight:800}
+#v1-intent .pill{display:inline-flex;padding:4px 8px;border:1px solid var(--line);border-radius:999px;font:9px var(--mono)}
+#v1-intent .pill{color:var(--green);background:rgba(63,185,80,.09);border-color:rgba(63,185,80,.3)}
+#reporting .shead{display:grid;grid-template-columns:minmax(320px,.82fr) minmax(0,1.18fr);gap:36px;align-items:end;margin-bottom:24px}
+#reporting .shead h2{margin:6px 0 0;color:#fff;font-size:var(--section-title-size);line-height:1.2}
+#reporting .shead p{margin:0;color:var(--muted);font-size:14px}
+#reporting .result-board{border:1px solid var(--line);border-radius:15px;background:linear-gradient(180deg,rgba(21,30,45,.93),rgba(14,20,31,.93))}
+#reporting .report-flow{display:grid;grid-template-columns:1fr 44px 1fr 44px 1fr;align-items:center;margin-bottom:14px}
+#reporting .report-step{padding:16px;border:1px solid var(--line);border-radius:13px;background:var(--panel)}
+#reporting .report-step b{color:var(--blue);font:10px var(--mono)}
+#reporting .report-step:nth-child(3) b{color:var(--orange)}
+#reporting .report-step:nth-child(5) b{color:var(--green)}
+#reporting .report-step h3{margin:5px 0;color:#fff;font-size:15px}
+#reporting .report-step p{margin:0;color:var(--muted);font-size:12px}
+#reporting .result-board{overflow:hidden}
+#reporting .bhead,#reporting .brow{display:grid;grid-template-columns:52px 220px 1.15fr 1fr .95fr}
+#reporting .bhead{background:#0d131e;color:#718096;font:10px var(--mono)}
+#reporting .bhead div,#reporting .brow>div{padding:14px;font-size:13px;color:var(--muted)}
+#reporting .brow>div:first-child{font:11px var(--mono)}
+#reporting .brow{border-bottom:1px solid rgba(148,163,184,.14)}
+#reporting .brow.defect{box-shadow:inset 3px 0 var(--red)}
+#reporting .brow.req{box-shadow:inset 3px 0 var(--orange)}
+#reporting .brow.env{box-shadow:inset 3px 0 var(--blue)}
+#reporting .brow.auto{box-shadow:inset 3px 0 var(--slate)}
+#reporting .brow.blocked{background-image:repeating-linear-gradient(to bottom,#5b6473 0 7px,transparent 7px 13px);background-size:3px 100%;background-repeat:no-repeat}
+#reporting .ctype b{display:block;color:#fff;font-size:14px;font-weight:600}
+#reporting .ctype span{display:block;font:10px var(--mono);color:var(--blue)}
+@media(max-width:1050px){
+#reporting .shead{grid-template-columns:1fr}
+}
+@media(max-width:700px){
+#reporting .report-flow{grid-template-columns:1fr}
+#reporting .report-flow>.arrow{transform:rotate(90deg)}
+#reporting .bhead{display:none}
+#reporting .brow{grid-template-columns:42px 1fr}
+#reporting .brow>div:nth-child(n+3){grid-column:1/-1}
+}
+#reporting .report-flow{grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;align-items:stretch}
+#reporting .report-step{position:relative;min-height:112px}
+
+@media(max-width:700px){
+#reporting .report-flow{grid-template-columns:1fr}
+
+}
+#reporting .label{display:inline-flex;align-items:center;gap:8px;margin-bottom:12px;color:var(--muted);font:12px var(--sans);font-weight:600;letter-spacing:0}
+#reporting .label b{color:var(--blue);font:12px var(--mono);padding:3px 8px;background:rgba(88,166,255,.12);border-radius:6px}
+
+#v1-intent .pill{color:var(--blue);background:rgba(88,166,255,.09);border-color:rgba(88,166,255,.3)}
+#reporting .report-step:nth-child(3) b,#reporting .report-step:nth-child(5) b{color:var(--blue)}
+
+
+
+#v1-intent.core-intent{padding:18px}
+#v1-intent .intent-list{list-style:none;margin:0;padding:0}
+#v1-intent .intent-list li{display:grid;grid-template-columns:30px 1fr;gap:12px;padding:15px 0;border-top:1px solid rgba(148,163,184,.14)}
+#v1-intent .intent-list li:first-child{border-top:0;padding-top:4px}
+#v1-intent .intent-list>li>span{color:var(--blue);font:10px var(--mono);padding-top:3px}
+#v1-intent .intent-list b{display:block;color:#fff;font-size:14px}
+#v1-intent .intent-list small{display:block;margin-top:4px;color:var(--muted);font-size:12px;line-height:1.65}
+
+
+#v1-intent.core-intent{padding:18px}
+#v1-intent .intent-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0}
+#v1-intent .intent-list li{display:block;padding:4px 15px 2px;border:0;border-left:1px solid rgba(148,163,184,.14)}
+#v1-intent .intent-list li:first-child{padding-top:4px;border-left:0}
+#v1-intent .intent-list>li>span{display:block;padding:0;margin-bottom:9px}
+#v1-intent .intent-list b{font-size:13px;line-height:1.45}
+#v1-intent .intent-list small{font-size:11px;line-height:1.55}
+@media(max-width:700px){
+#v1-intent .intent-list{grid-template-columns:1fr}
+#v1-intent .intent-list li,#v1-intent .intent-list li:first-child{padding:12px 0;border-left:0;border-top:1px solid rgba(148,163,184,.14)}
+#v1-intent .intent-list li:first-child{border-top:0}
+}
+
+
+#v1-intent.core-intent{padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important}
+#v1-intent.core-intent .corehead{margin:0 0 12px;padding:0 0 8px;border-bottom:1px solid rgba(88,166,255,.28);font-size:14px}
+#v1-intent.core-intent .intent-list{gap:18px}
+#v1-intent.core-intent .intent-list li,#v1-intent.core-intent .intent-list li:first-child{padding:12px 0 0!important;border:0!important;border-top:1px solid rgba(88,166,255,.28)!important}
+#v1-intent.core-intent .intent-list>li>span{margin-bottom:7px}
+#v1-intent.core-intent .intent-list b{font-size:13px}
+#v1-intent.core-intent .intent-list small{font-size:11px;line-height:1.55}
+@media(max-width:700px){
+#v1-intent.core-intent .intent-list{gap:0}
+#v1-intent.core-intent .intent-list li,#v1-intent.core-intent .intent-list li:first-child{padding:12px 0!important}
+}
+
+#v1-intent.core-intent .intent-list{display:grid!important;grid-template-columns:1fr!important;gap:0!important}
+#v1-intent.core-intent .intent-list li,#v1-intent.core-intent .intent-list li:first-child{display:grid!important;grid-template-columns:32px 1fr;gap:12px;padding:13px 0!important;border-top:1px solid rgba(88,166,255,.28)!important}
+#v1-intent.core-intent .intent-list li:first-child{padding-top:10px!important}
+#v1-intent.core-intent .intent-list>li>span{margin:2px 0 0!important}
+#v1-intent.core-intent .intent-list b{font-size:14px}
+#v1-intent.core-intent .intent-list small{margin-top:3px;font-size:12px}
+
+#v1-intent.core-intent .corehead{padding-bottom:0!important;border-bottom:0!important}
+
+
+#reporting .ba-card.before,#reporting .ba-card.after{background:rgba(88,166,255,.035)!important;border-color:rgba(88,166,255,.28)!important}
+
+#reporting .ba-card.before .ba-verdict,#reporting .ba-card.after .ba-verdict{background:transparent!important}
+
+
+
+#reporting .ba-card.before .ba-verdict{padding:10px 12px!important;background:rgba(248,81,73,.12)!important}
+#reporting .ba-card.after .ba-verdict{padding:10px 12px!important;background:rgba(63,185,80,.12)!important}
+
+#reporting .ba-card.before .ba-verdict,#reporting .ba-card.after .ba-verdict{align-self:flex-start;width:auto!important}
+
+
+
+
+
+
+
+
+#reporting .ba-grid,#v1-intent.core-intent{border:1px solid var(--focused-panel-line)!important;border-radius:8px!important;background:rgba(17,24,36,.46)!important;box-shadow:none!important;overflow:hidden}
+#v1-intent.core-intent{padding:22px 26px!important}
+#v1-intent.core-intent .corehead{padding-bottom:12px!important;border-bottom:0!important}
+#v1-intent.core-intent .intent-list li{border-bottom-color:var(--focused-panel-line)!important}
+#reporting .ba-grid{gap:0!important}
+#reporting .ba-card.before,#reporting .ba-card.after{padding:26px 30px!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important}
+#reporting .ba-card.after{border-left:1px solid var(--focused-panel-line)!important}
+#reporting .ba-card.before .ba-verdict,#reporting .ba-card.after .ba-verdict{border-radius:6px!important}
+@media(max-width:720px){
+#reporting .ba-card.after{border-top:1px solid var(--focused-panel-line)!important;border-left:0!important}
+}
+
+#reporting .report-step,#reporting .result-board,#reporting .brow,#reporting .ba-grid,#v1-intent.core,#v1-intent.core-intent{border-color:var(--focused-panel-line)!important}
+
+
+
+
+
+#reporting .ba-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:24px}
+@media(max-width:720px){
+#reporting .ba-grid{grid-template-columns:1fr}
+}
+#reporting .ba-card{border-radius:12px;padding:24px;display:flex;flex-direction:column;gap:12px}
+#reporting .ba-card.before{background:rgba(248,81,73,.06);border:1px solid rgba(248,81,73,.25)}
+#reporting .ba-card.after{background:rgba(63,185,80,.06);border:1px solid rgba(63,185,80,.25)}
+#reporting .ba-label{font-size:11px;font-weight:800;letter-spacing:.08em;display:flex;align-items:center;gap:8px}
+#reporting .ba-card.before .ba-label{color:#f85149}
+#reporting .ba-card.after .ba-label{color:#3fb950}
+#reporting .ba-title{font-size:15px;font-weight:700;color:#e2e8f0}
+#reporting .ba-row{display:flex;flex-direction:column;gap:4px}
+#reporting .ba-row b{font-size:11px;color:#8b949e;text-transform:uppercase;letter-spacing:.05em}
+#reporting .ba-row p{font-size:13px;color:#c9d1d9;margin:0;line-height:1.6}
+#reporting .ba-verdict{margin-top:4px;font-size:12px;font-weight:700;padding:8px 12px;border-radius:6px;display:inline-block}
+#reporting .ba-card.before .ba-verdict{color:#f85149;background:rgba(248,81,73,.1)}
+#reporting .ba-card.after .ba-verdict{color:#3fb950;background:rgba(63,185,80,.1)}
+
+
+</style>
+
+<style id="v1-criteria-and-evidence-layout">
+/* V1 rules for information classification and QA review, scoped to the requested sections. */
+#requirements,#criteria{--focused-panel-line:#252d39}
+#requirements#requirements .info{background:linear-gradient(180deg,rgba(21,30,45,.93),rgba(14,20,31,.93))}
+#criteria#criteria .criterion:before{content:"";position:absolute;left:0;top:12px;bottom:12px;width:3px;border-radius:0 999px 999px 0;background:var(--a)}
+#criteria#criteria .criterion,#requirements#requirements .info{border:1px solid var(--line);border-radius:15px;background:linear-gradient(180deg,rgba(21,30,45,.93),rgba(14,20,31,.93))}
+#criteria#criteria .criterion h3{margin:7px 0 9px;color:#fff;font-size:16px}
+#criteria#criteria .criterion p{color:var(--muted);font-size:13px}
+#criteria#criteria .criterion>span{color:var(--a);font:10px var(--mono)}
+#criteria#criteria .criterion:hover{transform:translateY(-2px);box-shadow:0 12px 27px rgba(0,0,0,.18)}
+#criteria#criteria .criterion:nth-child(1):hover{background:linear-gradient(180deg,rgba(25,36,54,.96),rgba(15,22,34,.96))}
+#criteria#criteria .criterion:nth-child(2):hover{background:linear-gradient(180deg,rgba(34,29,20,.74),rgba(15,22,34,.96))}
+#criteria#criteria .criterion:nth-child(3):hover{background:linear-gradient(180deg,rgba(20,35,27,.76),rgba(15,22,34,.96))}
+#requirements#requirements .info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+#requirements#requirements .info{padding:18px}
+#requirements#requirements .info b{display:block;font:10px var(--mono)}
+#requirements#requirements .confirmed b{color:var(--green)}
+#requirements#requirements .inferred b{color:var(--orange)}
+#requirements#requirements .gap b{color:var(--red)}
+#requirements#requirements .info h3{color:#fff;font-size:16px}
+#requirements#requirements .info p{color:var(--muted);font-size:12px}
+#criteria#criteria .criteria{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+#criteria#criteria .criterion{--a:var(--blue);position:relative;overflow:hidden;padding:21px 21px 19px 23px;transition:.18s}
+#criteria#criteria .criterion:nth-child(2){--a:var(--orange)}
+#criteria#criteria .criterion:nth-child(3){--a:var(--green)}
+#criteria#criteria .criterion ul{margin:12px 0 0;padding-left:18px}
+#criteria#criteria .criterion li{color:var(--muted);font-size:12px}
+#criteria#criteria .criterion li+li{margin-top:5px}
+@media(max-width:1050px){#requirements#requirements .info-grid,#criteria#criteria .criteria{grid-template-columns:1fr 1fr}
+}
+@media(max-width:700px){#requirements#requirements .info-grid,#criteria#criteria .criteria{grid-template-columns:1fr}
+}
+
+#criteria#criteria .criterion:nth-child(n){--a:var(--blue)}
+#criteria#criteria .criterion:nth-child(2):hover,#criteria#criteria .criterion:nth-child(3):hover{background:linear-gradient(180deg,rgba(25,36,54,.96),rgba(15,22,34,.96))}
+#criteria#criteria .review-guide b{color:var(--blue)!important}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#criteria#criteria .review-guide{border:1px solid var(--focused-panel-line)!important;border-radius:8px!important;background:rgba(17,24,36,.46)!important;box-shadow:none!important;overflow:hidden}
+#criteria#criteria .review-guide{padding:22px 24px!important}
+#criteria#criteria .review-guide>div{gap:0!important;border-top:1px solid var(--focused-panel-line)!important}
+#criteria#criteria .review-guide>div>div{padding:18px 20px!important;border:0!important;border-right:1px solid var(--focused-panel-line)!important;border-radius:0!important;background:transparent!important}
+#criteria#criteria .review-guide>div>div:last-child{border-right:0!important}
+@media(max-width:720px){#criteria#criteria .review-guide>div>div{border-right:0!important;border-bottom:1px solid var(--focused-panel-line)!important}
+#criteria#criteria .review-guide>div>div:last-child{border-bottom:0!important}
+}
+
+#criteria#criteria .criteria{gap:0!important;border:1px solid var(--focused-panel-line)!important;border-radius:8px!important;background:rgba(17,24,36,.46)!important;box-shadow:none!important;overflow:hidden}
+#criteria#criteria .criteria .criterion{border:0!important;border-right:1px solid var(--focused-panel-line)!important;border-radius:0!important;background:transparent!important;box-shadow:none!important}
+#criteria#criteria .criteria .criterion:last-child{border-right:0!important}
+#criteria#criteria .criteria .criterion:hover{background:rgba(88,166,255,.025)!important;transform:none!important}
+#criteria#criteria .criterion,#requirements#requirements .info,#criteria#criteria .review-guide{border-color:var(--focused-panel-line)!important}
+@media(max-width:700px){#criteria#criteria .criteria .criterion{border-right:0!important;border-bottom:1px solid var(--focused-panel-line)!important}
+#criteria#criteria .criteria .criterion:last-child{border-bottom:0!important}
+}
+
+#criteria#criteria .unified-three-panel{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:0!important;align-items:stretch!important;border:1px solid var(--focused-panel-line)!important;border-radius:8px!important;background:rgba(17,24,36,.38)!important;overflow:hidden!important}
+#criteria#criteria .unified-three-panel>article{height:100%!important;border:0!important;border-right:1px solid var(--focused-panel-line)!important;border-radius:0!important;background:transparent!important;box-shadow:none!important}
+#criteria#criteria .unified-three-panel>article:last-child{border-right:0!important}
+@media(max-width:700px){#criteria#criteria .unified-three-panel{grid-template-columns:1fr!important}
+#criteria#criteria .unified-three-panel>article{border-right:0!important;border-bottom:1px solid var(--focused-panel-line)!important}
+#criteria#criteria .unified-three-panel>article:last-child{border-bottom:0!important}
+}
+
+#criteria#criteria .unified-three-panel>article::before{display:none!important}
+
+
+
+
+
+#criteria .design-check-note{font-size:13px;color:var(--muted);line-height:1.75;margin:14px 0 28px}
+#scenarios .scenario-list{gap:0;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+#scenarios .scenario{border:0;border-bottom:1px solid var(--line);border-radius:0;margin:0}
+#scenarios .scenario:last-child{border-bottom:0}
+#scenarios .scenario>summary{padding:20px 24px;background:#0d131e}
+#scenarios .scenario>summary:hover,#scenarios .scenario[open]>summary{background:#151f2e}
+#scenarios .scenario-title b{font-size:16px}
+#scenarios .scenario-title small{font-size:12px}
+#scenarios .v1-tc-list{margin-bottom:24px}
+#scenarios .catalog-fold{border:1px solid var(--line);border-radius:10px;background:transparent}
+#scenarios .catalog-fold>summary{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:18px 22px;color:var(--text);font-size:14px;font-weight:650;cursor:pointer;list-style:none}
+#scenarios .catalog-fold>summary::-webkit-details-marker{display:none}
+#scenarios .catalog-fold>summary:after{content:"+";color:var(--blue);font-size:20px}
+#scenarios .catalog-fold[open]>summary:after{content:"−"}
+#scenarios .catalog-fold>summary small{margin-left:auto;font-size:12px;font-weight:400;color:var(--muted)}
+#scenarios .catalog-fold .asset-catalog{padding:0 20px 18px;margin:0}
+#scenarios .catalog-fold .catalog-head{display:none}
+#reporting .approval-ending{margin-top:32px;padding-top:28px}
+#reporting .approval-heading{display:flex;justify-content:space-between;align-items:center;gap:20px;margin-bottom:20px}
+#reporting .approval-heading h3{font-size:20px;line-height:1.5;margin-bottom:0}
+
+#reporting .approval-document{border:1px solid var(--line);border-radius:8px;overflow:hidden;background:#0d131e}
+#reporting .approval-document-title{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:18px 22px;background:#111824;border-bottom:1px solid var(--line)}
+#reporting .approval-document-title b{font-size:14px;color:#fff}
+#reporting .approval-document-title span{font-size:12px;color:var(--muted)}
+#reporting .approval-items{margin:0;padding:0 22px}
+#reporting .approval-items>div{display:grid;grid-template-columns:130px 1fr;gap:22px;padding:18px 0;border-bottom:1px solid var(--line)}
+#reporting .approval-items>div:last-child{border:0}
+#reporting .approval-items dt{font-size:14px;color:var(--blue);font-weight:650}
+#reporting .approval-items dd{margin:0;font-size:14px;line-height:1.8;color:var(--muted)}
+#reporting .approval-bullets{list-style:disc outside;margin:0;padding:0 0 0 14px;color:var(--muted)}
+#reporting .approval-bullets li{display:list-item;padding-left:2px;font-size:14px;line-height:1.75;overflow-wrap:anywhere}
+#reporting .approval-bullets li+li{margin-top:3px}
+#reporting .approval-bullets li::marker{color:var(--blue);font-size:.7em}
+#reporting .approval-decisions{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--line)}
+#reporting .approval-decisions>div{padding:18px 22px}
+#reporting .approval-decisions>div+div{border-left:1px solid var(--line)}
+#reporting .approval-decisions b{font-size:14px}#reporting .approval-decisions .approval-hold b{color:var(--orange)}
+#reporting .approval-decisions .approval-accept b{color:var(--green)}
+#reporting .approval-decisions .approval-bullets{margin-top:8px}
+#reporting .approval-footer{display:flex;gap:24px;align-items:center;justify-content:space-between;margin-top:16px}
+#reporting .approval-footer .approval-bullets{max-width:72%}
+#reporting .approval-footer .approval-bullets li{font-size:12px}
+#reporting .approval-footer a{color:var(--blue);font-size:13px;white-space:nowrap}
+.lessons-list{border-top:1px solid var(--line)}
+.lessons-list article{display:grid;grid-template-columns:38px 1fr;gap:18px;padding:22px 0;border-bottom:1px solid var(--line)}
+.lessons-list article>span{color:var(--blue);font:12px var(--mono);padding-top:4px}
+.lessons-list h4{font-size:16px;color:#fff;margin:0 0 8px}
+.lessons-list p{font-size:14px;color:var(--muted);margin:0;line-height:1.8}
+@media(max-width:700px){
+#scenarios .scenario>summary{padding:18px 14px}
+#scenarios .catalog-fold>summary{flex-wrap:wrap;padding:16px}
+#scenarios .catalog-fold>summary small{margin-left:0}
+#reporting .approval-heading,#reporting .approval-document-title,#reporting .approval-footer{display:block}
+
+#reporting .approval-document-title span{display:block;margin-top:6px}
+#reporting .approval-items>div{grid-template-columns:1fr;gap:6px}
+#reporting .approval-decisions{grid-template-columns:1fr}
+#reporting .approval-decisions>div+div{border-left:0;border-top:1px solid var(--line)}
+#reporting .approval-footer .approval-bullets{max-width:none;margin-bottom:12px}
+}
+</style>
+
+<style id="execution-and-case-reading">
+/* One process navigator and one evidence panel; keep content and interaction together. */
+#execution .execution-layout{display:block}
+#execution .artifact-window{min-width:0}
+#execution .artifact-caption{display:flex;justify-content:space-between;align-items:center;gap:20px;margin-bottom:16px;font-size:13px;color:var(--muted)}
+#execution .artifact-caption b{font-size:14px;color:var(--text);font-weight:600}
+#execution .artifact-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border:1px solid var(--line);border-radius:8px 8px 0 0;overflow:hidden}
+#execution .artifact-tabs button{display:flex;align-items:flex-start;gap:12px;text-align:left;min-width:0;padding:20px;border:0;border-right:1px solid var(--line);border-bottom:2px solid transparent;background:#0d131e;color:var(--muted)}
+#execution .artifact-tabs button:last-child{border-right:0}
+#execution .artifact-tabs button:hover{background:#121c2a}
+#execution .artifact-tabs button[aria-selected=true]{border-bottom-color:var(--blue);background:#142131}
+#execution .artifact-stage-no{font:12px/1.8 var(--mono);color:var(--blue)}
+#execution .artifact-stage-copy{min-width:0}
+#execution .artifact-stage-copy b{display:block;font-size:15px;font-weight:650;color:var(--text)}
+#execution .artifact-tabs button[aria-selected=true] b{color:var(--blue)}
+#execution .artifact-stage-copy small{display:block;margin-top:5px;font-size:12px;line-height:1.65}
+#execution .artifact-panel{padding:24px 28px;border:1px solid var(--line);border-top:0;border-radius:0 0 8px 8px;background:#0a1019;min-width:0}
+#execution .artifact-label{margin:0 0 20px;color:var(--muted);font-size:13px}
+#execution .plan-row{display:grid;grid-template-columns:140px minmax(0,1fr);gap:18px;margin-bottom:12px}
+#execution .plan-row>span{font:12px/1.8 var(--mono);color:var(--blue)}
+#execution .plan-row code{font:14px/1.8 var(--mono);color:var(--text);overflow-wrap:anywhere}
+#execution .expected{color:var(--green)}
+#execution .plan-divider{border:0;border-top:1px solid var(--line);margin:18px 0}
+#execution .artifact-panel pre{font:13px/1.8 var(--mono);white-space:pre;overflow:auto;max-width:100%;margin:0;tab-size:4}
+#execution .code-comment{color:#92a6be}
+#execution .code-string{color:#a8d8bd}
+#execution .artifact-panel .fine{font-size:13px;margin:18px 0 0}
+#execution .observation-pair{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+#execution .observation-pair>div{padding:0 0 20px}
+#execution .observation-pair small{font-size:13px;color:var(--muted)}
+#execution .observation-pair strong{display:block;font-size:28px;margin:6px 0;color:var(--text)}
+#execution .observation-pair .pass{font-size:13px}
+#execution .observation-note{display:flex;justify-content:space-between;gap:16px;border-top:1px solid var(--line);padding:14px 0 0;margin-top:14px;font-size:13px;color:var(--muted)}
+#execution .cp-strip{display:flex;gap:20px;margin-top:18px;padding:0;background:transparent;border:0}
+#execution .cp-strip b{white-space:nowrap;font-size:13px}
+#execution .cp-strip p{font-size:13px;line-height:1.8}
+#scenarios .scenario-body{padding:0;background:#0d131e}
+#scenarios .request-line{margin:0;padding:22px 24px;border-bottom:1px solid var(--line);font-size:15px;line-height:1.8;color:var(--text)}
+#scenarios .request-line b{margin-right:12px;color:var(--blue)}
+#scenarios .tc-detail{background:transparent;padding:22px 24px}
+#scenarios .tc-detail h3{font-size:17px;line-height:1.6}
+#scenarios .tc-detail h4{font-size:14px}
+#scenarios .tc-detail .table-scroll table{min-width:650px}
+#scenarios .observed-value{color:var(--text);font-weight:550}
+#scenarios .case-conclusion{padding:20px 24px;margin:0;border-top:1px solid var(--line)}
+#scenarios .case-restore-result{margin:0;padding:0 24px 22px;font-size:13px;color:var(--muted)}
+#scenarios .case-restore-result b{margin-right:10px}
+#scenarios .related-test{margin:0 24px 24px;border:1px solid var(--line);border-radius:8px;background:transparent}
+#scenarios .related-test>summary{display:flex;justify-content:space-between;gap:20px;padding:16px 18px;font-size:14px}
+#scenarios .related-test .tc-detail{border-top:1px solid var(--line)}
+#scenarios .related-test>summary b{font-size:12px;white-space:nowrap}
+#scenarios .scenario-body>.tc-heading,#scenarios .scenario-body>.setup{margin:20px 24px}
+#scenarios .scenario-body>.table-wrap{margin:0 24px 24px}
+#scenarios .scenario>summary:focus-visible{outline-offset:-3px}
+#execution .artifact-tabs button:focus-visible{outline-offset:-4px}
+@media(max-width:700px){
+#execution .artifact-caption{display:block}
+#execution .artifact-caption>span{display:block;margin-top:4px}
+#execution .artifact-tabs button{display:block;padding:14px 10px}
+#execution .artifact-stage-no{display:block;margin-bottom:6px}
+#execution .artifact-stage-copy b{font-size:13px}
+#execution .artifact-stage-copy small{display:none}
+#execution .artifact-panel{padding:20px 16px}
+#execution .plan-row{grid-template-columns:85px minmax(0,1fr);gap:12px}
+#execution .plan-row code{font-size:12px}
+#execution .observation-note,#execution .cp-strip{display:block}
+#execution .observation-note>*{display:block;margin-bottom:4px}
+#execution .cp-strip b{display:block;margin-bottom:6px}
+#scenarios .request-line,#scenarios .tc-detail,#scenarios .case-conclusion{padding:18px 16px}
+#scenarios .related-test{margin:0 16px 20px}
+#scenarios .related-test>summary{font-size:13px;gap:10px;padding:14px}
+#scenarios .case-restore-result{padding:0 16px 20px}
+#scenarios .scenario-body>.tc-heading,#scenarios .scenario-body>.setup{margin:18px 16px}
+#scenarios .scenario-body>.table-wrap{margin:0 16px 20px}
+}
+</style>
+
+<style id="plain-language-artifact-content">
+#execution .artifact-request{margin:0 0 20px;padding:0 0 0 14px;border-left:2px solid var(--blue);color:var(--text);font-size:15px;line-height:1.8}
+#execution .artifact-request b{display:block;color:var(--blue);font-size:12px;margin-bottom:4px}
+#execution .plain-panel-lead{margin:0 0 20px;font-size:15px;color:var(--text)}
+#execution .plain-plan{list-style:none;padding:0;margin:0}
+#execution .plain-plan li{display:grid;grid-template-columns:32px 1fr;gap:14px;padding:14px 0;border-bottom:1px solid var(--line)}
+#execution .plain-plan li:first-child{padding-top:0}
+#execution .plain-plan li:last-child{border-bottom:0;padding-bottom:0}
+#execution .plain-plan li>span{font:12px/1.8 var(--mono);color:var(--blue);padding-top:2px}
+#execution .plain-plan b{font-size:15px;color:var(--text)}
+#execution .plain-plan p{font-size:14px;line-height:1.8;color:var(--muted);margin:4px 0 0}
+#execution .plain-code-map{margin:0}
+#execution .plain-code-map>div{display:grid;grid-template-columns:130px 1fr;gap:18px;padding:16px 0;border-bottom:1px solid var(--line)}
+#execution .plain-code-map>div:first-child{padding-top:0}
+#execution .plain-code-map>div:last-child{border-bottom:0}
+#execution .plain-code-map dt{color:var(--blue);font-size:14px;font-weight:600}
+#execution .plain-code-map dd{margin:0;font-size:14px;color:var(--text)}
+#execution .plain-panel-note{font-size:13px;color:var(--muted);margin:18px 0 0;line-height:1.8}
+#execution .plain-result{background:transparent}
+#execution .plain-result table{min-width:460px;font-size:14px}
+#execution .plain-result tbody th{font-size:14px;color:var(--text);background:transparent}
+#execution .artifact-technical{margin:24px 0 0;border:0;border-top:1px solid var(--line);border-radius:0;background:transparent;overflow:visible}
+#execution .artifact-technical>summary{padding:15px 0 0;color:var(--muted);font-size:13px}
+#execution .artifact-technical .technical-body{padding-top:20px}
+#execution .artifact-technical>summary:hover{color:var(--blue)}
+#scenarios .auxiliary-evidence{margin:22px 0}
+#scenarios .auxiliary-evidence .scenario{border:1px solid var(--line);border-radius:8px}
+#scenarios .auxiliary-case .scenario-number{font:11px var(--sans);white-space:nowrap}#scenarios .auxiliary-case>summary{grid-template-columns:60px 1fr auto 24px}
+#scenarios .auxiliary-case .scenario-title b{font-size:14px}
+#scenarios .asset-state-comparison{margin:22px 24px}
+#scenarios .asset-state-comparison table{min-width:600px}
+@media(max-width:700px){
+#execution .plain-code-map>div{grid-template-columns:90px 1fr;gap:12px}
+#execution .artifact-request{font-size:14px}
+#scenarios .asset-state-comparison{margin:18px 16px}
+}
+</style>
+
+<style id="execution-policy-and-approval-context">
+#execution .execution-policy{margin-top:24px;border-top:1px solid var(--line);padding-top:20px}
+#execution .execution-policy h3{font-size:15px;margin:0 0 18px;color:var(--text)}
+#execution .execution-policy h3>span{color:var(--orange);font:12px var(--mono);margin-right:12px}
+#execution .execution-policy-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}
+#execution .execution-policy-grid b{font-size:14px;color:var(--text)}
+#execution .execution-policy-grid p{font-size:13px;line-height:1.8;color:var(--muted);margin:7px 0 0}
+#reporting .approval-verification{padding:0;margin:12px 0 0;border:0;border-radius:0;background:transparent}
+#reporting .approval-verification>summary{padding:8px 0;color:var(--blue);font-size:14px;font-weight:650}
+#reporting .approval-verification[open]>summary{border-bottom:0}
+#reporting .approval-verification .approval-bullets{margin:4px 0 12px}
+@media(max-width:700px){#execution .execution-policy-grid{grid-template-columns:1fr;gap:16px}}
+</style>
+
+<style id="requested-header-and-label-cleanup">
+header nav.wrap{display:grid;grid-template-columns:1fr auto 1fr}
+header .navlinks{grid-column:2;justify-content:center}
+header .version{grid-column:3;justify-self:end;white-space:nowrap}
+#v1-intent.core-intent .intent-list li:first-child{border-top:0!important}
+@media(max-width:700px){
+header nav.wrap{grid-template-columns:1fr;min-height:56px;height:auto;padding:12px 0}
+header .navlinks{grid-column:1;display:flex;flex-wrap:wrap;gap:12px 18px;font-size:12px}
+header .version{display:none}
+}
+</style>
+<link rel="stylesheet" href="assets/css/project-explainer.css">
+<style>
+.portfolio-reading{max-width:920px}
+.portfolio-reading p{font-size:15px;line-height:1.95;margin:0 0 20px}
+.portfolio-reading strong{color:var(--text,#e2e8f0)}
+.portfolio-reference{margin-top:28px;border:1px solid #29374a;border-radius:10px}
+.portfolio-reference>summary{padding:18px 22px;cursor:pointer;color:#b8d4f3;font-size:14px}
+.portfolio-reference-body{padding:24px}
+.portfolio-reference-body .section-head{margin-top:24px}
+.portfolio-reference-body h2{font-size:22px}
+@media(max-width:700px){.portfolio-reading p{font-size:14px}.portfolio-reference-body{padding:18px}.portfolio-reference-body .grid3,.portfolio-reference-body .limits-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">본문 바로가기</a>
+<header><nav class="wrap" aria-label="주요 메뉴"><div class="navlinks"><a href="#workflow">전체 흐름</a><a href="#scenarios">실행 사례</a><a href="#design">개발 과정의 고민</a><a href="#evidence">실행 근거</a></div><span class="version">PROJECT 01 · V2</span></nav></header>
+<main id="main">
+  <div class="hero"><div class="wrap hero-grid">
+<div><span class="eyebrow">PERSONAL PROJECT 01 · QA AGENT PIPELINE V2</span><h1>요구사항에서 승인까지,<br><em>같은 기준으로 판단하기</em></h1><p class="lead">변경 요청을 분석하고, 필요한 테스트를 만들어 실행·보고하는 QA 자동화 프로젝트입니다. 반복 작업을 줄이면서도 AI가 요구사항과 검증 기준을 지키도록, 단계별 검토와 사람의 최종 판단을 연결했습니다.</p><div class="actions"><a class="button primary" href="#workflow">요청부터 결과까지 보기</a><a class="button" href="#design">개발 과정의 고민</a></div><p class="fine">가상 중앙제어 시스템을 이용한 개인 프로젝트 · <a href="../portfolio_export/main.html">메인 소개 ↗</a></p><p class="fine"><a href="#scenarios">실행 사례</a> · <a href="#demo-video">60초 시연 영상</a> · <a href="#current-status">검증 결과와 근거</a></p></div>
+</div></div>
+
+
+<section id="why"><div class="wrap"><div class="section-head"><div><span class="num"><b>1</b> 개발 배경</span><h2>변경 요청마다 반복되는 QA 업무에서 출발했습니다.</h2></div><p>중앙제어 시스템을 검증하며 경험한 요구사항 대조·TC 검토·시험·보고를 개인 프로젝트로 연결했습니다.</p></div>
+<div class="portfolio-reading">
+<p>실무에서는 요구사항이 바뀌면 기존 TC에서 영향받는 부분을 찾고, 필요한 시험을 추가한 뒤 결과와 수정 이력을 정리했습니다. <strong>변경의 의미를 판단하는 일과 반복해서 조작하고 기록하는 일이 함께 있었습니다.</strong></p>
+<p>반복 작업을 AI와 자동화에 맡기고, 사람은 변경의 타당성과 결과 검토에 더 집중할 수 있을지 확인하고 싶었습니다. 실제 회사 자료 대신 가상 중앙제어 시스템과 예시 요구사항으로 분석부터 시험·보고까지 이어지는 흐름을 만들었습니다.</p>
+</div><p class="fine">기획·검증 기준·시나리오 설계를 맡고, AI 코딩 도구를 활용해 구현과 검증을 진행한 개인 프로젝트입니다.</p></div></section>
+
+<section id="workflow"><div class="wrap"><div class="section-head"><div><span class="num"><b>2</b> 전체 흐름</span><h2>분석 → 시험 설계 → 실행 → 보고 → 사람 판단</h2></div><p>요청이 분석 결과 → 테스트케이스 → 실행 기록 → 보고서로 이어집니다. 각 단계는 앞에서 정한 기준을 전달받고, 마지막 등록은 사람이 결정합니다.</p></div>
+<div class="arch-stepper" aria-label="4-Agent QA Pipeline">
+  <figure class="qa-visual" id="main-pipeline-diagram" aria-labelledby="main-pipeline-title">
+    <div class="qa-visual-title"><h3 id="main-pipeline-title">변경 요청부터 결과 보고까지</h3><span>한눈에 보는 역할과 결과물</span></div>
+    <div class="qa-stage-input"><b>사용자가 넣는 자료</b><span>변경 요청 + 기존 제품 요구사항(SRS) + 기존 테스트케이스(TC)</span></div>
+    <div class="qa-down" aria-hidden="true"><span>↓</span></div>
+    <div class="qa-stage design">
+      <div class="qa-stage-head"><b>분석·설계 · 무엇을 시험할지 정합니다</b><span>Agent 1·2는 AI가 분석·설계</span></div>
+      <div class="qa-pair">
+        <div class="qa-node"><span class="qa-kicker">AGENT 1 · 요구사항 분석</span><h4>바뀌는 조건과 부족한 정보 구분</h4><p>요청을 SRS와 대조해 변경·유지 조건과 영향 범위를 정리합니다. 정해지지 않은 값을 추측해서 채우지 않습니다.</p><div class="qa-output"><b>결과물</b> 분석 결과 · 확정 조건 · 확인할 질문</div></div>
+        <div class="qa-arrow" aria-hidden="true">→</div>
+        <div class="qa-node"><span class="qa-kicker">AGENT 2 · 시험 설계</span><h4>기존 TC를 고르고, 부족한 시험 작성</h4><p>기존 TC의 절차·기대결과를 요청과 비교합니다. 재사용할 시험과 새 TC, 필요한 SRS 변경안을 준비합니다.</p><div class="qa-output"><b>결과물</b> 사용할 기존 TC · 새 상세 TC · SRS 개정 제안</div></div>
+      </div>
+    </div>
+    <div class="qa-down"><span aria-hidden="true">↓</span><span class="qa-handoff">검토를 통과한 시험 내용을 다음 단계로 전달</span></div>
+    <div class="qa-stage">
+      <div class="qa-stage-head"><b>실행·보고 · 결과와 이유를 남깁니다</b><span>TC의 기준과 실제 관찰을 비교</span></div>
+      <div class="qa-pair">
+        <div class="qa-node"><span class="qa-kicker">AGENT 3 · 자동화 수행</span><h4>TC대로 조작하고 결과 확인</h4><p>TC의 조작·기대값을 화면 요소에 연결해 실행 계획을 만듭니다. 자동 검사와 AI 검토를 통과하면 프로그램이 코드로 변환해 시험하고 원래 상태로 복원합니다.</p><div class="qa-output"><b>결과물</b> 자동화 코드 · 관찰값 · 실행·복원 기록</div></div>
+        <div class="qa-arrow" aria-hidden="true">→</div>
+        <div class="qa-node"><span class="qa-kicker">AGENT 4 · 규칙 기반 분석</span><h4>결과와 이유를 보고</h4><p>새 TC와 선택한 기존 TC의 실행 결과를 모읍니다. 제품 불일치, 실행 문제, 미실행을 근거와 함께 구분합니다.</p><div class="qa-output"><b>결과물</b> 결과 보고서 · 결과 검토서 · 외부 보고 데이터</div></div>
+      </div>
+    </div>
+    <div class="qa-down" aria-hidden="true"><span>↓</span></div>
+    <div class="qa-destination"><b>마지막 결정은 사람에게</b> · 결과와 기존 TC를 비교하고, SRS 변경·TC 추가·대체·미등록·보류 선택</div>
+    <div class="qa-visual-foot"><b>시험을 진행할 수 없는 경우</b> 핵심 정보가 부족하면 질문을 남깁니다. 실행 수단이 없으면 해당 TC를 제외하고 사유를 보고합니다. 실행하지 않은 항목을 PASS로 계산하지 않습니다.</div>
+    <figcaption>현재 신규 TC의 흐름입니다. 기존 TC만으로 충분하면 새 TC·새 자동화 생성은 생략합니다. 자동 검사 통과는 제품 시험 성공이나 사람의 공식 등록 승인이 아닙니다.</figcaption>
+  </figure>
+  <p class="qa-bridge"><b>단계별 확인 사항</b> 시험할 내용이 다음 단계에서 바뀌거나, 시험하지 않은 항목이 통과로 보고되지 않도록 했습니다. <a href="#design">개선 내용 보기 ↓</a> · <a href="#change-example">변경 요청 예시 보기 ↓</a></p>
+  <details class="qa-stage-details">
+  <summary>자세히 보기 · 각 단계는 언제 진행하고, 언제 멈추나요?</summary>
+  <p class="qa-detail-heading">Checkpoint는 각 단계의 결과를 확인하는 자동 검사입니다. 사람의 공식 승인을 대신하지 않습니다.</p>
+  <div class="arch-flow" role="tablist" aria-label="QA 파이프라인 단계">
+    <button class="arch-step on" type="button" role="tab" aria-selected="true" id="arch-tab-1" tabindex="0" aria-controls="arch-panel-1" data-arch-panel="arch-panel-1"><span class="arch-node">01</span><b>요구사항 분석</b><small>REQUIREMENT</small></button>
+    <button class="arch-step" type="button" role="tab" aria-selected="false" id="arch-tab-2" tabindex="-1" aria-controls="arch-panel-2" data-arch-panel="arch-panel-2"><span class="arch-node">02</span><b>TC 설계</b><small>TEST DESIGN</small></button>
+    <button class="arch-step" type="button" role="tab" aria-selected="false" id="arch-tab-3" tabindex="-1" aria-controls="arch-panel-3" data-arch-panel="arch-panel-3"><span class="arch-node">03</span><b>자동화 실행</b><small>EXECUTION</small></button>
+    <button class="arch-step" type="button" role="tab" aria-selected="false" id="arch-tab-4" tabindex="-1" aria-controls="arch-panel-4" data-arch-panel="arch-panel-4"><span class="arch-node">04</span><b>결과 분석·보고</b><small>REPORTING</small></button>
+  </div>
+  <div class="arch-panels">
+    <article class="arch-panel on" id="arch-panel-1" role="tabpanel" aria-labelledby="arch-tab-1"><div class="arch-panel-head"><span>STEP 01</span><b>요구사항 분석</b></div><div class="arch-role-grid"><div class="arch-role agent"><span>AGENT 01 · 실제 모델</span><h3>요구사항 분석</h3><p>기존 SRS와 변경 요청을 대조해 확정 조건과 부족한 정보를 나눕니다.</p><ul class="arch-action-list"><li>변경·유지 조건과 원문 출처를 연결</li><li>추정은 확정 기대값으로 사용하지 않음</li><li>다음 단계가 시험할 범위를 정리</li></ul><div class="arch-result"><b>변경 분석 · 확정 조건 · 정보 부족</b></div></div><div class="arch-role checkpoint"><span>CHECKPOINT 1 · 자동 검사</span><h3>시험에 필요한 정보 확인</h3><p>원문 출처·요청에 적힌 값·조건 연결을 대조하고 진행 가능한 범위를 확인합니다.</p><ul class="arch-action-list"><li>확정된 조건은 Agent 2에 전달</li><li>미정 조건은 제외하고 최종 보고에 남김</li><li>핵심 시험 범위가 불명확하면 입력 보완 대기</li></ul><div class="arch-result"><b>전체 진행 · 일부 진행 · 입력 보완</b></div></div></div></article>
+    <article class="arch-panel" id="arch-panel-2" role="tabpanel" aria-labelledby="arch-tab-2" hidden><div class="arch-panel-head"><span>STEP 02</span><b>테스트케이스 설계</b></div><div class="arch-role-grid"><div class="arch-role agent"><span>AGENT 02 · 실제 모델</span><h3>기존 TC 대조·변경분 설계</h3><p>공통·제품·기능별 관점으로 후보 TC와 필요한 SRS 개정안을 작성합니다.</p><ul class="arch-action-list"><li>기존 TC의 검증 내용과 변경 조건을 대조</li><li>충분한 기존 TC는 선택하고 부족한 변경분만 설계</li><li>사전조건·절차·기대 결과·복원을 연결</li></ul><div class="arch-result"><b>신규 후보 · 기존 TC 선택 · SRS 개정안</b></div></div><div class="arch-role checkpoint"><span>CHECKPOINT 2 · 자동 검사</span><h3>TC 내용과 검증 기준 확인</h3><p>요청 근거와 기대값을 대조하고, 다른 시험에 의존하지 않고 실행할 수 있는지 확인합니다.</p><ul class="arch-action-list"><li>확정 조건 누락과 원문에 없는 코드·수치 검사</li><li>준비·시험·복원과 결과 확인 시점을 대조</li><li>제한된 재작성·재검사 후 미해결이면 다음 단계 중단</li></ul><div class="arch-result"><b>검사 통과 · 재작성 · 다음 단계 진행 중단</b></div></div></div></article>
+    <article class="arch-panel" id="arch-panel-3" role="tabpanel" aria-labelledby="arch-tab-3" hidden><div class="arch-panel-head"><span>STEP 03</span><b>Playwright 실행</b></div><div class="arch-role-grid"><div class="arch-role agent"><span>AGENT 03 · 실행 계획·코드 변환·시험</span><h3>자동화 구현·시험</h3><p>TC의 조작 순서와 기대값을 실행 계획에 담습니다. 자동 검사와 AI 검토를 통과한 계획을 프로그램이 코드로 변환합니다.</p><ul class="arch-action-list"><li>실제 화면의 요소·상태와 검증 수단 확인</li><li>검토한 계획을 코드로 변환하고 정적 검사</li><li>실행 가능한 후보를 각각 시험하고 증거 수집</li></ul><div class="arch-result"><b>자동화 코드 · 관찰값 · 화면·실행 기록</b></div></div><div class="arch-role checkpoint"><span>CHECKPOINT 3 · 자동 검사</span><h3>TC와 실행 내용 대조</h3><p>프로그램과 AI가 TC·실행 계획·화면 자료를 대조합니다. 계획 검토를 통과한 뒤 코드를 생성하고, 정적 검사 후 후보 시험을 수행합니다.</p><ul class="arch-action-list"><li>새 TC의 시험 내용이나 기대값을 다시 정하지 않음</li><li>후보 시험에서 사전조건·기대 결과·복원 확인</li><li>지원 수단이 없는 후보는 제외 사유를 남김</li></ul><div class="arch-result"><b>검사 → 후보 시험 · 불일치 증거 보존</b></div></div></div></article>
+    <article class="arch-panel" id="arch-panel-4" role="tabpanel" aria-labelledby="arch-tab-4" hidden><div class="arch-panel-head"><span>STEP 04</span><b>결과 분석·보고</b></div><div class="arch-role-grid"><div class="arch-role agent"><span>AGENT 04 · 규칙 기반 분석</span><h3>결과 분석·보고</h3><p>신규 후보와 선택한 기존 TC의 결과를 원인별로 분류합니다.</p><ul class="arch-action-list"><li>제품·자동화·환경·근거 부족·미실행을 분류</li><li>TC와 실행 근거·제외 사유를 연결</li><li>결과 검토서와 Slack·Notion 보고용 데이터 생성</li></ul><div class="arch-result"><b>분류 결과 · 결과 검토서 · 외부 보고 데이터</b></div></div><div class="arch-role checkpoint"><span>CHECKPOINT 4 · 자동 검사</span><h3>실행 기록과 보고 결과 대조</h3><p>실제 실행 증거와 보고 수치·인계 해시·Run ID를 대조합니다.</p><ul class="arch-action-list"><li>서로 다른 실행의 결과가 섞이지 않는지 확인</li><li>집계와 보고·외부 전송 근거를 대조</li><li>전송은 기본 미리보기, 명시 요청 시 수행</li></ul><div class="arch-result"><b>보고 정합성 확인 · 사람의 최종 판단</b></div></div></div></article>
+  </div>
+  </details>
+</div></div></section>
+
+<section id="verified"><div class="wrap" id="design"><div class="section-head"><div><span class="num"><b>3</b> 개발 과정에서의 고민</span><h2>기준을 정해도 AI의 해석은 달랐습니다.</h2></div><p>업무를 나누어 맡기는 것만으로는 단계마다 같은 판단을 유지하기 어려웠습니다.</p></div>
+<div class="portfolio-reading">
+<p>처음에는 각 단계의 양식과 검토 기준을 자세히 정하면 결과도 일관될 것으로 기대했습니다. 하지만 같은 요구사항을 분석·설계·실행 단계에서 다르게 해석하는 경우가 있었고, 기준을 지나치게 세분화하면 정상적인 작성 차이도 막혔습니다.</p>
+<p>그래서 <strong>이미 정한 원문과 시험 내용을 다음 단계가 다시 작성하는 부분을 줄였습니다.</strong> AI가 판단할 내용과 프로그램이 그대로 전달할 내용을 구분하고, 사람이 확인할 결과와 근거를 남기는 데 집중했습니다. 새로운 요청을 항상 처리하는 수준은 아니지만, 자동화를 설계할 때 어디에 판단을 맡겨야 하는지 배울 수 있었습니다.</p>
+</div><p class="fine"><a href="#scope">실무 적용 가능성과 한계 ↓</a> · <a href="#implementation-notes">설계 선택과 검증 기록 보기 ↓</a></p></div></section>
+
+<section id="requirements"><div class="wrap"><div class="section-head"><div><span class="num"><b>4</b> Agent 1 · 요구사항 분석</span><h2>확정 조건과 추가 확인 사항 구분</h2></div><p>Agent 1은 기존 SRS와 변경 요청을 실제 AI 모델로 분석합니다. 결과를 확정·추정·정보 부족으로 나누고, 프로그램이 원문의 값과 조건을 대조합니다.</p></div><div class="info-grid"><article class="info confirmed"><b>확정 정보</b><h3>판단 기준으로 사용</h3><p>요구사항 또는 승인된 제품 기준에서 직접 확인한 조건입니다.</p></article><article class="info inferred"><b>추정 정보</b><h3>기대결과로 사용하지 않음</h3><p>가능성은 있지만 근거가 없는 해석입니다.</p></article><article class="info gap"><b>정보 부족</b><h3>제외·보고 또는 입력 보완</h3><p>미정 조건은 제외·보고합니다. 핵심 시험 범위가 불명확하면 입력 보완을 기다립니다.</p></article></div><p class="qa-bridge"><b>다음은 처리 방식을 설명하는 예시입니다.</b> 아래의 분석 오류와 수정 과정은 실제 실행 결과와 구분합니다.</p><div class="ba-grid"><article class="ba-card before"><span class="ba-label"><span class="comparison-icon" aria-hidden="true">×</span>FAIL · 요구사항 검사 실패 예시</span><h3>최저 온도를 16°C로 잘못 작성</h3><p>요구사항은 자동 모드에서 18~30°C만 허용하는 것입니다. AI가 이를 16~30°C로 분석하면, 잘못된 기준으로 테스트를 만들게 됩니다.</p><div class="ba-verdict">요청과 다른 온도 기준 · 수정 필요</div></article><article class="ba-card after"><span class="ba-label"><span class="comparison-icon" aria-hidden="true">✓</span>PASS · 수정 후 검사 통과 예시</span><h3>18°C 기준을 확인한 뒤 테스트 설계로 전달</h3><p>원문과 분석의 값·근거를 대조하고 의미 검토를 거칩니다. 잘못된 기준이 확인되면 허용된 횟수 안에서 재작성하고, 재검사를 통과해야 TC 설계로 넘깁니다. 검사를 거쳐도 AI의 해석 오류가 남을 수 있습니다.</p><div class="ba-verdict">수정된 분석 검사 통과 · 테스트 설계로 전달</div></article></div></div></section>
+
+<section id="criteria"><div class="wrap"><div class="section-head"><div><span class="num"><b>5</b> Agent 2 · TC 설계와 품질 검토</span><h2>기존 TC 검토와 변경분 테스트 설계</h2></div><p>Agent 2는 확정된 조건과 기존 TC를 읽고 테스트를 설계합니다. 기존 TC로 충분한 부분과 새 시험이 필요한 부분을 나눕니다. 프로그램은 요청에 적힌 값과 TC의 준비·조작·검사·복원 절차를 대조합니다.</p></div>
+<figure class="qa-visual" id="main-basis-diagram" aria-labelledby="main-basis-title">
+  <div class="qa-visual-title"><h3 id="main-basis-title">기대결과와 검증 범위 설정</h3><span>Agent 2가 TC를 선택·작성할 때 사용하는 자료</span></div>
+  <div class="qa-basis">
+    <div class="qa-node qa-source-a"><span class="qa-kicker">기대결과의 근거</span><b>변경 요청 + 관련 SRS</b><p>새로 바꿀 조건과 그대로 유지할 제품 기준을 읽습니다.</p></div>
+    <div class="qa-arrow qa-to-a" aria-hidden="true">→</div>
+    <div class="qa-node qa-expectation"><b>무엇이 맞아야 하나?</b><p>TC에서 확인할 대상·기대값·확인 시점을 정합니다.</p></div>
+    <div class="qa-arrow qa-join-a" aria-hidden="true">→</div>
+    <div class="qa-node qa-source-b"><span class="qa-kicker">시험 범위의 근거</span><b>분석한 영향 + 기존 TC</b><p>이번 변경과 관련된 기능을 기존 TC의 실제 내용과 대조합니다.</p></div>
+    <div class="qa-arrow qa-to-b" aria-hidden="true">→</div>
+    <div class="qa-node qa-coverage"><b>무엇을 다시 시험하나?</b><p>기존 TC로 확인할 내용과 새 시험이 필요한 내용을 나눕니다.</p></div>
+    <div class="qa-arrow qa-join-b" aria-hidden="true">→</div>
+    <div class="qa-node qa-output-node"><span class="qa-kicker">이번 시험에 사용</span><b>선택·작성한 TC</b><p>요구한 조건을<br>필요한 범위에서 확인</p><div class="qa-tc-types">선택한 기존 TC<br>+ 필요한 새 TC</div></div>
+  </div>
+  <div class="qa-visual-foot"><b>예: 중풍 표시 변경</b> 새 중풍 TC와 관련 기존 강풍 TC를 함께 시험한 기록이 있습니다. 모든 풍량 요청에 강풍 TC를 고정해서 넣는 것은 아니며, 실제 요청 범위에 따라 선택합니다.</div>
+  <figcaption>기존 TC의 이름이 비슷하다는 이유만으로 재사용하지 않습니다. 준비·절차·기대결과가 이번 조건을 확인할 수 있는지 비교합니다. <a href="#tc-med">중풍·강풍 실행 사례 보기 ↓</a></figcaption>
+</figure>
+<p class="qa-bridge"><b>시험 범위 선정</b> 정상·예외·경계값 등 시험 유형은 요청과 영향 범위에 맞춰 정합니다.</p>
+<div class="criteria unified-three-panel"><article class="criterion"><span>시험 전반</span><h3>공통 QA 기준</h3><p>요청한 변경에서 빠뜨리기 쉬운 조건을 확인합니다.</p><ul><li>정상·예외·경계값</li><li>상태 변경과 회귀 영향</li><li>각 테스트의 독립 실행</li><li>정보 부족 여부</li></ul></article><article class="criterion"><span>제품의 특성</span><h3>중앙제어에서 중요한 기준</h3><p>모드별 제한과 장비 상태가 서로 맞는지 확인합니다.</p><ul><li>모드별 제어 제한</li><li>요청과 관련된 연결·알람·잠금 상태</li><li>대상 장비의 화면·상태값 일치</li><li>요구사항에 명시된 비대상 장비 보호</li></ul></article><article class="criterion"><span>이번에 바꾸는 기능</span><h3>TC의 구체적인 판단 기준</h3><p>어디에서 무엇을 확인해야 통과인지 정합니다.</p><ul><li>근거가 확인된 기대결과만 사용</li><li>통과·실패 판단 기준</li><li>기능에 맞는 검증 대상 선택</li><li>자동화 가능 범위</li></ul></article></div><div class="review-guide" style="background: rgba(13, 19, 30, 0.6); border: 1px solid rgba(148, 163, 184, 0.15); border-radius: 12px; padding: 20px; margin-top: 24px;"><h4 style="color: #e2e8f0; font-size: 14px; margin: 0 0 12px 0; font-weight: 700;">선택한 TC의 공통 검토 항목</h4><div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;"><div style="background: rgba(15, 23, 42, 0.6); padding: 12px; border-radius: 8px; border: 1px solid rgba(148,163,184,0.1);"><b style="color: #38bdf8; font-size: 12px;">1. 요구사항에 근거가 있는가</b><p style="color: #94a3b8; font-size: 12px; margin: 4px 0 0 0;">요구사항의 출처·명시 코드·수치를 대조하고 근거 밖 값을 검사</p></div><div style="background: rgba(15, 23, 42, 0.6); padding: 12px; border-radius: 8px; border: 1px solid rgba(148,163,184,0.1);"><b style="color: #38bdf8; font-size: 12px;">2. 이 TC만으로 시험할 수 있는가</b><p style="color: #94a3b8; font-size: 12px; margin: 4px 0 0 0;">다른 TC에 의존하지 않는 준비·시험 절차. 상태 변경 시험은 복원도 확인</p></div><div style="background: rgba(15, 23, 42, 0.6); padding: 12px; border-radius: 8px; border: 1px solid rgba(148,163,184,0.1);"><b style="color: #38bdf8; font-size: 12px;">3. 무엇을 언제 확인하는가</b><p style="color: #94a3b8; font-size: 12px; margin: 4px 0 0 0;">어떤 조작 뒤 무엇을 관찰하는지 기대결과와 시점을 확인</p></div><div style="background: rgba(15, 23, 42, 0.6); padding: 12px; border-radius: 8px; border: 1px solid rgba(148,163,184,0.1);"><b style="color: #38bdf8; font-size: 12px;">4. 실제로 조작·확인할 수 있는가</b><p style="color: #94a3b8; font-size: 12px; margin: 4px 0 0 0;">검증 가능한 절차인지 검토하고 실제 요소·계획 검사는 Agent 3에서 수행</p></div></div></div><p class="design-check-note">정상·예외·경계값을 모든 TC에 함께 넣지는 않습니다. 다만 선택한 TC의 근거·독립 실행 절차·기대결과·확인 시점은 공통으로 검토합니다. 상태를 바꾸는 시험은 준비 전 상태로의 복원과 확인도 필요합니다.</p><p class="design-check-note">TC에서 보완 가능한 초안 오류가 발견되면, AI에 해당 TC와 검사 결과를 보내 최대 한 번 재작성하고 다시 확인합니다. 판단이 불확실하거나 검토 응답·호출에 오류가 나면 중단합니다. 통과한 TC만 Agent 3로 넘깁니다. 생성된 TC는 시험할 후보이며, SRS 변경안 반영과 공식 TC 등록은 사람 승인 후에 이루어집니다.</p><details class="reuse-example"><summary>기존 TC가 있는데 왜 새로 만드나요?</summary><div><p><b>기존 TC로 충분하면 새로 만들지 않습니다.</b> 변경 요구사항을 기존 TC가 검증할 수 있으면 해당 TC를 선택해 재실행합니다.</p><p><b>확인할 조건이나 결과가 달라졌다면 부족한 부분만 추가합니다.</b> 같은 기능의 TC라도 시험하는 입력값·상태·관찰 대상이 다르면 새 요구사항을 모두 확인하지 못할 수 있습니다.</p><p>이름이 비슷한지만 보는 것이 아니라, 기존 TC의 실제 절차와 기대결과를 변경 요구사항과 비교합니다.</p></div></details></div></section>
+
+<section id="execution"><div class="wrap"><div class="section-head"><div><span class="num"><b>6</b> Agent 3 · 자동화 구현과 실행</span><h2>TC 기반 자동화 구현과 실행</h2></div><p>Agent 2가 작성한 TC의 조작 순서와 기대결과를 그대로 사용합니다. 프로그램이 실제 화면에 연결해 자동화 코드를 만들고, 검사 후 시험·결과 확인·원래 상태 복원을 수행합니다. 별도 AI 검토는 TC와 화면의 연결을 확인하며, 잘못 판단할 가능성도 남아 있습니다.</p></div>
+<article class="qa-run-example qa-change-example" id="change-example" aria-labelledby="change-example-title">
+  <div class="qa-run-heading"><div><span class="qa-kicker">새로 들어온 변경 요구사항 · 설명용 예시</span><h3 id="change-example-title">“냉방은 20°C 아래로 내려가지 않게 해 주세요.<br>난방은 기존 16°C 하한을 유지해 주세요.”</h3></div></div>
+  <p class="qa-run-intro">기존 온도 변경 TC가 있어도 새 기준을 그대로 확인할 수는 없습니다. 무엇을 새로 시험하고, 무엇을 다시 확인할지 나눠야 합니다.</p>
+  <div class="qa-change-compare" aria-label="기존 제품 기준과 새 변경 요청 비교">
+    <div><span class="qa-kicker">기존 SRS</span><b>설정 온도 16~30°C</b><p>기존 TC도 이 범위를 기준으로 작성</p></div>
+    <div><span class="qa-kicker">새 요청</span><b>냉방 20~30°C · 난방 16~30°C</b><p>냉방 하한은 변경 · 난방 기준은 유지</p></div>
+  </div>
+  <ol class="qa-evidence-chain">
+    <li><b>바뀌는 범위를 구분</b><p>냉방의 최저 온도는 20°C로 바꿉니다. 난방의 16°C 하한과 두 모드의 30°C 상한은 유지합니다. 요청하지 않은 알림이나 버튼 비활성 조건은 추가하지 않습니다.</p></li>
+    <li><b>새 TC와 기존 TC 비교</b><p>냉방 20°C에서 감소 버튼을 눌러도 20°C가 유지되는 시험이 필요합니다. 난방은 17→16°C 설정이 계속 가능한지 확인합니다. 기존 TC가 이 조건을 확인할 수 있으면 재사용하고, 부족한 부분은 새로 작성합니다.</p></li>
+    <li><b>요청한 기준으로 판정</b><p>TC에 정한 시점에 제어 패널·장비 카드·내부 값을 확인합니다. 예를 들어 냉방 시험에서 19°C로 내려갔다면 새 요구사항과 다른 결과입니다. 제품의 현재 동작에 맞춰 기대값을 바꾸지 않습니다.</p></li>
+    <li><b>복원·보고 후 사람 결정</b><p>시험 준비를 시작하기 전 상태로 되돌아왔는지 확인하고 결과를 보고합니다. 시험이 통과해도 자동 등록하지 않습니다. 사람이 SRS 변경안과 관련 기존 TC를 비교해 추가·대체·미등록·보류를 결정합니다.</p></li>
+  </ol>
+  <div class="qa-example-note"><b>설명용 요청 · 전체 실행 미완료</b><span>이 조건으로 시도한 이전 API 실행은 분석 검토에서 중단됐습니다. 요청을 정리한 뒤의 전체 재실행은 아직 하지 않았습니다. 아래 전원 사례는 별도로 완료한 실제 실행 기록입니다.</span></div>
+  <div class="qa-inline-links"><a href="evidence/submission-20261010/request.example.json">정리한 변경 요청 원문 ↗</a><a href="evidence/submission-20261010/previous-interruption.json">이전 실행의 중단 기록 ↗</a><a href="#approval">사람의 등록 선택 보기 ↓</a></div>
+</article>
+<details class="qa-evidence-details" id="power-evidence">
+<summary>실제로 끝까지 확인한 기록 · 전원 정지 1건</summary>
+<article class="qa-run-example" id="current-power" aria-labelledby="current-power-title">
+  <div class="qa-run-heading"><div><span class="qa-kicker">현재 방식으로 끝까지 실행한 예시 · 2026.10.09</span><h3 id="current-power-title">“운전 중인 장비 한 대를 정지해 주세요.”</h3></div><span class="qa-result-label">제품 시험 PASS</span></div>
+  <p class="qa-run-intro">새 AI 분석·TC 생성·검토부터 실제 시험과 보고까지 이어진 1건입니다. 사람이 중간에 TC를 고치지 않았습니다.</p>
+  <ol class="qa-evidence-chain">
+    <li><b>요청에서 정한 기준</b><p>정지를 적용하면 제어 패널·장비 카드·내부 전원 상태가 모두 정지여야 합니다.</p></li>
+    <li><b>Agent 2가 만든 TC</b><p>원래 상태 기록 → 운전 상태로 준비·확인 → 정지 선택·적용 → 세 곳의 결과 확인 → 원래 상태 복원.</p></li>
+    <li><b>Agent 3가 실제로 확인</b><p>TC의 기준을 이어받아 시험했습니다. 패널·카드·내부 상태가 모두 정지로 확인됐습니다.</p></li>
+    <li><b>복원과 보고</b><p>준비 전 상태로 돌아갔는지 세 곳의 관찰값을 비교했습니다. 제품 시험 1건 통과와 환경 점검 1건 통과를 따로 보고했습니다.</p></li>
+  </ol>
+  <div class="qa-observation-table" id="power-observations">
+    <h4>준비·시험·복원 기록</h4>
+    <p class="fine">2026.10.09 · TC-CAND-001 · 시험 기준은 세 곳 모두 정지(STOP)입니다.</p>
+    <p class="qa-table-scroll-hint">표를 좌우로 밀면 내부 상태도 볼 수 있습니다.</p>
+    <div class="table-wrap" role="region" aria-label="전원 시험의 단계별 관찰과 복원 확인" tabindex="0"><table>
+      <caption>저장된 실행 로그에서 확인한 전원 상태</caption>
+      <thead><tr><th scope="col">확인 시점</th><th scope="col">제어 패널</th><th scope="col">장비 카드</th><th scope="col">내부 상태</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">준비 전</th><td>정지</td><td>정지</td><td>STOP</td></tr>
+        <tr><th scope="row">운전 준비 후</th><td>운전</td><td>운전</td><td>OPERATION</td></tr>
+        <tr><th scope="row">정지 적용 후</th><td>정지</td><td>정지</td><td>STOP</td></tr>
+        <tr><th scope="row">복원 확인</th><td>비교 통과</td><td>비교 통과</td><td>비교 통과</td></tr>
+      </tbody>
+    </table></div>
+    <p class="fine">복원은 운전 준비 상태가 아닌 <b>준비 전 상태</b>와 비교했습니다. 복원 후 값 자체는 로그에 별도로 출력되지 않아, 표에는 비교 통과 기록을 표시했습니다. 새로 실행한 결과는 아닙니다.</p>
+    <div class="qa-inline-links"><a href="evidence/submission-20261010/power-observations.json">관찰값과 출처 해시 ↗</a><a href="evidence/submission-20261010/power-trial-stdout.txt">관찰·복원 원본 로그 ↗</a></div>
+  </div>
+  <div class="qa-run-ending"><b>여기까지 확인했습니다</b><span>시험·복원·보고 완료. 이 실행에서는 SRS 변경이나 공식 TC 등록을 하지 않았습니다.</span></div>
+  <div class="qa-inline-links"><a href="evidence/submission-20261010/agent2_test_design.json">생성된 TC 원문 ↗</a><a href="evidence/submission-20261010/agent3_run_summary.json">자동화 실행 요약 ↗</a><a href="evidence/submission-20261010/final_report.json">최종 보고 원문 ↗</a><a href="#current-status">P2 후속 평가와 남은 확인 ↓</a></div>
+  <p class="fine">Run: RUN-20261009-103040-2FC290 · 코드 5fdc882 · API 5회 · 재작성 0회. 한 건의 성공이며 반복 정확도를 뜻하지 않습니다. 원문 링크는 로컬 검토용입니다.</p>
+</article>
+</details>
+<p class="qa-bridge"><b>아래는 실제 저장된 중풍 시험의 산출물입니다.</b> 앞의 온도 변경 설명 예시와는 다른 기록입니다. 당시 계획·코드·결과를 그대로 보존했습니다.</p>
+<div class="execution-layout">
+<div class="artifact-window"><div class="artifact-caption"><b>과거 실행 기록 · 중풍 표시 변경</b></div><p class="artifact-request"><b>변경 요구사항</b> 풍량을 ‘중풍’으로 바꾸면, 장비 카드에 중풍이 표시되고 내부 풍량 설정도 중풍으로 변경되어야 합니다.</p><div class="artifact-tabs" role="tablist" aria-label="자동화 산출물"><button id="artifact-tab-plan" role="tab" aria-selected="true" aria-controls="artifact-plan"><span class="artifact-stage-no">01</span><span class="artifact-stage-copy"><b>당시 자동화 계획</b><small>관찰한 화면 요소와 TC를 연결</small></span></button><button id="artifact-tab-code" role="tab" aria-selected="false" aria-controls="artifact-code" tabindex="-1"><span class="artifact-stage-no">02</span><span class="artifact-stage-copy"><b>검증된 계획을 코드로 변환</b><small>허용된 동작만 Playwright 코드로 생성</small></span></button><button id="artifact-tab-result" role="tab" aria-selected="false" aria-controls="artifact-result" tabindex="-1"><span class="artifact-stage-no">03</span><span class="artifact-stage-copy"><b>시험하고 결과 확인</b><small>화면·내부 값·복원 결과를 기록</small></span></button></div>
+<div class="artifact-panel" id="artifact-plan" role="tabpanel" aria-labelledby="artifact-tab-plan"><p class="plain-panel-lead">이 중풍 기록은 AI가 실행 계획을 만들던 당시 방식의 예시입니다. 현재는 프로그램이 Agent 2의 TC에 정해진 절차와 기대결과로 자동화 코드를 생성합니다. 아래 계획·코드·결과는 당시 기록을 보존한 것이며, 최신 수정본의 실행 결과는 아닙니다.</p>
+<ol class="plain-plan">
+<li><span>01</span><div><b>중풍을 선택하고 적용</b><p>관제 패널에서 대상 장비의 풍량을 바꿉니다.</p></div></li>
+<li><span>02</span><div><b>화면과 내부 설정을 함께 확인</b><p>카드에 ‘중풍’이 보이고 내부 풍량도 중풍인지 비교합니다.</p></div></li>
+<li><span>03</span><div><b>당시 TC의 LOW로 복원</b><p>이 과거 사례는 시험에서 정한 LOW로 되돌리고 확인했습니다. 현재 유지보수본은 준비 전 상태와 비교합니다.</p></div></li>
+</ol><details class="artifact-technical"><summary>당시 계획의 조작·검증 번호</summary><div class="technical-body"><p class="artifact-label">TC에서 정한 조작과 기대값이 계획에 연결됩니다.</p><div class="plan-row"><span>ACT-002</span><code>CLICK &nbsp; #det-fan-med</code></div><div class="plan-row"><span>ACT-003</span><code>APPLY &nbsp; .btn-apply-cmd</code></div><hr class="plan-divider"><div class="plan-row"><span>ER-001 / UI</span><code>#device-card-1<br>기대 텍스트 <span class="expected">"중풍"</span></code></div><div class="plan-row"><span>ER-002 / 값</span><code>window.__vccs.devices<br>fanSpeed = <span class="expected">"MED"</span></code></div><p class="fine">두 검증 모두 ACT-003 적용 직후에 연결됩니다.</p></div></details></div>
+<div class="artifact-panel" id="artifact-code" role="tabpanel" aria-labelledby="artifact-tab-code" hidden><p class="plain-panel-lead">Checkpoint 3는 조작 대상·기대값·확인 시점·복원이 TC와 맞는지 검사합니다. 통과한 계획의 허용된 조작·검증만 Playwright Python 코드로 변환하고 실행 전 문법 등 정적 검사를 수행합니다.</p>
+<dl class="plain-code-map">
+<div><dt>중풍 선택</dt><dd>중풍 버튼을 찾아 클릭하는 코드</dd></div>
+<div><dt>변경 적용</dt><dd>적용 버튼을 눌러 장비에 명령을 보내는 코드</dd></div>
+<div><dt>화면 검증</dt><dd>장비 카드의 글자를 읽고 ‘중풍’이 있는지 확인하는 코드</dd></div>
+</dl><p class="plain-panel-note">기대값은 TC에 정한 내용을 사용합니다. 실패했다고 기대값을 바꿔 통과시키지 않습니다.</p><details class="artifact-technical"><summary>실제 생성된 Python 코드</summary><div class="technical-body"><p class="artifact-label">생성 Python 원문 발췌 · 조작과 UI 검증</p><pre><code><span class="code-comment"># ACT-002 TEST: 중앙 관제 패널에서 대상 장비에 MED 풍량을 선택하고 적용합니다.</span>
+page.locator(<span class="code-string">'#det-fan-med'</span>).click()
+<span class="code-comment"># ACT-003 TEST: 중앙 관제 패널에서 대상 장비에 MED 풍량을 선택하고 적용합니다.</span>
+page.locator(<span class="code-string">'.btn-apply-cmd'</span>).click()
+page.wait_for_timeout(100)
+<span class="code-comment"># EXPECTED_RESULT: ER-001</span>
+actual = page.locator(<span class="code-string">'#device-card-1'</span>).inner_text()
+if <span class="code-string">'중풍'</span> not in actual:
+    mismatches.append(<span class="code-string">'ER-001'</span> + f<span class="code-string">': expected text missing: {actual}'</span>)</code></pre><p class="fine">AI가 자유 Python을 직접 작성한 결과가 아니라, 검사한 계획을 코드 생성기가 변환한 결과입니다.</p></div></details></div>
+<div class="artifact-panel" id="artifact-result" role="tabpanel" aria-labelledby="artifact-tab-result" hidden><p class="plain-panel-lead">실제로 실행해 화면·내부 설정·복원 결과를 확인했습니다.</p>
+<div class="table-wrap plain-result" role="region" aria-label="중풍 변경 실제 시험 결과" tabindex="0"><table><thead><tr><th scope="col">확인 대상</th><th scope="col">기대 결과</th><th scope="col">실제 결과</th></tr></thead><tbody>
+<tr><th scope="row">장비 카드</th><td>중풍 표시</td><td class="pass">중풍 표시 · 일치</td></tr>
+<tr><th scope="row">내부 풍량 설정</th><td>중풍으로 변경</td><td class="pass">중풍으로 변경 · 일치</td></tr>
+<tr><th scope="row">시험 후 복원</th><td>시험에서 정한 LOW로 복원</td><td class="pass">복원 검사 통과</td></tr>
+</tbody></table></div><p class="plain-panel-note">이후 관련 기존 테스트를 실행하고 결과 분석·보고로 이어집니다. 이 9/3 공개 실행 후보는 당시 승인 전이었습니다. 이후 별도 실행의 상세 MED TC가 공식 등록됐습니다.</p><details class="artifact-technical"><summary>내부 값과 실제 관찰 기록</summary><div class="technical-body"><p class="artifact-label">시험 로그의 실제 관찰</p><div class="observation-pair"><div><small>장비 카드</small><strong>중풍</strong><span class="pass">UI 기대 일치</span></div><div><small>내부 fanSpeed</small><strong>MED</strong><span class="pass">내부 값 일치</span></div></div><div class="observation-note"><span>시험 후 LOW 복원</span><b class="pass">검사 통과</b></div><div class="observation-note"><span>다음 단계</span><span>환경 점검 · 선택된 기존 TC 실행</span></div><p class="fine"><a class="text-link" href="examples/results/agent1-agent2-agent3-agent4-medium-fan/evidence/TC-CAND-001/trial-observation.txt">실제 관찰 기록 ↗</a></p></div></details></div></div></div>
+<div class="execution-policy"><h3>시험 전 확인과 문제 발생 시 처리</h3><div class="execution-policy-grid">
+<article><b>TC대로 시험하는지 확인</b><p>시험 준비, 조작 순서, 기대결과, 원래 상태로 되돌리는 절차가 TC와 맞는지 확인합니다. TC와 연결이 다르거나 필수 검토가 끝나지 않으면 시험을 막고 이유를 남깁니다.</p></article>
+<article><b>실행할 수 없는 TC는 따로 보고</b><p>필요한 조작·확인을 자동화할 수 없는 TC는 제외하고 이유를 기록합니다. 실행 가능한 다른 TC는 진행할 수 있지만, 호출·내부 오류가 생기면 추가 AI 호출을 중단합니다.</p></article>
+<article><b>시험 실패와 준비 오류를 구분</b><p>필요한 초기 상태를 확인한 뒤 시험하고, 종료 후 원래 상태로 돌아왔는지 확인합니다. 기대와 다른 동작은 준비·복구 문제와 구분하며, 복원에 실패한 환경에서는 후속 시험을 계속하지 않습니다.</p></article>
+</div></div>
+
+</div></section>
+
+<section id="scenarios"><div class="wrap"><div class="section-head"><div><span class="num"><b>7</b> 테스트 실행 결과</span><h2>변경 요청별 실행 결과</h2></div><p>저장된 과거 실행 세 사례입니다. 신규 TC와 기존 회귀 테스트를 함께 실행했으며, 시험 통과·제품 불일치·미정 조건에 따른 사람 검토를 구분해 보여줍니다.</p></div>
+<div class="scenario-list"><details class="scenario" id="tc-med"><summary><span class="scenario-number">01</span><span class="scenario-title"><b>새 검증은 만들고, 기존 검증은 재사용</b><small>신규 TC 1 + 기존 TC 1 + 환경 점검 1 · 총 3건 통과</small></span><span class="pass">PASS</span><span class="expand-label" aria-hidden="true"></span></summary><div class="scenario-body"><p class="request-line"><b>요구사항</b> MED 적용 시 장비 카드에 중풍을 표시하고 내부 풍량은 MED로 유지한다.</p><div class="tc-detail"><div class="detail-head"><span>실제 Agent 2 산출물 · 원문 발췌</span><a href="examples/results/agent1-agent2-agent3-agent4-medium-fan/public_result.json">공개 실행 요약 ↗</a></div><h3>중앙 관제 단일 장비 MED 풍량 적용 시 중풍 표시 및 내부 fanSpeed 동기화</h3><h4>사전조건</h4><ul><li>중앙 관제 패널에서 오류와 잠금이 없는 단일 장비를 대상으로 합니다.</li><li>첫 실행 기본 상태인 LOW 풍량을 확인한 뒤 시험을 시작합니다.</li></ul><h4>시험 절차</h4><ol class="steps"><li>중앙 관제 패널에서 대상 장비에 MED 풍량을 선택하고 적용합니다.</li></ol><h4>기대결과와 실제 관찰</h4><div class="table-scroll" tabindex="0" role="region" aria-label="중풍 표시와 내부 풍량 확인 기대결과"><table><thead><tr><th scope="col">관찰</th><th scope="col">기대결과 원문</th><th scope="col">판정 시점</th><th scope="col">실제 관찰</th></tr></thead><tbody><tr><th scope="row"><span>화면</span><small>ER-001</small></th><td>대상 장비 카드에 중풍이 표시됩니다.</td><td class="timing">절차 1 직후</td><td class="observed-value">카드에 중풍 표시 · 일치</td></tr><tr><th scope="row"><span>내부 값</span><small>ER-002</small></th><td>대상 장비의 내부 fanSpeed는 MED입니다.</td><td class="timing">절차 1 직후</td><td class="observed-value">fanSpeed=MED · 일치</td></tr></tbody></table></div><h4>TC에 작성된 복원 절차</h4><ol><li>시험 뒤 대상 장비를 LOW 풍량으로 복원하고 적용합니다.</li></ol><div class="trace"><span>연결 요구사항</span><p>REQ-FAN-001 · REQ-CONTROL-001 · REQ-STATE-001</p></div></div><p class="case-restore-result"><b class="pass">복원 검사 통과</b> 시험 뒤 LOW 복원·적용을 확인했습니다.</p><details class="related-test" id="tc-high"><summary><span>함께 실행한 기존 TC · 강풍 표시 확인</span><b class="pass">PASSED</b></summary><div class="tc-detail"><div class="detail-head"><span>사람 승인 TC · 원문 발췌</span><a href="approved_assets/test_cases/TC-V2-001.json">TC 원문 ↗</a></div><h3>단일 허용 장비 HIGH 풍량 적용 시 강풍 카드 라벨 및 fanSpeed HIGH 유지</h3><h4>사전조건</h4><ul><li>중앙 관제 패널에서 오류와 잠금이 없는 단일 장비를 대상으로 한다.</li><li>첫 실행 기본 상태인 LOW 풍량을 확인한 뒤 시험을 시작한다.</li></ul><h4>시험 절차</h4><ol class="steps"><li>중앙 관제 패널에서 대상 장비에 HIGH 풍량을 선택하고 적용한다.</li></ol><h4>기대결과</h4><div class="table-scroll" tabindex="0" role="region" aria-label="강풍 표시와 내부 풍량 확인 기대결과"><table><thead><tr><th scope="col">관찰</th><th scope="col">기대결과 원문</th><th scope="col">판정 시점</th></tr></thead><tbody><tr><th scope="row"><span>화면</span><small>ER-001</small></th><td>대상 장비 카드에 강풍이 표시된다.</td><td class="timing">절차 1 직후</td></tr><tr><th scope="row"><span>내부 값</span><small>ER-002</small></th><td>대상 장비의 내부 fanSpeed는 HIGH이다.</td><td class="timing">절차 1 직후</td></tr></tbody></table></div><h4>시험 후 복원</h4><ol><li>시험 뒤 대상 장비를 LOW 풍량으로 복원하고 적용한다.</li></ol><div class="trace"><span>연결 요구사항</span><p>REQ-FAN-001 · REQ-CONTROL-001 · REQ-STATE-001</p></div></div></details><div class="case-conclusion"><p><b class="pass">분류 · PASS</b> MED는 새 후보로, 관련 HIGH 검증은 기존 TC로 수행했습니다. 이 9/3 공개 실행 당시에는 SRS 개정과 MED 등록이 승인 전이었습니다. 이후 별도 실행에서 생성한 상세 MED TC는 사람 승인에 따라 공식 등록했습니다.</p><a href="examples/results/agent1-agent2-agent3-agent4-medium-fan/README.md">9/3 공개 실행 증거 ↗</a></div>
+</div></details>
+
+<details class="scenario" id="tc-lock"><summary><span class="scenario-number">02</span><span class="scenario-title"><b>요구사항과 다른 동작은 실패로 보고</b><small>신규 TC 1 + 기존 TC 2 + 환경 점검 1 · 3건 통과·1건 불일치</small></span><span class="mismatch">불일치</span><span class="expand-label" aria-hidden="true"></span></summary><div class="scenario-body"><p class="request-line"><b>요구사항</b> 잠금 설정 시 온도 내림·올림 버튼을 모두 비활성화한다.</p>
+<figure class="qa-visual" id="main-judgment-diagram" aria-labelledby="main-judgment-title">
+  <div class="qa-visual-title"><h3 id="main-judgment-title">잠금 적용 후에도 온도 버튼이 활성화된 사례</h3><span>8월 27일 실제 기록을 설명한 도식 · 화면 캡처 아님</span></div>
+  <div class="qa-pair">
+    <div class="qa-node primary"><span class="qa-kicker">요구사항 → 시험의 기준</span><h4>잠금 시 온도 버튼이 비활성 상태여야 함</h4><div class="qa-device-strip"><b>기대결과 · 온도 조작 비활성</b><div class="qa-mock-controls inactive" aria-hidden="true"><span>−</span><span>+</span></div></div><p>시험에서 무엇이 맞아야 하는지는 요청과 SRS에서 정합니다. 제품의 현재 동작을 정답으로 복사하지 않습니다.</p></div>
+    <div class="qa-arrow difference" aria-label="기대결과와 실제 관찰이 다름">≠</div>
+    <div class="qa-node"><span class="qa-kicker">실행 기록 → 실제 관찰</span><h4>내부 잠금은 켜졌지만, 버튼은 활성 상태</h4><div class="qa-device-strip"><b>실제 관찰 · 온도 버튼 활성</b><div class="qa-mock-controls" aria-hidden="true"><span>−</span><span>+</span></div></div><p>내부 잠금 값과 화면의 버튼 상태를 각각 확인했습니다. 내부 값만 보면 화면의 차이를 놓칠 수 있습니다.</p></div>
+  </div>
+  <div class="qa-visual-foot warning"><b>판단: 제품 불일치 후보로 보고하고 원인을 검토</b><br>이 기록은 버튼 상태의 불일치 근거입니다. 실제 온도가 바뀌었다거나 제품 결함이 확정됐다는 뜻은 아닙니다.</div>
+  <figcaption>화면 상태와 내부 값을 따로 확인해 불일치를 찾았습니다. 아래에 당시 TC와 관찰 기록을 함께 남겼습니다.</figcaption>
+</figure>
+<div class="tc-detail"><div class="detail-head"><span>실제 Agent 2 산출물 · 원문 발췌</span><a href="examples/results/agent1-agent2-agent3-agent4-lock-disable/public_result.json">공개 실행 요약 ↗</a></div><h3>중앙 관제 잠금 적용 후 대상 장비 온도 조작 비활성화</h3><p class="term">PRIMARY_TEST_DEVICE = 단일 대상 장비</p><h4>사전조건</h4><ul><li>PRIMARY_TEST_DEVICE가 온라인 상태이고 오류가 없다.</li><li>PRIMARY_TEST_DEVICE가 잠금 해제 상태이며 내부 장비의 locked 값이 false이다.</li><li>중앙 관제 패널에서 PRIMARY_TEST_DEVICE를 단일 대상으로 선택할 수 있다.</li></ul><h4>시험 절차</h4><ol class="steps"><li>중앙 관제 패널에서 PRIMARY_TEST_DEVICE를 단일 대상으로 선택한다.</li><li>중앙 관제 패널에서 PRIMARY_TEST_DEVICE에 잠금 설정을 적용한다.</li></ol><h4>기대결과와 실제 관찰</h4><div class="table-scroll" tabindex="0" role="region" aria-label="잠금 후 온도 조작 비활성화 기대결과"><table><thead><tr><th scope="col">관찰</th><th scope="col">기대결과 원문</th><th scope="col">판정 시점</th><th scope="col">실제 관찰</th></tr></thead><tbody><tr><th scope="row"><span>화면</span><small>ER-001</small></th><td>PRIMARY_TEST_DEVICE의 온도 내림 버튼이 disabled 상태이다.</td><td class="timing">절차 2 직후</td><td class="observed-value">enabled=True · 불일치</td></tr><tr><th scope="row"><span>화면</span><small>ER-002</small></th><td>PRIMARY_TEST_DEVICE의 온도 올림 버튼이 disabled 상태이다.</td><td class="timing">절차 2 직후</td><td class="observed-value">enabled=True · 불일치</td></tr><tr><th scope="row"><span>내부 값</span><small>ER-003</small></th><td>PRIMARY_TEST_DEVICE의 내부 장비 locked 값이 true이다.</td><td class="timing">절차 2 직후</td><td class="observed-value">locked=true · 일치</td></tr></tbody></table></div><h4>TC에 작성된 복원 절차</h4><ol><li>중앙 관제 패널에서 PRIMARY_TEST_DEVICE의 잠금을 해제하여 초기 잠금 해제 상태로 복원한다.</li></ol><div class="trace"><span>연결 요구사항</span><p>REQ-LOCK-001</p></div></div><div class="case-conclusion"><p><b class="review">분류 · 제품 불일치 후보 / 사람 검토</b> 기대값을 바꿔 PASS시키지 않습니다. 요구사항·제품·자동화 근거를 검토한 뒤 후속 조치를 결정합니다.</p><a href="examples/results/agent1-agent2-agent3-agent4-lock-disable/사람_최종_검토_공개본.md">실제 관찰·결과 검토서 ↗</a><a href="examples/results/agent1-agent2-agent3-agent4-lock-disable/README.md">8/27 실행·전송 증거 ↗</a></div>
+</div></details><details class="scenario" id="tc-partial"><summary><span class="scenario-number">03</span><span class="scenario-title"><b>시험이 통과해도 미정 조건은 사람에게 확인</b><small>신규 TC 1 + 기존 TC 1 + 환경 점검 1 · 3건 통과·미정 조건 1건</small></span><span class="review">사람 검토</span><span class="expand-label" aria-hidden="true"></span></summary><div class="scenario-body">
+<p class="request-line"><b>요구사항</b> 중풍 적용 시 장비 카드에 중풍이 표시되고 내부 풍량은 MED여야 합니다. 적용 완료 알림의 색상도 변경하되, 목표 색상은 아직 정하지 않았습니다.</p>
+<div class="table-wrap" role="region" tabindex="0" aria-label="미정 조건이 포함된 요청의 실제 처리 결과"><table><thead><tr><th scope="col">확인 항목</th><th scope="col">실제 처리</th><th scope="col">결과</th></tr></thead><tbody>
+<tr><th scope="row">중풍 표시·내부 풍량</th><td>확정된 조건으로 신규 TC를 설계해 시험</td><td class="pass">신규 TC 1건 통과</td></tr>
+<tr><th scope="row">기존 강풍 검증</th><td>승인된 기존 TC를 선택해 재실행</td><td class="pass">기존 TC 1건 통과</td></tr>
+<tr><th scope="row">실행 환경</th><td>가상 중앙제어 화면의 준비 상태 확인</td><td class="pass">환경 점검 1건 통과</td></tr>
+<tr><th scope="row">알림 색상 변경</th><td>목표 색상이 미정이므로 기대값을 만들지 않고 정보 부족으로 보고</td><td class="review">미정 조건 1건 · 미검증</td></tr>
+</tbody></table></div>
+<div class="case-conclusion"><p><b class="review">시험 3건 통과 → 최종 사람 검토</b> 실행한 시험은 모두 통과했지만 요청 전체의 검증이 끝난 것은 아닙니다. 미정 색상은 실패 TC로 집계하지 않고 별도 확인 항목으로 남겼습니다. 보고 정합성 검사는 통과했으며, SRS 개정·공식 TC 등록은 수행하지 않았습니다.</p><a href="examples/results/agent1-agent2-agent3-agent4-partial-information/README.md">9/12 실행·판단 근거 ↗</a></div>
+</div></details></div><div class="auxiliary-evidence"><details class="scenario auxiliary-case"><summary><span class="scenario-number">추가 사례</span><span class="scenario-title"><b>초기 온도 시험 증거</b><small>AUTO 하한 미만 시험만 공개 · 전체 모드 검증은 아님</small></span><span class="mismatch">불일치</span><span class="expand-label" aria-hidden="true"></span></summary><div class="scenario-body">
+<p class="request-line"><b>요구사항</b> AUTO는 18~30°C, COOL·HEAT는 16~30°C 허용. FAN·DRY는 온도 비활성화.</p>
+<div class="tc-heading"><h3>TC-CAND-003 · AUTO 17°C 적용 차단</h3><span class="tag">초기 Agent 1→3 시험</span></div>
+<p class="setup"><b>준비</b> 중앙 제어가 가능한 장비를 AUTO·18°C로 설정하고 적용.</p>
+<div class="table-wrap" tabindex="0" role="region" aria-label="시험 절차와 결과"><table class="scenario-tc"><thead><tr><th scope="col">조작·확인</th><th scope="col">기대 결과</th><th scope="col">실제 관찰</th></tr></thead><tbody><tr><td>17°C로 내린 뒤 적용 시도</td><td>화면 설정 온도 18°C 유지</td><td>17°C 적용</td></tr><tr><td>같은 적용 결과의 내부 값 확인</td><td>내부 setTemp=18 유지</td><td>내부 값도 17°C</td></tr><tr><td>적용 안내 확인</td><td>범위 밖 입력 차단 안내</td><td>차단 대신 성공 안내</td></tr></tbody></table></div>
+<div class="case-conclusion"><p><b class="mismatch">시험 결과 · 제품 불일치 후보</b> 공개 증거는 AUTO 하한 시험이며, 모든 모드의 온도 검증 완료를 뜻하지 않습니다.</p><a href="examples/results/agent1-agent2-agent3-auto-temperature/agent2_test_design.json">생성 TC 원문 ↗</a><a href="examples/results/agent1-agent2-agent3-auto-temperature/README.md">실행 증거 ↗</a></div>
+</div></details></div><details class="catalog-fold"><summary><span>관리 중인 기존 회귀 테스트</span><small>기준 6건 · V2 승인 2건 · 환경 점검 별도</small></summary><div class="asset-catalog"><div class="catalog-head"><h3>회귀 테스트 · 재사용 자산 목록</h3><span>기준 6건 + V2 승인 2건 · 환경 점검 별도</span></div><div class="table-wrap" tabindex="0" role="region" aria-label="회귀 테스트 목록"><table class="asset-table"><thead><tr><th scope="col">TC ID</th><th scope="col">검증 내용 · 펼쳐보기</th><th scope="col">자산 구분</th></tr></thead><tbody><tr><th scope="row">TC-MODE-001</th><td><details class="asset-detail"><summary>난방 모드·설정 온도 적용</summary><div><b>검증 범위</b><ul><li>단일 장비에 HEAT 모드를 중앙 관제 패널로 적용</li><li>장비 카드의 난방 표시와 내부 mode=HEAT·setTemp=24.0 동기화</li></ul><p>연결 요구사항 · REQ-CONTROL-001, REQ-MODE-001, REQ-STATE-001</p></div></details></td><td>기존 회귀 TC</td></tr><tr><th scope="row">TC-MODE-002</th><td><details class="asset-detail"><summary>송풍 모드 온도 비활성화</summary><div><b>검증 범위</b><ul><li>FAN 모드 선택 시 온도 올림·내림 버튼 비활성화</li><li>설정 온도 표시 ---와 온도 영역 disabled 상태</li></ul><p>연결 요구사항 · REQ-MODE-002</p></div></details></td><td>기존 회귀 TC</td></tr><tr><th scope="row">TC-MODE-003</th><td><details class="asset-detail"><summary>제습 → 냉방 온도 조작 복원</summary><div><b>검증 범위</b><ul><li>DRY 모드의 온도 조작 비활성화와 --- 표시</li><li>COOL 복귀 시 온도 조작 재활성화와 온도 표시 복원</li></ul><p>연결 요구사항 · REQ-MODE-001, REQ-MODE-002</p></div></details></td><td>기존 회귀 TC</td></tr><tr><th scope="row">TC-LOCK-001</th><td><details class="asset-detail"><summary>잠긴 장비의 중앙 명령 차단</summary><div><b>검증 범위</b><ul><li>전체 장비 locked=true 주입 후 잠금 표시 확인</li><li>잠긴 장비의 중앙 관제 명령 차단과 기존 내부 상태 불변</li></ul><p>연결 요구사항 · REQ-LOCK-001</p></div></details></td><td>기존 회귀 TC</td></tr><tr><th scope="row">TC-ERR-001</th><td><details class="asset-detail"><summary>CH05 오류 장비 제어 차단</summary><div><b>검증 범위</b><ul><li>CH05 오류 주입 후 오류 카드·로그 표시</li><li>오류 장비 제어 차단 Toast·로그와 내부 status=ERROR 유지</li></ul><p>연결 요구사항 · REQ-ERROR-001</p></div></details></td><td>기존 회귀 TC</td></tr><tr><th scope="row">TC-TEMP-001</th><td><details class="asset-detail"><summary>설정 온도 30°C 상한</summary><div><b>검증 범위</b><ul><li>설정 온도 30°C 상한 도달 허용</li><li>30°C 초과 요청 차단과 범위 안내 Toast·화면 값 유지</li></ul><p>연결 요구사항 · REQ-TEMP-001</p></div></details></td><td>기존 회귀 TC</td></tr><tr><th scope="row">TC-V2-001</th><td><details class="asset-detail"><summary>HIGH 적용 후 강풍 표시·내부 HIGH</summary><div><b>검증 범위</b><ul><li>오류·잠금이 없는 단일 장비, 초기 LOW 준비</li><li>HIGH 적용 후 카드 강풍·내부 fanSpeed=HIGH 확인</li><li>시험 준비 전 상태로 복원하고 화면·내부값 비교</li></ul><p>사람 승인으로 공식 등록된 V2 자산</p></div></details></td><td class="pass">사람 승인 완료</td></tr><tr><th scope="row">TC-V2-002</th><td><details class="asset-detail"><summary>MED 적용 후 중풍 표시·내부 MED</summary><div><b>검증 범위</b><ul><li>단일 장비의 MED 선택·적용</li><li>카드 중풍 표시·내부 fanSpeed=MED 확인</li><li>시험 준비 전 상태로 복원하고 화면·내부값 비교</li></ul><p><a href="https://github.com/SEHOOOOON/qa-agent-pipeline-v2/blob/950a3ae0936de78b21a59d6d15c29f3ade5d8e6f/approved_assets/revisions/20261005/TC-V2-002/test_case.json">현재 상세 TC · 유지보수본 ↗</a></p></div></details></td><td class="pass">사람 승인 완료</td></tr><tr><th scope="row">TC-ENV-000</th><td>가상 중앙제어 화면의 실행 준비 상태</td><td>별도 환경 점검</td></tr></tbody></table></div><p class="catalog-status">현재 유지보수본은 시험 준비 전 상태로 복원·비교합니다. 위 공개 사례의 과거 LOW 복원 기록은 당시 결과로 보존합니다. 등록 여부와 실행 결과는 구분합니다.</p></div></details></div></section>
+
+<section id="reporting"><div class="wrap"><div class="shead"><div><span class="label"><b>8</b> 결과 분석 및 보고</span><h2>실행 결과 분류와 사람의 최종 판단</h2></div><p>Agent 4는 규칙 기반으로 실행 결과를 분류합니다. 프로그램이 실행 근거·집계·보고 내용의 일치를 검사한 뒤 Slack·Notion 보고 데이터를 생성합니다. 기본은 전송 미리보기이며, 명시적으로 요청할 때 실제 전송합니다.</p></div><div class="report-flow"><article class="report-step"><b>01 · 실행 결과 입력</b><h3>Agent 3 결과</h3><p>Pytest 상태·실패 로그·실행 시간·TC ID</p></article><article class="report-step"><b>02 · 결과 분류</b><h3>Agent 4 분류</h3><p>제품·자동화·환경·근거 부족·미실행</p></article><article class="report-step"><b>03 · 보고 전 확인</b><h3>보고서 자동 검사</h3><p>집계 수치·분류 근거·외부 보고값 확인</p></article></div><div class="result-board"><div class="bhead"><div>번호</div><div>분류</div><div>판단 기준</div><div>대표 예시</div><div>후속 조치</div></div><div class="brow defect"><div>01</div><div class="ctype"><b>제품 불일치 후보</b><span>제품 영역</span></div><div>유효 실행에서 기대값 불일치</div><div>잠금 상태인데 온도 버튼 활성</div><div>제품 확인 요청</div></div><div class="brow req"><div>02</div><div class="ctype"><b>판정 근거 부족</b><span>실행 근거</span></div><div>환경 점검 차단으로 회귀 증거 미확보</div><div>선택된 회귀 테스트가 실행되지 않음</div><div>환경 복구·재실행</div></div><div class="brow env"><div>03</div><div class="ctype"><b>환경·시뮬레이터 문제</b><span>실행 환경</span></div><div>응답·초기화 문제</div><div>환경 준비·초기화 실패</div><div>정상화 후 재실행</div></div><div class="brow auto"><div>04</div><div class="ctype"><b>자동화 실행 문제</b><span>준비·시험·복원</span></div><div>실행 오류·시간 초과·준비/복원 실패</div><div>시험 전 초기 상태가 TC와 다름</div><div>자동화 확인·재실행</div></div><div class="brow blocked"><div>05</div><div class="ctype"><b>미실행</b><span>실행 상태</span></div><div>실행 결과에 미실행으로 기록</div><div>시험이 건너뛰어져 관찰 결과가 없음</div><div>사유 확인·재실행</div></div></div><p class="v1-table-note">요구사항 정보 부족과 자동화 제외 TC는 별도 목록으로 보고합니다. 실행한 TC가 모두 통과해도 미확인 항목이 남으면 사람 검토로 넘깁니다. <a href="#tc-partial">미정 조건이 남은 실제 사례 ↑</a></p><div id="mixed-report-example"><p><strong>실제 온도 변경 요청에서는 냉방의 제품 불일치와 난방의 시험 미실행을 구분해 보고했습니다.</strong> 냉방은 요청한 20°C 하한과 달리 19°C로 내려간 것을 기록하고 원래 상태로 복원했습니다. 난방은 TC와 실행 순서가 맞지 않아 시험하지 않았습니다. 두 결과와 사유를 Slack·Notion에 전달해, 실행하지 않은 항목을 제품 FAIL로 오해하지 않도록 했습니다.</p><p class="v1-table-note">저장된 분석·냉방 시험을 이어 쓴 후속 보고 사례입니다. 전체 요청의 자동 처리 성공이나 새로운 P2 평가 결과는 아닙니다.</p></div><div class="approval-ending" id="approval">
+<div class="approval-heading"><div><span class="approval-label">보고 이후 · 사람 승인</span><h3>기존 TC 비교와 등록 여부 결정</h3></div></div>
+<div class="approval-document">
+<div class="approval-document-title"><b>사람이 검토하고 결정할 내용</b><span>PASS는 등록 조건 중 하나이며, 자동 승인은 아닙니다.</span></div>
+<dl class="approval-items">
+<div><dt>실행 결과 검토</dt><dd><ul class="approval-bullets"><li>요청한 변경·기대값과 실제 시험 결과 비교</li><li>실패 증거·제외 사유·미확인 항목 검토</li><li>검토자·승인/미등록/보류 판단·메모와 TC·코드·실행 출처 보존</li></ul></dd></div>
+<div><dt>SRS 개정 동의</dt><dd><ul class="approval-bullets"><li>요구사항 명세서(SRS)의 변경 전·후 문구 비교</li><li>새 제품 기준으로 반영할지 별도로 동의</li><li>승인 전에는 기존 명세 유지</li></ul></dd></div>
+<div><dt>기존 TC 비교·등록</dt><dd><ul class="approval-bullets"><li>이번 TC와 기존 TC의 준비·절차·기대결과를 비교</li><li>기존 TC를 유지하고 추가할지, 선택한 TC를 대체할지 결정</li><li>비슷한 기능이어도 같은 시험인지는 사람이 판단</li></ul></dd></div>
+</dl>
+<div class="approval-decisions"><div class="approval-hold"><b>등록하지 않음 · 보류</b><ul class="approval-bullets"><li>등록하지 않을 이유 또는 추가 확인할 내용을 기록</li><li>기존 SRS·공식 테스트는 변경 없이 유지</li></ul></div><div class="approval-accept"><b>추가 · 선택한 TC 대체</b><ul class="approval-bullets"><li>필요한 SRS 개정에 동의한 뒤 TC·자동화 코드를 등록</li><li>대체한 TC는 다음 실행 목록에서 제외하고 원본·과거 기록은 보존</li></ul></div></div>
+</div>
+<details class="scenario registration-case"><summary><span class="scenario-number">예시</span><span class="scenario-title"><b>현재 등록 상태 · 강풍·중풍 공식 TC</b><small>현재 자산 상태 · 두 공식 TC와 과거 후보 구분</small></span><span class="review">등록 판단</span><span class="expand-label" aria-hidden="true"></span></summary><div class="scenario-body">
+<p class="request-line"><b>등록 기준</b> 시험 통과와 공식 등록은 별개입니다. 사람이 결과를 검토하고 SRS 개정·TC 등록 여부를 결정합니다.</p>
+<div class="table-wrap asset-state-comparison" role="region" tabindex="0" aria-label="실제 TC별 승인 상태"><table><thead><tr><th scope="col">TC</th><th scope="col">현재 상태</th><th scope="col">다음 요청에서의 취급</th></tr></thead><tbody>
+<tr><th scope="row">강풍 표시 확인</th><td class="pass">사람 승인 완료</td><td>기존 회귀 TC로 관리하며, 중풍 변경 사례에서도 재사용했습니다.</td></tr>
+<tr><th scope="row">중풍 표시 확인</th><td class="pass">사람 승인 완료 · TC-V2-002</td><td>9/18 실행의 상세 TC가 사람 승인으로 등록됐습니다. 위 9/3 공개 후보와는 다른 실행의 산출물입니다.</td></tr>
+</tbody></table></div>
+<div class="case-conclusion"><p>강풍·중풍 TC는 공식 등록 이력이 있으며, 현재 사용하는 유지보수본에는 준비 전 상태 복원·비교가 연결돼 있습니다. 유지보수본의 로컬 확인과 최초 모델 실행·사람 승인은 구분합니다. 과거 실행을 소급 변경하지 않았습니다.</p><a href="https://github.com/SEHOOOOON/qa-agent-pipeline-v2/blob/950a3ae0936de78b21a59d6d15c29f3ade5d8e6f/approved_assets/revisions/20261005/TC-V2-001/test_case.json">현재 강풍 TC · 유지보수본 ↗</a><a href="https://github.com/SEHOOOOON/qa-agent-pipeline-v2/blob/950a3ae0936de78b21a59d6d15c29f3ade5d8e6f/approved_assets/revisions/20261005/TC-V2-002/test_case.json">현재 중풍 TC · 유지보수본 ↗</a></div></div></details>
+<details class="approval-verification"><summary>등록 직전 자동 확인</summary><ul class="approval-bullets"><li>최종 실행·자동 검사 통과와 필수 증거 확인</li><li>TC·자동화 코드·실행 증거가 원본 기록과 일치하는지 확인</li><li>비교한 TC 목록이 바뀌면 다시 검토하도록 안내</li><li>시험 이후 제품 화면 파일이 변경된 경우, 현재 화면에서 재검증 후 등록</li></ul></details>
+<div class="approval-footer"><ul class="approval-bullets"><li>기존 TC로 검증이 끝난 경우, 중복 등록 없이 SRS 개정만 승인 가능</li><li>검토서 작성만으로는 파일에 반영되지 않음</li></ul><a href="examples/results/agent1-agent2-agent3-agent4-medium-fan/사람_최종_검토_공개본.md">예시 검토서 보기 ↗</a></div>
+</div></div></section>
+
+
+
+
+
+
+
+<section id="demo-video"><div class="wrap">
+<div class="section-head"><div><span class="num"><b>9</b> 구현 영상</span><h2>세 가지 결과로 보는 QA 흐름</h2></div><p>정상 시험과 등록, 제품 불일치, 정보 부족을 각각 20초씩 보여줍니다. 핵심 화면을 확대하고 짧은 설명을 붙인 60초 요약본입니다.</p></div>
+<div class="video-slot"><span>60초 · 사례별 20초 · 무음·화면 설명 포함</span>
+<p id="demo-video-description">중풍 변경의 시험과 사람 승인, 잠금 시험의 실패 보고, 알림 색상이 미정인 경우의 부분 진행을 비교해 보세요.</p>
+<ul class="video-cases"><li>00:00 정상 시험 → 사람 승인 후 SRS 반영·공식 TC 등록</li><li>00:20 잠금 시험 실패 → 제품 불일치 후보 보고</li><li>00:40 색상 미정 → 확정 범위만 시험·사람 검토</li></ul>
+<video controls autoplay loop muted playsinline preload="metadata" poster="assets/video/qa-pipeline-v2-poster-60s-20261009.png" aria-label="QA 파이프라인 V2 세 가지 저장 사례 60초 요약 영상" aria-describedby="demo-video-description demo-video-scope">
+<source src="assets/video/qa-pipeline-v2-demo-60s-20261009.mp4" type="video/mp4">
+이 브라우저에서는 영상을 재생할 수 없습니다. 아래 영상 파일 링크를 이용해 주세요.
+</video>
+<p id="demo-video-scope">2026년 8–9월의 저장 실행·사용자 승인에 따른 대행 등록 장면을 10월 9일 재편집했습니다. 최신 코드로 새 AI 실행을 촬영한 영상은 아닙니다. 현재의 복원 방식과 기존 TC 비교·추가·대체 선택은 본문에서 설명합니다. 당시 기록과 현재 구현은 구분합니다.</p>
+<div class="actions"><a class="button" href="assets/video/qa-pipeline-v2-demo-60s-20261009.mp4">60초 영상 열기 ↗</a><a class="button" href="assets/video/qa-pipeline-v2-demo.mp4">기존 90초 원본 ↗</a><a class="button" href="product_baseline/virtual-controller.html?mode=demo">저장 데모 보기 ↗</a></div>
+<p class="fine">중앙제어 화면은 PC에서 체험해 주세요. 모바일에서는 위 영상을 권합니다. 장비는 직접 조작할 수 있지만, Agent 결과와 승인 화면은 저장된 예시이며 새 AI 실행이나 실제 등록은 하지 않습니다.</p>
+</div></div></section>
+<div class="wrap"><aside class="qa-status-summary" id="current-status" aria-labelledby="current-status-title">
+  <div class="qa-run-heading"><h2 id="current-status-title">검증 결과 요약</h2><span class="qa-kicker">2026.10.09 확인 자료</span></div>
+  <p class="qa-run-intro">로컬 반복 시험과 실제 AI 실행을 나눠 확인했습니다.</p>
+  <dl class="qa-stability-metrics">
+    <div><dt>로컬 예상 처리 일치</dt><dd><strong>100<span>/100회</span></strong><small>20종 상황 × 5회 · 새 API 호출 없음</small></dd></div>
+    <div><dt>시험 후 상태 복원</dt><dd><strong>65<span>/65회</span></strong><small>위 100회 중 화면 시험을 수행한 65회</small></dd></div>
+    <div><dt>새 AI 전체 실행 완료</dt><dd><strong>1<span>건</span></strong><small>10월 9일 전원 요청 · 생성부터 보고까지</small></dd></div>
+  </dl>
+  <p class="qa-metric-limit">로컬 100회에는 실패 검출·보류·자산 선택도 포함됩니다. <b>제품 PASS율이나 AI 생성 성공률이 아니며, 모든 상황의 안정성을 보장하지는 않습니다.</b></p>
+  <div class="actions qa-status-actions"><a class="button primary" href="../agent-evaluation-framework/portfolio/index.html#latest-repeat">프로젝트2에서 안정성 결과 자세히 보기 ↗</a><a class="button" href="#power-evidence">실제 AI 실행 근거 보기</a></div>
+  <details class="qa-evidence-details" id="evaluation-evidence">
+  <summary>수치의 근거와 평가 범위 보기</summary>
+  <dl class="qa-status-rows">
+    <div><dt>P1 · 실제 새 요청</dt><dd><b>전원 1건의 생성 → 시험 → 복원 → 보고 완료</b><p>제품 시험 1건과 환경 점검 1건 통과. API 5회, 재작성 없이 완료했습니다. 공식 SRS·TC 등록은 하지 않았습니다.</p></dd></div>
+    <div><dt>P2 · 저장 결과 평가</dt><dd><b>위 전원 결과의 Agent 1~4 역할 평가 완료</b><p>자료 크기로 중단됐던 평가를 입력 중복 정리 후 별도 4회 호출로 마쳤습니다. P1을 다시 실행한 것은 아닙니다.</p></dd></div>
+    <div><dt>점수의 범위</dt><dd><b>26개 중 21개에 각 5점 · 전체 평가 완료는 아님</b><p>정상 사례여서 실패 원인 분류 1개는 해당 없음입니다. 원본 점수표의 단계 연결·승인 관련 4개는 점수가 확정되지 않았습니다(미평가 3개·검토 필요 1개). 후속 로컬 대조는 별도로 남겼으며 원본 점수는 바꾸지 않았습니다. 사람 판단과의 대조도 남아 있습니다.</p></dd></div>
+  </dl>
+  <div class="qa-inline-links"><a href="../agent-evaluation-framework/portfolio/evidence/local-100-20261009/summary.json">로컬 100회·복원 65회 근거 ↗</a><a href="evidence/submission-20261010/final_report.json">P1 최종 보고 ↗</a><a href="../agent-evaluation-framework/portfolio/evidence/closeout-20261009/summary.json">P2 후속 평가 요약 ↗</a><a href="../agent-evaluation-framework/portfolio/evidence/closeout-20261009/criteria.json">26개 항목의 상태 ↗</a><a href="../agent-evaluation-framework/portfolio/evidence/closeout-20261009/connection-review.json">미확정 항목의 후속 로컬 대조 ↗</a><a href="evidence/submission-20261010/index.html">최초 중단과 후속 평가 경과 ↗</a></div>
+  <p class="fine">위 결과 링크는 로컬 검토용입니다. 공개 배포 전 공개 가능한 근거 경로를 확정해야 합니다. 로컬 100회 결과나 과거 영상과 합쳐 새 AI 반복 성공률로 계산하지 않습니다.</p>
+  </details>
+</aside></div>
+<section id="scope"><div class="wrap"><div class="section-head"><div><span class="num"><b>10</b> 결과와 배운 점</span><h2>실무 적용 가능성과 한계</h2></div><p>반복 작업을 연결하는 것과, 새로운 요청을 믿고 맡길 수 있는 것은 다른 문제였습니다.</p></div>
+<div class="portfolio-reading">
+<p><strong>가상 환경에서 화면 조작·관찰값 기록·복원·결과 전달을 한 흐름으로 수행했습니다.</strong> 시험마다 따로 정리하던 결과와 근거를 함께 확인할 수 있도록 했다는 점에서, 반복 QA 업무의 자동화 가능성을 확인했습니다.</p>
+<p>반면 온도 요청에서는 냉방의 제품 불일치를 찾아 보고했지만, 난방은 TC와 실행 순서가 맞지 않아 시험하지 못했습니다. 결과를 숨기지 않고 알리는 기능은 필요하지만, 그것만으로 정상 요청을 처리하지 못한 문제가 해결되지는 않았습니다.</p>
+<p>실무에 적용하려면 실제 제품·장비 환경에서 확인하고, 다양한 새 요청에서도 판단 기준이 유지되는지 사람의 판단과 대조해야 합니다. 현재는 지원하는 가상 중앙제어 범위에 한정되며, 수동 대비 시간 절감과 사람의 개입 감소는 아직 측정하지 않았습니다.</p>
+</div><p class="fine"><a href="#mixed-report-example">냉방·난방 보고 사례 보기</a> · <a href="#implementation-notes">지원 범위와 과거 기록의 주의사항 ↓</a></p></div></section>
+<section id="roadmap"><div class="wrap"><details><summary>추가 검증 계획 · AI 반복 정확도와 사람 판단 대조</summary><div class="section-head"><div><span class="num"><b>11</b> 다음 검증</span><h2>추가 검증 과제</h2></div><p>전원 요청 1건의 실행과, 같은 저장 결과에 대한 프로젝트2의 역할 평가를 마쳤습니다. 아직 남은 것은 사람 판단과의 대조, 미확정 평가 항목, 다른 요청에서도 결과가 유지되는지 확인하는 일입니다.</p></div><div class="road-list"><article><h3>로컬 검사 결과</h3><p>정상·제품 불일치·정보 부족·실행 불가·TC 재사용·사본 자산 선택을 100회 묶음으로 확인했습니다.</p></article><article><h3>새 TC 생성부터 보고까지 · 전원 1건</h3><p>10월 9일 전원 운전→정지 요청은 새 분석·TC 생성·검토·시험·복원·보고를 5회 호출로 완료했습니다. 한 건의 성공을 전체 조건의 안정성으로 확대하지 않습니다.</p></article><article><h3>남은 검증</h3><p>TC와 평가 이유가 맞는지 사람이 대조하고, 다른 요청에서도 같은 기준을 지키는지 확인해야 합니다. 회사 도입 효과나 시간 절감은 측정하지 않았습니다.</p></article></div></details></div></section>
+
+<section id="evidence"><div class="wrap"><div class="section-head"><div><span class="num"><b>12</b> 주요 산출물</span><h2>문서와 실행 증거</h2></div><p>공개 실행 자료는 당시 증거입니다. 최신 수치·Run·미해결 사항은 인계 문서에서 관리하며, 로컬 전용 결과는 내려받은 저장소에 포함되지 않을 수 있습니다.</p></div><div class="docs"><a class="doc" href="https://github.com/SEHOOOOON/qa-agent-pipeline-v2/blob/5fdc882334a614d238005bfa9c08f689ceb5b2b3/README.md"><small>01 / START HERE</small><b>프로젝트 소개·실행 방법 ↗</b><span>저장소 사용 안내 · 문서 버전 확인</span></a><a class="doc" href="https://github.com/SEHOOOOON/qa-agent-pipeline-v2/blob/5fdc882334a614d238005bfa9c08f689ceb5b2b3/docs/PROJECT_GUIDE.md"><small>02 / PROCESS</small><b>시나리오·상세 로직 ↗</b><span>Agent·검사 기준·승인 계약</span></a><a class="doc" href="https://github.com/SEHOOOOON/qa-agent-pipeline-v2/blob/5fdc882334a614d238005bfa9c08f689ceb5b2b3/PROJECT_HANDOFF.md"><small>03 / CURRENT STATE</small><b>설명 기준 코드의 검증 기록 ↗</b><span>코드 5fdc882 시점 · 아래 후속 결과와 구분</span></a><a class="doc" href="examples/results/agent1-agent2-agent3-agent4-medium-fan/public_result.json"><small>04 / SUCCESS EVIDENCE</small><b>MED·HIGH 공개 결과 ↗</b><span>신규 후보와 기존 TC 재사용</span></a><a class="doc" href="examples/results/agent1-agent2-agent3-agent4-lock-disable/public_result.json"><small>05 / MISMATCH EVIDENCE</small><b>잠금 불일치 공개 결과 ↗</b><span>관찰과 제품 불일치 후보 분류</span></a><a class="doc" href="https://github.com/SEHOOOOON/qa-agent-pipeline-v2/blob/5fdc882334a614d238005bfa9c08f689ceb5b2b3/docs/07_TEST_CATALOG.md"><small>06 / INTERNAL TESTS</small><b>파이프라인 자동 테스트 목록 ↗</b><span>제품 TC 수와 구분하는 내부 검증</span></a></div><details class="portfolio-reference" id="implementation-notes"><summary>설계 선택·지원 범위·검증 기록</summary><div class="portfolio-reference-body"><p class="fine">본문에서 요약한 내용의 기술적 근거입니다. 당시 기록과 현재 지원 범위를 구분해 보존했습니다.</p><div class="section-head"><div><span class="num"><b>3</b> 주요 개선 사항</span><h2>테스트 설계와 실행 기준 통일</h2></div><p>실제 AI 실행이 중단된 기록을 검토해 반복되는 원인을 찾았습니다. 특정 모드나 온도만 통과시키는 예외 대신, 같은 문제가 생기는 처리 과정을 수정했습니다.</p></div><div class="grid3"><article class="card"><h3>TC와 자동화의 기준 통일</h3><p><b>문제</b> 설계한 시험을 실행 단계가 다시 작성하면서 값이나 확인 대상이 어긋났습니다.</p><p><b>수정 내용</b> Agent 3가 시험 내용을 다시 작성하지 않고, Agent 2의 조작 순서·기대값·확인 시점을 그대로 사용하도록 수정했습니다.</p><p><b>수정 후 검사</b> 실제 화면에 맞게 연결했는지, 필수 검사가 빠지지 않았는지는 계속 확인합니다.</p><p class="fine"><a href="https://github.com/SEHOOOOON/qa-agent-pipeline-v2/blob/5fdc882334a614d238005bfa9c08f689ceb5b2b3/docs/PROJECT_GUIDE.md#4-agent-3--자동화와-실제-시험">TC 전달 방식</a> · <a href="https://github.com/SEHOOOOON/qa-agent-pipeline-v2/blob/5fdc882334a614d238005bfa9c08f689ceb5b2b3/tests/test_agent3.py#L780">잘못된 연결을 막는 회귀검사 코드</a></p></article><article class="card"><h3>정상 TC를 차단하던 검사 개선</h3><p><b>수정 전</b> 표현·분류 차이와 중복 표기 때문에 정상 초안도 중단되는 경우가 있었습니다.</p><p><b>수정 후</b> 표현 제한을 줄이고 대상·값·필수 검사·근거가 유지되는지 확인합니다. 기대값과 필수 검사에 대한 확인은 유지했습니다.</p></article><article class="card"><h3>테스트 통과와 공식 등록 분리</h3><p><b>문제</b> 통과한 TC를 계속 추가하면 기존 TC와 기준이 충돌할 수 있습니다.</p><p><b>처리 방법</b> 사람이 기존 TC와 비교해 추가·선택한 TC 대체·미등록·보류를 결정합니다. 자동으로 중복을 확정하지 않습니다.</p></article></div><div class="background-goal"><b>상황별 처리와 복원 확인</b><span>정상 시험뿐 아니라 제품 불일치 검출·보류·승인 선택을 로컬에서 확인했습니다. 반복 횟수와 확인 범위는 아래 결과 요약에서 구분합니다. 여러 처리 경로를 확인한 결과이며, 위 수정만의 효과나 새 AI 생성 성공률은 따로 측정하지 않았습니다. <a href="../agent-evaluation-framework/portfolio/index.html">프로젝트2 · 결과 범위와 표 보기 ↗</a></span></div><p class="fine"><a href="https://github.com/SEHOOOOON/qa-agent-pipeline-v2/blob/5fdc882334a614d238005bfa9c08f689ceb5b2b3/README.md">단계별 처리와 승인 기준</a> · <a href="https://github.com/SEHOOOOON/qa-agent-pipeline-v2/blob/5fdc882334a614d238005bfa9c08f689ceb5b2b3/PROJECT_HANDOFF.md">수정 기록과 재검증 근거</a></p><div class="section-head"><div><span class="num"><b>10</b> 결과와 한계</span><h2>자동화로 수행한 작업과 남은 한계</h2></div><p>지원하는 시험에서는 화면 조작·관찰값 기록·복원과 결과 전달을 프로그램이 수행했습니다. 실행 결과와 근거가 한 보고서로 모이고 Slack·Notion에 전달돼, 시험 후 기록을 옮기는 작업까지 연결할 수 있었습니다. 다만 중간 보완에 들어간 시간도 있어, 수동 대비 시간 절감과 사람의 개입 감소는 아직 측정하지 않았습니다.</p></div><div class="review-grid limits-grid"><div><b>기준을 정해도 남는 해석 차이</b><p>온도 요청의 난방 TC처럼 준비 절차의 해석 차이로 시험하지 못한 경우가 있었습니다. 이번에는 재작성 구조를 더 늘리기보다, 실행 가능한 시험과 미실행 항목을 나누어 마지막 보고까지 전달했습니다. 실패를 알리는 것과 정상 요청을 자동 처리하는 것은 다르며, 후자의 안정성은 더 확인해야 합니다. 준비한 입력의 로컬 통과율은 새 모델 출력의 정확도가 아닙니다. 저장된 온도 사례 1건은 10월 9일 AI 검토 후 제품 불일치·복원·보고까지 확인했습니다. 새 분석·TC 생성부터 시작한 전체 흐름은 아닙니다. <a href="evidence/submission-20261009/temperature-review.json">해당 결과 보기 ↗</a></p></div><div><b>지원하는 기능</b><p>전원·모드·풍량·온도·잠금의 변경 요청을 대상으로 합니다. 새 기능 추가·삭제, 다른 웹사이트의 자동화, 제품 전체 회귀 테스트는 지원 범위 밖입니다.</p></div><div><b>가상 환경의 한계</b><p>실제 장비 통신·물리 예외는 검증하지 않았습니다. PDF 읽기는 로컬 실험이며 업로드 후 자동 실행에 연결한 기능은 아닙니다.</p></div><div><b>과거 시연과 현재 구현</b><p>영상과 공개 결과는 당시 기록입니다. 과거 잠금 사례에는 최신 복원 성공 표시가 없고, 일부 진행 사례에는 질문 원문 누락이 남아 있습니다. 현재 전달 검사를 보완했어도 과거 결과를 바꾸지는 않았습니다.</p></div></div></div></details></div></section>
+
+</main>
+<div class="wrap"><p class="fine">2026.10.09 추가 확인: 저장된 온도 TC를 AI로 1회 검토한 뒤, 16°C 하한 불일치를 검출하고 결과를 보고했습니다. 시험 후에는 준비를 시작하기 전 상태로 복원한 것을 확인했습니다. 새 TC 전체 생성이나 반복 정확도 검증은 아닙니다. <a href="evidence/submission-20261009/temperature-review.json">이번 결과와 원본 해시 ↗</a></p></div>
+<footer><div class="wrap footer-inner"><span>OH SEHOON · Central Control QA · Project 01 V2</span><span>V2 포트폴리오 · 60초 사례 영상 · <a href="https://sehooooon.github.io/qa-agent-pipeline/project.html">V1 페이지 ↗</a></span></div></footer>
+<script>
+(() => {
+ const tabs=[...document.querySelectorAll('.arch-step')];
+ function select(tab,focus=false){
+  tabs.forEach(item=>{
+   const active=item===tab;
+   item.classList.toggle('on',active);
+   item.setAttribute('aria-selected',String(active));
+   item.tabIndex=active?0:-1;
+   document.getElementById(item.getAttribute('aria-controls')).hidden=!active;
+  });
+  if(focus)tab.focus();
+ }
+ tabs.forEach((tab,index)=>{
+  tab.addEventListener('click',()=>select(tab));
+  tab.addEventListener('keydown',event=>{
+   let next;
+   if(event.key==='ArrowRight')next=(index+1)%tabs.length;
+   else if(event.key==='ArrowLeft')next=(index+tabs.length-1)%tabs.length;
+   else if(event.key==='Home')next=0;
+   else if(event.key==='End')next=tabs.length-1;
+   else return;
+   event.preventDefault();select(tabs[next],true);
+  });
+ });
+ select(tabs[0]);
+})();
+</script>
+
+<script>
+(() => {
+ const tabs=[...document.querySelectorAll('#execution .artifact-tabs [role="tab"]')];
+ function select(tab,focus=false){
+  tabs.forEach(item=>{
+   const active=item===tab;
+   item.setAttribute('aria-selected',String(active));
+   item.tabIndex=active?0:-1;
+   document.getElementById(item.getAttribute('aria-controls')).hidden=!active;
+  });
+  if(focus)tab.focus();
+ }
+ tabs.forEach((tab,index)=>{
+  tab.addEventListener('click',()=>select(tab));
+  tab.addEventListener('keydown',event=>{
+   let next;
+   if(event.key==='ArrowRight')next=(index+1)%tabs.length;
+   else if(event.key==='ArrowLeft')next=(index+tabs.length-1)%tabs.length;
+   else if(event.key==='Home')next=0;
+   else if(event.key==='End')next=tabs.length-1;
+   else return;
+   event.preventDefault();select(tabs[next],true);
+  });
+ });
+ if(tabs.length)select(tabs[0]);
+})();
+</script>
+<script>
+(() => {
+ // A case link should reveal its evidence, including a target nested in details.
+ function reveal(hash, focus) {
+  let id;
+  try { id = decodeURIComponent(hash.slice(1)); } catch { return; }
+  const target = document.getElementById(id);
+  if (!target) return;
+  for (let node = target; node; node = node.parentElement) {
+   if (node.tagName === 'DETAILS') node.open = true;
+  }
+  const tabPanel = target.closest('[role="tabpanel"]');
+  if (tabPanel) {
+   const tab = document.getElementById(tabPanel.getAttribute('aria-labelledby'));
+   if (tab) tab.click();
+  }
+  requestAnimationFrame(() => {
+   target.scrollIntoView({block:'start'});
+   if (focus) {
+    const control = target.matches('details') ? target.querySelector('summary') : target;
+    if (!control.matches('summary,a[href],button,input,select,textarea,[tabindex]') &&
+        !control.isContentEditable) control.setAttribute('tabindex','-1');
+    control.focus({preventScroll:true});
+   }
+  });
+ }
+ document.addEventListener('click', event => {
+  const link = event.target.closest('a[href^="#"]');
+  if (!link || event.defaultPrevented || event.button !== 0 ||
+      event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+  const hash = link.getAttribute('href');
+  let target;
+  try { target = document.getElementById(decodeURIComponent(hash.slice(1))); } catch { return; }
+  if (!target) return;
+  event.preventDefault();
+  if (location.hash !== hash) history.pushState(null,'',hash);
+  reveal(hash,true);
+ });
+ window.addEventListener('hashchange', () => reveal(location.hash,false));
+ if (location.hash) reveal(location.hash,false);
+})();
+</script>
+</body>
+</html>

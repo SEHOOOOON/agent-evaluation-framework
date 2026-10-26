@@ -15,9 +15,9 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-judge = ["openai>=2,<3"]
+judge = ["openai>=2,<3", "anthropic>=2.3,<3"]
 test = [
-  "httpx2>=2.5,<3",
+  "httpx>=0.27,<1",
   "pytest>=8,<10",
 ]
 

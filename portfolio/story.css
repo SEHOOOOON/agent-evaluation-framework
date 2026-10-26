@@ -1,0 +1,145 @@
+/* Portfolio narrative only. Evaluation data and report styling remain separate. */
+.portfolio-story{font-size:16px;line-height:1.8}
+.portfolio-story .shell{max-width:1240px}
+.portfolio-story p{color:var(--muted);margin:0 0 18px}
+.story-hero{padding:64px 0 22px}
+.portfolio-story .eyebrow{font-size:13px;font-weight:600;color:var(--blue);letter-spacing:.04em;margin-bottom:12px}
+.story-hero h1{font-size:54px;line-height:1.22;letter-spacing:-.045em;margin:0 0 24px}
+.portfolio-story .story-lead{font-size:24px;line-height:1.6;color:var(--text);margin-bottom:12px}
+.story-nav{display:flex;flex-wrap:wrap;gap:14px 28px;margin-top:36px;padding:20px 0;border-top:1px solid var(--line);font-size:14px}
+.story-section{padding:54px 0;border-top:1px solid var(--line);scroll-margin-top:24px}
+.story-section h2{font-size:28px;line-height:1.5;letter-spacing:-.03em;margin:0 0 20px}
+.story-section h3{font-size:19px;line-height:1.6;margin:8px 0 12px}
+.section-intro{max-width:950px}
+.judgment-pair{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin:28px 0 18px}
+.judgment-pair article{padding:24px 28px;background:var(--surface);border-left:3px solid var(--blue)}
+.judgment-pair article:last-child{border-color:var(--amber)}
+.judgment-pair p{margin:0;font-size:15px}.case-label{font-size:13px;color:var(--muted)}
+.portfolio-story .scope-note{font-size:13px;line-height:1.85;margin:18px 0 0;max-width:1050px}
+.scope-note strong{color:var(--text);font-weight:500}
+.evaluation-flow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));padding:0;list-style:none;gap:28px;margin:28px 0}
+.evaluation-flow li{position:relative;padding:26px;background:var(--surface);border:1px solid var(--line);border-radius:8px}
+.evaluation-flow li>span{color:var(--blue);font-size:14px;font-weight:600}
+.evaluation-flow li:not(:last-child)::after{content:'→';position:absolute;right:-24px;top:45%;color:var(--muted)}
+.evaluation-flow p{font-size:14px;margin:0}.text-link{display:inline-block;font-size:14px;margin-top:18px}
+.story-results{margin-top:26px}
+.story-results .case-summary{table-layout:fixed;width:100%;border-collapse:collapse}
+.story-results .case-summary th,.story-results .case-summary td{text-align:left;vertical-align:top;padding:22px 18px;font-size:15px;color:var(--text);background:none;border-bottom:1px solid var(--line);overflow-wrap:anywhere}
+.story-results .case-summary thead th{color:var(--muted);font-size:13px;background:var(--surface)}
+.story-results th:first-child{width:25%}.story-results th:nth-child(2){width:49%}.story-results th:last-child{width:26%}
+.story-results .case-summary small{display:block;font-size:12px;color:var(--muted);font-weight:400;line-height:1.75;margin-top:6px}
+.story-results td b{font-size:26px;color:var(--blue);font-variant-numeric:tabular-nums;line-height:1.4}
+.story-results td b.scenario-warning{color:var(--amber)}.story-results a{display:inline-block;font-size:13px;margin-top:10px}
+.improvement-line{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;margin:30px 0;padding:26px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.improvement-line span{font-size:13px;color:var(--blue)}.improvement-line p{color:var(--text);margin:10px 0 0}.improvement-line strong{font-size:27px}
+.scope-columns{display:grid;grid-template-columns:1fr 1fr;gap:50px}
+.scope-columns ul{padding-left:20px;color:var(--muted);font-size:15px;line-height:1.9}.scope-columns li{margin-bottom:10px}.scope-columns a{font-size:14px}
+.story-footer{display:flex;flex-wrap:wrap;justify-content:space-between;gap:20px;padding:26px 0 40px;border-top:1px solid var(--line);font-size:14px}
+.portfolio-story a:focus-visible{outline:2px solid var(--blue);outline-offset:5px}
+.portfolio-story .project-responsibility{margin-top:24px;padding-left:18px;border-left:2px solid var(--line);font-size:14px}
+.project-responsibility strong{color:var(--text);margin-right:14px}.project-responsibility span{font-size:13px}
+.role-checks{display:grid;grid-template-columns:1fr 1fr;gap:0 36px;margin-top:26px}
+.role-checks>div{padding:20px 0;border-top:1px solid var(--line)}
+.role-checks h3{margin:0 0 10px}.role-checks h3 span{font-size:12px;color:var(--blue);display:block;margin-bottom:4px}
+.role-checks p{font-size:15px;margin:0}.method-boundary{font-size:14px;padding:20px 24px;background:var(--surface)}
+.method-boundary strong{color:var(--text)}
+.evidence-example{border:1px solid var(--line);border-radius:10px;padding:28px;margin:28px 0 36px;background:var(--surface)}
+.example-heading h3{margin-top:0}.example-heading p{font-size:14px}
+.example-columns{display:grid;grid-template-columns:1fr 1fr;gap:32px}
+.example-columns article{border-top:2px solid var(--blue);padding-top:18px}.example-columns article+article{border-color:var(--amber)}
+.example-columns h4{font-size:19px;margin:12px 0;line-height:1.6}.example-columns ol{padding-left:20px;color:var(--muted);font-size:14px;line-height:1.9}
+.example-columns p{font-size:13px;margin-bottom:0}.example-columns strong{color:var(--text);font-size:16px}
+.improvement-takeaway{margin-top:20px!important;border-left:2px solid var(--blue);padding-left:18px;font-size:15px}.improvement-takeaway strong{color:var(--text)}
+@media(max-width:700px){.role-checks,.example-columns{grid-template-columns:1fr;gap:18px}.evidence-example{padding:20px}.role-checks>div{padding:14px 0}}
+@media(max-width:700px){
+ .story-hero{padding-top:36px}.story-hero h1{font-size:36px}.portfolio-story .story-lead{font-size:20px}
+ .story-section{padding:34px 0}.story-section h2{font-size:24px}.story-section h3{font-size:18px}
+ .judgment-pair,.evaluation-flow,.improvement-line,.scope-columns{grid-template-columns:1fr;gap:16px}
+ .evaluation-flow li:not(:last-child)::after{content:'↓';top:auto;bottom:-24px;right:50%}
+ .evaluation-flow{gap:28px}.judgment-pair article{padding:20px}.scope-columns{gap:24px}
+ .story-results .case-summary,.story-results tbody{display:block}
+ .story-results thead{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+ .story-results .case-summary tr{display:grid;grid-template-columns:minmax(0,1fr) 112px;gap:12px 16px;padding:22px 0;border-bottom:1px solid var(--line)}
+ .story-results .case-summary th,.story-results .case-summary td{width:auto!important;border:0;padding:0}
+ .story-results th[scope=row]{grid-column:1;grid-row:1}
+ .story-results td:nth-child(2){grid-column:1/-1;grid-row:2}
+ .story-results td:last-child{grid-column:2;grid-row:1;text-align:right}
+ .story-results td b{font-size:24px}.story-nav{gap:12px 20px}
+}
+@media print{.story-nav,.topbar{display:none}.story-hero{padding-top:0}.story-section{padding:20px 0}.judgment-pair article,.evaluation-flow li,.case-summary tr{break-inside:avoid}}
+
+/* 2026-10-16: word statuses (있음/없음, 적용 판단) in score tables stay text-sized */
+.case-summary td b.status-word { font-size: 1rem; line-height: 1.5; }
+
+/* 2026-10-22: 첫 화면 핵심 수치, 핵심 사례 흐름, 본문 가독성 */
+.portfolio-story .story-section>p,.portfolio-story .story-hero>p{max-width:820px}
+.portfolio-story .section-intro{font-size:17px;color:var(--text)}
+.case-flow li>span{font-size:13px}
+.case-flow li.flow-warning{border-color:var(--amber)}.case-flow li.flow-warning>span,.case-flow li.flow-warning h3{color:var(--amber)}
+.lesson-columns{margin:26px 0 8px}.lesson-columns p{font-size:14px;line-height:1.85}
+
+/* 2026-10-22 간결 구성: 핵심 문장, 역할 3칸, 요점 목록, 이동 버튼 */
+.portfolio-story .story-key{margin:28px 0 8px;padding:20px 24px;border-left:3px solid var(--blue);background:var(--surface);color:var(--text);font-size:18px;line-height:1.75;max-width:900px}
+.role-flow li>span{font-size:13px}
+.role-flow li:not(:last-child)::after{content:none}
+.story-cta{display:flex;flex-wrap:wrap;gap:14px;margin-top:30px}
+.story-cta a{padding:12px 20px;border:1px solid var(--blue);border-radius:8px;font-size:15px;text-decoration:none}
+.story-cta a:hover{background:var(--surface);text-decoration:none}
+@media(max-width:700px){.portfolio-story .story-key{font-size:16px;padding:16px 18px}}
+/* 2026-10-22 v3: 핵심 사례 아래 펼치기 */
+.story-fold{margin-top:30px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+.story-fold>summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:14px;padding:20px 24px;font-size:17px;font-weight:600;color:var(--blue)}
+.story-fold>summary::-webkit-details-marker{display:none}
+.story-fold>summary::before{content:'+';font-size:22px;width:18px}
+.story-fold[open]>summary::before{content:'−'}
+.story-fold[open]>summary{border-bottom:1px solid var(--line)}
+.story-fold>summary:focus-visible{outline:2px solid var(--blue);outline-offset:3px}
+.story-fold-body{padding:24px}
+.story-fold .evidence-example{background:transparent;margin-top:18px}
+@media(max-width:700px){.story-fold>summary{padding:16px}.story-fold-body{padding:16px}}
+@media print{.story-fold-body{display:block}}
+
+/* 2026-10-22 v4: 프로젝트1 페이지와 같은 글꼴·크기·색 */
+body.portfolio-story{--bg:#080c13;--surface:#111824;--line:#28344a;--text:#dce6f3;--muted:#94a3b8;--blue:#58a6ff;font-family:Pretendard,"Noto Sans KR",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:16px;line-height:1.7;background:var(--bg);color:var(--text)}
+.portfolio-story .shell{max-width:1100px}
+.portfolio-story p{font-size:15px;line-height:1.95}
+.portfolio-story .eyebrow{font-size:12px;font-weight:400;letter-spacing:.04em}
+.story-hero h1{font-size:clamp(34px,4.2vw,54px);line-height:1.12;letter-spacing:-.045em;color:#fff}
+.portfolio-story .story-lead{font-size:clamp(17px,1.6vw,20px);line-height:1.6}
+.story-section h2{font-size:clamp(22px,2.4vw,28px);line-height:1.25;letter-spacing:-.035em;color:#fff;margin-bottom:18px}
+.story-section h3{font-size:16px;line-height:1.6}
+.portfolio-story .section-intro{font-size:15px;color:var(--text)}
+.portfolio-story .story-key{font-size:16px}
+.portfolio-story .scope-note{font-size:13px}
+.evaluation-flow p,.role-checks p,.example-columns p{font-size:14px}
+.story-results .case-summary th,.story-results .case-summary td{font-size:14px}
+.method-boundary{font-size:14px}
+.story-subhead{margin:40px 0 10px!important;font-size:18px!important;color:#fff}
+/* 경계값 그림 */
+.boundary-map{margin:22px 0 14px;padding:22px 24px;border:1px solid var(--line);border-radius:10px;background:var(--surface);overflow-x:auto}
+.bm-row{display:grid;grid-template-columns:150px repeat(4,minmax(96px,1fr));gap:10px;align-items:stretch;min-width:600px}
+.bm-row+.bm-row{margin-top:10px}
+.bm-axis{row-gap:8px;margin-bottom:6px}
+.bm-axis>span{text-align:center;font-size:16px;font-weight:700;color:var(--text)}
+.bm-axis small,.bm-label small{display:block;font-size:12px;font-weight:400;color:var(--muted)}
+.bm-axis .bm-out{color:var(--muted)}
+.bm-axis .bm-bar{grid-column:3/5;grid-row:2;height:24px;border-radius:6px;background:rgba(88,166,255,.16);border:1px solid rgba(88,166,255,.5);font-size:12px;font-weight:500;color:var(--blue);line-height:22px}
+.bm-label{font-size:15px;font-weight:600;align-self:center}
+.bm-cell{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:12px 8px;border-radius:8px;border:1px solid var(--line);font-size:13px;color:var(--muted);text-align:center}
+.bm-cell b{font-size:14px}.bm-ok{color:var(--blue)}.bm-miss{color:var(--amber)}
+.bm-cell.is-miss{border-color:var(--amber);background:rgba(239,192,119,.08)}
+/* 고친 방법 단계 */
+.fix-steps{list-style:none;counter-reset:fix;padding:0;margin:18px 0;display:grid;gap:12px}
+.fix-steps li{counter-increment:fix;display:grid;grid-template-columns:36px 170px 1fr;gap:14px;align-items:start;padding:18px 20px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+.fix-steps li::before{content:counter(fix);width:28px;height:28px;border-radius:50%;background:rgba(88,166,255,.16);color:var(--blue);font-size:13px;font-weight:700;display:grid;place-items:center}
+.fix-steps b{font-size:15px;color:var(--text)}.fix-steps span{font-size:14px;line-height:1.85;color:var(--muted)}
+/* 평가 AI 검증 네 칸 */
+.lesson-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:24px 0}
+.lesson-grid article{padding:20px 22px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+.lesson-grid h4{font-size:16px;margin:8px 0;color:var(--text);line-height:1.5}
+.lesson-grid p{font-size:14px;line-height:1.85;margin:0}
+@media(max-width:700px){
+ .fix-steps li{grid-template-columns:28px 1fr}.fix-steps span{grid-column:1/-1}
+ .lesson-grid{grid-template-columns:1fr}
+ .boundary-map{padding:16px}
+}

@@ -5,6 +5,18 @@
   const states={COMPLETED:"수행 완료",PARTIAL:"일부 수행",BLOCKED:"진행 차단",NOT_EXECUTED:"미실행",ERROR:"오류",LIMIT_REACHED:"호출 한도 중단",STARTED:"진행 중",RUNNING:"진행 중",STOPPED:"중단",NOT_EVALUATED:"미평가",PASS:"검사 통과",FAIL:"위반 발견",REVIEW:"검토 필요",JUDGE_BUDGET_EXHAUSTED:"평가 호출 미배정 또는 한도 소진",SAFETY_STOP:"안전 중단으로 미평가"};
   states.WAITING_FOR_USER="사용자 확인 대기";
   const label=value=>states[value]||value||"미기록";
+  function retryLabel(r){
+    if(!r||r.status==="NOT_COLLECTED")return "후속 재시험: 미수집";
+    if((r.items||[]).some(i=>i.registration==="BLOCKED_BY_RETRY"))return "후속 재시험: 등록 차단 기록 있음";
+    if(r.status==="NO_RETRY_RECORD")return "후속 재시험: 수집 시점 기록 없음";
+    return "후속 재시험: 상세 확인 필요";
+  }
+  function retryStatus(value){
+    const r=value||{status:"NOT_COLLECTED",items:[]};
+    const labels={NOT_COLLECTED:"후속 재시험 상태를 수집하지 않은 과거 평가입니다.",NO_RETRY_RECORD:"자료 수집 시점에는 승인 전 재시험 기록이 없었습니다.",REVIEW_REQUIRED:"후속 재시험 자료의 연결을 확인해야 합니다.",COLLECTED:"자료 수집 시점의 후속 재시험 기록입니다."};
+    const outcomes={PASS:"재시험 통과",PRODUCT_MISMATCH_CANDIDATE:"제품 불일치",AUTOMATION_ERROR:"자동화 오류",ENVIRONMENT_ERROR:"환경 오류",TIMEOUT:"시간 초과",INCOMPLETE:"미완료"};
+    return `<aside class="retry-status"><h3>승인 전 재시험 · 과거 점수와 별도</h3><p>${esc(labels[r.status]||labels.REVIEW_REQUIRED)}</p>${(r.items||[]).map(i=>`<p>${esc(i.tc_id)} · ${esc(i.status==="VERIFIED"?outcomes[i.outcome]||"확인 필요":"근거 확인 필요")} · ${esc(i.registration==="BLOCKED_BY_RETRY"?"해당 재시험 기준 등록 차단":"등록 가능 여부는 P1에서 확인")}<br><small>${esc(i.product_scope==="CURRENT_WORKSPACE"?"수집 당시 작업 제품과 대조":"원래 시험 제품 기준 · 현재 제품 미확인")}</small></p>`).join("")}<p>실시간 상태가 아닙니다. 이후 재시험은 자료를 다시 수집해야 하며, 원래 점수와 공식 승인 결과는 바꾸지 않습니다.</p></aside>`;
+  }
   const stopReasons={JUDGE_PREFLIGHT_FAILED:"평가 자료의 크기·안전성 확인 중 문제가 있어 AI 평가를 시작하지 않았습니다. 프로젝트1의 시험 실패를 뜻하지 않습니다.",EVIDENCE_CHANGED_DURING_REVIEW:"평가 준비 또는 평가 중 원본 기록이 바뀌어 중단했습니다.",JUDGE_ERROR:"AI 평가 중 오류가 발생했습니다. 프로젝트1의 시험 결과와 구분해 확인하세요."};
   let ticket=0;
   stopReasons.RUNTIME_INPUT_PREFLIGHT_FAILED="기본·승인 TC 등 실행 자료를 읽지 못해 시작 전에 중단했습니다. 이 회차의 AI 호출은 없으며 에이전트 점수는 미평가입니다.";
@@ -30,8 +42,9 @@
       el("flowBody").innerHTML=`<div class="self-intro"><div><h2>${esc(mode)}</h2><p>예정 ${esc(d.planned_trials)}회 · ${esc(d.status==="COMPLETED"?"기록 수집 종료":label(d.status))} · 품질 판정은 검토 필요</p></div><span class="muted small">외부 API 시도 ${esc(d.api_request_attempts??"집계 중")}회</span></div>
       ${d.stop_reason?`<p class="status review">중단 이유: ${esc(stopReasons[d.stop_reason]||label(d.stop_reason))}</p>`:""}
       <p>${d.score_comparison.comparable?`평균 ${esc(d.score_comparison.mean)}점 · 최저 ${esc(d.score_comparison.minimum)}점 · `:""}${esc(d.score_comparison.note)}</p>
-      <div class="matrix-wrap" role="region" aria-label="전체 실행 역할별 현황" tabindex="0"><table class="matrix"><thead><tr><th>회차</th><th>Agent 1</th><th>Agent 2</th><th>Agent 3</th><th>Agent 4</th><th>프로젝트1 실행 상태</th></tr></thead><tbody>${d.trials.map(t=>`<tr><td>${esc(t.trial)}회차</td>${["A1","A2","A3","A4"].map(r=>`<td>${esc(label(t.roles[r]))}</td>`).join("")}<td>${esc(label(t.status))}</td></tr>`).join("")}</tbody></table></div>
+      <div class="matrix-wrap" role="region" aria-label="전체 실행 역할별 현황" tabindex="0"><table class="matrix"><thead><tr><th>회차</th><th>Agent 1</th><th>Agent 2</th><th>Agent 3</th><th>Agent 4</th><th>원래 실행 / 후속 재시험</th></tr></thead><tbody>${d.trials.map(t=>`<tr><td>${esc(t.trial)}회차</td>${["A1","A2","A3","A4"].map(r=>`<td>${esc(label(t.roles[r]))}</td>`).join("")}<td>${esc(label(t.status))}<br><small>${esc(retryLabel(t.approval_revalidation))}</small></td></tr>`).join("")}</tbody></table></div>
       ${d.trials.map(t=>`<details class="scope-details"><summary>${esc(t.trial)}회차 · 검사 근거와 평가 상태</summary><div class="evidence-rows">${t.new_plan_not_required?"<p>기존 TC 재사용: 신규 계획 생성은 해당 없음. 기존 테스트 실행은 별도로 확인합니다.</p>":""}
+      ${retryStatus(t.approval_revalidation)}
       ${t.checks.map(c=>`<div class="evidence-row"><code>${esc(c.rule)}</code><span>${esc(label(c.status))}</span><p>${esc(c.reason)}</p></div>`).join("")}
       ${t.reason?`<p>${esc(t.reason)}</p>`:""}
       ${(t.questions||[]).map(q=>`<p>확인 질문: ${esc(q)}</p>`).join("")}

@@ -1,0 +1,82 @@
+{
+  "trial_id": "T042",
+  "case_id": "S02",
+  "iteration": 3,
+  "plan_sha256": "feb1c9a3df9d038bc510fd28e98deea51de9d5ec8ed0f25f273944e477df56dc",
+  "actual": {
+    "outcome": "PASS",
+    "browser_executed": true,
+    "restore": "RESTORED",
+    "evidence_complete": true
+  },
+  "grades": [
+    {
+      "criterion_id": "A3-03",
+      "verdict": "PASS",
+      "score": 5,
+      "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+      "evidence": []
+    }
+  ],
+  "error": null,
+  "protected_unchanged": true,
+  "duration_seconds": 10.282,
+  "evidence": [
+    {
+      "file": "T042/candidate.py",
+      "sha256": "8f14d1059e29e7c9381f558c0567bf6c2fe4e4b984025bfe52ae7e5f1ad800ae"
+    },
+    {
+      "file": "T042/checkpoint.json",
+      "sha256": "d4d0c1076848973043cafa2cfbc7961546a90546af67ad0c48a04419e35fe877"
+    },
+    {
+      "file": "T042/eligibility.json",
+      "sha256": "83b875509ff85a6d43a04c20248ff261285d302a6a3f9ada736db11e6604dff8"
+    },
+    {
+      "file": "T042/facts.json",
+      "sha256": "50e346163bfa34629b2f81e82e4dd0f81caf6686260fdfe0d000aec05e8d0dd4"
+    },
+    {
+      "file": "T042/p2-grades.json",
+      "sha256": "7274c8c8efd6378421918a9abd6721dbfaf873c95da48932f212cbde1798bd5e"
+    },
+    {
+      "file": "T042/plan.json",
+      "sha256": "bfb6d42ff11b47ca568f99b9a541cda395208bd7ac5831436a394bddb7d3b2cb"
+    },
+    {
+      "file": "T042/runner.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "T042/static-checks.json",
+      "sha256": "eea555e6360d64b7a5fc80c31969fba6b0c5f69374d014329dc9ca019cdc74a4"
+    },
+    {
+      "file": "T042/tc.json",
+      "sha256": "844d82c440d0f42cdf8e013fdaa83eeff5cb355c39235d6a9dae9426a4d03d97"
+    },
+    {
+      "file": "T042/trial.json",
+      "sha256": "d304f622d05d246b4dadb72aa3d88b05b0d0dd9e69fa9a856686b776813c0ac0"
+    },
+    {
+      "file": "T042/evidence/trial-final.png",
+      "sha256": "c657cb5d8d0e7e1d3ca0b000888a275c1b75957d307de0cbc096dbda37b53ee2"
+    },
+    {
+      "file": "T042/evidence/trial-stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "T042/evidence/trial-stdout.txt",
+      "sha256": "feb40a1ba83627b4f1b0f1d358b0014dc42372f3decc0e0b84ba06da4265d90b"
+    },
+    {
+      "file": "T042/evidence/trial-trace.zip",
+      "sha256": "c5b951607f1f0077a605710e0c68af83c595f575fcb5030efdc2af7b4cc17045"
+    }
+  ]
+}

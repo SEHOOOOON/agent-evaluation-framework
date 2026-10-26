@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<meta name="description" content="여러 상황에서 QA 에이전트의 판단과 실행을 평가하고, 평가 오류를 찾아 보완한 개인 프로젝트.">
+<title>프로젝트2 · 에이전트 결과 검증</title>
+<link rel="stylesheet" href="style.css"><link rel="stylesheet" href="story.css">
+<script src="story.js" defer></script>
+</head>
+<body class="portfolio-story">
+<a class="skip" href="#main">본문 바로가기</a>
+<header class="topbar"><div class="shell top-inner"><a class="brand" href="#main"><span class="brand-mark">QA</span> Agent Evaluation <small>PROJECT 02</small></a><a href="report.html">상세 평가 보고서 ↗</a></div></header>
+<main id="main" class="shell">
+<header class="story-hero">
+<p class="eyebrow">개인 프로젝트 · 프로젝트1 결과 평가</p>
+<h1>에이전트 결과 검증</h1>
+<p class="story-lead">에이전트가 검사를 제대로 했는지,<br>결과를 근거에 맞게 보고했는지 확인합니다.</p>
+<p>여러 상황에서 같은 기준을 지키는지 비교하고, 잘못된 판단이 반복되는 부분을 찾기 위해 만들었습니다.</p>
+<p class="project-responsibility"><strong>담당한 작업</strong> 평가 기준 설계 · P1 산출물 수집·대조 · 평가 오류 분석 · 결과 화면 구성<br><span>AI 코딩 도구를 활용해 개인 환경에서 구현하고 검증했습니다.</span></p>
+<nav class="story-nav" aria-label="페이지 안내"><a href="#purpose">만든 이유</a><a href="#method">평가 방법</a><a href="#results">평가 결과</a><a href="#improvement">개선 사례</a><a href="#scope">검증 범위</a></nav>
+</header>
+<section id="purpose" class="story-section">
+<p class="eyebrow">01 · 만든 이유</p><h2>시험 실패와 에이전트의 실수는 다릅니다.</h2>
+<p class="section-intro">제품이 요구사항과 다르게 동작해 시험이 실패할 수 있습니다. 이 차이를 정확히 찾아 보고했다면 에이전트는 맡은 검사를 수행한 것입니다. 반대로 검사를 빠뜨리고 PASS라고 보고했다면 에이전트를 보완해야 합니다.</p>
+<p>P1의 최종 보고서만 읽으면 어느 단계에서 조건이 빠졌는지 알기 어렵습니다. 요청부터 분석·TC·실행 기록까지 함께 보며, 제품 문제인지, 검사 누락인지, 평가에 필요한 자료가 빠진 것인지 구분하고자 했습니다.</p>
+<div class="judgment-pair">
+<article><span class="case-label">제품 불일치를 찾은 경우</span><h3>검사는 올바르게 수행</h3><p>요구사항과 실제 동작의 차이를 확인하고 실패 근거를 남겼는지 봅니다.</p></article>
+<article><span class="case-label">검사를 빠뜨린 경우</span><h3>에이전트 수행을 보완</h3><p>필요한 검사를 생략했거나, 확인하지 않은 결과를 통과로 보고했는지 봅니다.</p></article>
+</div>
+<p class="scope-note">정보가 부족해 질문하고 멈춘 경우도 별도로 평가합니다. 정상적인 보류를 곧바로 실패로 처리하지 않습니다.</p>
+</section>
+<section id="method" class="story-section">
+<p class="eyebrow">02 · 평가 방법</p><h2>점수보다 먼저, 어떤 근거로 판단했는지 봅니다.</h2>
+<ol class="evaluation-flow">
+<li><span>1</span><h3>P1 결과 수집</h3><p>요청과 요구사항 문서<br>분석·TC·실행·복원·보고 기록</p></li>
+<li><span>2</span><h3>기준과 근거 대조</h3><p>프로그램은 값·개수·연결 확인<br>AI는 요청과 산출물의 의미 검토</p></li>
+<li><span>3</span><h3>역할별 결과 비교</h3><p>점수와 판단 이유 확인<br>누락·오판과 보완할 부분 구분</p></li>
+</ol>
+<p>요구사항 분석·TC 설계·자동화 실행·결과 보고와 공통·연결 기준, 총 26개 항목을 사용합니다. 평가할 근거가 부족하면 판단을 보류합니다.</p>
+<div class="role-checks" aria-label="평가 대상과 확인 내용">
+<div><h3><span>Agent 1</span> 요구사항 분석</h3><p>바꿀 조건과 유지할 조건을 구분했는가?<br>정해지지 않은 값을 추측하지 않았는가?</p></div>
+<div><h3><span>Agent 2</span> TC 설계</h3><p>기존 TC로 충분한지 확인했는가?<br>조작·기대결과·복원 방법이 구체적인가?</p></div>
+<div><h3><span>Agent 3</span> 자동화 실행</h3><p>TC에 적힌 대상·값·시점을 검사했는가?<br>실제 관찰과 복원 기록을 남겼는가?</p></div>
+<div><h3><span>Agent 4</span> 결과 보고</h3><p>관찰한 결과에 맞게 보고했는가?<br>실패·미실행·확인할 질문을 빠뜨리지 않았는가?</p></div>
+</div>
+<p class="method-boundary"><strong>단계 사이도 확인합니다.</strong> 공통 기준은 자료의 출처와 작업 범위를, 연결 기준은 요구사항·미정 조건·실패 정보의 전달과 사람 승인 여부를 다룹니다. 다만 연결 기준의 최종 평가는 아직 남아 있습니다.</p>
+<a class="text-link" href="report.html#criteria-details">26개 평가 기준 확인 →</a>
+</section>
+<section id="results" class="story-section">
+<p class="eyebrow">03 · 평가 결과</p><h2>상황이 달라도 판단 기준을 지켰나요?</h2>
+<p class="section-intro">저장된 6개 사례의 결과입니다. 실제 시험과 가상 사본을 구분했으며, 점수는 해당 사례에서 평가한 역할의 항목 평균입니다.</p>
+<div class="evidence-example" aria-label="제품 불일치와 검사 누락의 평가 비교">
+<div class="example-heading"><h3>같은 실패라도, 확인할 문제는 다릅니다.</h3><p>자동화 실행 역할을 평가한 두 사례</p></div>
+<div class="example-columns">
+<article><span class="case-label">실제 로컬 시험 · 개발용 참조 TC</span><h4>기대 16°C → 실제 15°C</h4><ol><li>TC에는 하한 16°C 유지 조건이 있습니다.</li><li>실제 시험에서 15°C로 내려간 값을 확인했습니다.</li><li>불일치 근거를 남긴 수행을 적절하다고 평가했습니다.</li></ol><p><strong>실행 역할 5.0 / 5</strong> · AI 평가 3항목 평균</p></article>
+<article><span class="case-label">검사 누락을 넣은 가상 사본 · 제품 실행 아님</span><h4>필수 내부값 검사와 실행 근거 부족</h4><ol><li>비교용 사본에 필수 검사 누락을 넣었습니다.</li><li>평가자는 누락과 실행 근거 부족을 지적했습니다.</li><li>항목별로 2점·5점·0점을 부여했습니다.</li></ol><p><strong>실행 역할 2.33 / 5</strong> · AI 평가 3항목 평균</p></article>
+</div>
+<p class="scope-note">이 비교는 평가자가 제품 불일치와 검사 누락을 구분했는지 확인한 사례입니다. 누락 하나의 영향만 측정한 실험이나 같은 조건의 반복 시험은 아닙니다. <a href="report.html#comparison-details">항목별 판단 근거 →</a></p>
+</div>
+<div class="story-results" role="region" aria-label="사례별 평가 결과" tabindex="0">
+<table class="case-summary"><caption class="visually-hidden">사례별 판단과 평가한 역할의 점수. 세부 평가 범위는 상세 보고서에서 확인할 수 있습니다.</caption>
+  <thead><tr><th scope="col">평가 사례</th><th scope="col">어떻게 판단했나요?</th><th scope="col">평가 결과 · 5점 만점</th></tr></thead><tbody>
+    <tr data-summary="power"><th scope="row">전원 정상 동작<small>새 P1 실행 · 네 역할 평가</small></th><td>시험·복원·보고가 연결됐습니다.<small>26개 중 21개 평가 · 1개 해당 없음 · 연결 4개 미확정</small></td><td><b>각 5.0</b><small>분석·설계·실행·보고</small><a href="report.html#latest-power-evaluation">26개 항목 보기 →</a></td></tr>
+    <tr data-summary="normal"><th scope="row">전원 정상 동작<small>저장된 AI TC · 실행 역할 평가</small></th><td>TC에 적힌 검사를 수행했습니다.<small>위 전원 사례와 같은 조건의 반복 실행은 아닙니다.</small></td><td><b>5.0</b><small>실행 역할 · AI 3항목</small><a href="report.html#a3-comparison">평가 근거 →</a></td></tr>
+    <tr data-summary="product"><th scope="row">온도 하한 불일치<small>개발용 참조 TC · 로컬 제품 시험</small></th><td>16°C 아래로 내려가는 제품의 차이를 찾아냈습니다.<small>제품 불일치를 검출한 것을 에이전트의 실패로 보지 않았습니다.</small></td><td><b>5.0</b><small>실행 역할 · AI 3항목</small><a href="report.html#a3-comparison">평가 근거 →</a></td></tr>
+    <tr data-summary="omission"><th scope="row">필수 검사 누락<small>가상 사본, 실제 실행 아님</small></th><td>내부값 검사 누락과 실행 근거 부족을 지적했습니다.<small>검사 한 개 누락만으로 0점이 된 사례는 아닙니다.</small></td><td><b class="scenario-warning">2.33</b><small>실행 역할 · AI 3항목</small><a href="report.html#comparison-details">감점 이유 →</a></td></tr>
+    <tr data-summary="pause"><th scope="row">정보 부족으로 보류<small>저장된 분석 · 정보 부족 처리</small></th><td>정해지지 않은 온도를 추측하지 않고 질문했습니다.<small>이후 설계·실행·보고는 진행하지 않았습니다.</small></td><td><b>5.0</b><small>분석 역할 · AI 4항목</small><a href="report.html#pause-reuse-details">평가 근거 →</a></td></tr>
+    <tr data-summary="reuse"><th scope="row">기존 강풍 TC 재사용<small>저장된 설계·실행 · 기존 TC 재사용</small></th><td>재사용은 적절했지만 복원 확인 설명이 부족하다고 평가했습니다.<small>당시 TC의 문제와 에이전트 책임은 별도 검토가 필요합니다.</small></td><td><b class="scenario-warning">4.75</b><small>설계 역할 · AI 8항목<br>실행 역할은 판단 보류</small><a href="report.html#pause-reuse-details">평가 근거 →</a></td></tr>
+  </tbody></table>
+</div>
+<p class="scope-note"><strong>사람의 최종 검토 전인 결과입니다.</strong> 사례마다 입력·평가 시점·평가 범위가 달라 점수를 순위나 전체 평균으로 묶지 않았습니다. 같은 조건의 새 AI 반복 실행은 아직 검증하지 않았습니다.</p>
+<a class="text-link" href="report.html#record-metadata">사례별 평가 시점과 자료 구분 →</a>
+</section>
+<section id="improvement" class="story-section">
+<p class="eyebrow">04 · 개선 사례</p><h2>평가 점수가 낮을 때, 원본부터 확인했습니다.</h2>
+<p class="section-intro">전원 시험의 복원 항목이 3점으로 평가됐습니다. 원본에는 복원 확인 기록이 있었지만, 평가자가 이를 충분히 확인하지 못했습니다.</p>
+<p>점수가 낮다는 이유만으로 P1의 복원 동작부터 바꾸지는 않았습니다. 먼저 실행 기록과 평가 입력을 대조해, 실제로 확인하지 않은 것과 확인했지만 평가자에게 전달되지 않은 것을 나눴습니다.</p>
+<div class="improvement-line">
+<div><span>문제 확인</span><p>TC 설명 부족과<br>평가 입력의 근거 누락을 구분</p></div>
+<div><span>자료 전달 보완</span><p>복원 확인 기록이<br>평가 입력에 드러나도록 정리</p></div>
+<div><span>같은 기록 재평가</span><p><strong>3 → 5점</strong><br>복원 항목 A3-01</p></div>
+</div>
+<p class="scope-note">같은 저장 사례의 재평가입니다. 평가 기준도 2.2에서 2.3으로 바뀌어 점수 차이를 성능 개선율로 볼 수는 없습니다. 제품 시험을 다시 실행한 결과가 아니며, 최초 점수와 평가 이유도 보존했습니다.</p>
+<p class="improvement-takeaway"><strong>평가 결과도 검증 대상입니다.</strong> 점수뿐 아니라 원본 근거와 판단 이유를 보존해야, 에이전트를 고칠지 평가 자료를 보완할지 결정할 수 있습니다.</p>
+<a class="text-link" href="report.html#historical-results">수정 전후 평가 근거 확인 →</a>
+</section>
+<section id="scope" class="story-section">
+<p class="eyebrow">05 · 검증 범위</p><h2>확인한 결과와 남은 검증을 구분합니다.</h2>
+<div class="scope-columns">
+<div><h3>현재 확인한 범위</h3><ul><li>저장 사례에서 제품 불일치·검사 누락·보류·TC 재사용 평가</li><li>준비한 입력·저장 자료를 사용한 로컬 100회 검사</li><li>평가 자료 누락을 보완한 뒤 같은 기록 재평가</li></ul><a href="report.html#latest-repeat">로컬 100회 결과와 검사 범위 →</a></div>
+<div><h3>아직 남은 검증</h3><ul><li>선정한 대표 요청 5건의 실제 AI 전체 흐름</li><li>같은 조건에서 새로 실행한 결과의 반복 일관성</li><li>사용자 판단과 P2 평가 대조, 미확정 연결 기준 확인</li></ul></div>
+</div>
+<p class="scope-note">로컬 100회는 AI가 100번 새로 판단한 결과가 아닙니다. 현재 자료만으로 전체 AI 안정성을 보장하지 않습니다.</p>
+</section>
+<footer class="story-footer"><a href="../../portfolio_export/index.html">메인 포트폴리오 ←</a><a href="../../qa-agent-pipeline-v2/project.html">프로젝트1 보기 →</a><a href="report.html">상세 평가 보고서 →</a></footer>
+</main></body></html>

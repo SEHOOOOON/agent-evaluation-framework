@@ -23,9 +23,8 @@ from .security import redact_data
 from .storage import ArtifactStore, atomic_write_json, read_json
 
 
-DEFAULT_PROJECT1_ROOT = Path(
-    r"C:\Users\훈\.gemini\antigravity\scratch\industrial-qa\portfolio_export"
-)
+# V1 fixture repository checked out as a sibling of this repository.
+DEFAULT_PROJECT1_ROOT = Path(__file__).resolve().parents[3] / "portfolio_export"
 DEFAULT_RUNS_ROOT = Path(__file__).resolve().parents[2] / "evaluation-runs"
 DEFAULT_KNOWN_GOOD_ROOT = Path(__file__).resolve().parents[2] / "fixtures" / "known_good" / "project1"
 

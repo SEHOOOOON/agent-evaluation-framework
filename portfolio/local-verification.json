@@ -1,0 +1,19 @@
+{
+  "date_kst": "2026-10-04",
+  "mode": "SAVED_MODEL_OUTPUT_CURRENT_PRODUCT_TEST_COPY",
+  "source_artifact": "P1/runs/c1004/summary.json",
+  "source_sha256": "b983f7fdf9c10d009c30e86463fc8363b701ac30670c326a352e5e040c53acd4",
+  "api_calls": 0,
+  "official_approvals": 0,
+  "original_scores_changed": false,
+  "cases": [
+    {"id": "power", "title": "켜진 장비 끄기", "current_product_revalidation": "PASS", "registered_code_reuse": "PASS", "restored": true, "branches": ["HOLD", "DECLINE", "ADD"]},
+    {"id": "med", "title": "풍량을 중풍으로 변경", "current_product_revalidation": "PASS", "registered_code_reuse": "PASS", "restored": true, "branches": ["HOLD", "DECLINE", "ADD", "NO_SRS_CONSENT"]}
+  ],
+  "limitations": [
+    "저장된 AI 결과를 다시 사용했습니다. AI가 새로 작성한 시험은 아닙니다.",
+    "시험용 사본에서 승인 함수를 호출했습니다. 실제 공식 승인이나 화면 버튼 조작은 아닙니다.",
+    "기존 70건 및 위 AI 점수와 별도로 확인한 결과입니다.",
+    "기존 TC 대체의 의미적 적절성이나 새로운 실제 AI 결과의 대체 등록을 입증하지 않습니다."
+  ]
+}

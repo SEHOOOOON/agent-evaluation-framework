@@ -93,6 +93,37 @@ def test_missing_or_unsupported_evidence_is_not_invented_as_a_score(kind):
     assert result["score"] is None and result["verdict"] == "REVIEW"
 
 
+def two_assertion_sample():
+    case, plan, event, end = sample()
+    second = dict(deepcopy(plan["assertions"][0]), result_id="ER-2")
+    plan["assertions"].append(second)
+    case["expected_results"].append(dict(result_id="ER-2"))
+    later = dict(deepcopy(event), assertion=deepcopy(second))
+    return case, plan, event, later, end
+
+
+@pytest.mark.parametrize("truncated,expected", [(True, "REVIEW"), (False, "FAIL")])
+def test_cut_log_head_is_missing_evidence_not_a_skipped_check(truncated, expected):
+    case, plan, first, later, end = two_assertion_sample()
+    log = OBSERVED + json.dumps(later) + "\n" + COMPLETE + json.dumps(end)
+    if truncated:
+        log = "QA_OUTPUT_TRUNCATED: kept last 200000 of 250000 characters\n" + log
+    result = compare(case, plan, log, run_id="RUN-local", outcome="PASS")
+    assert result["verdict"] == expected
+    assert result["score"] == (None if truncated else 0)
+
+
+def test_truncation_marker_does_not_excuse_unknown_or_wrong_records():
+    case, plan, first, later, end = two_assertion_sample()
+    marker = "QA_OUTPUT_TRUNCATED: kept last 200000 of 250000 characters\n"
+    extra = dict(deepcopy(later), assertion=dict(deepcopy(later["assertion"]), result_id="ER-9"))
+    log = marker + OBSERVED + json.dumps(extra) + "\n" + COMPLETE + json.dumps(end)
+    assert compare(case, plan, log, run_id="RUN-local", outcome="PASS")["verdict"] == "FAIL"
+    wrong = dict(deepcopy(first), matched=False)
+    log = marker + "\n".join(OBSERVED + json.dumps(e) for e in (wrong, later)) + "\n" + COMPLETE + json.dumps(end)
+    assert compare(case, plan, log, run_id="RUN-local", outcome="PASS")["verdict"] == "FAIL"
+
+
 @pytest.mark.parametrize("strategy,fields,actual,ok", [
     ("UI_TEMPERATURE", dict(expected_number=21), 21.0, True),
     ("INTERNAL_SET_TEMP", dict(expected_number=1), True, False),

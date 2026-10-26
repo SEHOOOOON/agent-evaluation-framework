@@ -21,14 +21,18 @@ import zipfile
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from .detailed_rubric import role_items, VERSION as RUBRIC_VERSION, SCORE_VERSION, PYTHON_CRITERIA
+from .detailed_rubric import role_items, VERSION as RUBRIC_VERSION, SCORE_VERSION, PYTHON_CRITERIA, KEY_CRITERIA
 from .execution_observations import grade_run as grade_execution_observations
-from .openai_judge import (JudgePacket, encode, preview as judge_preview, evaluate as judge_evaluate,
-                           scan_payload, _unique_json_fields)
+from .product_expectations import ExpectedMismatch, classify as classify_product_expectation
+from .range_oracle import RangeKey, grade as grade_range
+from .openai_judge import JudgePacket, encode, scan_payload, _unique_json_fields
+from .judges import preview as judge_preview, evaluate as judge_evaluate
+from .claude_judge import (DESTINATION as CLAUDE_DESTINATION, MAX_CALLS as CLAUDE_MAX_CALLS, is_claude_model,
+                           split_model as split_claude_model)
 from .v2_recorded import (child, digest, read, write, target_pin, inventory, execution_rows,
                           finding_matches_execution, report_counts_match, handoff_checks)
 
-VERSION = "full-flow-0.14"
+VERSION = "full-flow-0.21"
 ROLES = ("A1", "A2", "A3", "A4")
 
 
@@ -38,7 +42,8 @@ class FlowSpec(BaseModel):
     request: str
     oracle: str
     generation_model: str = Field(pattern=r"^[A-Za-z0-9._:-]{1,100}$")
-    judge_model: str = Field(pattern=r"^[A-Za-z0-9._:-]{1,100}$")
+    # 2026-10-24 사용자 결정: 채점은 생성(OpenAI)과 다른 회사 모델인 Claude Sonnet 5.5 high.
+    judge_model: str = Field(default="claude-sonnet-5-5", pattern=r"^[A-Za-z0-9._:-]{1,100}$")
     trials: Literal[1, 5] = 1
     max_candidates: int = Field(default=3, ge=1, le=10)
     generation_calls_per_trial: int = Field(default=10, ge=1, le=24)
@@ -46,7 +51,17 @@ class FlowSpec(BaseModel):
     judge_calls_total: int = Field(default=4, ge=0, le=20)
     trial_timeout_seconds: int = Field(default=1800, ge=60, le=7200)
     product_timeout_seconds: int = Field(default=90, ge=10, le=180)
-    generation_max_output_tokens: int = Field(default=12000, ge=2000, le=24000)
+    # P1 itself does not cap generation output. A recorded A2 response used
+    # 10,558 of the former 12,000 default, so new specs use the existing upper
+    # bound. Historical specs that set 12000 explicitly keep that value.
+    generation_max_output_tokens: int = Field(default=24000, ge=2000, le=24000)
+    # Option B (2026-10-16): mismatches a person expects on the unchanged
+    # product. Bound into the preview/approval hash through the spec.
+    expected_product_mismatches: list[ExpectedMismatch] = Field(default=[], max_length=20)
+    # Optional range answer key (relative to the spec folder, like ``oracle``).
+    # 0.20: a HUMAN_CONFIRMED key scores TC-R05 by code (the AI judgment is kept
+    # alongside); a DRAFT key is only recorded. Completion status never changes.
+    range_key: str | None = None
 
 
 def p2_pin():
@@ -84,6 +99,8 @@ def selected_files(target, request, pin):
 def make_preview(target: Path, spec: FlowSpec, config_root: Path):
     target = target.resolve()
     spec = FlowSpec.model_validate(spec.model_dump())
+    if is_claude_model(spec.judge_model):
+        split_claude_model(spec.judge_model)  # an unknown effort fails at preview, not after generation
     pin = target_pin(target)
     selected = selected_files(target, spec.request, pin)
     if not runtime_unchanged(target, selected):
@@ -96,25 +113,44 @@ def make_preview(target: Path, spec: FlowSpec, config_root: Path):
         raise ValueError("Oracle review status is required")
     if not isinstance(oracle.get("expectations"), list) or not oracle["expectations"]:
         raise ValueError("Independent expected conditions must be supplied")
+    # 0.20: an oracle written for another request must not grade this one.
+    request_sha256 = sha256(child(target, spec.request).read_bytes()).hexdigest()
+    if oracle.get("request_sha256") not in {None, request_sha256}:
+        raise ValueError("Independent oracle was written for a different request")
     scan_payload(request)
     scan_payload(oracle)
     # Validate the SRS text before allowing even a generation request.
     srs = child(target, "docs/01_PRODUCT_SRS.md").read_text(encoding="utf-8")
     scan_payload(srs)
+    range_key = None
+    if spec.range_key is not None:
+        key_path = child(config_root.resolve(), spec.range_key)
+        if key_path.stat().st_size > 100_000:
+            raise ValueError("Range key too large")
+        range_key = RangeKey.model_validate_json(key_path.read_text(encoding="utf-8")).model_dump()
+        if range_key["request_id"] != (request or {}).get("request_id"):
+            raise ValueError("Range key was written for a different request")
     plan = {
-        "version": VERSION, "spec": spec.model_dump(), "target_commit": pin["commit"],
+        # Specs without a range key keep the earlier plan shape.
+        "version": VERSION, "spec": spec.model_dump(exclude={"range_key"} if range_key is None else None),
+        "target_commit": pin["commit"],
         "runtime_hashes": selected, "evaluator_hashes": p2_pin(),
         "oracle": oracle, "request": request, "srs_sha256": selected["docs/01_PRODUCT_SRS.md"],
         "rubric_version": RUBRIC_VERSION,
         "scoring_profile": SCORE_VERSION,
-        "python_criteria": sorted(PYTHON_CRITERIA),
+        **({"range_key": range_key} if range_key is not None else {}),
+        "python_criteria": sorted(PYTHON_CRITERIA | (KEY_CRITERIA if (range_key or {}).get("status") == "HUMAN_CONFIRMED" else set())),
         "generation_destination": "https://api.openai.com/v1/responses",
-        "judge_destination": "https://api.openai.com/v1/responses",
+        # Was fixed to OpenAI; the Claude default (2026-10-24) is routed by judges.py.
+        "judge_destination": (CLAUDE_DESTINATION if is_claude_model(spec.judge_model)
+                              else "https://api.openai.com/v1/responses"),
         "generation_sdk_retries": 0, "judge_sdk_retries": 0,
         "checkpoint_rewrites": "P1 existing bounded policy; every parse attempt is charged",
         "p1_call_budget_includes": ["generation", "checkpoint rewrites", "grounding reviews"],
         "external_publish": False, "official_registration": False,
-        "maximum_api_attempts": spec.generation_calls_total + spec.judge_calls_total,
+        # Claude judge 1.5 may resend once when criteria are missing (IMP-017).
+        "maximum_api_attempts": spec.generation_calls_total + spec.judge_calls_total * (
+            CLAUDE_MAX_CALLS if is_claude_model(spec.judge_model) else 1),
         "scope": "A1-A4 + checkpoint artifacts + partial E2E code checks",
         "transmission": {
             "generation": ["request", "related SRS", "existing TC catalog", "actual upstream outputs",
@@ -279,12 +315,42 @@ def local_checks(run: Path, source_unchanged: bool, copy_unchanged: bool):
     return checks
 
 
+def range_oracle_record(run: Path, key: dict) -> dict:
+    """Rule-based A2 check against the approved range key; separate from scores."""
+    design_path, analysis_path = run / "agent2_test_design.json", run / "agent1_change_analysis.json"
+    if not design_path.is_file():
+        return {"status": "NOT_EVALUATED", "reason": "A2_OUTPUT_MISSING"}
+    try:
+        analysis = read(analysis_path) if analysis_path.is_file() else None
+        graded = grade_range(RangeKey.model_validate(key), read(design_path),
+                             analysis if isinstance(analysis, dict) else None)
+    except Exception as exc:
+        return {"status": "ERROR", "reason": type(exc).__name__}
+    return dict(status="EVALUATED", design_sha256=digest(design_path),
+                analysis_sha256=digest(analysis_path) if analysis_path.is_file() else None, **graded)
+
+
 def runtime_unchanged(root, hashes):
     if not all(child(root, n).is_file() and digest(child(root, n)) == h for n, h in hashes.items()):
         return False
     expected_assets = {n.removeprefix("approved_assets/"): h for n, h in hashes.items()
                        if n.startswith("approved_assets/")}
     return inventory(root / "approved_assets") == expected_assets
+
+
+def remove_workspace(work: Path) -> bool:
+    """Delete a trial's temporary copy; read-only files (e.g. Windows) are retried writable."""
+    def retry(function, path, _):
+        try:
+            os.chmod(path, 0o700)
+            function(path)
+        except OSError:
+            pass
+    if sys.version_info >= (3, 12):
+        shutil.rmtree(work, onexc=retry)
+    else:
+        shutil.rmtree(work, onerror=retry)
+    return not work.exists()
 
 
 def archive_evidence(work, destination):
@@ -391,12 +457,48 @@ def compact_evidence(source):
     is rewritten, removed, or converted into a verdict by this projection.
     """
     seen = {}
+    direct_text = {}
+
+    def factor_text(value):
+        # Mixed prose/JSON requests can embed an exact core value. Keep literal
+        # separators and order; never normalize, summarize or infer equivalence.
+        parts = [value]
+        for text, target in sorted(direct_text.items(), key=lambda item: -len(item[0])):
+            next_parts = []
+            for part in parts:
+                if not isinstance(part, str) or text not in part:
+                    next_parts.append(part)
+                    continue
+                fragments = part.split(text)
+                for index, fragment in enumerate(fragments):
+                    if index:
+                        next_parts.append({"evidence_reference": target})
+                    if fragment:
+                        next_parts.append(fragment)
+            parts = next_parts
+        if all(isinstance(part, str) for part in parts):
+            return value
+        projected = {"evidence_text_parts": parts,
+                     "raw_utf8_sha256": sha256(value.encode("utf-8")).hexdigest()}
+        if len(encode(projected).encode("utf-8")) >= len(encode(value).encode("utf-8")):
+            return value
+        # Otherwise a secret/path split across fragments could evade the final scan.
+        scan_payload(value)
+        return projected
+
     def visit(value, path):
         encoded = encode(value)
         direct = bool(path and path[0] in {"context", "artifact"})
         if len(encoded.encode("utf-8")) >= 512:
             if encoded in seen and not direct:
                 return {"evidence_reference": seen[encoded]}
+            if isinstance(value, str):
+                if direct:
+                    direct_text.setdefault(value, path)
+                else:
+                    projected = factor_text(value)
+                    if not isinstance(projected, str):
+                        return projected
             seen.setdefault(encoded, path)
         if isinstance(value, dict):
             return {k: visit(v, path + [k]) for k, v in value.items()}
@@ -418,6 +520,13 @@ def request_evidence(call, raw_sha256=None):
         return result
     for message in result.get("payload", {}).get("input", []):
         content = message.get("content") if isinstance(message, dict) else None
+        if isinstance(content, str) and message.get("role") == "system":
+            # full-flow-0.21: P1's fixed instructions (A2 ~58 KB) are the same every
+            # Run and are not what the role is graded on. Keep identity, not text.
+            message["content"] = {"payload_omitted": "FIXED_SYSTEM_INSTRUCTIONS",
+                                  "raw_utf8_sha256": sha256(content.encode()).hexdigest(),
+                                  "utf8_bytes": len(content.encode())}
+            continue
         if isinstance(content, str) and content.lstrip().startswith(("{", "[")):
             try:
                 message["content"] = {"parsed_json": json.loads(content),
@@ -427,15 +536,86 @@ def request_evidence(call, raw_sha256=None):
     return result
 
 
-def python_scores(run, checks):
+def compact_grounding_review(value: dict, raw_sha256: str) -> dict:
+    """full-flow-0.21: verdict counts and every non-SUPPORTED item; SUPPORTED details
+    (A3 ~90 KB per candidate) stay in the ZIP under the recorded hash."""
+    review = value.get("review")
+    items = review.get("items") if isinstance(review, dict) else None
+    if not isinstance(items, list):
+        return value
+    counts = {}
+    for item in items:
+        verdict = item.get("verdict") if isinstance(item, dict) else None
+        counts[verdict] = counts.get(verdict, 0) + 1
+    result = {k: v for k, v in value.items() if k not in ("review", "source_selection", "index_selection")}
+    result["review_summary"] = {
+        "verdict_counts": counts,
+        "not_supported_items": [i for i in items if not isinstance(i, dict) or i.get("verdict") != "SUPPORTED"],
+        "omitted": "SUPPORTED_ITEM_DETAILS_AND_SOURCE_SELECTION",
+        "raw_artifact_sha256": raw_sha256,
+    }
+    return result
+
+
+def range_key_judgment(record: dict | None) -> dict | None:
+    """TC-R05 from a human-confirmed range key (0.20). DRAFT keys are recorded only."""
+    if not record or record.get("status") != "EVALUATED" or record.get("key_status") != "HUMAN_CONFIRMED":
+        return None
+    total, met = record["required_total"], record["required_met"]
+    if not total:
+        return None
+    recommended = [i for i in record.get("items", []) if i.get("level") == "RECOMMENDED"]
+    missing = [i["id"] for i in record.get("items", []) if i.get("level") == "REQUIRED" and i.get("status") != "MET"]
+    # 2026-10-25 review: the key's own verdict also counts rule issues. T-8 (a block judged by
+    # something other than the kept value) makes the key FAIL, so the scorecard must not say 5.
+    issues = record.get("issues") or []
+    t8 = sorted({str(i.get("tc_id")) for i in issues if i.get("rule") == "T-8"})
+    if not missing and t8:
+        return dict(criterion_id="TC-R05", verdict="FAIL", score=3,
+                    reason=f"사람 확정 범위 정답지 {record['key_id']}: 필수 {met}/{total} 충족, "
+                           f"차단 판정에 값 유지 외 확인 사용(T-8): " + ", ".join(t8),
+                    evidence=[dict(file="agent2_test_design.json", sha256=record.get("design_sha256"))])
+    if not missing:
+        partial = any(i.get("status") != "MET" for i in recommended)
+        split = [i for i in issues if i.get("rule") == "T-7"]
+        other = sorted({str(i.get("tc_id")) for i in issues if i.get("rule") == "WRONG_OTHER_TC"})
+        if split or other:
+            notes = (["같은 모드 범위 확인이 TC 여러 개로 나뉨(T-7, 사람 확인)"] if split else []) + (
+                [f"다른 TC가 같은 시도를 틀린 기대값으로 확인({', '.join(other)})"] if other else [])
+            return dict(criterion_id="TC-R05", verdict="PASS", score=4,
+                        reason=f"사람 확정 범위 정답지 {record['key_id']}: 필수 {met}/{total} 충족, " + "; ".join(notes),
+                        evidence=[dict(file="agent2_test_design.json", sha256=record.get("design_sha256"))])
+        return dict(criterion_id="TC-R05", verdict="PASS", score=4 if partial else 5,
+                    reason=f"사람 확정 범위 정답지 {record['key_id']}: 필수 {met}/{total} 충족"
+                           + (", 권장 일부 미충족" if partial else ""),
+                    evidence=[dict(file="agent2_test_design.json", sha256=record.get("design_sha256"))])
+    ratio = met / total
+    return dict(criterion_id="TC-R05", verdict="FAIL",
+                score=3 if ratio >= 0.75 else 2 if ratio >= 0.5 else 1 if met else 0,
+                reason=f"사람 확정 범위 정답지 {record['key_id']}: 필수 {met}/{total}, 누락 " + ", ".join(missing),
+                evidence=[dict(file="agent2_test_design.json", sha256=record.get("design_sha256"))])
+
+
+def python_scores(run, checks, range_record=None, waiting=None):
     """Read-only fact grades, independent of the target's PASS declarations.
 
     E04 remains unscored without a real approval lifecycle. An observed asset
     violation is still a failure. Missing evidence is never a fabricated pass.
+    ``waiting`` is the hash-verified Agent 1 pause from waiting_user_notice:
+    then no execution or report exists by design, so those checks are
+    NOT_APPLICABLE instead of "evidence missing" (2026-10-20, lock scenario).
     """
     grades = {cid: dict(criterion_id=cid, score=None, verdict="REVIEW",
                        reason="독립 확인에 필요한 실행·승인 근거 부족", evidence=[])
               for cid in sorted(PYTHON_CRITERIA)}
+    if waiting and waiting.get("status") == "WAITING_FOR_USER":
+        for cid in ("A3-03", "A4-01", "A4-03"):
+            grades[cid].update(verdict="NOT_APPLICABLE", reason=(
+                "Agent 1이 사람 질문을 남기고 정상 대기(해시 연결 확인)해 실행·보고 단계가 없음"))
+        if any(c["rule"] == "E04.ASSET_PROTECTION" and c["status"] == "FAIL" for c in checks):
+            grades["E04"].update(score=0, verdict="FAIL", reason="승인 없는 평가 실행 중 고정 자산 변경이 확인됨")
+        return dict(status="COMPLETED", mode="PYTHON", scoring_profile=SCORE_VERSION, rubric_version=RUBRIC_VERSION,
+                    judgments=list(grades.values()), approval_revalidation=approval_revalidation_status(run))
     grades["A3-03"] = grade_execution_observations(run)
 
     def assign(cid, ok, reason):
@@ -492,8 +672,98 @@ def python_scores(run, checks):
     except (OSError, ValueError, KeyError, TypeError, AttributeError):
         # Retain facts already established; unavailable portions stay REVIEW.
         pass
+    keyed = range_key_judgment(range_record)
+    if keyed is not None:
+        grades["TC-R05"] = keyed
     return dict(status="COMPLETED", mode="PYTHON", scoring_profile=SCORE_VERSION, rubric_version=RUBRIC_VERSION,
-                judgments=list(grades.values()))
+                judgments=list(grades.values()), approval_revalidation=approval_revalidation_status(run))
+
+
+def approval_revalidation_status(run):
+    """Local collection-time status, never a rescore or permission to register.
+
+    Old assessment scores describe the original execution. A later retry can
+    block registration without making those original grades wrong.
+    """
+    run = run.resolve()
+    result = dict(scope="COLLECTION_SNAPSHOT_NOT_LIVE", status="NO_RETRY_RECORD",
+                  registration="P1_CHECK_REQUIRED", scores_changed=False, items=[])
+    root = run / "asset_revalidation"
+    if root.is_symlink():
+        result.update(status="REVIEW_REQUIRED", registration="UNCONFIRMED")
+        return result
+    if not root.exists():
+        return result
+    if not root.is_dir():
+        result.update(status="REVIEW_REQUIRED", registration="UNCONFIRMED")
+        return result
+    for source in sorted(root.glob("*/latest.json")):
+        item = dict(tc_id=source.parent.name, status="REVIEW_REQUIRED", outcome=None,
+                    registration="UNCONFIRMED", reason="재시험 자료의 연결을 확인할 수 없습니다.")
+        result["items"].append(item)
+        try:
+            name = source.relative_to(run).as_posix()
+            path = safe_evidence_path(run, name)
+            record = read(path)
+            stamp = digest(path)
+            if record.get("run_id") != run.name or record.get("tc_id") != source.parent.name:
+                raise ValueError("Retry identity mismatch")
+            wrapper = read(safe_evidence_path(run, "validation_manifest.json"))
+            if wrapper.get("run_id") != run.name or wrapper.get("stage") != "VALIDATION_EXECUTION":
+                raise ValueError("Validation identity mismatch")
+            execution_path = safe_evidence_path(run, "validation_execution.json")
+            if digest(execution_path) != wrapper.get("validation_execution_sha256"):
+                raise ValueError("Validation hash mismatch")
+            execution = read(execution_path)
+            if execution.get("run_id") != run.name:
+                raise ValueError("Execution Run mismatch")
+            selected = [r for r in execution_rows(execution)
+                        if r.get("test_id") == record["tc_id"] and r.get("source") == "NEW_AUTOMATION_CANDIDATE"]
+            links = [r for r in wrapper.get("source_agent3_artifacts", []) if r.get("tc_id") == record["tc_id"]]
+            if len(selected) != 1 or len(links) != 1:
+                raise ValueError("Ambiguous retry TC")
+            manifest_path = safe_evidence_path(run, links[0]["agent3_manifest_file"])
+            if manifest_path.name != "agent3_manifest.json" or digest(manifest_path) != links[0].get("agent3_manifest_sha256"):
+                raise ValueError("Candidate manifest mismatch")
+            manifest = read(manifest_path)
+            if manifest.get("run_id") != run.name or manifest.get("tc_id") != record["tc_id"]:
+                raise ValueError("Candidate identity mismatch")
+            code = safe_evidence_path(manifest_path.parent / "candidates", manifest["candidate_file"])
+            code_hash = digest(code)
+            if not code_hash == manifest.get("candidate_sha256") == record.get("candidate_sha256") == selected[0].get("test_sha256"):
+                raise ValueError("Retry code mismatch")
+            # Today's product is checked only if it is available in this Run's
+            # workspace. Otherwise match the originally verified execution.
+            target = safe_evidence_path(run.parent.parent, "product_baseline/virtual-controller.html")
+            target_hash = digest(target) if target.is_file() else selected[0].get("target_sha256")
+            if not isinstance(target_hash, str) or len(target_hash) != 64 or record.get("target_sha256") != target_hash:
+                raise ValueError("Retry product missing or changed")
+            outcome = record.get("outcome")
+            allowed = {"PASS", "PRODUCT_MISMATCH_CANDIDATE", "AUTOMATION_ERROR", "ENVIRONMENT_ERROR", "TIMEOUT", "INCOMPLETE"}
+            if outcome not in allowed:
+                raise ValueError("Unknown retry outcome")
+            if outcome == "PASS":
+                files, hashes = record.get("evidence_files"), record.get("evidence_sha256")
+                if record.get("evidence_complete") is not True or not isinstance(files, list) or not files or not isinstance(hashes, dict):
+                    raise ValueError("Retry evidence missing")
+                evidence_root = safe_evidence_path(run, "asset_revalidation/" + record["tc_id"] + "/" + record["attempt_id"] + "/evidence")
+                for file in files:
+                    evidence = safe_evidence_path(run, file)
+                    if not evidence.is_relative_to(evidence_root) or digest(evidence) != hashes.get(file):
+                        raise ValueError("Retry evidence mismatch")
+            if digest(path) != stamp:
+                raise ValueError("Retry changed while collecting")
+            item.update(status="VERIFIED", outcome=outcome, source=name, source_sha256=stamp,
+                        product_scope="CURRENT_WORKSPACE" if target.is_file() else "ORIGINAL_EXECUTION_ONLY",
+                        registration="P1_CHECK_REQUIRED" if outcome == "PASS" else "BLOCKED_BY_RETRY")
+            item["reason"] = "재시험은 통과했지만 공식 등록은 P1의 전체 승인 검사가 필요합니다." if outcome == "PASS" else "재시험이 실패·미완료 상태입니다. 과거 점수와 별개로 등록 전 확인이 필요합니다."
+        except (OSError, ValueError, KeyError, TypeError, AttributeError):
+            # Untrusted bodies/paths never become display text or a false PASS.
+            pass
+    if result["items"]:
+        result["status"] = "REVIEW_REQUIRED" if any(i["status"] != "VERIFIED" for i in result["items"]) else "COLLECTED"
+        result["registration"] = "BLOCKED_BY_RETRY" if any(i["registration"] == "BLOCKED_BY_RETRY" for i in result["items"]) else "UNCONFIRMED" if result["status"] == "REVIEW_REQUIRED" else "P1_CHECK_REQUIRED"
+    return result
 
 
 def safe_evidence_path(root, name):
@@ -621,6 +891,7 @@ def execution_support(run, work, execution, *, code_references=(), trial_documen
 
     # Fixed ordering makes selection independent of execution-row ordering.
     groups = sorted(references.items(), key=lambda item: min(label for label, _ in item[1]))
+    verified = []
     for path, refs in groups:
         label = min(label for label, _ in refs)
         try:
@@ -633,8 +904,44 @@ def execution_support(run, work, execution, *, code_references=(), trial_documen
                 result["files"][label] = dict(sha256=observed, bytes=path.stat().st_size,
                                                delivery="LOCAL_ONLY_CODE")
                 continue
+            verified.append((path, label, observed, data))
+        except (OSError, ValueError, UnicodeError):
+            result["omissions"].append(dict(file=label, reason="MISSING_OR_UNVERIFIED"))
+    # Several failing logs share one budget. Without shares the first two large
+    # logs took all 40,000 bytes and later failures were omitted entirely
+    # (2026-10-15 check). Small logs stay whole; large ones get equal tails of
+    # at least 4,000 bytes; a log that cannot get that much is still omitted.
+    shares, left = {}, remaining
+    logs = sorted(((min(len(d), 24_000), label) for _, label, _, d in verified
+                   if Path(label).suffix.lower() == ".txt"))
+    for index, (demand, label) in enumerate(logs):
+        share = left // (len(logs) - index)
+        shares[label] = demand if demand <= share else share if share >= 4_000 else 0
+        left -= shares[label]
+    for path, label, observed, data in verified:
+        try:
             size = len(data)
-            if size > min(24_000, remaining):
+            budget = min(24_000, remaining, shares.get(label, 24_000))
+            if size > budget and path.suffix.lower() == ".txt" and budget >= 4_000:
+                # A pytest failure, its observation records and restoration
+                # lines are printed last. Keep that end from a whole line
+                # instead of dropping the log; the hash covers the full file.
+                total = path.stat().st_size
+                with path.open("rb") as handle:
+                    handle.seek(max(0, total - budget))
+                    tail = handle.read(budget)
+                start = tail.find(b"\n") + 1
+                if not start or start == len(tail):
+                    # No whole line fits; do not send a fragment.
+                    result["omissions"].append(dict(file=label, reason="SIZE_LIMIT", sha256=observed))
+                    continue
+                tail = tail[start:]
+                text = tail.decode("utf-8").replace("\r\n", "\n").replace("\r", "\n")
+                result["files"][label] = dict(sha256=observed, content=text, delivery="TAIL_ONLY",
+                                               bytes_total=total, bytes_included=len(tail))
+                remaining -= len(tail)
+                continue
+            if size > budget:
                 result["omissions"].append(dict(file=label, reason="SIZE_LIMIT", sha256=observed))
                 continue
             text = data.decode("utf-8").replace("\r\n", "\n").replace("\r", "\n")
@@ -765,6 +1072,32 @@ def collect_packets(run, work, spec, plan, checks):
     catalog_hash = docs.get("agent2_manifest.json", {}).get("approved_regression_catalog_sha256")
     if catalog_hash and (catalog_name not in docs or digest(safe_evidence_path(run, catalog_name)) != catalog_hash):
         raise ValueError("Saved regression catalog missing or unverified")
+    # New P1 transport omits the current SRS text from model-authored output.
+    # Preserve old runs, but verify declared provenance before attributing it.
+    agent2_manifest = docs.get("agent2_manifest.json", {})
+    srs_records = agent2_manifest.get("srs_source_records")
+    srs_ownership = None
+    if srs_records is not None or agent2_manifest.get("prompt_version") == "agent2-2.62":
+        if not isinstance(srs_records, list) or len(srs_records) not in (1, 2):
+            raise ValueError("SRS source records missing or invalid")
+        for attempt, entry in enumerate(srs_records, 1):
+            name = f"agent2_srs_source_attempt_{attempt}.json"
+            if not isinstance(entry, dict) or entry.get("file") != name:
+                raise ValueError("SRS source record reference mismatch")
+            record = docs.get(name)
+            if (not isinstance(record, dict)
+                    or digest(safe_evidence_path(run, name)) != entry.get("sha256")
+                    or input_links["srs_snapshot.md"]["status"] != "HASH_VERIFIED"
+                    or record.get("srs_sha256") != input_links["srs_snapshot.md"]["sha256"]):
+                raise ValueError("SRS source record missing or unverified")
+        srs_ownership = {
+            "status": "HASH_VERIFIED",
+            "records": srs_records,
+            "boundary": "current_acceptance_criteria는 고정 SRS에서 프로그램이 붙인 원문입니다. "
+                        "변경안·이유·요구사항 ID 선택은 모델 작성 대상입니다. "
+                        "원문 연결 해시는 변경안의 의미 정확성이나 실제 호출 입력 확보를 증명하지 않습니다. "
+                        "NOT_CAPTURED는 모델 원본 출력 미확보이며 모델이 작성하지 않았다는 뜻이 아닙니다.",
+        }
     calls = []
     for path in sorted((work / "calls").glob("*/request.json")):
         calls.append(request_evidence(read(path), digest(path)))
@@ -843,6 +1176,8 @@ def collect_packets(run, work, spec, plan, checks):
                          "raw_artifact_sha256": digest(run / key)}
                 if retained:
                     value["retained_reference_context"] = retained
+            elif basename.startswith(f"agent{role[-1]}_grounding_review") and isinstance(value, dict):
+                value = compact_grounding_review(value, digest(run / key))
             checkpoint_docs[key] = value
         source = {
             "context": {"request": plan["request"], "independent_oracle": plan["oracle"],
@@ -859,6 +1194,8 @@ def collect_packets(run, work, spec, plan, checks):
         }
         if role == "A2":
             source["context"]["user_tc_reference"] = tc_reference
+        if role in ("A2", "A3") and srs_ownership is not None:
+            source["context"]["srs_source_ownership"] = srs_ownership
         if role in ("A2", "A3"):
             catalog_content, catalog_omissions = catalog_evidence(docs.get(catalog_name))
             source["context"]["existing_tc_catalog"] = {
@@ -925,6 +1262,7 @@ def collect_packets(run, work, spec, plan, checks):
         source["reference_protocol"] = (
             "context와 artifact는 직접 대조할 원문이며 참조로 대체하지 않습니다. "
             "다른 자료의 evidence_reference는 sources 루트에서 시작하는 동일 내용의 최초 위치입니다. "
+            "evidence_text_parts는 문자열과 참조 원문을 순서대로 이어 붙이면 원래 요청문이 되며 raw_utf8_sha256은 원문 해시입니다. "
             "인용은 참조가 가리키는 실제 값의 source_id와 path를 사용합니다. "
             "parsed_json은 실제 요청 JSON의 파싱 값이며 원본 문자열 해시는 raw_utf8_sha256입니다. "
             "payload_omitted인 근거 검토 요청은 본문 대신 원본 파일 해시·호출 메타데이터를 제공합니다. "
@@ -944,7 +1282,8 @@ def collect_packets(run, work, spec, plan, checks):
     return packets
 
 
-def run_flow(target, spec, config_root, output_root, approval_sha256, *, worker=None, judge=None):
+def run_flow(target, spec, config_root, output_root, approval_sha256, *, worker=None, judge=None,
+             keep_workspace=False):
     info = make_preview(target, spec, config_root)
     if info["approval_sha256"] != approval_sha256:
         raise ValueError("Execution requires approval bound to this exact preview")
@@ -957,6 +1296,9 @@ def run_flow(target, spec, config_root, output_root, approval_sha256, *, worker=
     test_mode = worker is not None
     if not test_mode:
         clean_environment(include_key=True)
+        # 2026-10-25 review: check the judge key before any paid generation call.
+        if is_claude_model(spec.judge_model) and not os.environ.get("ANTHROPIC_API_KEY"):
+            raise ValueError("ANTHROPIC_API_KEY environment variable is required for the Claude judge")
     worker = worker or run_worker
     judge = judge or judge_evaluate
     plan = info["plan"]
@@ -1048,7 +1390,14 @@ def run_flow(target, spec, config_root, output_root, approval_sha256, *, worker=
             if outcome["status"] == "ERROR":
                 result["stop_reason"] = outcome.get("reason", "EXECUTION_ERROR")
             row["judges"] = {}
-            row["python_evaluation"] = python_scores(run, row["checks"])
+            if "range_key" in plan:
+                row["range_oracle"] = range_oracle_record(run, plan["range_key"])
+            row["python_evaluation"] = python_scores(run, row["checks"], row.get("range_oracle"),
+                                                     waiting=row["waiting_for_user"])
+            observed = {}
+            observation_grade = grade_execution_observations(run, observations=observed)
+            row["product_expectation"] = classify_product_expectation(
+                spec.expected_product_mismatches, observed, observation_grade["verdict"])
             packets = collect_packets(run, work, spec, plan, row["checks"])
             prepared = {}
             available_slots = spec.judge_calls_total - result["judge_slots_used"]
@@ -1087,11 +1436,12 @@ def run_flow(target, spec, config_root, output_root, approval_sha256, *, worker=
                     judged = judge(packet, spec.judge_model, preview["approval_sha256"], destination)
                     verdict = read(judged / "result.json")
                     result["judge_attempts"] += verdict.get("sdk_parse_attempts", 0)
-                    response_id = verdict.get("response_id")
-                    if response_id and response_id in seen_response_ids:
+                    # Every billed attempt counts, including a rejected first answer (Claude 1.7).
+                    response_ids = [a.get("response_id") for a in verdict.get("attempts", [])] or [verdict.get("response_id")]
+                    response_ids = [rid for rid in response_ids if rid]
+                    if any(rid in seen_response_ids for rid in response_ids) or len(set(response_ids)) != len(response_ids):
                         verdict.update(status="ERROR", assessment="INCOMPLETE", reason="DUPLICATE_JUDGE_RESPONSE")
-                    if response_id:
-                        seen_response_ids.add(response_id)
+                    seen_response_ids.update(response_ids)
                     row["judges"][role] = verdict
                     if verdict.get("status") == "ERROR":
                         result["stop_reason"] = "JUDGE_ERROR"
@@ -1118,15 +1468,28 @@ def run_flow(target, spec, config_root, output_root, approval_sha256, *, worker=
                 try:
                     row["evidence_archive_sha256"] = archive_evidence(work, root / f"trial-{index + 1}" / "evidence.zip")
                     row["evidence_archive"] = f"trial-{index + 1}/evidence.zip"
+                    # The archive holds every workspace file; the temporary copy
+                    # (qaf-*) was never removed before 2026-10-16 and piled up.
+                    if not keep_workspace:
+                        row["workspace_removed"] = remove_workspace(work)
                 except Exception as exc:
                     row["archive_error"] = type(exc).__name__
                     result["stop_reason"] = "EVIDENCE_ARCHIVE_FAILED"
                     row["status"] = "ERROR"
+                    row["workspace_removed"] = False  # kept for investigation
                 write(root / f"trial-{index + 1}" / "record.json", row)
             write(root / "result.json", result)
     result["status"] = "STOPPED" if result["stop_reason"] else "COMPLETED"
     result["role_reached"] = {r: sum(t["roles"][r] != "NOT_EXECUTED" for t in result["trials"]) for r in ROLES}
     result["quality_assessment"] = "REVIEW_REQUIRED"
+    # Separate from COMPLETED/STOPPED: did the product fail exactly as declared?
+    statuses = [t.get("product_expectation", {}).get("status", "NOT_EVALUATED") for t in result["trials"]]
+    result["product_expectation"] = {status: statuses.count(status) for status in sorted(set(statuses))}
+    if "range_key" in plan:
+        # Counted per trial; NOT_EVALUATED/ERROR rows keep their status instead of a verdict.
+        verdicts = [t.get("range_oracle", {}).get("verdict") or t.get("range_oracle", {}).get("status", "NOT_EVALUATED")
+                    for t in result["trials"]]
+        result["range_oracle"] = {v: verdicts.count(v) for v in sorted(set(verdicts))}
     result["comparison"] = {
         "method": "STRUCTURED_AND_TEXT_FINGERPRINT_NOT_SEMANTIC_EQUIVALENCE",
         "same_wrong_not_ruled_out": True,

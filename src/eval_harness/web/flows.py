@@ -7,6 +7,24 @@ from ..detailed_rubric import full_scorecard, repeat_scores
 FLOW_ID = re.compile(r"FLOW-\d{8}-\d{6}-[a-f0-9]{6}\Z")
 
 
+def retry_summary(value):
+    """Expose only local status; never raw evidence bodies or registration approval."""
+    if not isinstance(value, dict) or value.get("scope") != "COLLECTION_SNAPSHOT_NOT_LIVE":
+        return dict(status="NOT_COLLECTED", items=[])
+    states = {"NO_RETRY_RECORD", "REVIEW_REQUIRED", "COLLECTED"}
+    outcomes = {"PASS", "PRODUCT_MISMATCH_CANDIDATE", "AUTOMATION_ERROR", "ENVIRONMENT_ERROR", "TIMEOUT", "INCOMPLETE"}
+    rows = value.get("items", [])
+    if not isinstance(rows, list):
+        return dict(status="REVIEW_REQUIRED", items=[])
+    return dict(status=value.get("status") if value.get("status") in states else "REVIEW_REQUIRED",
+                items=[dict(tc_id=public_text(row.get("tc_id", ""), 80),
+                            product_scope="CURRENT_WORKSPACE" if row.get("product_scope") == "CURRENT_WORKSPACE" else "ORIGINAL_EXECUTION_ONLY",
+                            status="VERIFIED" if row.get("status") == "VERIFIED" else "REVIEW_REQUIRED",
+                            outcome=row.get("outcome") if row.get("outcome") in outcomes else None,
+                            registration=row.get("registration") if row.get("registration") in {"BLOCKED_BY_RETRY", "P1_CHECK_REQUIRED"} else "UNCONFIRMED")
+                       for row in rows[:100] if isinstance(row, dict)])
+
+
 def flow_path(root, name):
     if not FLOW_ID.fullmatch(name):
         raise ValueError("Invalid flow ID")
@@ -67,6 +85,7 @@ def flow_summary(root, name):
         result["trials"].append({
             "trial": row["trial"], "raw_status": public_text(raw_status, 80),
             "scorecard": scorecard,
+            "approval_revalidation": retry_summary((row.get("python_evaluation") or {}).get("approval_revalidation")),
             "status": "WAITING_FOR_USER" if waiting else "LIMIT_REACHED" if budget_stop and raw_status == "ERROR" else public_text(raw_status, 80),
             "reason": "사용자 답변이 필요해 시험을 시작하지 않았습니다." if waiting else "호출 한도 도달로 재작성을 중단했습니다. 앞선 검사 결과와 초안은 원본 증거에 보존됩니다." if budget_stop else "",
             "questions": [public_text(q) for q in notice.get("questions", []) if isinstance(q, str)][:20] if waiting else [],

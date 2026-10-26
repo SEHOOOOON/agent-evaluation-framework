@@ -1,0 +1,66 @@
+{
+  "trial_id": "T075",
+  "case_id": "S15",
+  "iteration": 4,
+  "plan_sha256": "feb1c9a3df9d038bc510fd28e98deea51de9d5ec8ed0f25f273944e477df56dc",
+  "actual": {
+    "outcome": "PASS",
+    "browser_executed": true,
+    "restore": "RESTORED",
+    "evidence_complete": true
+  },
+  "grades": [
+    {
+      "criterion_id": "A3-03",
+      "verdict": "PASS",
+      "score": 5,
+      "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+      "evidence": []
+    }
+  ],
+  "error": null,
+  "protected_unchanged": true,
+  "duration_seconds": 7.516,
+  "evidence": [
+    {
+      "file": "T075/facts.json",
+      "sha256": "50e346163bfa34629b2f81e82e4dd0f81caf6686260fdfe0d000aec05e8d0dd4"
+    },
+    {
+      "file": "T075/p2-grades.json",
+      "sha256": "7274c8c8efd6378421918a9abd6721dbfaf873c95da48932f212cbde1798bd5e"
+    },
+    {
+      "file": "T075/plan.json",
+      "sha256": "1f19778b04c26e778746277b05cc6d4cda4b50b2aa3dc4ddc59528c498efec8a"
+    },
+    {
+      "file": "T075/runner.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "T075/tc.json",
+      "sha256": "283c0ac64e1daa44038d8d9cf99c0f3d4de437e9b7007bf5dbc4dd05c5c421af"
+    },
+    {
+      "file": "T075/trial.json",
+      "sha256": "e02d71ce8d580e43729f072b52b64e3eed38b6a77d8ec3a956542757e4113925"
+    },
+    {
+      "file": "T075/evidence/TC-V2-001/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "T075/evidence/TC-V2-001/stdout.txt",
+      "sha256": "3a1ec198db2842953be696eeadadbd858667c1db10f04202eb2275806c7989aa"
+    },
+    {
+      "file": "T075/evidence/TC-V2-001/trial-final.png",
+      "sha256": "6e7b04df75eafe9404698093c8a623ec28b56f727de22f89a387f412f30e3bc6"
+    },
+    {
+      "file": "T075/evidence/TC-V2-001/trial-trace.zip",
+      "sha256": "f040893648fedc0c495fbe38dd8c6a3fe311303813e86750f37afa5deb749ca2"
+    }
+  ]
+}

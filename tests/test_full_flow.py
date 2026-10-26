@@ -1,6 +1,7 @@
 from copy import deepcopy
 import json
 import os
+import shutil
 from pathlib import Path
 import subprocess
 import sys
@@ -28,7 +29,7 @@ def flow_setup(tmp_path):
         "product_baseline/tests/conftest.py": "# harness",
         "product_baseline/tests/test_controller.py": "# baseline",
         "approved_assets/registry.json": "{}",
-        "request.json": '{"description":"18~30도 범위를 확인한다."}',
+        "request.json": '{"request_id":"CR-FIXTURE","description":"18~30도 범위를 확인한다."}',
     }.items():
         p = target / name
         p.parent.mkdir(parents=True, exist_ok=True)
@@ -81,6 +82,61 @@ def guidance_packet(run):
                     generation_model="offline", judge_model="offline")
     return collect_packets(run, run.parents[2], spec,
         {"request": {}, "oracle": {"status": "DRAFT"}, "target_commit": "test"}, [])["A4"]
+
+
+@pytest.mark.parametrize("fault", [None, "missing", "missing_file", "path", "hash", "snapshot", "unverified_srs", "legacy", "not_captured", "rewrite"])
+def test_program_owned_srs_source_provenance(guidance_run, fault):
+    from eval_harness.full_flow import collect_packets
+    run = guidance_run
+    sha = digest(run / "srs_snapshot.md")
+    write(run / "run_manifest.json", {"srs_sha256": sha})
+    write(run / "agent2_test_design.json", {"test_cases": [], "SRS_개정_제안": []})
+    name = "agent2_srs_source_attempt_1.json"
+    write(run / name, {"contract_version": "1.0", "attempt": 1,
+          "srs_sha256": "wrong" if fault == "snapshot" else sha,
+          "raw_model_output": None if fault == "not_captured" else {"test_cases": []},
+          "capture_status": "NOT_CAPTURED" if fault == "not_captured" else "CAPTURED",
+          "attachments": []})
+    manifest = {"prompt_version": "agent2-2.62", "srs_source_records": [
+        {"file": "../other.json" if fault == "path" else name,
+         "sha256": "wrong" if fault == "hash" else digest(run / name)}]}
+    if fault == "missing":
+        manifest.pop("srs_source_records")
+    if fault == "missing_file":
+        (run / name).unlink()
+    if fault == "unverified_srs":
+        write(run / "run_manifest.json", {})
+    if fault == "rewrite":
+        second = "agent2_srs_source_attempt_2.json"
+        record = read(run / name)
+        record["attempt"] = 2
+        write(run / second, record)
+        manifest["srs_source_records"].append({"file": second, "sha256": digest(run / second)})
+    if fault == "legacy":
+        manifest = {"prompt_version": "agent2-2.61"}
+        (run / name).unlink()
+    write(run / "agent2_manifest.json", manifest)
+    before = {p.name: p.read_bytes() for p in run.iterdir() if p.is_file()}
+    spec = FlowSpec(case_id="SRS-SOURCE", request="request.json", oracle="oracle.json",
+                    generation_model="offline", judge_model="offline")
+    def collect():
+        return collect_packets(run, run.parents[2], spec,
+            {"request": {}, "oracle": {"status": "DRAFT"}, "target_commit": "test"}, [])["A2"]
+    if fault in {"missing", "missing_file", "path", "hash", "snapshot", "unverified_srs"}:
+        with pytest.raises(ValueError, match="SRS source"):
+            collect()
+    else:
+        packet = collect()
+        if fault == "legacy":
+            assert "srs_source_ownership" not in packet.sources["context"]
+        else:
+            assert packet.sources["context"]["srs_source_ownership"]["status"] == "HASH_VERIFIED"
+            trace = packet.sources["trace"]
+            assert trace["evidence_delivery"]["json_files"][name] == "ROLE_INPUT"
+            assert trace["evidence_delivery"]["actual_model_requests"] == "UNAVAILABLE_NOT_PROOF_OF_NO_CALL"
+            if fault == "not_captured":
+                assert trace["checkpoints_and_attempts"][name]["capture_status"] == "NOT_CAPTURED"
+    assert before == {p.name: p.read_bytes() for p in run.iterdir() if p.is_file()}
 
 
 @pytest.mark.parametrize("role", ["A3", "A4"])
@@ -302,11 +358,11 @@ def worker_for(branch="normal", received=None):
     return worker
 
 
-def execute(setup, worker, spec=None, judge=fake_judge):
+def execute(setup, worker, spec=None, judge=fake_judge, **options):
     target, config, default, output = setup
     spec = spec or default
     preview = make_preview(target, spec, config)
-    root = run_flow(target, spec, config, output, preview["approval_sha256"], worker=worker, judge=judge)
+    root = run_flow(target, spec, config, output, preview["approval_sha256"], worker=worker, judge=judge, **options)
     return root, read(root / "result.json")
 
 
@@ -321,6 +377,21 @@ def test_preview_no_transmission_and_bound_models(flow_setup):
     with pytest.raises(ValueError, match="approval"):
         run_flow(target, changed, config, output, info["approval_sha256"],
                  worker=worker_for(), judge=fake_judge)
+
+
+def test_claude_judge_problems_stop_before_paid_generation(flow_setup, monkeypatch):
+    """2026-10-25 review: a bad effort or a missing ANTHROPIC_API_KEY used to surface
+    only at the judge step, after all paid generation calls."""
+    target, config, spec, output = flow_setup
+    with pytest.raises(ValueError, match="effort"):
+        make_preview(target, spec.model_copy(update={"judge_model": "claude-sonnet-5-5:fast"}), config)
+    claude = spec.model_copy(update={"judge_model": "claude-sonnet-5-5"})
+    info = make_preview(target, claude, config)
+    monkeypatch.setenv("OPENAI_API_KEY", "offline-fixture")
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    with pytest.raises(ValueError, match="ANTHROPIC_API_KEY"):
+        run_flow(target, claude, config, output, info["approval_sha256"])
+    assert not output.exists() or not any(output.glob("FLOW-*"))
 
 
 def test_preview_pins_basic_tc_details(flow_setup):
@@ -598,7 +669,9 @@ def test_preflight_stop_is_visible_without_changing_p1_result(flow_setup, monkey
     assert result["judge_attempts"] == 0
     script = (Path(flow.__file__).parent / "web/static/flows.js").read_text(encoding="utf-8")
     assert "esc(stopReasons[d.stop_reason]||label(d.stop_reason))" in script
-    assert "프로젝트1 실행 상태" in script
+    assert "원래 실행 / 후속 재시험" in script
+    assert "esc(label(t.status))" in script
+    assert "esc(retryLabel(t.approval_revalidation))" in script
 
 
 @pytest.mark.parametrize("fault", ["oversized", "sensitive"])
@@ -848,6 +921,8 @@ def test_generation_real_sdk_one_http_attempt(tmp_path, http_status):
     ledger = {"attempts": [], "fatal": None}
     with generation_client("local-test-only", tmp_path, ledger,
                            transport=httpx.MockTransport(handler)) as client:
+        # P1 alone uses the SDK default; a 120 s cap cut off a real A2 response.
+        assert client.timeout == 600
         meter = MeteredResponses(client, "A1", tmp_path, ledger, 2, set())
         kwargs = dict(model="test", input=[{"role": "user", "content": "18도"}], store=False, text_format=Payload)
         if http_status == 200:
@@ -856,7 +931,7 @@ def test_generation_real_sdk_one_http_attempt(tmp_path, http_status):
             with pytest.raises(RuntimeError):
                 meter.parse(**kwargs)
     assert len(requests) == len(ledger["http_requests"]) == 1
-    assert json.loads(requests[0].content)["max_output_tokens"] == 12000
+    assert json.loads(requests[0].content)["max_output_tokens"] == 24000
 
 
 def test_flow_api_hides_workspace_and_separates_test_mode(flow_setup, known_bad_root):
@@ -876,13 +951,14 @@ def test_flow_api_hides_workspace_and_separates_test_mode(flow_setup, known_bad_
 
 def test_evidence_archive_preserves_original_bytes(flow_setup):
     import zipfile
-    root, result = execute(flow_setup, worker_for())
+    root, result = execute(flow_setup, worker_for(), keep_workspace=True)
     row = result["trials"][0]
     archive = root / row["evidence_archive"]
     assert digest(archive) == row["evidence_archive_sha256"]
     with zipfile.ZipFile(archive) as z:
         name = "p1/runs/" + row["run_id"] + "/final_report.json"
         assert z.read(name) == (Path(row["workspace"]) / name).read_bytes()
+    shutil.rmtree(row["workspace"])
 
 
 def test_compacted_evidence_is_lossless():
@@ -905,6 +981,53 @@ def test_compacted_evidence_is_lossless():
     raw = json.dumps(repeated)
     projected = request_evidence({"payload": {"input": [{"role": "user", "content": raw}]}})
     assert projected["payload"]["input"][0]["content"]["parsed_json"] == repeated
+
+
+@pytest.mark.parametrize("repeat", [1, 2])
+def test_embedded_request_text_factors_exact_core_strings_losslessly(repeat):
+    from eval_harness.full_flow import compact_evidence
+    text = "원래 TC의 조작과 기대결과를 그대로 보존한다. " * 30
+    content = "[생성 입력]\n" + (text + "\n다음 자료\n") * repeat
+    source = {"context": {"tc": text}, "artifact": {"different": text + "변경"},
+              "trace": {"request": content, "unique_instruction": "별도 지침을 유지한다."}}
+    before = deepcopy(source)
+    compact = compact_evidence(source)
+    factored = compact["trace"]["request"]
+    assert isinstance(factored, dict) and "evidence_text_parts" in factored
+    rebuilt = ""
+    for part in factored["evidence_text_parts"]:
+        if isinstance(part, str):
+            rebuilt += part
+        else:
+            target = compact
+            for key in part["evidence_reference"]:
+                target = target[int(key)] if isinstance(target, list) else target[key]
+            assert isinstance(target, str)
+            rebuilt += target
+    from hashlib import sha256
+    assert rebuilt == content
+    assert factored["raw_utf8_sha256"] == sha256(content.encode()).hexdigest()
+    assert compact["context"] == source["context"] and compact["artifact"] == source["artifact"]
+    assert compact["trace"]["unique_instruction"] == source["trace"]["unique_instruction"]
+    assert source == before
+    assert len(json.dumps(compact, ensure_ascii=False)) < len(json.dumps(source, ensure_ascii=False))
+
+
+@pytest.mark.parametrize("unsafe", ["sk-", "Bearer ", "C:/", "<script>"])
+def test_embedded_text_never_hides_sensitive_boundary(unsafe):
+    from eval_harness.full_flow import compact_evidence
+    text = "A" * 600
+    source = {"context": {"value": text}, "artifact": {}, "trace": {"request": unsafe + text}}
+    with pytest.raises(ValueError, match="Secret, local path, or HTML"):
+        compact_evidence(source)
+
+
+def test_small_or_nonidentical_embedded_text_is_not_factored():
+    from eval_harness.full_flow import compact_evidence
+    text = "한" * 160  # UTF-8 below the existing 512-byte threshold.
+    source = {"context": {"small": text, "large": "A" * 600}, "artifact": {},
+              "trace": {"short": "입력 " + text, "changed": "입력 " + "A" * 599 + "B"}}
+    assert compact_evidence(source) == source
 
 
 @pytest.mark.parametrize("field,value,wrong", [
@@ -983,7 +1106,7 @@ def test_large_grounding_body_preserves_call_and_rejection_records(flow_setup):
         write(run / "agent2_grounding_input_attempt_notes.json", {"input": "Unrecognized artifact is not silently omitted"})
         write(run / "checkpoint2_attempt_1.json", {"status": "FAIL"})
         return outcome
-    root, state = execute(flow_setup, worker)
+    root, state = execute(flow_setup, worker, keep_workspace=True)
     packet = JudgePacket.model_validate(read(root / "trial-1/A2/packet.json"))
     trace = packet.sources["trace"]
     assert trace["actual_model_requests"][0]["payload"]["input"][0]["content"] == "Required generation input"
@@ -1006,6 +1129,7 @@ def test_large_grounding_body_preserves_call_and_rejection_records(flow_setup):
     with zipfile.ZipFile(root / trial["evidence_archive"]) as z:
         assert z.read("calls/002/request.json") == raw.read_bytes()
         assert z.read(f"p1/runs/{trial['run_id']}/agent2_grounding_input_attempt_1.json") == raw_input.read_bytes()
+    shutil.rmtree(work)
 
 
 def test_added_official_asset_blocks_further_trials(flow_setup):
@@ -1132,3 +1256,250 @@ def test_incomplete_server_response_stops_further_calls(tmp_path, status):
             meter.parse(model="test", input=[], store=False, text_format=Payload)
     assert len(ledger["attempts"]) == 1
     assert ledger["attempts"][0]["server_completion"] == status
+
+
+def test_generation_output_cap_default_and_explicit_historical_value():
+    """New specs use the existing upper bound; old specs that set 12000 keep it."""
+    base = dict(case_id="CAP", request="r.json", oracle="o.json", generation_model="m")
+    assert FlowSpec(**base).generation_max_output_tokens == 24000
+    assert FlowSpec(**base, generation_max_output_tokens=12000).generation_max_output_tokens == 12000
+    with pytest.raises(ValueError):
+        FlowSpec(**base, generation_max_output_tokens=24001)
+    root = Path(__file__).resolve().parents[1] / "benchmarks/v2"
+    for name in ("full_flow.imp001-recheck.json", "full_flow.imp002-recheck.json", "full_flow.three-call-pilot.json"):
+        assert FlowSpec.model_validate_json((root / name).read_text(encoding="utf-8")).generation_max_output_tokens == 12000
+
+
+@pytest.mark.parametrize("declared", [False, True])
+def test_product_expectation_is_recorded_separately_from_completion(flow_setup, declared):
+    """Option B (2026-10-16). The test-double worker writes no verified
+    assertion records, so a declaration can only be UNVERIFIED here; the
+    classification itself is covered in test_product_expectations.py."""
+    from eval_harness.product_expectations import ExpectedMismatch
+    mismatches = [ExpectedMismatch(field="setTemp", expected=20, actual=19, reason="제품 미변경")] if declared else []
+    spec = flow_setup[2].model_copy(update={"expected_product_mismatches": mismatches})
+    root, result = execute(flow_setup, worker_for("product_fail"), spec)
+    assert result["status"] == "COMPLETED"       # completion meaning is unchanged
+    status = "UNVERIFIED" if declared else "NOT_DECLARED"
+    assert result["trials"][0]["product_expectation"]["status"] == status
+    assert result["product_expectation"] == {status: 1}
+
+
+def test_declared_mismatches_are_bound_to_the_approval_hash(flow_setup):
+    from eval_harness.product_expectations import ExpectedMismatch
+    target, config_root, spec = flow_setup[0], flow_setup[1], flow_setup[2]
+    declared = spec.model_copy(update={"expected_product_mismatches": [
+        ExpectedMismatch(field="setTemp", expected=20, actual=19, reason="제품 미변경")]})
+    changed = spec.model_copy(update={"expected_product_mismatches": [
+        ExpectedMismatch(field="setTemp", expected=20, actual=18, reason="제품 미변경")]})
+    hashes = {make_preview(target, s, config_root)["approval_sha256"] for s in (spec, declared, changed)}
+    assert len(hashes) == 3
+
+
+RANGE_KEY = Path(__file__).resolve().parents[1] / "benchmarks/v2/range_keys/representative-temperature.json"
+
+
+def with_range_key(setup):
+    # The fixture request has its own ID (full-flow-0.20 checks it); these tests
+    # cover the record-only path, so the copy stays a DRAFT key.
+    key = json.loads(RANGE_KEY.read_text(encoding="utf-8"))
+    write(setup[1] / "range_key.json", dict(key, request_id="CR-FIXTURE", status="DRAFT"))
+    return setup[2].model_copy(update={"range_key": "range_key.json"})
+
+
+def test_spec_without_range_key_keeps_plan_shape_and_records_nothing(flow_setup):
+    target, config, spec = flow_setup[0], flow_setup[1], flow_setup[2]
+    plan = make_preview(target, spec, config)["plan"]
+    assert "range_key" not in plan and "range_key" not in plan["spec"]
+    root, result = execute(flow_setup, worker_for())
+    assert "range_oracle" not in result and "range_oracle" not in result["trials"][0]
+
+
+def test_range_oracle_is_recorded_beside_scores(flow_setup):
+    _, plain = execute(flow_setup, worker_for())
+    spec = with_range_key(flow_setup)
+    root, result = execute(flow_setup, worker_for(), spec)
+    record = read(root / "trial-1" / "record.json")["range_oracle"]
+    # The test-double A2 has no test cases: every required boundary test is missing.
+    assert record["status"] == "EVALUATED" and record["verdict"] == "FAIL"
+    assert record["version"].startswith("range-oracle-") and record["design_sha256"]
+    assert result["range_oracle"] == {"FAIL": 1}
+    assert result["status"] == plain["status"] == "COMPLETED"
+    assert result["trials"][0]["scorecard"] == plain["trials"][0]["scorecard"]
+    assert result["score_comparison"] == plain["score_comparison"]
+
+
+def test_range_key_without_a2_output_is_not_evaluated(flow_setup):
+    root, result = execute(flow_setup, worker_for("blocked"), with_range_key(flow_setup))
+    assert result["trials"][0]["range_oracle"] == {"status": "NOT_EVALUATED", "reason": "A2_OUTPUT_MISSING"}
+    assert result["range_oracle"] == {"NOT_EVALUATED": 1}
+
+
+def test_range_key_is_bound_to_the_approval_hash(flow_setup):
+    target, config = flow_setup[0], flow_setup[1]
+    spec = with_range_key(flow_setup)
+    first = make_preview(target, spec, config)
+    key = json.loads((config / "range_key.json").read_text(encoding="utf-8"))
+    key["changed"][0]["upper"] = 29
+    (config / "range_key.json").write_text(json.dumps(key, ensure_ascii=False), encoding="utf-8")
+    assert make_preview(target, spec, config)["approval_sha256"] != first["approval_sha256"]
+    assert first["approval_sha256"] != make_preview(target, flow_setup[2], config)["approval_sha256"]
+    (config / "range_key.json").write_text("{}", encoding="utf-8")
+    with pytest.raises(ValueError):
+        make_preview(target, spec, config)
+
+
+def test_workspace_is_removed_after_the_archive_by_default(flow_setup):
+    root, result = execute(flow_setup, worker_for("multi"))
+    row = result["trials"][0]
+    assert row["workspace_removed"] is True and not Path(row["workspace"]).exists()
+    assert read(root / "trial-1" / "record.json")["workspace_removed"] is True
+    assert digest(root / row["evidence_archive"]) == row["evidence_archive_sha256"]
+
+
+def test_workspace_is_kept_when_the_archive_fails(flow_setup, monkeypatch):
+    import eval_harness.full_flow as full_flow
+    def broken(work, destination):
+        raise OSError("disk full")
+    monkeypatch.setattr(full_flow, "archive_evidence", broken)
+    root, result = execute(flow_setup, worker_for())
+    row = result["trials"][0]
+    assert row["workspace_removed"] is False and Path(row["workspace"]).is_dir()
+    assert result["stop_reason"] == "EVIDENCE_ARCHIVE_FAILED"
+    full_flow.remove_workspace(Path(row["workspace"]))
+
+
+def test_remove_workspace_handles_read_only_files(tmp_path):
+    from eval_harness.full_flow import remove_workspace
+    work = tmp_path / "qaf-test"
+    (work / "sub").mkdir(parents=True)
+    locked = work / "sub" / "file.txt"
+    locked.write_text("x", encoding="utf-8")
+    locked.chmod(0o400)
+    (work / "sub").chmod(0o500)
+    assert remove_workspace(work) is True
+
+
+def test_rejected_response_still_records_billed_usage(tmp_path):
+    """2026-10-17: an incomplete or unstructured response is billed, so the ledger keeps its usage."""
+    class Usage:
+        def model_dump(self):
+            return {"input_tokens": 11, "output_tokens": 5, "total_tokens": 16}
+    def parse(**kwargs):
+        return SimpleNamespace(id="resp", status="incomplete", output_parsed=None, usage=Usage())
+    ledger = {"attempts": [], "fatal": None}
+    meter = MeteredResponses(SimpleNamespace(responses=SimpleNamespace(parse=parse)),
+                             "A1", tmp_path, ledger, 3, set())
+    with pytest.raises(RuntimeError):
+        meter.parse(model="test", input=[], store=False, text_format=Payload)
+    attempt = ledger["attempts"][0]
+    assert attempt["status"] == "ERROR" and attempt["usage"]["total_tokens"] == 16
+
+
+def test_oracle_and_range_key_must_belong_to_the_request(flow_setup):
+    """full-flow-0.20: an answer key written for another request is refused before any call."""
+    from hashlib import sha256 as _sha
+    target, config, spec, _ = flow_setup
+    oracle = read(config / "oracle.json")
+    write(config / "oracle.json", dict(oracle, request_sha256="0" * 64))
+    with pytest.raises(ValueError, match="different request"):
+        make_preview(target, spec, config)
+    write(config / "oracle.json", dict(oracle, request_sha256=_sha((target / "request.json").read_bytes()).hexdigest()))
+    make_preview(target, spec, config)
+    write(config / "key.json", dict(key_id="K", request_id="OTHER", status="HUMAN_CONFIRMED", basis="b",
+                                    changed=[dict(mode="COOL", lower=20, upper=30)]))
+    with pytest.raises(ValueError, match="different request"):
+        make_preview(target, spec.model_copy(update={"range_key": "key.json"}), config)
+
+
+def test_confirmed_range_key_scores_tc_r05_by_code_and_draft_does_not():
+    from eval_harness.full_flow import range_key_judgment
+    from eval_harness.detailed_rubric import full_scorecard
+    def record(status, required, recommended=()):
+        items = [dict(id=f"R{i}", level="REQUIRED", status=s) for i, s in enumerate(required)]
+        items += [dict(id=f"C{i}", level="RECOMMENDED", status=s) for i, s in enumerate(recommended)]
+        return dict(status="EVALUATED", key_status=status, key_id="K", design_sha256="h",
+                    required_total=len(required), required_met=sum(s == "MET" for s in required), items=items)
+    assert range_key_judgment(record("DRAFT", ["MET"])) is None
+    assert range_key_judgment(record("HUMAN_CONFIRMED", ["MET", "MET"]))["score"] == 5
+    assert range_key_judgment(record("HUMAN_CONFIRMED", ["MET"], ["MISSING"]))["score"] == 4
+    # 2026-10-25 review: the key's rule issues count too (T-8 made the key FAIL but TC-R05 said 5).
+    t8 = dict(record("HUMAN_CONFIRMED", ["MET", "MET"]), issues=[dict(rule="T-8", tc_id="TC-CAND-001")])
+    assert (range_key_judgment(t8)["verdict"], range_key_judgment(t8)["score"]) == ("FAIL", 3)
+    t7 = dict(record("HUMAN_CONFIRMED", ["MET", "MET"]), issues=[dict(rule="T-7", tc_id=["A", "B"])])
+    assert (range_key_judgment(t7)["verdict"], range_key_judgment(t7)["score"]) == ("PASS", 4)
+    real =range_key_judgment(record("HUMAN_CONFIRMED", ["MET", "MISSING", "MET", "MISSING", "MET", "MISSING"]))
+    assert (real["verdict"], real["score"]) == ("FAIL", 2)  # 10-15: required 3/6
+    assert range_key_judgment(record("HUMAN_CONFIRMED", ["MISSING"]))["score"] == 0
+    # The scorecard takes the code result; the AI's own 5 stays in the judge record.
+    ai = dict(status="COMPLETED", scoring_profile="score-0-5-v2",
+              judgments=[dict(criterion_id="TC-R05", verdict="PASS", score=5)])
+    python = dict(status="COMPLETED", scoring_profile="score-0-5-v2", judgments=[real])
+    row = next(r for r in full_scorecard({"A2": ai}, python)["criteria"] if r["criterion_id"] == "TC-R05")
+    assert row["evaluation_method"] == "PYTHON" and row["score"] == 2 and row["verdict"] == "FAIL"
+    row = next(r for r in full_scorecard({"A2": ai}, dict(python, judgments=[]))["criteria"] if r["criterion_id"] == "TC-R05")
+    assert row["evaluation_method"] == "AI" and row["score"] == 5
+
+
+def test_generation_payload_limit_and_blocked_reason_is_recorded(tmp_path):
+    """2026-10-17: a 251,361-byte Agent 3 review was blocked at the former 250 KB cap."""
+    from eval_harness.flow_worker import MAX_GENERATION_PAYLOAD_BYTES
+    sent = []
+    def parse(**kwargs):
+        sent.append(kwargs)
+        return SimpleNamespace(id=f"resp-{len(sent)}", status="completed", output_parsed=Payload(text="x"), usage=None)
+    ledger = {"attempts": [], "fatal": None}
+    meter = MeteredResponses(SimpleNamespace(responses=SimpleNamespace(parse=parse)),
+                             "A3", tmp_path, ledger, 3, set(), purpose="grounding")
+    near = "가" * 85_000  # about 255 KB in UTF-8: over the old cap, under the new one
+    meter.parse(model="test", input=[{"role": "user", "content": near}], store=False, text_format=Payload)
+    assert len(sent) == 1 and ledger["fatal"] is None
+    too_big = "가" * (MAX_GENERATION_PAYLOAD_BYTES // 3 + 1000)
+    with pytest.raises(ValueError, match="too large"):
+        meter.parse(model="test", input=[{"role": "user", "content": too_big}], store=False, text_format=Payload)
+    assert len(sent) == 1 and len(ledger["attempts"]) == 1  # not sent, not counted as a call
+    assert ledger["fatal"] == "GENERATION_PAYLOAD_TOO_LARGE"
+    blocked = ledger["blocked_before_send"]
+    assert blocked["role"] == "A3" and blocked["purpose"] == "grounding"
+    assert blocked["payload_bytes"] > blocked["limit_bytes"] == MAX_GENERATION_PAYLOAD_BYTES
+    assert read(tmp_path / "call_ledger.json")["fatal"] == "GENERATION_PAYLOAD_TOO_LARGE"
+
+
+def test_judge_input_keeps_identity_of_fixed_instructions_and_unsupported_review_items():
+    """full-flow-0.21 (2026-10-18): judge input about 30% smaller on the saved 10-17 runs."""
+    from eval_harness.full_flow import compact_grounding_review, request_evidence
+    call = {"role": "A2", "purpose": "generation",
+            "payload": {"input": [{"role": "system", "content": "고정 지침" * 100},
+                                  {"role": "user", "content": '{"요청": "냉방 20~30"}'}]}}
+    sent = request_evidence(call)["payload"]["input"]
+    assert sent[0]["content"]["payload_omitted"] == "FIXED_SYSTEM_INSTRUCTIONS"
+    assert sent[0]["content"]["utf8_bytes"] == len(("고정 지침" * 100).encode())
+    assert sent[1]["content"]["parsed_json"] == {"요청": "냉방 20~30"}
+    review = {"stage": "AGENT3", "model": "m", "source_selection": {"items": [1, 2]}, "index_selection": {},
+              "review": {"items": [dict(item_id="A", verdict="SUPPORTED", reason="ok"),
+                                   dict(item_id="B", verdict="UNSUPPORTED", reason="[경고] 근거 약함"),
+                                   dict(item_id="C", verdict="UNCERTAIN", reason="확인 필요")]}}
+    compact = compact_grounding_review(review, "h" * 64)
+    assert compact["stage"] == "AGENT3" and "review" not in compact and "source_selection" not in compact
+    summary = compact["review_summary"]
+    assert summary["verdict_counts"] == {"SUPPORTED": 1, "UNSUPPORTED": 1, "UNCERTAIN": 1}
+    assert [i["item_id"] for i in summary["not_supported_items"]] == ["B", "C"]
+    assert summary["raw_artifact_sha256"] == "h" * 64
+    assert compact_grounding_review({"review": "unexpected"}, "h") == {"review": "unexpected"}
+
+
+def test_verified_agent1_pause_marks_execution_checks_not_applicable(tmp_path):
+    """2026-10-20 lock run: a correct question-and-wait is not 'evidence missing'."""
+    from eval_harness.full_flow import python_scores
+    run = tmp_path / "RUN-X"
+    run.mkdir()
+    waiting = {"status": "WAITING_FOR_USER", "questions": ["허용할 명령과 조건은?"]}
+    graded = {j["criterion_id"]: j for j in python_scores(run, [], waiting=waiting)["judgments"]}
+    for cid in ("A3-03", "A4-01", "A4-03"):
+        assert graded[cid]["verdict"] == "NOT_APPLICABLE" and graded[cid]["score"] is None
+    assert graded["E04"]["verdict"] == "REVIEW"
+    broken = [{"rule": "E04.ASSET_PROTECTION", "status": "FAIL"}]
+    assert {j["criterion_id"]: j for j in python_scores(run, broken, waiting=waiting)["judgments"]}["E04"]["verdict"] == "FAIL"
+    # Without a verified pause, missing execution evidence stays REVIEW.
+    plain = {j["criterion_id"]: j for j in python_scores(run, [])["judgments"]}
+    assert plain["A4-01"]["verdict"] == "REVIEW"

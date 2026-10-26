@@ -1,0 +1,4821 @@
+{
+  "version": "local-stability-1.0",
+  "mode": "OFFLINE_LOCAL",
+  "api_calls": 0,
+  "ai_generation_rate": null,
+  "ai_quality_score": null,
+  "original_scores_changed": false,
+  "plan_sha256": "feb1c9a3df9d038bc510fd28e98deea51de9d5ec8ed0f25f273944e477df56dc",
+  "planned": 100,
+  "recorded": 100,
+  "repetitions": 5,
+  "counts": {
+    "MATCH": 100
+  },
+  "expected_behavior_rate": 100.0,
+  "browser_trials": 65,
+  "restored": 65,
+  "p2": {
+    "criterion_ids": [
+      "A3-03",
+      "A4-01",
+      "A4-03"
+    ],
+    "rubric_total": 26,
+    "ai_evaluated": 0,
+    "comparisons": 75,
+    "verdicts": {
+      "PASS": 75
+    }
+  },
+  "criterion_coverage": [
+    {
+      "criterion_id": "C01",
+      "title": "필요 입력 전달·버전·출처 연결",
+      "owner": "COMMON",
+      "checked": 0,
+      "verdicts": {},
+      "average_5": null
+    },
+    {
+      "criterion_id": "C02",
+      "title": "역할·권한과 충돌 지시 방어",
+      "owner": "COMMON",
+      "checked": 0,
+      "verdicts": {},
+      "average_5": null
+    },
+    {
+      "criterion_id": "A1-01",
+      "title": "변경·유지 조건과 명시 값 보존",
+      "owner": "A1",
+      "checked": 0,
+      "verdicts": {},
+      "average_5": null
+    },
+    {
+      "criterion_id": "A1-02",
+      "title": "필요 정보 부족·미기재·금지 구분",
+      "owner": "A1",
+      "checked": 0,
+      "verdicts": {},
+      "average_5": null
+    },
+    {
+      "criterion_id": "A1-03",
+      "title": "영향 범위와 부분 진행의 적절성",
+      "owner": "A1",
+      "checked": 0,
+      "verdicts": {},
+      "average_5": null
+    },
+    {
+      "criterion_id": "A1-04",
+      "title": "근거 인용의 실제 의미 일치",
+      "owner": "A1",
+      "checked": 0,
+      "verdicts": {},
+      "average_5": null
+    },
+    {
+      "criterion_id": "A2-01",
+      "title": "기존 TC 재사용·부족 범위·중복 방지",
+      "owner": "A2",
+      "checked": 0,
+      "verdicts": {},
+      "average_5": null
+    },
+    {
+      "criterion_id": "TC-R01",
+      "title": "TC 대상·시작 상태·준비",
+      "owner": "A2",
+      "checked": 0,
+      "verdicts": {},
+      "average_5": null
+    },
+    {
+      "criterion_id": "TC-R02",
+      "title": "TC 조작 순서 재현성",
+      "owner": "A2",
+      "checked": 0,
+      "verdicts": {},
+      "average_5": null
+    },
+    {
+      "criterion_id": "TC-R03",
+      "title": "TC 조작과 판정 시점 연결",
+      "owner": "A2",
+      "checked": 0,
+      "verdicts": {},
+      "average_5": null
+    },
+    {
+      "criterion_id": "TC-R04",
+      "title": "TC 관찰 위치·값·상태의 구체성",
+      "owner": "A2",
+      "checked": 0,
+      "verdicts": {},
+      "average_5": null
+    },
+    {
+      "criterion_id": "TC-R05",
+      "title": "TC 요청 조건의 검증 범위 충족",
+      "owner": "A2",
+      "checked": 0,
+      "verdicts": {},
+      "average_5": null
+    },
+    {
+      "criterion_id": "TC-R06",
+      "title": "TC·SRS 개정안의 요구사항 근거",
+      "owner": "A2",
+      "checked": 0,
+      "verdicts": {},
+      "average_5": null
+    },
+    {
+      "criterion_id": "TC-R07",
+      "title": "TC 독립 실행·복원 성공 확인",
+      "owner": "A2",
+      "checked": 0,
+      "verdicts": {},
+      "average_5": null
+    },
+    {
+      "criterion_id": "A3-01",
+      "title": "TC에서 계획까지 조작·판정 의미 보존",
+      "owner": "A3",
+      "checked": 0,
+      "verdicts": {},
+      "average_5": null
+    },
+    {
+      "criterion_id": "A3-02",
+      "title": "화면 요소·행동 선택과 지원 범위",
+      "owner": "A3",
+      "checked": 0,
+      "verdicts": {},
+      "average_5": null
+    },
+    {
+      "criterion_id": "A3-03",
+      "title": "계획과 실제 검사 기록의 일치",
+      "owner": "A3",
+      "checked": 65,
+      "verdicts": {
+        "PASS": 65
+      },
+      "average_5": 5.0
+    },
+    {
+      "criterion_id": "A3-04",
+      "title": "실제 시험·복원·증거와 완료 주장",
+      "owner": "A3",
+      "checked": 0,
+      "verdicts": {},
+      "average_5": null
+    },
+    {
+      "criterion_id": "A4-01",
+      "title": "원본 실행 행과 집계 정확성",
+      "owner": "A4",
+      "checked": 5,
+      "verdicts": {
+        "PASS": 5
+      },
+      "average_5": 5.0
+    },
+    {
+      "criterion_id": "A4-02",
+      "title": "중립 증거에 따른 원인 분류",
+      "owner": "A4",
+      "checked": 0,
+      "verdicts": {},
+      "average_5": null
+    },
+    {
+      "criterion_id": "A4-03",
+      "title": "보고 대상·상태·증거 추적",
+      "owner": "A4",
+      "checked": 5,
+      "verdicts": {
+        "PASS": 5
+      },
+      "average_5": 5.0
+    },
+    {
+      "criterion_id": "A4-04",
+      "title": "미확인 범위·후속 행동·승인 구분",
+      "owner": "A4",
+      "checked": 0,
+      "verdicts": {},
+      "average_5": null
+    },
+    {
+      "criterion_id": "E01",
+      "title": "조건부터 실제 시험까지 완료 범위",
+      "owner": "E2E",
+      "checked": 0,
+      "verdicts": {},
+      "average_5": null
+    },
+    {
+      "criterion_id": "E02",
+      "title": "정보 부족의 단계 간 보존",
+      "owner": "E2E",
+      "checked": 0,
+      "verdicts": {},
+      "average_5": null
+    },
+    {
+      "criterion_id": "E03",
+      "title": "실패·제외·질문과 다음 절차 전달",
+      "owner": "E2E",
+      "checked": 0,
+      "verdicts": {},
+      "average_5": null
+    },
+    {
+      "criterion_id": "E04",
+      "title": "사람 승인 전후 공식 자산 보호",
+      "owner": "E2E",
+      "checked": 0,
+      "verdicts": {},
+      "average_5": null
+    }
+  ],
+  "groups": [
+    {
+      "case_id": "S01",
+      "title": "전원 정지→운전",
+      "group": "실제 브라우저",
+      "origin": "사람이 준비한 공통 TC",
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "planned": 5,
+      "counts": {
+        "MATCH": 5
+      },
+      "consistent": true,
+      "outcomes": {
+        "PASS": 5
+      }
+    },
+    {
+      "case_id": "S02",
+      "title": "전원 운전→정지",
+      "group": "실제 브라우저",
+      "origin": "사람이 준비한 공통 TC",
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "planned": 5,
+      "counts": {
+        "MATCH": 5
+      },
+      "consistent": true,
+      "outcomes": {
+        "PASS": 5
+      }
+    },
+    {
+      "case_id": "S03",
+      "title": "모드 냉방→난방",
+      "group": "실제 브라우저",
+      "origin": "사람이 준비한 공통 TC",
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "planned": 5,
+      "counts": {
+        "MATCH": 5
+      },
+      "consistent": true,
+      "outcomes": {
+        "PASS": 5
+      }
+    },
+    {
+      "case_id": "S04",
+      "title": "모드 난방→제습",
+      "group": "실제 브라우저",
+      "origin": "사람이 준비한 공통 TC",
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "planned": 5,
+      "counts": {
+        "MATCH": 5
+      },
+      "consistent": true,
+      "outcomes": {
+        "PASS": 5
+      }
+    },
+    {
+      "case_id": "S05",
+      "title": "풍량 자동→강풍",
+      "group": "실제 브라우저",
+      "origin": "사람이 준비한 공통 TC",
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "planned": 5,
+      "counts": {
+        "MATCH": 5
+      },
+      "consistent": true,
+      "outcomes": {
+        "PASS": 5
+      }
+    },
+    {
+      "case_id": "S06",
+      "title": "풍량 강풍→약풍",
+      "group": "실제 브라우저",
+      "origin": "사람이 준비한 공통 TC",
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "planned": 5,
+      "counts": {
+        "MATCH": 5
+      },
+      "consistent": true,
+      "outcomes": {
+        "PASS": 5
+      }
+    },
+    {
+      "case_id": "S07",
+      "title": "난방 온도 27→21°C",
+      "group": "실제 브라우저",
+      "origin": "사람이 준비한 공통 TC",
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "planned": 5,
+      "counts": {
+        "MATCH": 5
+      },
+      "consistent": true,
+      "outcomes": {
+        "PASS": 5
+      }
+    },
+    {
+      "case_id": "S08",
+      "title": "자동 모드 온도 24→18°C",
+      "group": "실제 브라우저",
+      "origin": "사람이 준비한 공통 TC",
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "planned": 5,
+      "counts": {
+        "MATCH": 5
+      },
+      "consistent": true,
+      "outcomes": {
+        "PASS": 5
+      }
+    },
+    {
+      "case_id": "S09",
+      "title": "잠금 해제→설정",
+      "group": "실제 브라우저",
+      "origin": "사람이 준비한 공통 TC",
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "planned": 5,
+      "counts": {
+        "MATCH": 5
+      },
+      "consistent": true,
+      "outcomes": {
+        "PASS": 5
+      }
+    },
+    {
+      "case_id": "S10",
+      "title": "잠금 설정→해제",
+      "group": "실제 브라우저",
+      "origin": "사람이 준비한 공통 TC",
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "planned": 5,
+      "counts": {
+        "MATCH": 5
+      },
+      "consistent": true,
+      "outcomes": {
+        "PASS": 5
+      }
+    },
+    {
+      "case_id": "S11",
+      "title": "하한 16°C에서 감소 차단 시험",
+      "group": "제품 불일치 검출",
+      "origin": "사람이 준비한 경계 TC · 기존 SRS 하한 16°C",
+      "expected": {
+        "outcome": "PRODUCT_MISMATCH_CANDIDATE",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "planned": 5,
+      "counts": {
+        "MATCH": 5
+      },
+      "consistent": true,
+      "outcomes": {
+        "PRODUCT_MISMATCH_CANDIDATE": 5
+      }
+    },
+    {
+      "case_id": "S12",
+      "title": "없는 자동 전환 기능의 실행 제외",
+      "group": "실행 불가",
+      "origin": "사람이 준비한 미지원 TC · 모델 분석은 미실행",
+      "expected": {
+        "outcome": "NOT_AUTOMATABLE",
+        "browser_executed": false
+      },
+      "planned": 5,
+      "counts": {
+        "MATCH": 5
+      },
+      "consistent": true,
+      "outcomes": {
+        "NOT_AUTOMATABLE": 5
+      }
+    },
+    {
+      "case_id": "S13",
+      "title": "저장된 냉방→제습 전체 후속 흐름",
+      "group": "실제 브라우저·보고",
+      "origin": "실제 AI 저장 TC·검토 재사용",
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "recommendation": "PASS",
+        "roles_collected": [
+          "A1",
+          "A2",
+          "A3",
+          "A4"
+        ]
+      },
+      "planned": 5,
+      "counts": {
+        "MATCH": 5
+      },
+      "consistent": true,
+      "outcomes": {
+        "PASS": 5
+      }
+    },
+    {
+      "case_id": "S14",
+      "title": "온도 목표 미정 → 질문 후 대기",
+      "group": "정보 부족 보류",
+      "origin": "실제 AI 저장 분석 재검사",
+      "expected": {
+        "outcome": "WAITING_FOR_USER",
+        "questions_preserved": true,
+        "next_stage_blocked": true
+      },
+      "planned": 5,
+      "counts": {
+        "MATCH": 5
+      },
+      "consistent": true,
+      "outcomes": {
+        "WAITING_FOR_USER": 5
+      }
+    },
+    {
+      "case_id": "S15",
+      "title": "등록된 강풍 TC 재사용",
+      "group": "기존 TC 재사용",
+      "origin": "등록된 AI TC의 유지보수 버전",
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "planned": 5,
+      "counts": {
+        "MATCH": 5
+      },
+      "consistent": true,
+      "outcomes": {
+        "PASS": 5
+      }
+    },
+    {
+      "case_id": "S16",
+      "title": "시험용 자산에 새 TC 추가",
+      "group": "자산 선택 사본",
+      "origin": "실제 저장 Run의 독립 사본 · 승인 함수 호출",
+      "expected": {
+        "outcome": "APPROVED",
+        "asset_contract_ok": true,
+        "srs_unchanged": true
+      },
+      "planned": 5,
+      "counts": {
+        "MATCH": 5
+      },
+      "consistent": true,
+      "outcomes": {
+        "APPROVED": 5
+      }
+    },
+    {
+      "case_id": "S17",
+      "title": "선택한 기존 TC 대체",
+      "group": "자산 선택 사본",
+      "origin": "실제 저장 Run의 독립 사본 · 승인 함수 호출",
+      "expected": {
+        "outcome": "REPLACED",
+        "asset_contract_ok": true,
+        "srs_unchanged": true
+      },
+      "planned": 5,
+      "counts": {
+        "MATCH": 5
+      },
+      "consistent": true,
+      "outcomes": {
+        "REPLACED": 5
+      }
+    },
+    {
+      "case_id": "S18",
+      "title": "등록하지 않음",
+      "group": "자산 선택 사본",
+      "origin": "실제 저장 Run의 독립 사본 · 승인 함수 호출",
+      "expected": {
+        "outcome": "DECLINED",
+        "asset_contract_ok": true,
+        "srs_unchanged": true
+      },
+      "planned": 5,
+      "counts": {
+        "MATCH": 5
+      },
+      "consistent": true,
+      "outcomes": {
+        "DECLINED": 5
+      }
+    },
+    {
+      "case_id": "S19",
+      "title": "사람 판단 보류",
+      "group": "자산 선택 사본",
+      "origin": "실제 저장 Run의 독립 사본 · 승인 함수 호출",
+      "expected": {
+        "outcome": "HELD",
+        "asset_contract_ok": true,
+        "srs_unchanged": true
+      },
+      "planned": 5,
+      "counts": {
+        "MATCH": 5
+      },
+      "consistent": true,
+      "outcomes": {
+        "HELD": 5
+      }
+    },
+    {
+      "case_id": "S20",
+      "title": "같은 TC 중복 승인",
+      "group": "자산 선택 사본",
+      "origin": "실제 저장 Run의 독립 사본 · 승인 함수 호출",
+      "expected": {
+        "outcome": "DUPLICATE_UNCHANGED",
+        "asset_contract_ok": true,
+        "srs_unchanged": true
+      },
+      "planned": 5,
+      "counts": {
+        "MATCH": 5
+      },
+      "consistent": true,
+      "outcomes": {
+        "DUPLICATE_UNCHANGED": 5
+      }
+    }
+  ],
+  "rows": [
+    {
+      "case_id": "S01",
+      "title": "전원 정지→운전",
+      "origin": "사람이 준비한 공통 TC",
+      "group": "실제 브라우저",
+      "iteration": 1,
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "actual": {
+        "outcome": "PASS",
+        "browser_executed": true,
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 10.454,
+      "grades": [
+        {
+          "criterion_id": "A3-03",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+          "evidence": []
+        }
+      ],
+      "evidence": [
+        {
+          "file": "records/T001.json",
+          "sha256": "7a4c5c7b93f00735a4d8310f5b772a8e0de814e78acc6cbffe508ebe91482649"
+        },
+        {
+          "file": "observations/T001.json",
+          "sha256": "e8873caef2a77740dfd2cc52d4a8aa4cf8002729e036756c6b1c5b35df8af949"
+        }
+      ],
+      "error": null,
+      "trial_id": "T001"
+    },
+    {
+      "case_id": "S01",
+      "title": "전원 정지→운전",
+      "origin": "사람이 준비한 공통 TC",
+      "group": "실제 브라우저",
+      "iteration": 2,
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "actual": {
+        "outcome": "PASS",
+        "browser_executed": true,
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 9.922,
+      "grades": [
+        {
+          "criterion_id": "A3-03",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+          "evidence": []
+        }
+      ],
+      "evidence": [
+        {
+          "file": "records/T021.json",
+          "sha256": "2e42317b82d5a3f0664a203cd33d980e2902be11196db2f9289a18e6c6787fdd"
+        },
+        {
+          "file": "observations/T021.json",
+          "sha256": "ab040571efd6850e55b1011ae59a5bfb03b9d15b72121c3e8a7d96a334cd4077"
+        }
+      ],
+      "error": null,
+      "trial_id": "T021"
+    },
+    {
+      "case_id": "S01",
+      "title": "전원 정지→운전",
+      "origin": "사람이 준비한 공통 TC",
+      "group": "실제 브라우저",
+      "iteration": 3,
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "actual": {
+        "outcome": "PASS",
+        "browser_executed": true,
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 10.578,
+      "grades": [
+        {
+          "criterion_id": "A3-03",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+          "evidence": []
+        }
+      ],
+      "evidence": [
+        {
+          "file": "records/T041.json",
+          "sha256": "77c6ecf99f4df05ec4dc0bdb897264dfe02f464e1c9fd5a3d41f448dc3b811cb"
+        },
+        {
+          "file": "observations/T041.json",
+          "sha256": "05a44726b5d59a6868b551315c7a20cd9c2b095c5a5a31708262f83e7ffc34f5"
+        }
+      ],
+      "error": null,
+      "trial_id": "T041"
+    },
+    {
+      "case_id": "S01",
+      "title": "전원 정지→운전",
+      "origin": "사람이 준비한 공통 TC",
+      "group": "실제 브라우저",
+      "iteration": 4,
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "actual": {
+        "outcome": "PASS",
+        "browser_executed": true,
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 10.531,
+      "grades": [
+        {
+          "criterion_id": "A3-03",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+          "evidence": []
+        }
+      ],
+      "evidence": [
+        {
+          "file": "records/T061.json",
+          "sha256": "6a9d6a07bc221911bb5bf17487c1bdff018aed8a56aa042ff55ba7f38cf9cb96"
+        },
+        {
+          "file": "observations/T061.json",
+          "sha256": "721bb7c685107f22a01fd4e5f78e50c3100554d704e3089680fe754982df3163"
+        }
+      ],
+      "error": null,
+      "trial_id": "T061"
+    },
+    {
+      "case_id": "S01",
+      "title": "전원 정지→운전",
+      "origin": "사람이 준비한 공통 TC",
+      "group": "실제 브라우저",
+      "iteration": 5,
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "actual": {
+        "outcome": "PASS",
+        "browser_executed": true,
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 9.907,
+      "grades": [
+        {
+          "criterion_id": "A3-03",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+          "evidence": []
+        }
+      ],
+      "evidence": [
+        {
+          "file": "records/T081.json",
+          "sha256": "2d3b855c2311ec1163e45d032f8f5bec5fde768accff82adf496f40321cd20e3"
+        },
+        {
+          "file": "observations/T081.json",
+          "sha256": "aa7d10c460ad683dad313da22dadb7f28badb055e80d42f133f168c394be4753"
+        }
+      ],
+      "error": null,
+      "trial_id": "T081"
+    },
+    {
+      "case_id": "S02",
+      "title": "전원 운전→정지",
+      "origin": "사람이 준비한 공통 TC",
+      "group": "실제 브라우저",
+      "iteration": 1,
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "actual": {
+        "outcome": "PASS",
+        "browser_executed": true,
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 10.39,
+      "grades": [
+        {
+          "criterion_id": "A3-03",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+          "evidence": []
+        }
+      ],
+      "evidence": [
+        {
+          "file": "records/T002.json",
+          "sha256": "80567b444a143dcbd6812984dcea52277a442aa8420c119c2ee80eae3ccd08f6"
+        },
+        {
+          "file": "observations/T002.json",
+          "sha256": "ce8e06b0179073e80a1bbada3a11b8249a3487ea94c528faa905a9008303b5c6"
+        }
+      ],
+      "error": null,
+      "trial_id": "T002"
+    },
+    {
+      "case_id": "S02",
+      "title": "전원 운전→정지",
+      "origin": "사람이 준비한 공통 TC",
+      "group": "실제 브라우저",
+      "iteration": 2,
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "actual": {
+        "outcome": "PASS",
+        "browser_executed": true,
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 8.75,
+      "grades": [
+        {
+          "criterion_id": "A3-03",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+          "evidence": []
+        }
+      ],
+      "evidence": [
+        {
+          "file": "records/T022.json",
+          "sha256": "508c0c8598b2921f5df2181cce620d5de39044e7cebdc03c4306c8a287e59e50"
+        },
+        {
+          "file": "observations/T022.json",
+          "sha256": "a55d6ef3f2bec26171f8b698611b5506110357ee5dba57081b0c658fe614fadf"
+        }
+      ],
+      "error": null,
+      "trial_id": "T022"
+    },
+    {
+      "case_id": "S02",
+      "title": "전원 운전→정지",
+      "origin": "사람이 준비한 공통 TC",
+      "group": "실제 브라우저",
+      "iteration": 3,
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "actual": {
+        "outcome": "PASS",
+        "browser_executed": true,
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 10.282,
+      "grades": [
+        {
+          "criterion_id": "A3-03",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+          "evidence": []
+        }
+      ],
+      "evidence": [
+        {
+          "file": "records/T042.json",
+          "sha256": "c1f78afd1a202a297bf16504cdc9361e66682d76c64c74c12c4b904886a5a6b9"
+        },
+        {
+          "file": "observations/T042.json",
+          "sha256": "6e106d9ee1c2237c540db4e454f24c6256506fbf3a186f8c8ebf0e01bff0c714"
+        }
+      ],
+      "error": null,
+      "trial_id": "T042"
+    },
+    {
+      "case_id": "S02",
+      "title": "전원 운전→정지",
+      "origin": "사람이 준비한 공통 TC",
+      "group": "실제 브라우저",
+      "iteration": 4,
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "actual": {
+        "outcome": "PASS",
+        "browser_executed": true,
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 9.656,
+      "grades": [
+        {
+          "criterion_id": "A3-03",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+          "evidence": []
+        }
+      ],
+      "evidence": [
+        {
+          "file": "records/T062.json",
+          "sha256": "d34e4f414d7af22f2b4f49e545673103b0d00a1ad478e804854e7a51ff03876d"
+        },
+        {
+          "file": "observations/T062.json",
+          "sha256": "9fd8e5956df36f6e7cd932c3b0baa23c640858b9cfc6f61e193606d066d61756"
+        }
+      ],
+      "error": null,
+      "trial_id": "T062"
+    },
+    {
+      "case_id": "S02",
+      "title": "전원 운전→정지",
+      "origin": "사람이 준비한 공통 TC",
+      "group": "실제 브라우저",
+      "iteration": 5,
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "actual": {
+        "outcome": "PASS",
+        "browser_executed": true,
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 9.031,
+      "grades": [
+        {
+          "criterion_id": "A3-03",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+          "evidence": []
+        }
+      ],
+      "evidence": [
+        {
+          "file": "records/T082.json",
+          "sha256": "4e10bbc718918b0270fab382b8f38343e69d3c0e2157ba4c4d69c3f6edfac0cd"
+        },
+        {
+          "file": "observations/T082.json",
+          "sha256": "bc33c9a77c6b46abc95fc4b4dfd58813f9673575cb4f279a8f98a16d49ff5bfa"
+        }
+      ],
+      "error": null,
+      "trial_id": "T082"
+    },
+    {
+      "case_id": "S03",
+      "title": "모드 냉방→난방",
+      "origin": "사람이 준비한 공통 TC",
+      "group": "실제 브라우저",
+      "iteration": 1,
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "actual": {
+        "outcome": "PASS",
+        "browser_executed": true,
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 11.516,
+      "grades": [
+        {
+          "criterion_id": "A3-03",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+          "evidence": []
+        }
+      ],
+      "evidence": [
+        {
+          "file": "records/T003.json",
+          "sha256": "1df2074b7825736c7af4664701ead2fafa18534b0f3f1f7e6b36951cafdebfa7"
+        },
+        {
+          "file": "observations/T003.json",
+          "sha256": "0e5f35469433404319035992b9cc7cf7a004181e5d09ff4bbe8608852b06c988"
+        }
+      ],
+      "error": null,
+      "trial_id": "T003"
+    },
+    {
+      "case_id": "S03",
+      "title": "모드 냉방→난방",
+      "origin": "사람이 준비한 공통 TC",
+      "group": "실제 브라우저",
+      "iteration": 2,
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "actual": {
+        "outcome": "PASS",
+        "browser_executed": true,
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 9.687,
+      "grades": [
+        {
+          "criterion_id": "A3-03",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+          "evidence": []
+        }
+      ],
+      "evidence": [
+        {
+          "file": "records/T023.json",
+          "sha256": "747f0d73d3d09f8286dc7d831a251b357817e5a8b9d3b6ec80ba96d7d4bb13c0"
+        },
+        {
+          "file": "observations/T023.json",
+          "sha256": "618c53df19e58f97cc3130ca8b8c983097551476e92872e34a52478de777045b"
+        }
+      ],
+      "error": null,
+      "trial_id": "T023"
+    },
+    {
+      "case_id": "S03",
+      "title": "모드 냉방→난방",
+      "origin": "사람이 준비한 공통 TC",
+      "group": "실제 브라우저",
+      "iteration": 3,
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "actual": {
+        "outcome": "PASS",
+        "browser_executed": true,
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 10.984,
+      "grades": [
+        {
+          "criterion_id": "A3-03",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+          "evidence": []
+        }
+      ],
+      "evidence": [
+        {
+          "file": "records/T043.json",
+          "sha256": "9801fc3654ced659005b41b97357b7336729ab777e31e65ec4661961ae27833b"
+        },
+        {
+          "file": "observations/T043.json",
+          "sha256": "8b5b5bc91763a1fd73c90b8d97390b90d60483398d44156ecb37da0103631d35"
+        }
+      ],
+      "error": null,
+      "trial_id": "T043"
+    },
+    {
+      "case_id": "S03",
+      "title": "모드 냉방→난방",
+      "origin": "사람이 준비한 공통 TC",
+      "group": "실제 브라우저",
+      "iteration": 4,
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "actual": {
+        "outcome": "PASS",
+        "browser_executed": true,
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 10.016,
+      "grades": [
+        {
+          "criterion_id": "A3-03",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+          "evidence": []
+        }
+      ],
+      "evidence": [
+        {
+          "file": "records/T063.json",
+          "sha256": "d1346d0cd57b3309d06ec54f381d919750adb7673e977d2d31fc653f2dd039cf"
+        },
+        {
+          "file": "observations/T063.json",
+          "sha256": "38afff9ff40b1ffba4b8c61af3ac8d7b2877a001547c7c8bc2f41aa42b3acd1b"
+        }
+      ],
+      "error": null,
+      "trial_id": "T063"
+    },
+    {
+      "case_id": "S03",
+      "title": "모드 냉방→난방",
+      "origin": "사람이 준비한 공통 TC",
+      "group": "실제 브라우저",
+      "iteration": 5,
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "actual": {
+        "outcome": "PASS",
+        "browser_executed": true,
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 9.984,
+      "grades": [
+        {
+          "criterion_id": "A3-03",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+          "evidence": []
+        }
+      ],
+      "evidence": [
+        {
+          "file": "records/T083.json",
+          "sha256": "ae4a941813e8305f91a11439a41074b32236c6e5ff0f34b5bed74c2abef947e9"
+        },
+        {
+          "file": "observations/T083.json",
+          "sha256": "f7fd9bd00a5e16a7bbae29d00af8b646811acbd875df8c851b0b93c7d50d4b5a"
+        }
+      ],
+      "error": null,
+      "trial_id": "T083"
+    },
+    {
+      "case_id": "S04",
+      "title": "모드 난방→제습",
+      "origin": "사람이 준비한 공통 TC",
+      "group": "실제 브라우저",
+      "iteration": 1,
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "actual": {
+        "outcome": "PASS",
+        "browser_executed": true,
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 11.609,
+      "grades": [
+        {
+          "criterion_id": "A3-03",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+          "evidence": []
+        }
+      ],
+      "evidence": [
+        {
+          "file": "records/T004.json",
+          "sha256": "2b45a917cfa51f2ef2eb1d4c23b44f7b0df8df6b838c731f3fb2bb9413b4774a"
+        },
+        {
+          "file": "observations/T004.json",
+          "sha256": "6d889bd852643af050dee0bb8c41042dc62623fa572471a7a1423fcf80d094de"
+        }
+      ],
+      "error": null,
+      "trial_id": "T004"
+    },
+    {
+      "case_id": "S04",
+      "title": "모드 난방→제습",
+      "origin": "사람이 준비한 공통 TC",
+      "group": "실제 브라우저",
+      "iteration": 2,
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "actual": {
+        "outcome": "PASS",
+        "browser_executed": true,
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 10.547,
+      "grades": [
+        {
+          "criterion_id": "A3-03",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+          "evidence": []
+        }
+      ],
+      "evidence": [
+        {
+          "file": "records/T024.json",
+          "sha256": "166050405a1f0976ce095203e68e924fd592c58ce1a1017aa053cb85e9af80a6"
+        },
+        {
+          "file": "observations/T024.json",
+          "sha256": "b9a608ee776c11761dff5bfe2608d51c2ecad07b775822abf05e18d5a2824e04"
+        }
+      ],
+      "error": null,
+      "trial_id": "T024"
+    },
+    {
+      "case_id": "S04",
+      "title": "모드 난방→제습",
+      "origin": "사람이 준비한 공통 TC",
+      "group": "실제 브라우저",
+      "iteration": 3,
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "actual": {
+        "outcome": "PASS",
+        "browser_executed": true,
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 10.063,
+      "grades": [
+        {
+          "criterion_id": "A3-03",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+          "evidence": []
+        }
+      ],
+      "evidence": [
+        {
+          "file": "records/T044.json",
+          "sha256": "6ed69ec204ebf8e788ab3349bfea1131fb8b975119809f9ecc16e7c5ca4999a2"
+        },
+        {
+          "file": "observations/T044.json",
+          "sha256": "140c1f4dddc6e0118c1b85673219ffe3e5930027685d46a126bc766858555078"
+        }
+      ],
+      "error": null,
+      "trial_id": "T044"
+    },
+    {
+      "case_id": "S04",
+      "title": "모드 난방→제습",
+      "origin": "사람이 준비한 공통 TC",
+      "group": "실제 브라우저",
+      "iteration": 4,
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "actual": {
+        "outcome": "PASS",
+        "browser_executed": true,
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 10.375,
+      "grades": [
+        {
+          "criterion_id": "A3-03",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+          "evidence": []
+        }
+      ],
+      "evidence": [
+        {
+          "file": "records/T064.json",
+          "sha256": "f3f6b0062f8a2a848931f9ea9f6fb87521a1cb93a34964de5354a8cf94a5e9b8"
+        },
+        {
+          "file": "observations/T064.json",
+          "sha256": "8dc015fb869b487a8215089148bf715c5f0176a95dec01f757b7cfe8b1ac721f"
+        }
+      ],
+      "error": null,
+      "trial_id": "T064"
+    },
+    {
+      "case_id": "S04",
+      "title": "모드 난방→제습",
+      "origin": "사람이 준비한 공통 TC",
+      "group": "실제 브라우저",
+      "iteration": 5,
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "actual": {
+        "outcome": "PASS",
+        "browser_executed": true,
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 11.0,
+      "grades": [
+        {
+          "criterion_id": "A3-03",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+          "evidence": []
+        }
+      ],
+      "evidence": [
+        {
+          "file": "records/T084.json",
+          "sha256": "21adb94f6874d82565e2e1d19f5d2d5500d37b442231445b49727388ac0ad245"
+        },
+        {
+          "file": "observations/T084.json",
+          "sha256": "cb498ebdded726a90ce9e0cce4654d5b7846360fb118e298cd8dd3f73394102f"
+        }
+      ],
+      "error": null,
+      "trial_id": "T084"
+    },
+    {
+      "case_id": "S05",
+      "title": "풍량 자동→강풍",
+      "origin": "사람이 준비한 공통 TC",
+      "group": "실제 브라우저",
+      "iteration": 1,
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "actual": {
+        "outcome": "PASS",
+        "browser_executed": true,
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 12.985,
+      "grades": [
+        {
+          "criterion_id": "A3-03",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+          "evidence": []
+        }
+      ],
+      "evidence": [
+        {
+          "file": "records/T005.json",
+          "sha256": "00f24d5503ad3fd40cb58eee2dfe131f7bfbcb9950e4271eb8ab1eba1da7350f"
+        },
+        {
+          "file": "observations/T005.json",
+          "sha256": "d9f735a0c7e477c5ba1e8bf791d50bf1b3bc59f28954c1e218b6c3a4cb29e3e7"
+        }
+      ],
+      "error": null,
+      "trial_id": "T005"
+    },
+    {
+      "case_id": "S05",
+      "title": "풍량 자동→강풍",
+      "origin": "사람이 준비한 공통 TC",
+      "group": "실제 브라우저",
+      "iteration": 2,
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "actual": {
+        "outcome": "PASS",
+        "browser_executed": true,
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 9.953,
+      "grades": [
+        {
+          "criterion_id": "A3-03",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+          "evidence": []
+        }
+      ],
+      "evidence": [
+        {
+          "file": "records/T025.json",
+          "sha256": "15d18ab63c75e566aee0cd891a220721f09f58be384f486fa81e5fc335baf7f4"
+        },
+        {
+          "file": "observations/T025.json",
+          "sha256": "53206a125b8ce919767e438344483c08d8a1971510dc31e8a2b3709b3b8c7c07"
+        }
+      ],
+      "error": null,
+      "trial_id": "T025"
+    },
+    {
+      "case_id": "S05",
+      "title": "풍량 자동→강풍",
+      "origin": "사람이 준비한 공통 TC",
+      "group": "실제 브라우저",
+      "iteration": 3,
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "actual": {
+        "outcome": "PASS",
+        "browser_executed": true,
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 10.016,
+      "grades": [
+        {
+          "criterion_id": "A3-03",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+          "evidence": []
+        }
+      ],
+      "evidence": [
+        {
+          "file": "records/T045.json",
+          "sha256": "360ff7acdf886c5943b1d0b88341e51aa1a0a3093b4c9a34592e12ec94223540"
+        },
+        {
+          "file": "observations/T045.json",
+          "sha256": "fcaee7dc8b180714f7941617dce2fb236d10c991efbc07af704da7f868c0ff9a"
+        }
+      ],
+      "error": null,
+      "trial_id": "T045"
+    },
+    {
+      "case_id": "S05",
+      "title": "풍량 자동→강풍",
+      "origin": "사람이 준비한 공통 TC",
+      "group": "실제 브라우저",
+      "iteration": 4,
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "actual": {
+        "outcome": "PASS",
+        "browser_executed": true,
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 10.031,
+      "grades": [
+        {
+          "criterion_id": "A3-03",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+          "evidence": []
+        }
+      ],
+      "evidence": [
+        {
+          "file": "records/T065.json",
+          "sha256": "5059ce7e9031f48365c8a3ad7954cc0da3081ecfd6bfcc51e20a8b78408f35fb"
+        },
+        {
+          "file": "observations/T065.json",
+          "sha256": "74fc80a473059f813ad38c300051929f0585b3efa43534f9dc875eb14bd8d956"
+        }
+      ],
+      "error": null,
+      "trial_id": "T065"
+    },
+    {
+      "case_id": "S05",
+      "title": "풍량 자동→강풍",
+      "origin": "사람이 준비한 공통 TC",
+      "group": "실제 브라우저",
+      "iteration": 5,
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "actual": {
+        "outcome": "PASS",
+        "browser_executed": true,
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 10.078,
+      "grades": [
+        {
+          "criterion_id": "A3-03",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+          "evidence": []
+        }
+      ],
+      "evidence": [
+        {
+          "file": "records/T085.json",
+          "sha256": "7180ac09da2d692dc4b32ee660512c9167cbaea276ffece63b3ddf56f8293381"
+        },
+        {
+          "file": "observations/T085.json",
+          "sha256": "c9f97fff5c45d5030518412446638a63f51baca19d2cec856a593f9ea1dc43f8"
+        }
+      ],
+      "error": null,
+      "trial_id": "T085"
+    },
+    {
+      "case_id": "S06",
+      "title": "풍량 강풍→약풍",
+      "origin": "사람이 준비한 공통 TC",
+      "group": "실제 브라우저",
+      "iteration": 1,
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "actual": {
+        "outcome": "PASS",
+        "browser_executed": true,
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 10.312,
+      "grades": [
+        {
+          "criterion_id": "A3-03",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+          "evidence": []
+        }
+      ],
+      "evidence": [
+        {
+          "file": "records/T006.json",
+          "sha256": "a994b8d8d74d15814da98a006cc893c6f2e49d8866d8362d3713c9deacd701a5"
+        },
+        {
+          "file": "observations/T006.json",
+          "sha256": "ddaa1b9cb8d5f16b35486f975ec3bd9185c8795018d8aafbff89d69081dfe897"
+        }
+      ],
+      "error": null,
+      "trial_id": "T006"
+    },
+    {
+      "case_id": "S06",
+      "title": "풍량 강풍→약풍",
+      "origin": "사람이 준비한 공통 TC",
+      "group": "실제 브라우저",
+      "iteration": 2,
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "actual": {
+        "outcome": "PASS",
+        "browser_executed": true,
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 8.766,
+      "grades": [
+        {
+          "criterion_id": "A3-03",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+          "evidence": []
+        }
+      ],
+      "evidence": [
+        {
+          "file": "records/T026.json",
+          "sha256": "c0f3d45d9fad9efdb24dc24a2789da49710e3874f18374351f5494e929ec1523"
+        },
+        {
+          "file": "observations/T026.json",
+          "sha256": "715786cc026dff2415b693d7407bc68058c33c1d6f84434704027e2bda9d61aa"
+        }
+      ],
+      "error": null,
+      "trial_id": "T026"
+    },
+    {
+      "case_id": "S06",
+      "title": "풍량 강풍→약풍",
+      "origin": "사람이 준비한 공통 TC",
+      "group": "실제 브라우저",
+      "iteration": 3,
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "actual": {
+        "outcome": "PASS",
+        "browser_executed": true,
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 9.953,
+      "grades": [
+        {
+          "criterion_id": "A3-03",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+          "evidence": []
+        }
+      ],
+      "evidence": [
+        {
+          "file": "records/T046.json",
+          "sha256": "88a5b9a69694a47f8fba18c11404cafb4b063f591f18100cc0ce71cfe8f02d1e"
+        },
+        {
+          "file": "observations/T046.json",
+          "sha256": "feef363d727de10e333f87f3afa7e8532252a88d9bba698312fe1ee0a8eece00"
+        }
+      ],
+      "error": null,
+      "trial_id": "T046"
+    },
+    {
+      "case_id": "S06",
+      "title": "풍량 강풍→약풍",
+      "origin": "사람이 준비한 공통 TC",
+      "group": "실제 브라우저",
+      "iteration": 4,
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "actual": {
+        "outcome": "PASS",
+        "browser_executed": true,
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 8.859,
+      "grades": [
+        {
+          "criterion_id": "A3-03",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+          "evidence": []
+        }
+      ],
+      "evidence": [
+        {
+          "file": "records/T066.json",
+          "sha256": "e0548d63af13024affac1b17464951680001e92d6a8840a7bda287c444e632c5"
+        },
+        {
+          "file": "observations/T066.json",
+          "sha256": "7ef1c4abecbdf42fb0a7ec7ac18ac8311ea5dbba20f7fa6cbbd3fe095b501fc5"
+        }
+      ],
+      "error": null,
+      "trial_id": "T066"
+    },
+    {
+      "case_id": "S06",
+      "title": "풍량 강풍→약풍",
+      "origin": "사람이 준비한 공통 TC",
+      "group": "실제 브라우저",
+      "iteration": 5,
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "actual": {
+        "outcome": "PASS",
+        "browser_executed": true,
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 8.938,
+      "grades": [
+        {
+          "criterion_id": "A3-03",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+          "evidence": []
+        }
+      ],
+      "evidence": [
+        {
+          "file": "records/T086.json",
+          "sha256": "243ef514ef545b6159ac725fd01c181abf3f47e95b72d3b3dca3ed673b3f763a"
+        },
+        {
+          "file": "observations/T086.json",
+          "sha256": "e6a10f3ffcd2655294ac871b09fdda1c2d34d757ce47fef414283ddf2010efea"
+        }
+      ],
+      "error": null,
+      "trial_id": "T086"
+    },
+    {
+      "case_id": "S07",
+      "title": "난방 온도 27→21°C",
+      "origin": "사람이 준비한 공통 TC",
+      "group": "실제 브라우저",
+      "iteration": 1,
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "actual": {
+        "outcome": "PASS",
+        "browser_executed": true,
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 13.828,
+      "grades": [
+        {
+          "criterion_id": "A3-03",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+          "evidence": []
+        }
+      ],
+      "evidence": [
+        {
+          "file": "records/T007.json",
+          "sha256": "774706b7be4c7d7bdecf39b6e28d3a53562c10e76e6e3c42484f7a8b5b925e01"
+        },
+        {
+          "file": "observations/T007.json",
+          "sha256": "fa9cb53ab26fd42effe1a93b2109f0ba573e90b5e2ae0990eb0dc62fbe1c608a"
+        }
+      ],
+      "error": null,
+      "trial_id": "T007"
+    },
+    {
+      "case_id": "S07",
+      "title": "난방 온도 27→21°C",
+      "origin": "사람이 준비한 공통 TC",
+      "group": "실제 브라우저",
+      "iteration": 2,
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "actual": {
+        "outcome": "PASS",
+        "browser_executed": true,
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 13.719,
+      "grades": [
+        {
+          "criterion_id": "A3-03",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+          "evidence": []
+        }
+      ],
+      "evidence": [
+        {
+          "file": "records/T027.json",
+          "sha256": "7fdaead3d10801d5fd9904cee7ce9bf6c66181f3bb86af8c90090de3a60d3d65"
+        },
+        {
+          "file": "observations/T027.json",
+          "sha256": "50aaedf43328bb46d36538334692850ecd6295808e2965840f21c506ef02f36b"
+        }
+      ],
+      "error": null,
+      "trial_id": "T027"
+    },
+    {
+      "case_id": "S07",
+      "title": "난방 온도 27→21°C",
+      "origin": "사람이 준비한 공통 TC",
+      "group": "실제 브라우저",
+      "iteration": 3,
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "actual": {
+        "outcome": "PASS",
+        "browser_executed": true,
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 14.062,
+      "grades": [
+        {
+          "criterion_id": "A3-03",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+          "evidence": []
+        }
+      ],
+      "evidence": [
+        {
+          "file": "records/T047.json",
+          "sha256": "7c1996b6e422253a8b226577719deb5aa5f14691623f44e29a035c466b280813"
+        },
+        {
+          "file": "observations/T047.json",
+          "sha256": "549b5baac6b53d0825da8425bce5367f4a99903b6f9bbf1218cb045e6f51be02"
+        }
+      ],
+      "error": null,
+      "trial_id": "T047"
+    },
+    {
+      "case_id": "S07",
+      "title": "난방 온도 27→21°C",
+      "origin": "사람이 준비한 공통 TC",
+      "group": "실제 브라우저",
+      "iteration": 4,
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "actual": {
+        "outcome": "PASS",
+        "browser_executed": true,
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 17.547,
+      "grades": [
+        {
+          "criterion_id": "A3-03",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+          "evidence": []
+        }
+      ],
+      "evidence": [
+        {
+          "file": "records/T067.json",
+          "sha256": "fd88862c8e7706ae53570778f1e7ea358a548f0341936fb8f05a45587e93abc9"
+        },
+        {
+          "file": "observations/T067.json",
+          "sha256": "ba3aa580798b59c8c13b7a40eeb42f0ca249fc34d45cdaf6ce670887c948d2b1"
+        }
+      ],
+      "error": null,
+      "trial_id": "T067"
+    },
+    {
+      "case_id": "S07",
+      "title": "난방 온도 27→21°C",
+      "origin": "사람이 준비한 공통 TC",
+      "group": "실제 브라우저",
+      "iteration": 5,
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "actual": {
+        "outcome": "PASS",
+        "browser_executed": true,
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 14.875,
+      "grades": [
+        {
+          "criterion_id": "A3-03",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+          "evidence": []
+        }
+      ],
+      "evidence": [
+        {
+          "file": "records/T087.json",
+          "sha256": "82e936e912e1e61201e92fc696831b4b556327d88d818115be4edaaf29504498"
+        },
+        {
+          "file": "observations/T087.json",
+          "sha256": "995a67bfece47534a334892059c1c36e38c15dfd83a189930715c7dfb4be7613"
+        }
+      ],
+      "error": null,
+      "trial_id": "T087"
+    },
+    {
+      "case_id": "S08",
+      "title": "자동 모드 온도 24→18°C",
+      "origin": "사람이 준비한 공통 TC",
+      "group": "실제 브라우저",
+      "iteration": 1,
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "actual": {
+        "outcome": "PASS",
+        "browser_executed": true,
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 13.812,
+      "grades": [
+        {
+          "criterion_id": "A3-03",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+          "evidence": []
+        }
+      ],
+      "evidence": [
+        {
+          "file": "records/T008.json",
+          "sha256": "cba50da0840e654fc276f849c9587cc4bdeb2523a18de79a904f219566b52ec0"
+        },
+        {
+          "file": "observations/T008.json",
+          "sha256": "9f418d052ad43f784e6a09051f712a5c61d5b1a7300463065321c49b388107b0"
+        }
+      ],
+      "error": null,
+      "trial_id": "T008"
+    },
+    {
+      "case_id": "S08",
+      "title": "자동 모드 온도 24→18°C",
+      "origin": "사람이 준비한 공통 TC",
+      "group": "실제 브라우저",
+      "iteration": 2,
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "actual": {
+        "outcome": "PASS",
+        "browser_executed": true,
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 13.75,
+      "grades": [
+        {
+          "criterion_id": "A3-03",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+          "evidence": []
+        }
+      ],
+      "evidence": [
+        {
+          "file": "records/T028.json",
+          "sha256": "9f3b24a4767c40539a8b689e0193995530db316cbd090f2c9d502a82567d7ccc"
+        },
+        {
+          "file": "observations/T028.json",
+          "sha256": "755c50fccbe7b56d1a8f48ece3f2cf2ac3ee036b03a0db9ed35b8b46194c8ff2"
+        }
+      ],
+      "error": null,
+      "trial_id": "T028"
+    },
+    {
+      "case_id": "S08",
+      "title": "자동 모드 온도 24→18°C",
+      "origin": "사람이 준비한 공통 TC",
+      "group": "실제 브라우저",
+      "iteration": 3,
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "actual": {
+        "outcome": "PASS",
+        "browser_executed": true,
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 15.375,
+      "grades": [
+        {
+          "criterion_id": "A3-03",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+          "evidence": []
+        }
+      ],
+      "evidence": [
+        {
+          "file": "records/T048.json",
+          "sha256": "a724a052683c479769b9ee47a071f10748a50a52aa43d262a10fc251afb0a6ba"
+        },
+        {
+          "file": "observations/T048.json",
+          "sha256": "78d7a0e51a3152c5832ce8d805d9345429e87c525d889cbac1d35ab9aaa09348"
+        }
+      ],
+      "error": null,
+      "trial_id": "T048"
+    },
+    {
+      "case_id": "S08",
+      "title": "자동 모드 온도 24→18°C",
+      "origin": "사람이 준비한 공통 TC",
+      "group": "실제 브라우저",
+      "iteration": 4,
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "actual": {
+        "outcome": "PASS",
+        "browser_executed": true,
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 13.812,
+      "grades": [
+        {
+          "criterion_id": "A3-03",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+          "evidence": []
+        }
+      ],
+      "evidence": [
+        {
+          "file": "records/T068.json",
+          "sha256": "ecbf8362326e3565ab925cb07f56a7b0b6ef509ce87158139cf7787dc9c530c1"
+        },
+        {
+          "file": "observations/T068.json",
+          "sha256": "d5095671c6633ca8841b19df3bf92a29f404cac0c48f5db3d875c5bf4092745d"
+        }
+      ],
+      "error": null,
+      "trial_id": "T068"
+    },
+    {
+      "case_id": "S08",
+      "title": "자동 모드 온도 24→18°C",
+      "origin": "사람이 준비한 공통 TC",
+      "group": "실제 브라우저",
+      "iteration": 5,
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "actual": {
+        "outcome": "PASS",
+        "browser_executed": true,
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 13.766,
+      "grades": [
+        {
+          "criterion_id": "A3-03",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+          "evidence": []
+        }
+      ],
+      "evidence": [
+        {
+          "file": "records/T088.json",
+          "sha256": "e7ee7b55db88e5f6aa8f9eee3e93d5809695c31a73af41cb924be0112718fb5b"
+        },
+        {
+          "file": "observations/T088.json",
+          "sha256": "51a11cb88a26542818065047eae29efec7e2998baac74e5dcef952aacfa80561"
+        }
+      ],
+      "error": null,
+      "trial_id": "T088"
+    },
+    {
+      "case_id": "S09",
+      "title": "잠금 해제→설정",
+      "origin": "사람이 준비한 공통 TC",
+      "group": "실제 브라우저",
+      "iteration": 1,
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "actual": {
+        "outcome": "PASS",
+        "browser_executed": true,
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 10.625,
+      "grades": [
+        {
+          "criterion_id": "A3-03",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+          "evidence": []
+        }
+      ],
+      "evidence": [
+        {
+          "file": "records/T009.json",
+          "sha256": "a7d06d3b0eb49bc63fbc50b01e87caa199832c9497b65750a1777afa40432a92"
+        },
+        {
+          "file": "observations/T009.json",
+          "sha256": "89126f0d6e124034f09a0627cbfa5141127e722712ff9a8ca0588e98f5d26dcc"
+        }
+      ],
+      "error": null,
+      "trial_id": "T009"
+    },
+    {
+      "case_id": "S09",
+      "title": "잠금 해제→설정",
+      "origin": "사람이 준비한 공통 TC",
+      "group": "실제 브라우저",
+      "iteration": 2,
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "actual": {
+        "outcome": "PASS",
+        "browser_executed": true,
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 10.844,
+      "grades": [
+        {
+          "criterion_id": "A3-03",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+          "evidence": []
+        }
+      ],
+      "evidence": [
+        {
+          "file": "records/T029.json",
+          "sha256": "f5e641478312dc0ff462f0c6ead7c9f94bce37badcf61908b83985b80ff49dd2"
+        },
+        {
+          "file": "observations/T029.json",
+          "sha256": "ee096ae9da0662044cd5f042514f9b10008961410de017111cdda1c9e05d47eb"
+        }
+      ],
+      "error": null,
+      "trial_id": "T029"
+    },
+    {
+      "case_id": "S09",
+      "title": "잠금 해제→설정",
+      "origin": "사람이 준비한 공통 TC",
+      "group": "실제 브라우저",
+      "iteration": 3,
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "actual": {
+        "outcome": "PASS",
+        "browser_executed": true,
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 12.125,
+      "grades": [
+        {
+          "criterion_id": "A3-03",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+          "evidence": []
+        }
+      ],
+      "evidence": [
+        {
+          "file": "records/T049.json",
+          "sha256": "7571a919bf33386ec9535b55ecbdf7cff2d55b8125971a975996c603637791e4"
+        },
+        {
+          "file": "observations/T049.json",
+          "sha256": "2c345c54ecf5bd7178d9dcd1ad8bab894d7a033bc64bcac55884e1ed75541b42"
+        }
+      ],
+      "error": null,
+      "trial_id": "T049"
+    },
+    {
+      "case_id": "S09",
+      "title": "잠금 해제→설정",
+      "origin": "사람이 준비한 공통 TC",
+      "group": "실제 브라우저",
+      "iteration": 4,
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "actual": {
+        "outcome": "PASS",
+        "browser_executed": true,
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 11.157,
+      "grades": [
+        {
+          "criterion_id": "A3-03",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+          "evidence": []
+        }
+      ],
+      "evidence": [
+        {
+          "file": "records/T069.json",
+          "sha256": "e970713aa9231981e005d30cc34c6fba5b058d562ecea7f2d1282ed023fda9dc"
+        },
+        {
+          "file": "observations/T069.json",
+          "sha256": "917dc76048ccd84999dfa1435a96f596773efa1e3e6307e5c18cb2ae59bbb2a0"
+        }
+      ],
+      "error": null,
+      "trial_id": "T069"
+    },
+    {
+      "case_id": "S09",
+      "title": "잠금 해제→설정",
+      "origin": "사람이 준비한 공통 TC",
+      "group": "실제 브라우저",
+      "iteration": 5,
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "actual": {
+        "outcome": "PASS",
+        "browser_executed": true,
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 11.485,
+      "grades": [
+        {
+          "criterion_id": "A3-03",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+          "evidence": []
+        }
+      ],
+      "evidence": [
+        {
+          "file": "records/T089.json",
+          "sha256": "126342a54c098ccd26910e042c4b6e399d37a5073e701905fcba3b04e538d5f5"
+        },
+        {
+          "file": "observations/T089.json",
+          "sha256": "b276558c075e2b11d933b8ae3777647aa49c2521c8fd8043ed28d292d3fb7265"
+        }
+      ],
+      "error": null,
+      "trial_id": "T089"
+    },
+    {
+      "case_id": "S10",
+      "title": "잠금 설정→해제",
+      "origin": "사람이 준비한 공통 TC",
+      "group": "실제 브라우저",
+      "iteration": 1,
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "actual": {
+        "outcome": "PASS",
+        "browser_executed": true,
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 8.891,
+      "grades": [
+        {
+          "criterion_id": "A3-03",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+          "evidence": []
+        }
+      ],
+      "evidence": [
+        {
+          "file": "records/T010.json",
+          "sha256": "e4b1696928adc30fefdcb3e00b27e0e6aa68528ee7772e91babc81e1f713c0f8"
+        },
+        {
+          "file": "observations/T010.json",
+          "sha256": "054b197652241a55c2302d51e51b55ffe9d8df7432641e5db738996ec454e462"
+        }
+      ],
+      "error": null,
+      "trial_id": "T010"
+    },
+    {
+      "case_id": "S10",
+      "title": "잠금 설정→해제",
+      "origin": "사람이 준비한 공통 TC",
+      "group": "실제 브라우저",
+      "iteration": 2,
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "actual": {
+        "outcome": "PASS",
+        "browser_executed": true,
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 10.531,
+      "grades": [
+        {
+          "criterion_id": "A3-03",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+          "evidence": []
+        }
+      ],
+      "evidence": [
+        {
+          "file": "records/T030.json",
+          "sha256": "92a40689632c5aec7eb3156a2689090518ba75bcfa453839eed3d7da2de59601"
+        },
+        {
+          "file": "observations/T030.json",
+          "sha256": "d5196fd869d3412ae9e0eb2b29f730ce2fbbd33a10cbaffff8ab9fe9843ac89b"
+        }
+      ],
+      "error": null,
+      "trial_id": "T030"
+    },
+    {
+      "case_id": "S10",
+      "title": "잠금 설정→해제",
+      "origin": "사람이 준비한 공통 TC",
+      "group": "실제 브라우저",
+      "iteration": 3,
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "actual": {
+        "outcome": "PASS",
+        "browser_executed": true,
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 9.891,
+      "grades": [
+        {
+          "criterion_id": "A3-03",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+          "evidence": []
+        }
+      ],
+      "evidence": [
+        {
+          "file": "records/T050.json",
+          "sha256": "9dd2732a8742a1b0cc40f7a637df42ff22f40354f89b6a166fa6e761174e51c5"
+        },
+        {
+          "file": "observations/T050.json",
+          "sha256": "bf351c83ca8d9a265f8005b25c256fb451e95e7c3d3d9bd6b75767df10815bd5"
+        }
+      ],
+      "error": null,
+      "trial_id": "T050"
+    },
+    {
+      "case_id": "S10",
+      "title": "잠금 설정→해제",
+      "origin": "사람이 준비한 공통 TC",
+      "group": "실제 브라우저",
+      "iteration": 4,
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "actual": {
+        "outcome": "PASS",
+        "browser_executed": true,
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 9.156,
+      "grades": [
+        {
+          "criterion_id": "A3-03",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+          "evidence": []
+        }
+      ],
+      "evidence": [
+        {
+          "file": "records/T070.json",
+          "sha256": "d770c79cdde2a8013a2494ec42d55b83fa3bad6a77d69d773f23fdb7b7c82c3e"
+        },
+        {
+          "file": "observations/T070.json",
+          "sha256": "f6f5950dec0bff53a0bcff74ad102376b348484dc51734f6b54ee40d13ffb452"
+        }
+      ],
+      "error": null,
+      "trial_id": "T070"
+    },
+    {
+      "case_id": "S10",
+      "title": "잠금 설정→해제",
+      "origin": "사람이 준비한 공통 TC",
+      "group": "실제 브라우저",
+      "iteration": 5,
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "actual": {
+        "outcome": "PASS",
+        "browser_executed": true,
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 9.296,
+      "grades": [
+        {
+          "criterion_id": "A3-03",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+          "evidence": []
+        }
+      ],
+      "evidence": [
+        {
+          "file": "records/T090.json",
+          "sha256": "1e708034d679028d8e2510f871352df75f6add8e205b77a6b57dadc47c3deb1a"
+        },
+        {
+          "file": "observations/T090.json",
+          "sha256": "061aa676815f0ceb8d304688f17ddaf5af118e07cf22e7b49d0ef76b27875975"
+        }
+      ],
+      "error": null,
+      "trial_id": "T090"
+    },
+    {
+      "case_id": "S11",
+      "title": "하한 16°C에서 감소 차단 시험",
+      "origin": "사람이 준비한 경계 TC · 기존 SRS 하한 16°C",
+      "group": "제품 불일치 검출",
+      "iteration": 1,
+      "expected": {
+        "outcome": "PRODUCT_MISMATCH_CANDIDATE",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "actual": {
+        "outcome": "PRODUCT_MISMATCH_CANDIDATE",
+        "browser_executed": true,
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 17.656,
+      "grades": [
+        {
+          "criterion_id": "A3-03",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+          "evidence": []
+        }
+      ],
+      "evidence": [
+        {
+          "file": "records/T011.json",
+          "sha256": "5ac11e955fb1875641c139c69a03c366c91d5d4e11f461877cf84e4af1b213cc"
+        },
+        {
+          "file": "observations/T011.json",
+          "sha256": "60894c296d250becc434c9f165c5b57b9ba324c8a9316c860f14f6c40cb459d4"
+        }
+      ],
+      "error": null,
+      "trial_id": "T011"
+    },
+    {
+      "case_id": "S11",
+      "title": "하한 16°C에서 감소 차단 시험",
+      "origin": "사람이 준비한 경계 TC · 기존 SRS 하한 16°C",
+      "group": "제품 불일치 검출",
+      "iteration": 2,
+      "expected": {
+        "outcome": "PRODUCT_MISMATCH_CANDIDATE",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "actual": {
+        "outcome": "PRODUCT_MISMATCH_CANDIDATE",
+        "browser_executed": true,
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 19.437,
+      "grades": [
+        {
+          "criterion_id": "A3-03",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+          "evidence": []
+        }
+      ],
+      "evidence": [
+        {
+          "file": "records/T031.json",
+          "sha256": "b61016e34b8066cfad03668b29f9d79e287fe31f05fad5e9adeae3cec470d8c9"
+        },
+        {
+          "file": "observations/T031.json",
+          "sha256": "c2ab6bda873b354c1dd9990d8f65bc35fbb4ef5988bc1eb3fb0d7ccc1e64c02c"
+        }
+      ],
+      "error": null,
+      "trial_id": "T031"
+    },
+    {
+      "case_id": "S11",
+      "title": "하한 16°C에서 감소 차단 시험",
+      "origin": "사람이 준비한 경계 TC · 기존 SRS 하한 16°C",
+      "group": "제품 불일치 검출",
+      "iteration": 3,
+      "expected": {
+        "outcome": "PRODUCT_MISMATCH_CANDIDATE",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "actual": {
+        "outcome": "PRODUCT_MISMATCH_CANDIDATE",
+        "browser_executed": true,
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 17.531,
+      "grades": [
+        {
+          "criterion_id": "A3-03",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+          "evidence": []
+        }
+      ],
+      "evidence": [
+        {
+          "file": "records/T051.json",
+          "sha256": "99e8ab2d1d63f86a4d94b50b2ab375586285bb1d966bf891d5e28bd0da2755c2"
+        },
+        {
+          "file": "observations/T051.json",
+          "sha256": "88277c02e3a9a6ecc29299ffdb1638cb14f0da2a9f12796590376ce35915c39a"
+        }
+      ],
+      "error": null,
+      "trial_id": "T051"
+    },
+    {
+      "case_id": "S11",
+      "title": "하한 16°C에서 감소 차단 시험",
+      "origin": "사람이 준비한 경계 TC · 기존 SRS 하한 16°C",
+      "group": "제품 불일치 검출",
+      "iteration": 4,
+      "expected": {
+        "outcome": "PRODUCT_MISMATCH_CANDIDATE",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "actual": {
+        "outcome": "PRODUCT_MISMATCH_CANDIDATE",
+        "browser_executed": true,
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 17.719,
+      "grades": [
+        {
+          "criterion_id": "A3-03",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+          "evidence": []
+        }
+      ],
+      "evidence": [
+        {
+          "file": "records/T071.json",
+          "sha256": "b69bafa71be19e28db91ca8e24801c14906ec70d8fd7753ba912bacc98274693"
+        },
+        {
+          "file": "observations/T071.json",
+          "sha256": "39c15ac9b4e97c86b84f1ffd573c25ba4ac0296adceaadbdff7b02b01e84b1fd"
+        }
+      ],
+      "error": null,
+      "trial_id": "T071"
+    },
+    {
+      "case_id": "S11",
+      "title": "하한 16°C에서 감소 차단 시험",
+      "origin": "사람이 준비한 경계 TC · 기존 SRS 하한 16°C",
+      "group": "제품 불일치 검출",
+      "iteration": 5,
+      "expected": {
+        "outcome": "PRODUCT_MISMATCH_CANDIDATE",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "actual": {
+        "outcome": "PRODUCT_MISMATCH_CANDIDATE",
+        "browser_executed": true,
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 17.422,
+      "grades": [
+        {
+          "criterion_id": "A3-03",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+          "evidence": []
+        }
+      ],
+      "evidence": [
+        {
+          "file": "records/T091.json",
+          "sha256": "ec6c2ebcd47d9ca41aa358c0daf926824655d4f9df8f8986cb67bc28b8bf0b3c"
+        },
+        {
+          "file": "observations/T091.json",
+          "sha256": "f0c28a6de5fed04224d038b6dfd41d78b3896b1913810720454c2b18c54f5b6b"
+        }
+      ],
+      "error": null,
+      "trial_id": "T091"
+    },
+    {
+      "case_id": "S12",
+      "title": "없는 자동 전환 기능의 실행 제외",
+      "origin": "사람이 준비한 미지원 TC · 모델 분석은 미실행",
+      "group": "실행 불가",
+      "iteration": 1,
+      "expected": {
+        "outcome": "NOT_AUTOMATABLE",
+        "browser_executed": false
+      },
+      "actual": {
+        "outcome": "NOT_AUTOMATABLE",
+        "browser_executed": false
+      },
+      "status": "MATCH",
+      "duration_seconds": 0.156,
+      "grades": [],
+      "evidence": [
+        {
+          "file": "records/T012.json",
+          "sha256": "b07a5966ed746f15c14e73188ecc806d283bd4f3aeb3ec59dad59512b75fbd95"
+        }
+      ],
+      "error": null,
+      "trial_id": "T012"
+    },
+    {
+      "case_id": "S12",
+      "title": "없는 자동 전환 기능의 실행 제외",
+      "origin": "사람이 준비한 미지원 TC · 모델 분석은 미실행",
+      "group": "실행 불가",
+      "iteration": 2,
+      "expected": {
+        "outcome": "NOT_AUTOMATABLE",
+        "browser_executed": false
+      },
+      "actual": {
+        "outcome": "NOT_AUTOMATABLE",
+        "browser_executed": false
+      },
+      "status": "MATCH",
+      "duration_seconds": 0.125,
+      "grades": [],
+      "evidence": [
+        {
+          "file": "records/T032.json",
+          "sha256": "f64f64611db5ec413acfe77e153942dea05677bf806bbaf15d5a2187ce9a2ddf"
+        }
+      ],
+      "error": null,
+      "trial_id": "T032"
+    },
+    {
+      "case_id": "S12",
+      "title": "없는 자동 전환 기능의 실행 제외",
+      "origin": "사람이 준비한 미지원 TC · 모델 분석은 미실행",
+      "group": "실행 불가",
+      "iteration": 3,
+      "expected": {
+        "outcome": "NOT_AUTOMATABLE",
+        "browser_executed": false
+      },
+      "actual": {
+        "outcome": "NOT_AUTOMATABLE",
+        "browser_executed": false
+      },
+      "status": "MATCH",
+      "duration_seconds": 0.141,
+      "grades": [],
+      "evidence": [
+        {
+          "file": "records/T052.json",
+          "sha256": "4a15e52940b1e278d98f28c4ceea75c33f63cbb7481d7250874d6e43c5f4f35c"
+        }
+      ],
+      "error": null,
+      "trial_id": "T052"
+    },
+    {
+      "case_id": "S12",
+      "title": "없는 자동 전환 기능의 실행 제외",
+      "origin": "사람이 준비한 미지원 TC · 모델 분석은 미실행",
+      "group": "실행 불가",
+      "iteration": 4,
+      "expected": {
+        "outcome": "NOT_AUTOMATABLE",
+        "browser_executed": false
+      },
+      "actual": {
+        "outcome": "NOT_AUTOMATABLE",
+        "browser_executed": false
+      },
+      "status": "MATCH",
+      "duration_seconds": 0.234,
+      "grades": [],
+      "evidence": [
+        {
+          "file": "records/T072.json",
+          "sha256": "a5990ef447879dfbed1f7f0374af04b932eac466ae0bc41985285925d86395f8"
+        }
+      ],
+      "error": null,
+      "trial_id": "T072"
+    },
+    {
+      "case_id": "S12",
+      "title": "없는 자동 전환 기능의 실행 제외",
+      "origin": "사람이 준비한 미지원 TC · 모델 분석은 미실행",
+      "group": "실행 불가",
+      "iteration": 5,
+      "expected": {
+        "outcome": "NOT_AUTOMATABLE",
+        "browser_executed": false
+      },
+      "actual": {
+        "outcome": "NOT_AUTOMATABLE",
+        "browser_executed": false
+      },
+      "status": "MATCH",
+      "duration_seconds": 0.141,
+      "grades": [],
+      "evidence": [
+        {
+          "file": "records/T092.json",
+          "sha256": "9b30c8c45f3d0791aa8e9d227c60b2a1cc15d437418de1597b67b8fbfe16d785"
+        }
+      ],
+      "error": null,
+      "trial_id": "T092"
+    },
+    {
+      "case_id": "S13",
+      "title": "저장된 냉방→제습 전체 후속 흐름",
+      "origin": "실제 AI 저장 TC·검토 재사용",
+      "group": "실제 브라우저·보고",
+      "iteration": 1,
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "recommendation": "PASS",
+        "roles_collected": [
+          "A1",
+          "A2",
+          "A3",
+          "A4"
+        ]
+      },
+      "actual": {
+        "outcome": "PASS",
+        "browser_executed": true,
+        "restore": "RESTORED",
+        "recommendation": "PASS",
+        "roles_collected": [
+          "A1",
+          "A2",
+          "A3",
+          "A4"
+        ]
+      },
+      "status": "MATCH",
+      "duration_seconds": 11.657,
+      "grades": [
+        {
+          "criterion_id": "A3-03",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+          "evidence": [
+            {
+              "file": "agent3_manifest.json",
+              "sha256": "a4d4e8697785815ce94de39f670649650f19b136d9e7a0fdae4889868cb6fa7d"
+            },
+            {
+              "file": "agent2_test_design.json",
+              "sha256": "0d0c3a40bd9e5b439e80b837d974b7fac761f428fa7a894af403c521b96b43df"
+            },
+            {
+              "file": "agent2_manifest.json",
+              "sha256": "88b7685a036231fe2690ff754269f6dd22a0279dfadeaf09564f58eeebe5b34b"
+            },
+            {
+              "file": "agent3_automation_plan.json",
+              "sha256": "68ff4e623fc59ca877d7ee45f002444a1b3c7f1e8c32af04ea4ad6e7ae9451d2"
+            },
+            {
+              "file": "agent3_trial.json",
+              "sha256": "cef4c27a9fb897a56cffa7eb68f5103852ff4631adb8cca8e887ed0146f4ea49"
+            },
+            {
+              "file": "candidates/test_tc_cand_001.py",
+              "sha256": "4d1f2db26ccb73e4286401458088b5336cb7f9741f5b2cabc4e37a3e1dd4c188"
+            },
+            {
+              "file": "evidence/TC-CAND-001/trial-stdout.txt",
+              "sha256": "b0736ba04048cb286356dd9d1d0bd7a95ee2683cb42444af4c33cce2972d85a7"
+            },
+            {
+              "file": "validation_execution.json",
+              "sha256": "6dc2858a17100b61f779ea553e1fb0157367f7775ef82e520ddbf2ef5d6944c6"
+            },
+            {
+              "file": "validation_candidates/test_tc_cand_001.py",
+              "sha256": "ffee0a1eeca389329c198a1e2c52a8b502191010b3723199d95c3540acf0db87"
+            },
+            {
+              "file": "validation_evidence/TC-CAND-001/trial-stdout.txt",
+              "sha256": "cc811a9c1ea40ac9b6ec4c1085f61bfe3e1f491d0e9390b001abe732cc3d14b2"
+            }
+          ]
+        },
+        {
+          "criterion_id": "A4-01",
+          "score": 5,
+          "verdict": "PASS",
+          "reason": "원본 실행 행의 중복·상태·제품·환경·고정 사례 합계를 독립 대조",
+          "evidence": [
+            {
+              "file": "validation_execution.json",
+              "sha256": "6dc2858a17100b61f779ea553e1fb0157367f7775ef82e520ddbf2ef5d6944c6"
+            },
+            {
+              "file": "final_report.json",
+              "sha256": "2c0e4b2665d3736520259ff3bc53436caa6a40e3bba903400aeb9c33f5b3c819"
+            }
+          ]
+        },
+        {
+          "criterion_id": "A4-03",
+          "score": 5,
+          "verdict": "PASS",
+          "reason": "Run·TC·상태·분류 근거 연결과 참조 파일 해시를 대조; 화면 내용의 의미 판정은 아님",
+          "evidence": [
+            {
+              "file": "agent4_analysis.json",
+              "sha256": "31231d89bfbc3ad87980b365a9bc6a830b92f45337ce4a7eb2453a6bdc796457"
+            }
+          ]
+        }
+      ],
+      "evidence": [
+        {
+          "file": "records/T013.json",
+          "sha256": "a11427d2f9cc53aee5ab1970ade3eea4c8ab0a56dbd24098f858f2b42b1f5bb1"
+        },
+        {
+          "file": "observations/T013.json",
+          "sha256": "8bb12ef2cc3a379bce968594bf9b7c4d769f3992c66824e817d8798f51255cf0"
+        }
+      ],
+      "error": null,
+      "trial_id": "T013"
+    },
+    {
+      "case_id": "S13",
+      "title": "저장된 냉방→제습 전체 후속 흐름",
+      "origin": "실제 AI 저장 TC·검토 재사용",
+      "group": "실제 브라우저·보고",
+      "iteration": 2,
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "recommendation": "PASS",
+        "roles_collected": [
+          "A1",
+          "A2",
+          "A3",
+          "A4"
+        ]
+      },
+      "actual": {
+        "outcome": "PASS",
+        "browser_executed": true,
+        "restore": "RESTORED",
+        "recommendation": "PASS",
+        "roles_collected": [
+          "A1",
+          "A2",
+          "A3",
+          "A4"
+        ]
+      },
+      "status": "MATCH",
+      "duration_seconds": 12.547,
+      "grades": [
+        {
+          "criterion_id": "A3-03",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+          "evidence": [
+            {
+              "file": "agent3_manifest.json",
+              "sha256": "a4d4e8697785815ce94de39f670649650f19b136d9e7a0fdae4889868cb6fa7d"
+            },
+            {
+              "file": "agent2_test_design.json",
+              "sha256": "0d0c3a40bd9e5b439e80b837d974b7fac761f428fa7a894af403c521b96b43df"
+            },
+            {
+              "file": "agent2_manifest.json",
+              "sha256": "88b7685a036231fe2690ff754269f6dd22a0279dfadeaf09564f58eeebe5b34b"
+            },
+            {
+              "file": "agent3_automation_plan.json",
+              "sha256": "68ff4e623fc59ca877d7ee45f002444a1b3c7f1e8c32af04ea4ad6e7ae9451d2"
+            },
+            {
+              "file": "agent3_trial.json",
+              "sha256": "cef4c27a9fb897a56cffa7eb68f5103852ff4631adb8cca8e887ed0146f4ea49"
+            },
+            {
+              "file": "candidates/test_tc_cand_001.py",
+              "sha256": "4d1f2db26ccb73e4286401458088b5336cb7f9741f5b2cabc4e37a3e1dd4c188"
+            },
+            {
+              "file": "evidence/TC-CAND-001/trial-stdout.txt",
+              "sha256": "b0736ba04048cb286356dd9d1d0bd7a95ee2683cb42444af4c33cce2972d85a7"
+            },
+            {
+              "file": "validation_execution.json",
+              "sha256": "e3c20d49d9778d1b20d800e9f2fda24eb2736644ae5251186c1d5139d3c57ba1"
+            },
+            {
+              "file": "validation_candidates/test_tc_cand_001.py",
+              "sha256": "ffee0a1eeca389329c198a1e2c52a8b502191010b3723199d95c3540acf0db87"
+            },
+            {
+              "file": "validation_evidence/TC-CAND-001/trial-stdout.txt",
+              "sha256": "1f198e33a1fa26fa1911a7a1e60f76576d32e7de40315ff1f9ac3628b057f4a1"
+            }
+          ]
+        },
+        {
+          "criterion_id": "A4-01",
+          "score": 5,
+          "verdict": "PASS",
+          "reason": "원본 실행 행의 중복·상태·제품·환경·고정 사례 합계를 독립 대조",
+          "evidence": [
+            {
+              "file": "validation_execution.json",
+              "sha256": "e3c20d49d9778d1b20d800e9f2fda24eb2736644ae5251186c1d5139d3c57ba1"
+            },
+            {
+              "file": "final_report.json",
+              "sha256": "5528b46578e0e6290e815eee92bb2947e6505243043983651d4fc31ec510756e"
+            }
+          ]
+        },
+        {
+          "criterion_id": "A4-03",
+          "score": 5,
+          "verdict": "PASS",
+          "reason": "Run·TC·상태·분류 근거 연결과 참조 파일 해시를 대조; 화면 내용의 의미 판정은 아님",
+          "evidence": [
+            {
+              "file": "agent4_analysis.json",
+              "sha256": "8fcf97bb75079dc81dbb5c842ce9611790c4ed0d8b2a78466c2453a0b8b21de8"
+            }
+          ]
+        }
+      ],
+      "evidence": [
+        {
+          "file": "records/T033.json",
+          "sha256": "2248125ffa6ad40a0cbca454f59fce8feaf4ba7c36f2a09c3721239a8a918847"
+        },
+        {
+          "file": "observations/T033.json",
+          "sha256": "c17baac61e347bc6937921ac278c305af0a4acda9b0a1f12f278ff2ef31b8236"
+        }
+      ],
+      "error": null,
+      "trial_id": "T033"
+    },
+    {
+      "case_id": "S13",
+      "title": "저장된 냉방→제습 전체 후속 흐름",
+      "origin": "실제 AI 저장 TC·검토 재사용",
+      "group": "실제 브라우저·보고",
+      "iteration": 3,
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "recommendation": "PASS",
+        "roles_collected": [
+          "A1",
+          "A2",
+          "A3",
+          "A4"
+        ]
+      },
+      "actual": {
+        "outcome": "PASS",
+        "browser_executed": true,
+        "restore": "RESTORED",
+        "recommendation": "PASS",
+        "roles_collected": [
+          "A1",
+          "A2",
+          "A3",
+          "A4"
+        ]
+      },
+      "status": "MATCH",
+      "duration_seconds": 13.484,
+      "grades": [
+        {
+          "criterion_id": "A3-03",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+          "evidence": [
+            {
+              "file": "agent3_manifest.json",
+              "sha256": "a4d4e8697785815ce94de39f670649650f19b136d9e7a0fdae4889868cb6fa7d"
+            },
+            {
+              "file": "agent2_test_design.json",
+              "sha256": "0d0c3a40bd9e5b439e80b837d974b7fac761f428fa7a894af403c521b96b43df"
+            },
+            {
+              "file": "agent2_manifest.json",
+              "sha256": "88b7685a036231fe2690ff754269f6dd22a0279dfadeaf09564f58eeebe5b34b"
+            },
+            {
+              "file": "agent3_automation_plan.json",
+              "sha256": "68ff4e623fc59ca877d7ee45f002444a1b3c7f1e8c32af04ea4ad6e7ae9451d2"
+            },
+            {
+              "file": "agent3_trial.json",
+              "sha256": "cef4c27a9fb897a56cffa7eb68f5103852ff4631adb8cca8e887ed0146f4ea49"
+            },
+            {
+              "file": "candidates/test_tc_cand_001.py",
+              "sha256": "4d1f2db26ccb73e4286401458088b5336cb7f9741f5b2cabc4e37a3e1dd4c188"
+            },
+            {
+              "file": "evidence/TC-CAND-001/trial-stdout.txt",
+              "sha256": "b0736ba04048cb286356dd9d1d0bd7a95ee2683cb42444af4c33cce2972d85a7"
+            },
+            {
+              "file": "validation_execution.json",
+              "sha256": "41338bd65cd0132aa5c3fae1c4f2de7ca374a6cd68a3957c0d8bfcc0ae4dbb8f"
+            },
+            {
+              "file": "validation_candidates/test_tc_cand_001.py",
+              "sha256": "ffee0a1eeca389329c198a1e2c52a8b502191010b3723199d95c3540acf0db87"
+            },
+            {
+              "file": "validation_evidence/TC-CAND-001/trial-stdout.txt",
+              "sha256": "b7499a63a0d983e020ef8a809721ed14dd6ec0fec5fc3fe6a8a3a94ffee79e46"
+            }
+          ]
+        },
+        {
+          "criterion_id": "A4-01",
+          "score": 5,
+          "verdict": "PASS",
+          "reason": "원본 실행 행의 중복·상태·제품·환경·고정 사례 합계를 독립 대조",
+          "evidence": [
+            {
+              "file": "validation_execution.json",
+              "sha256": "41338bd65cd0132aa5c3fae1c4f2de7ca374a6cd68a3957c0d8bfcc0ae4dbb8f"
+            },
+            {
+              "file": "final_report.json",
+              "sha256": "e153eccad28726622bb65d1c3e9bf359c7a636abc50be21786821b79bb14b655"
+            }
+          ]
+        },
+        {
+          "criterion_id": "A4-03",
+          "score": 5,
+          "verdict": "PASS",
+          "reason": "Run·TC·상태·분류 근거 연결과 참조 파일 해시를 대조; 화면 내용의 의미 판정은 아님",
+          "evidence": [
+            {
+              "file": "agent4_analysis.json",
+              "sha256": "1068741794a442b5c42ed8b73c3b727d05a57de6935bdf0423a17e66d6997163"
+            }
+          ]
+        }
+      ],
+      "evidence": [
+        {
+          "file": "records/T053.json",
+          "sha256": "869779aa0e86dbd670a1764e1bc0fc67ffe2b0a61bbe396762fa92db688f4c93"
+        },
+        {
+          "file": "observations/T053.json",
+          "sha256": "95688a7e7323b99bbb874e87b792126dad9b42426865ea378ea65e76b5ef498f"
+        }
+      ],
+      "error": null,
+      "trial_id": "T053"
+    },
+    {
+      "case_id": "S13",
+      "title": "저장된 냉방→제습 전체 후속 흐름",
+      "origin": "실제 AI 저장 TC·검토 재사용",
+      "group": "실제 브라우저·보고",
+      "iteration": 4,
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "recommendation": "PASS",
+        "roles_collected": [
+          "A1",
+          "A2",
+          "A3",
+          "A4"
+        ]
+      },
+      "actual": {
+        "outcome": "PASS",
+        "browser_executed": true,
+        "restore": "RESTORED",
+        "recommendation": "PASS",
+        "roles_collected": [
+          "A1",
+          "A2",
+          "A3",
+          "A4"
+        ]
+      },
+      "status": "MATCH",
+      "duration_seconds": 12.765,
+      "grades": [
+        {
+          "criterion_id": "A3-03",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+          "evidence": [
+            {
+              "file": "agent3_manifest.json",
+              "sha256": "a4d4e8697785815ce94de39f670649650f19b136d9e7a0fdae4889868cb6fa7d"
+            },
+            {
+              "file": "agent2_test_design.json",
+              "sha256": "0d0c3a40bd9e5b439e80b837d974b7fac761f428fa7a894af403c521b96b43df"
+            },
+            {
+              "file": "agent2_manifest.json",
+              "sha256": "88b7685a036231fe2690ff754269f6dd22a0279dfadeaf09564f58eeebe5b34b"
+            },
+            {
+              "file": "agent3_automation_plan.json",
+              "sha256": "68ff4e623fc59ca877d7ee45f002444a1b3c7f1e8c32af04ea4ad6e7ae9451d2"
+            },
+            {
+              "file": "agent3_trial.json",
+              "sha256": "cef4c27a9fb897a56cffa7eb68f5103852ff4631adb8cca8e887ed0146f4ea49"
+            },
+            {
+              "file": "candidates/test_tc_cand_001.py",
+              "sha256": "4d1f2db26ccb73e4286401458088b5336cb7f9741f5b2cabc4e37a3e1dd4c188"
+            },
+            {
+              "file": "evidence/TC-CAND-001/trial-stdout.txt",
+              "sha256": "b0736ba04048cb286356dd9d1d0bd7a95ee2683cb42444af4c33cce2972d85a7"
+            },
+            {
+              "file": "validation_execution.json",
+              "sha256": "39008f6b374eabc933faa43f68bc1a6f04ce48ad8f3defd8d8d0657ed966eca8"
+            },
+            {
+              "file": "validation_candidates/test_tc_cand_001.py",
+              "sha256": "ffee0a1eeca389329c198a1e2c52a8b502191010b3723199d95c3540acf0db87"
+            },
+            {
+              "file": "validation_evidence/TC-CAND-001/trial-stdout.txt",
+              "sha256": "361476fdae9ca1c0532744ac1eef081a22bbabe3d897e2489355dc8929b92179"
+            }
+          ]
+        },
+        {
+          "criterion_id": "A4-01",
+          "score": 5,
+          "verdict": "PASS",
+          "reason": "원본 실행 행의 중복·상태·제품·환경·고정 사례 합계를 독립 대조",
+          "evidence": [
+            {
+              "file": "validation_execution.json",
+              "sha256": "39008f6b374eabc933faa43f68bc1a6f04ce48ad8f3defd8d8d0657ed966eca8"
+            },
+            {
+              "file": "final_report.json",
+              "sha256": "849abc5a567559f4541e573471d0094c359dbafb9116343fc6f1c67da9832393"
+            }
+          ]
+        },
+        {
+          "criterion_id": "A4-03",
+          "score": 5,
+          "verdict": "PASS",
+          "reason": "Run·TC·상태·분류 근거 연결과 참조 파일 해시를 대조; 화면 내용의 의미 판정은 아님",
+          "evidence": [
+            {
+              "file": "agent4_analysis.json",
+              "sha256": "44b0ae6a74046975947b53d1eeb92bbe52f80bb3d3b00b86b3e1422b5cf8d9cd"
+            }
+          ]
+        }
+      ],
+      "evidence": [
+        {
+          "file": "records/T073.json",
+          "sha256": "b36812f56f2a743b7fdc1519b1fcbf183f302d752aa63826ff6e75a2969f5b06"
+        },
+        {
+          "file": "observations/T073.json",
+          "sha256": "cd6e091d38c0e7aa37b4be5b70ebb793e05298d6d8b47579737b678daeca6029"
+        }
+      ],
+      "error": null,
+      "trial_id": "T073"
+    },
+    {
+      "case_id": "S13",
+      "title": "저장된 냉방→제습 전체 후속 흐름",
+      "origin": "실제 AI 저장 TC·검토 재사용",
+      "group": "실제 브라우저·보고",
+      "iteration": 5,
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "recommendation": "PASS",
+        "roles_collected": [
+          "A1",
+          "A2",
+          "A3",
+          "A4"
+        ]
+      },
+      "actual": {
+        "outcome": "PASS",
+        "browser_executed": true,
+        "restore": "RESTORED",
+        "recommendation": "PASS",
+        "roles_collected": [
+          "A1",
+          "A2",
+          "A3",
+          "A4"
+        ]
+      },
+      "status": "MATCH",
+      "duration_seconds": 12.672,
+      "grades": [
+        {
+          "criterion_id": "A3-03",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+          "evidence": [
+            {
+              "file": "agent3_manifest.json",
+              "sha256": "a4d4e8697785815ce94de39f670649650f19b136d9e7a0fdae4889868cb6fa7d"
+            },
+            {
+              "file": "agent2_test_design.json",
+              "sha256": "0d0c3a40bd9e5b439e80b837d974b7fac761f428fa7a894af403c521b96b43df"
+            },
+            {
+              "file": "agent2_manifest.json",
+              "sha256": "88b7685a036231fe2690ff754269f6dd22a0279dfadeaf09564f58eeebe5b34b"
+            },
+            {
+              "file": "agent3_automation_plan.json",
+              "sha256": "68ff4e623fc59ca877d7ee45f002444a1b3c7f1e8c32af04ea4ad6e7ae9451d2"
+            },
+            {
+              "file": "agent3_trial.json",
+              "sha256": "cef4c27a9fb897a56cffa7eb68f5103852ff4631adb8cca8e887ed0146f4ea49"
+            },
+            {
+              "file": "candidates/test_tc_cand_001.py",
+              "sha256": "4d1f2db26ccb73e4286401458088b5336cb7f9741f5b2cabc4e37a3e1dd4c188"
+            },
+            {
+              "file": "evidence/TC-CAND-001/trial-stdout.txt",
+              "sha256": "b0736ba04048cb286356dd9d1d0bd7a95ee2683cb42444af4c33cce2972d85a7"
+            },
+            {
+              "file": "validation_execution.json",
+              "sha256": "b8d231a3de25f62ad272752f0fc8542ea1cc1376976ec96cd184e98ed88a0806"
+            },
+            {
+              "file": "validation_candidates/test_tc_cand_001.py",
+              "sha256": "ffee0a1eeca389329c198a1e2c52a8b502191010b3723199d95c3540acf0db87"
+            },
+            {
+              "file": "validation_evidence/TC-CAND-001/trial-stdout.txt",
+              "sha256": "6a6802fb72352edaf8fd607a4b6a64621621ba40f276cb517c815eaf133d14d5"
+            }
+          ]
+        },
+        {
+          "criterion_id": "A4-01",
+          "score": 5,
+          "verdict": "PASS",
+          "reason": "원본 실행 행의 중복·상태·제품·환경·고정 사례 합계를 독립 대조",
+          "evidence": [
+            {
+              "file": "validation_execution.json",
+              "sha256": "b8d231a3de25f62ad272752f0fc8542ea1cc1376976ec96cd184e98ed88a0806"
+            },
+            {
+              "file": "final_report.json",
+              "sha256": "842f15efdedbdb5068caecd89cb6ee4d0ff904a810c9ca3fea1fe6a917277402"
+            }
+          ]
+        },
+        {
+          "criterion_id": "A4-03",
+          "score": 5,
+          "verdict": "PASS",
+          "reason": "Run·TC·상태·분류 근거 연결과 참조 파일 해시를 대조; 화면 내용의 의미 판정은 아님",
+          "evidence": [
+            {
+              "file": "agent4_analysis.json",
+              "sha256": "43e4e77f3f65381d06d375195da9f113a1e060e7bfa1256a30654d6ac5902f83"
+            }
+          ]
+        }
+      ],
+      "evidence": [
+        {
+          "file": "records/T093.json",
+          "sha256": "c5379fa7c5551db34e51f4259b1422370c8643b262b8bbfdd50d03af2ff5cd56"
+        },
+        {
+          "file": "observations/T093.json",
+          "sha256": "05ce4334dcddf7b7c5f9aa91e6629a1af673087110e2ecf5ef0e6fc2a796bd41"
+        }
+      ],
+      "error": null,
+      "trial_id": "T093"
+    },
+    {
+      "case_id": "S14",
+      "title": "온도 목표 미정 → 질문 후 대기",
+      "origin": "실제 AI 저장 분석 재검사",
+      "group": "정보 부족 보류",
+      "iteration": 1,
+      "expected": {
+        "outcome": "WAITING_FOR_USER",
+        "questions_preserved": true,
+        "next_stage_blocked": true
+      },
+      "actual": {
+        "outcome": "WAITING_FOR_USER",
+        "browser_executed": false,
+        "questions_preserved": true,
+        "next_stage_blocked": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 0.218,
+      "grades": [],
+      "evidence": [
+        {
+          "file": "records/T014.json",
+          "sha256": "2b32b6cf2570e9d382e66967c6e8eba978162523f15be0482c0f9e0e4791ad10"
+        }
+      ],
+      "error": null,
+      "trial_id": "T014"
+    },
+    {
+      "case_id": "S14",
+      "title": "온도 목표 미정 → 질문 후 대기",
+      "origin": "실제 AI 저장 분석 재검사",
+      "group": "정보 부족 보류",
+      "iteration": 2,
+      "expected": {
+        "outcome": "WAITING_FOR_USER",
+        "questions_preserved": true,
+        "next_stage_blocked": true
+      },
+      "actual": {
+        "outcome": "WAITING_FOR_USER",
+        "browser_executed": false,
+        "questions_preserved": true,
+        "next_stage_blocked": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 0.203,
+      "grades": [],
+      "evidence": [
+        {
+          "file": "records/T034.json",
+          "sha256": "5f3bdbb2a62bf551cee59b0e84f0de2b0b631b7f4acb80425fbdab4c801014fa"
+        }
+      ],
+      "error": null,
+      "trial_id": "T034"
+    },
+    {
+      "case_id": "S14",
+      "title": "온도 목표 미정 → 질문 후 대기",
+      "origin": "실제 AI 저장 분석 재검사",
+      "group": "정보 부족 보류",
+      "iteration": 3,
+      "expected": {
+        "outcome": "WAITING_FOR_USER",
+        "questions_preserved": true,
+        "next_stage_blocked": true
+      },
+      "actual": {
+        "outcome": "WAITING_FOR_USER",
+        "browser_executed": false,
+        "questions_preserved": true,
+        "next_stage_blocked": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 0.203,
+      "grades": [],
+      "evidence": [
+        {
+          "file": "records/T054.json",
+          "sha256": "bb4d74c8c6e812bec526962098c04ab93c7ef149731b81f90fe137fd59595da2"
+        }
+      ],
+      "error": null,
+      "trial_id": "T054"
+    },
+    {
+      "case_id": "S14",
+      "title": "온도 목표 미정 → 질문 후 대기",
+      "origin": "실제 AI 저장 분석 재검사",
+      "group": "정보 부족 보류",
+      "iteration": 4,
+      "expected": {
+        "outcome": "WAITING_FOR_USER",
+        "questions_preserved": true,
+        "next_stage_blocked": true
+      },
+      "actual": {
+        "outcome": "WAITING_FOR_USER",
+        "browser_executed": false,
+        "questions_preserved": true,
+        "next_stage_blocked": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 0.203,
+      "grades": [],
+      "evidence": [
+        {
+          "file": "records/T074.json",
+          "sha256": "8d05318bb0f3b3a32bb76b7af13f1513a70f37696d4d4cc58e9dde9272907574"
+        }
+      ],
+      "error": null,
+      "trial_id": "T074"
+    },
+    {
+      "case_id": "S14",
+      "title": "온도 목표 미정 → 질문 후 대기",
+      "origin": "실제 AI 저장 분석 재검사",
+      "group": "정보 부족 보류",
+      "iteration": 5,
+      "expected": {
+        "outcome": "WAITING_FOR_USER",
+        "questions_preserved": true,
+        "next_stage_blocked": true
+      },
+      "actual": {
+        "outcome": "WAITING_FOR_USER",
+        "browser_executed": false,
+        "questions_preserved": true,
+        "next_stage_blocked": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 0.312,
+      "grades": [],
+      "evidence": [
+        {
+          "file": "records/T094.json",
+          "sha256": "23f0bd3120c2163b5d54ef8323bfd961f380bdd6a7f962e1d6e19c383cb3bb01"
+        }
+      ],
+      "error": null,
+      "trial_id": "T094"
+    },
+    {
+      "case_id": "S15",
+      "title": "등록된 강풍 TC 재사용",
+      "origin": "등록된 AI TC의 유지보수 버전",
+      "group": "기존 TC 재사용",
+      "iteration": 1,
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "actual": {
+        "outcome": "PASS",
+        "browser_executed": true,
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 7.532,
+      "grades": [
+        {
+          "criterion_id": "A3-03",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+          "evidence": []
+        }
+      ],
+      "evidence": [
+        {
+          "file": "records/T015.json",
+          "sha256": "98fcf30a5da36cd657f59a9dc20c0f65736324589e89e8101f0115e7cf63f902"
+        },
+        {
+          "file": "observations/T015.json",
+          "sha256": "1b32cdc5bef6c5139da07d1b64a39245b7623c4184cdd8d4a4ce98c6fa94d0ad"
+        }
+      ],
+      "error": null,
+      "trial_id": "T015"
+    },
+    {
+      "case_id": "S15",
+      "title": "등록된 강풍 TC 재사용",
+      "origin": "등록된 AI TC의 유지보수 버전",
+      "group": "기존 TC 재사용",
+      "iteration": 2,
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "actual": {
+        "outcome": "PASS",
+        "browser_executed": true,
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 8.469,
+      "grades": [
+        {
+          "criterion_id": "A3-03",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+          "evidence": []
+        }
+      ],
+      "evidence": [
+        {
+          "file": "records/T035.json",
+          "sha256": "649b62ec8d52485497073ee41e2385a262c439c754adbb2692e3fdeffea33e78"
+        },
+        {
+          "file": "observations/T035.json",
+          "sha256": "33a2a0e14cd76acc9dfdc05c64db4421011e3bfa3db3ee7de0b2d17c074ac9d2"
+        }
+      ],
+      "error": null,
+      "trial_id": "T035"
+    },
+    {
+      "case_id": "S15",
+      "title": "등록된 강풍 TC 재사용",
+      "origin": "등록된 AI TC의 유지보수 버전",
+      "group": "기존 TC 재사용",
+      "iteration": 3,
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "actual": {
+        "outcome": "PASS",
+        "browser_executed": true,
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 7.656,
+      "grades": [
+        {
+          "criterion_id": "A3-03",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+          "evidence": []
+        }
+      ],
+      "evidence": [
+        {
+          "file": "records/T055.json",
+          "sha256": "644a397e0de5fdf3ef3f63320d24946bfb9fbd8149b9e52655b3b9ffc75afa98"
+        },
+        {
+          "file": "observations/T055.json",
+          "sha256": "fb8594fde558f9b3d41af48d2dcf00e33973298183c70caf1468168346beca97"
+        }
+      ],
+      "error": null,
+      "trial_id": "T055"
+    },
+    {
+      "case_id": "S15",
+      "title": "등록된 강풍 TC 재사용",
+      "origin": "등록된 AI TC의 유지보수 버전",
+      "group": "기존 TC 재사용",
+      "iteration": 4,
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "actual": {
+        "outcome": "PASS",
+        "browser_executed": true,
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 7.516,
+      "grades": [
+        {
+          "criterion_id": "A3-03",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+          "evidence": []
+        }
+      ],
+      "evidence": [
+        {
+          "file": "records/T075.json",
+          "sha256": "732271f2c2ffb2a7ab20052b5f117ebcac9aaa89ab1da32cb42040375e91fe69"
+        },
+        {
+          "file": "observations/T075.json",
+          "sha256": "7a22a9b44c6e0e6671b7db737e96729efda849dae1308e1e97471fac5461a328"
+        }
+      ],
+      "error": null,
+      "trial_id": "T075"
+    },
+    {
+      "case_id": "S15",
+      "title": "등록된 강풍 TC 재사용",
+      "origin": "등록된 AI TC의 유지보수 버전",
+      "group": "기존 TC 재사용",
+      "iteration": 5,
+      "expected": {
+        "outcome": "PASS",
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "actual": {
+        "outcome": "PASS",
+        "browser_executed": true,
+        "restore": "RESTORED",
+        "evidence_complete": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 7.953,
+      "grades": [
+        {
+          "criterion_id": "A3-03",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "TC 검사 번호·계획·기록된 관찰값·시험 결과 일치. 제품 불일치의 정확한 검출도 포함; 코드 구현 품질·복원 전체 평가는 아님",
+          "evidence": []
+        }
+      ],
+      "evidence": [
+        {
+          "file": "records/T095.json",
+          "sha256": "71f4d4f86510a2e0c26691549eb8fb7dc713315f1486757e7287c5b025f13440"
+        },
+        {
+          "file": "observations/T095.json",
+          "sha256": "fe1075564831c4bbf9caab2af8264f9e1ee350b3d10e105ce9469de68daf6d10"
+        }
+      ],
+      "error": null,
+      "trial_id": "T095"
+    },
+    {
+      "case_id": "S16",
+      "title": "시험용 자산에 새 TC 추가",
+      "origin": "실제 저장 Run의 독립 사본 · 승인 함수 호출",
+      "group": "자산 선택 사본",
+      "iteration": 1,
+      "expected": {
+        "outcome": "APPROVED",
+        "asset_contract_ok": true,
+        "srs_unchanged": true
+      },
+      "actual": {
+        "outcome": "APPROVED",
+        "browser_executed": false,
+        "asset_contract_ok": true,
+        "srs_unchanged": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 0.937,
+      "grades": [],
+      "evidence": [
+        {
+          "file": "records/T016.json",
+          "sha256": "3d8e8af2f82a4bfa255610f28bcae04a56730268ad6d53a8ea8410b550fbb8a5"
+        },
+        {
+          "file": "observations/T016.json",
+          "sha256": "4d44df4d539d3f97d9118ddc659f8b2445f2d023124ab561fdab50f54c15a64f"
+        }
+      ],
+      "error": null,
+      "trial_id": "T016"
+    },
+    {
+      "case_id": "S16",
+      "title": "시험용 자산에 새 TC 추가",
+      "origin": "실제 저장 Run의 독립 사본 · 승인 함수 호출",
+      "group": "자산 선택 사본",
+      "iteration": 2,
+      "expected": {
+        "outcome": "APPROVED",
+        "asset_contract_ok": true,
+        "srs_unchanged": true
+      },
+      "actual": {
+        "outcome": "APPROVED",
+        "browser_executed": false,
+        "asset_contract_ok": true,
+        "srs_unchanged": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 0.937,
+      "grades": [],
+      "evidence": [
+        {
+          "file": "records/T036.json",
+          "sha256": "82face393ef2425aa1d412ecc3a2be1dd54d7118bdf4efb105c6ab06426f2fa8"
+        },
+        {
+          "file": "observations/T036.json",
+          "sha256": "a34e24e990709de24680b176dc8350c0efeb10d32232fae341ec7752307696ad"
+        }
+      ],
+      "error": null,
+      "trial_id": "T036"
+    },
+    {
+      "case_id": "S16",
+      "title": "시험용 자산에 새 TC 추가",
+      "origin": "실제 저장 Run의 독립 사본 · 승인 함수 호출",
+      "group": "자산 선택 사본",
+      "iteration": 3,
+      "expected": {
+        "outcome": "APPROVED",
+        "asset_contract_ok": true,
+        "srs_unchanged": true
+      },
+      "actual": {
+        "outcome": "APPROVED",
+        "browser_executed": false,
+        "asset_contract_ok": true,
+        "srs_unchanged": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 0.907,
+      "grades": [],
+      "evidence": [
+        {
+          "file": "records/T056.json",
+          "sha256": "bf34e97b8f87f7cb3f6c06781d97868f5bdaad2e2b484e21fdb3dade4bf6683b"
+        },
+        {
+          "file": "observations/T056.json",
+          "sha256": "b00fc97dc25b3319bc364b56505948d79fa680b3338d8a46fb4f07bc426e24d0"
+        }
+      ],
+      "error": null,
+      "trial_id": "T056"
+    },
+    {
+      "case_id": "S16",
+      "title": "시험용 자산에 새 TC 추가",
+      "origin": "실제 저장 Run의 독립 사본 · 승인 함수 호출",
+      "group": "자산 선택 사본",
+      "iteration": 4,
+      "expected": {
+        "outcome": "APPROVED",
+        "asset_contract_ok": true,
+        "srs_unchanged": true
+      },
+      "actual": {
+        "outcome": "APPROVED",
+        "browser_executed": false,
+        "asset_contract_ok": true,
+        "srs_unchanged": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 1.078,
+      "grades": [],
+      "evidence": [
+        {
+          "file": "records/T076.json",
+          "sha256": "c976c2c1e0fd07da23224129392f08027347b745d1dc65412f2b81d9cce62590"
+        },
+        {
+          "file": "observations/T076.json",
+          "sha256": "a979c787a55648f81acacb1906749f0166307652209b49b7c4203ae6bbc6ab77"
+        }
+      ],
+      "error": null,
+      "trial_id": "T076"
+    },
+    {
+      "case_id": "S16",
+      "title": "시험용 자산에 새 TC 추가",
+      "origin": "실제 저장 Run의 독립 사본 · 승인 함수 호출",
+      "group": "자산 선택 사본",
+      "iteration": 5,
+      "expected": {
+        "outcome": "APPROVED",
+        "asset_contract_ok": true,
+        "srs_unchanged": true
+      },
+      "actual": {
+        "outcome": "APPROVED",
+        "browser_executed": false,
+        "asset_contract_ok": true,
+        "srs_unchanged": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 0.938,
+      "grades": [],
+      "evidence": [
+        {
+          "file": "records/T096.json",
+          "sha256": "93842ac8d5a9e6c4645ab50c99db4d6d5ffcc9f282356eed0cd90661f44fd050"
+        },
+        {
+          "file": "observations/T096.json",
+          "sha256": "e738e980562cacb0285cdc478d739413ac952f07acc5977ddb30feb5bd15b70c"
+        }
+      ],
+      "error": null,
+      "trial_id": "T096"
+    },
+    {
+      "case_id": "S17",
+      "title": "선택한 기존 TC 대체",
+      "origin": "실제 저장 Run의 독립 사본 · 승인 함수 호출",
+      "group": "자산 선택 사본",
+      "iteration": 1,
+      "expected": {
+        "outcome": "REPLACED",
+        "asset_contract_ok": true,
+        "srs_unchanged": true
+      },
+      "actual": {
+        "outcome": "REPLACED",
+        "browser_executed": false,
+        "asset_contract_ok": true,
+        "srs_unchanged": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 1.141,
+      "grades": [],
+      "evidence": [
+        {
+          "file": "records/T017.json",
+          "sha256": "b7aba2e5492c64c728dd8a5a7ca63422f1e26b15f0403b5056a1f690ac38ac60"
+        },
+        {
+          "file": "observations/T017.json",
+          "sha256": "31b0aaa08fc01b6de2d0027dd0c8914430b22fd1af679cecf2dd982b2aae15a3"
+        }
+      ],
+      "error": null,
+      "trial_id": "T017"
+    },
+    {
+      "case_id": "S17",
+      "title": "선택한 기존 TC 대체",
+      "origin": "실제 저장 Run의 독립 사본 · 승인 함수 호출",
+      "group": "자산 선택 사본",
+      "iteration": 2,
+      "expected": {
+        "outcome": "REPLACED",
+        "asset_contract_ok": true,
+        "srs_unchanged": true
+      },
+      "actual": {
+        "outcome": "REPLACED",
+        "browser_executed": false,
+        "asset_contract_ok": true,
+        "srs_unchanged": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 0.859,
+      "grades": [],
+      "evidence": [
+        {
+          "file": "records/T037.json",
+          "sha256": "bb02231455d29b708a416ecce6bc523d67fe21ea7ed608a60789a8d46093b6d2"
+        },
+        {
+          "file": "observations/T037.json",
+          "sha256": "5d9a6599af3471de6ef0396ec22b5e26700bcd56033958eacd85838ef661ec52"
+        }
+      ],
+      "error": null,
+      "trial_id": "T037"
+    },
+    {
+      "case_id": "S17",
+      "title": "선택한 기존 TC 대체",
+      "origin": "실제 저장 Run의 독립 사본 · 승인 함수 호출",
+      "group": "자산 선택 사본",
+      "iteration": 3,
+      "expected": {
+        "outcome": "REPLACED",
+        "asset_contract_ok": true,
+        "srs_unchanged": true
+      },
+      "actual": {
+        "outcome": "REPLACED",
+        "browser_executed": false,
+        "asset_contract_ok": true,
+        "srs_unchanged": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 0.921,
+      "grades": [],
+      "evidence": [
+        {
+          "file": "records/T057.json",
+          "sha256": "5a271d181c902676d62af8436d7cf0ce62f2876fa0fd1f45d18a674f5f8b14fa"
+        },
+        {
+          "file": "observations/T057.json",
+          "sha256": "6f887f990dab6ceb943e18e277b578e092208ffc940c6a04ab893edbc2ad8c24"
+        }
+      ],
+      "error": null,
+      "trial_id": "T057"
+    },
+    {
+      "case_id": "S17",
+      "title": "선택한 기존 TC 대체",
+      "origin": "실제 저장 Run의 독립 사본 · 승인 함수 호출",
+      "group": "자산 선택 사본",
+      "iteration": 4,
+      "expected": {
+        "outcome": "REPLACED",
+        "asset_contract_ok": true,
+        "srs_unchanged": true
+      },
+      "actual": {
+        "outcome": "REPLACED",
+        "browser_executed": false,
+        "asset_contract_ok": true,
+        "srs_unchanged": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 0.984,
+      "grades": [],
+      "evidence": [
+        {
+          "file": "records/T077.json",
+          "sha256": "547d4dc92f7df9ab0c784dd1dd2ca4ccd73388134d0874fbaf6615ebc01bf097"
+        },
+        {
+          "file": "observations/T077.json",
+          "sha256": "547549411e96d82b48f47172e6428c6ecf7ff8b27bd0170515bc05d23f4ac9cd"
+        }
+      ],
+      "error": null,
+      "trial_id": "T077"
+    },
+    {
+      "case_id": "S17",
+      "title": "선택한 기존 TC 대체",
+      "origin": "실제 저장 Run의 독립 사본 · 승인 함수 호출",
+      "group": "자산 선택 사본",
+      "iteration": 5,
+      "expected": {
+        "outcome": "REPLACED",
+        "asset_contract_ok": true,
+        "srs_unchanged": true
+      },
+      "actual": {
+        "outcome": "REPLACED",
+        "browser_executed": false,
+        "asset_contract_ok": true,
+        "srs_unchanged": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 0.891,
+      "grades": [],
+      "evidence": [
+        {
+          "file": "records/T097.json",
+          "sha256": "9071b7e82a587ffdff3b71da0d9eecbddc3af8a207f0d8a8cece7e2507621006"
+        },
+        {
+          "file": "observations/T097.json",
+          "sha256": "718566bbb4af78368478ffd9341fab5e18d5faf3910bb6bbd36c70e54e1e4214"
+        }
+      ],
+      "error": null,
+      "trial_id": "T097"
+    },
+    {
+      "case_id": "S18",
+      "title": "등록하지 않음",
+      "origin": "실제 저장 Run의 독립 사본 · 승인 함수 호출",
+      "group": "자산 선택 사본",
+      "iteration": 1,
+      "expected": {
+        "outcome": "DECLINED",
+        "asset_contract_ok": true,
+        "srs_unchanged": true
+      },
+      "actual": {
+        "outcome": "DECLINED",
+        "browser_executed": false,
+        "asset_contract_ok": true,
+        "srs_unchanged": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 0.703,
+      "grades": [],
+      "evidence": [
+        {
+          "file": "records/T018.json",
+          "sha256": "38fd5622e9db8e432894f180801a6d56bc84ab3fab1d32a861c11382435f3a99"
+        },
+        {
+          "file": "observations/T018.json",
+          "sha256": "5af6eb1f026a0110b8573a7c67be5b1c86490850bb77ce79c8b70376a56570b0"
+        }
+      ],
+      "error": null,
+      "trial_id": "T018"
+    },
+    {
+      "case_id": "S18",
+      "title": "등록하지 않음",
+      "origin": "실제 저장 Run의 독립 사본 · 승인 함수 호출",
+      "group": "자산 선택 사본",
+      "iteration": 2,
+      "expected": {
+        "outcome": "DECLINED",
+        "asset_contract_ok": true,
+        "srs_unchanged": true
+      },
+      "actual": {
+        "outcome": "DECLINED",
+        "browser_executed": false,
+        "asset_contract_ok": true,
+        "srs_unchanged": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 0.656,
+      "grades": [],
+      "evidence": [
+        {
+          "file": "records/T038.json",
+          "sha256": "f25e45008edd8e9a86b4553bb58699b54981801cbc4a9b6546c39b8e068ecb86"
+        },
+        {
+          "file": "observations/T038.json",
+          "sha256": "8de5d05acd875a02700e657320f95b08b69fe5f6a810aedcec609684c14d92f0"
+        }
+      ],
+      "error": null,
+      "trial_id": "T038"
+    },
+    {
+      "case_id": "S18",
+      "title": "등록하지 않음",
+      "origin": "실제 저장 Run의 독립 사본 · 승인 함수 호출",
+      "group": "자산 선택 사본",
+      "iteration": 3,
+      "expected": {
+        "outcome": "DECLINED",
+        "asset_contract_ok": true,
+        "srs_unchanged": true
+      },
+      "actual": {
+        "outcome": "DECLINED",
+        "browser_executed": false,
+        "asset_contract_ok": true,
+        "srs_unchanged": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 0.672,
+      "grades": [],
+      "evidence": [
+        {
+          "file": "records/T058.json",
+          "sha256": "d6faf0d2de1bea6076dc61756b58677da4789d963f7fd9f99b8fd5fb1f6fa02c"
+        },
+        {
+          "file": "observations/T058.json",
+          "sha256": "ec8788e9c0613632e937ceb335eb31127f353936b691d56d6c5e05a88737a19b"
+        }
+      ],
+      "error": null,
+      "trial_id": "T058"
+    },
+    {
+      "case_id": "S18",
+      "title": "등록하지 않음",
+      "origin": "실제 저장 Run의 독립 사본 · 승인 함수 호출",
+      "group": "자산 선택 사본",
+      "iteration": 4,
+      "expected": {
+        "outcome": "DECLINED",
+        "asset_contract_ok": true,
+        "srs_unchanged": true
+      },
+      "actual": {
+        "outcome": "DECLINED",
+        "browser_executed": false,
+        "asset_contract_ok": true,
+        "srs_unchanged": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 0.719,
+      "grades": [],
+      "evidence": [
+        {
+          "file": "records/T078.json",
+          "sha256": "627a3c53cd9b5fb389f14b431bf1c8b2bc46e0052c9b93de9002e2f62eda84b4"
+        },
+        {
+          "file": "observations/T078.json",
+          "sha256": "58ec33119594103779198471aad7209ee461e5c270591143ed4f6a70e7527833"
+        }
+      ],
+      "error": null,
+      "trial_id": "T078"
+    },
+    {
+      "case_id": "S18",
+      "title": "등록하지 않음",
+      "origin": "실제 저장 Run의 독립 사본 · 승인 함수 호출",
+      "group": "자산 선택 사본",
+      "iteration": 5,
+      "expected": {
+        "outcome": "DECLINED",
+        "asset_contract_ok": true,
+        "srs_unchanged": true
+      },
+      "actual": {
+        "outcome": "DECLINED",
+        "browser_executed": false,
+        "asset_contract_ok": true,
+        "srs_unchanged": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 0.64,
+      "grades": [],
+      "evidence": [
+        {
+          "file": "records/T098.json",
+          "sha256": "661fab61bfe1cac68ad0b2ced5a26607f6ac95710accd6a58c4be6e002fe7a9b"
+        },
+        {
+          "file": "observations/T098.json",
+          "sha256": "91de4c50f5698525429374ca7fb2e899081680f48d57f9fb84964294d362a7f8"
+        }
+      ],
+      "error": null,
+      "trial_id": "T098"
+    },
+    {
+      "case_id": "S19",
+      "title": "사람 판단 보류",
+      "origin": "실제 저장 Run의 독립 사본 · 승인 함수 호출",
+      "group": "자산 선택 사본",
+      "iteration": 1,
+      "expected": {
+        "outcome": "HELD",
+        "asset_contract_ok": true,
+        "srs_unchanged": true
+      },
+      "actual": {
+        "outcome": "HELD",
+        "browser_executed": false,
+        "asset_contract_ok": true,
+        "srs_unchanged": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 0.687,
+      "grades": [],
+      "evidence": [
+        {
+          "file": "records/T019.json",
+          "sha256": "4e75b21356885aed8b8db8378cf1fabb8a95f0c363c77da72b7ffaf3852ec0de"
+        },
+        {
+          "file": "observations/T019.json",
+          "sha256": "36df35080f3bf6bb631400c541e6d197ecae263e77c26eb538260c29833b301b"
+        }
+      ],
+      "error": null,
+      "trial_id": "T019"
+    },
+    {
+      "case_id": "S19",
+      "title": "사람 판단 보류",
+      "origin": "실제 저장 Run의 독립 사본 · 승인 함수 호출",
+      "group": "자산 선택 사본",
+      "iteration": 2,
+      "expected": {
+        "outcome": "HELD",
+        "asset_contract_ok": true,
+        "srs_unchanged": true
+      },
+      "actual": {
+        "outcome": "HELD",
+        "browser_executed": false,
+        "asset_contract_ok": true,
+        "srs_unchanged": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 0.672,
+      "grades": [],
+      "evidence": [
+        {
+          "file": "records/T039.json",
+          "sha256": "045101a574b6db7b06d4df88e3973afe12c04f5594969e1e5a4827052e1b568b"
+        },
+        {
+          "file": "observations/T039.json",
+          "sha256": "91903a28886466e3af421980965044ee80033a745bf03e3e27ff9a3598988ffd"
+        }
+      ],
+      "error": null,
+      "trial_id": "T039"
+    },
+    {
+      "case_id": "S19",
+      "title": "사람 판단 보류",
+      "origin": "실제 저장 Run의 독립 사본 · 승인 함수 호출",
+      "group": "자산 선택 사본",
+      "iteration": 3,
+      "expected": {
+        "outcome": "HELD",
+        "asset_contract_ok": true,
+        "srs_unchanged": true
+      },
+      "actual": {
+        "outcome": "HELD",
+        "browser_executed": false,
+        "asset_contract_ok": true,
+        "srs_unchanged": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 0.687,
+      "grades": [],
+      "evidence": [
+        {
+          "file": "records/T059.json",
+          "sha256": "9e4972c905653b5a130ee109cc214d3835eb8d244cb954ffb4587c59d059dea8"
+        },
+        {
+          "file": "observations/T059.json",
+          "sha256": "f7dbee7b6b00d3c60009fb62719482f6497a6af4ced8376c3559668486bad967"
+        }
+      ],
+      "error": null,
+      "trial_id": "T059"
+    },
+    {
+      "case_id": "S19",
+      "title": "사람 판단 보류",
+      "origin": "실제 저장 Run의 독립 사본 · 승인 함수 호출",
+      "group": "자산 선택 사본",
+      "iteration": 4,
+      "expected": {
+        "outcome": "HELD",
+        "asset_contract_ok": true,
+        "srs_unchanged": true
+      },
+      "actual": {
+        "outcome": "HELD",
+        "browser_executed": false,
+        "asset_contract_ok": true,
+        "srs_unchanged": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 0.656,
+      "grades": [],
+      "evidence": [
+        {
+          "file": "records/T079.json",
+          "sha256": "255182ea7522adb640110bb664fd079c07d837fa7c644ee762fa8c1abddf4e55"
+        },
+        {
+          "file": "observations/T079.json",
+          "sha256": "b6be30221aab3399b6f0ba72d5f4af5363be1b4cd2727074be508b6c974a6918"
+        }
+      ],
+      "error": null,
+      "trial_id": "T079"
+    },
+    {
+      "case_id": "S19",
+      "title": "사람 판단 보류",
+      "origin": "실제 저장 Run의 독립 사본 · 승인 함수 호출",
+      "group": "자산 선택 사본",
+      "iteration": 5,
+      "expected": {
+        "outcome": "HELD",
+        "asset_contract_ok": true,
+        "srs_unchanged": true
+      },
+      "actual": {
+        "outcome": "HELD",
+        "browser_executed": false,
+        "asset_contract_ok": true,
+        "srs_unchanged": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 0.656,
+      "grades": [],
+      "evidence": [
+        {
+          "file": "records/T099.json",
+          "sha256": "c2f56e1ce0878ae93f692cf5de84fd8c592531ba3c9accf6f84d9dde6dda9942"
+        },
+        {
+          "file": "observations/T099.json",
+          "sha256": "0c7d065bc2e36bb308b99e9547d25fee710c26ff760fc523ae89126e09592e91"
+        }
+      ],
+      "error": null,
+      "trial_id": "T099"
+    },
+    {
+      "case_id": "S20",
+      "title": "같은 TC 중복 승인",
+      "origin": "실제 저장 Run의 독립 사본 · 승인 함수 호출",
+      "group": "자산 선택 사본",
+      "iteration": 1,
+      "expected": {
+        "outcome": "DUPLICATE_UNCHANGED",
+        "asset_contract_ok": true,
+        "srs_unchanged": true
+      },
+      "actual": {
+        "outcome": "DUPLICATE_UNCHANGED",
+        "browser_executed": false,
+        "asset_contract_ok": true,
+        "srs_unchanged": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 1.016,
+      "grades": [],
+      "evidence": [
+        {
+          "file": "records/T020.json",
+          "sha256": "42168fa4c68238eda048e87256071eb324c41cb14478f4ab9f4935a8f9e03f96"
+        },
+        {
+          "file": "observations/T020.json",
+          "sha256": "f187c88d0256bb6b852f596f68ceee30142b0571453b2d5bcb1b02f969efb158"
+        }
+      ],
+      "error": null,
+      "trial_id": "T020"
+    },
+    {
+      "case_id": "S20",
+      "title": "같은 TC 중복 승인",
+      "origin": "실제 저장 Run의 독립 사본 · 승인 함수 호출",
+      "group": "자산 선택 사본",
+      "iteration": 2,
+      "expected": {
+        "outcome": "DUPLICATE_UNCHANGED",
+        "asset_contract_ok": true,
+        "srs_unchanged": true
+      },
+      "actual": {
+        "outcome": "DUPLICATE_UNCHANGED",
+        "browser_executed": false,
+        "asset_contract_ok": true,
+        "srs_unchanged": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 1.0,
+      "grades": [],
+      "evidence": [
+        {
+          "file": "records/T040.json",
+          "sha256": "2895937c7c7253b98b96b0089fd0ca40ece865f3d550c6237c42ba03ac6d0762"
+        },
+        {
+          "file": "observations/T040.json",
+          "sha256": "65e9f0bcaccf9781670ff454d4fbbc272180b84a2f8b1585b431dbbbf3f80018"
+        }
+      ],
+      "error": null,
+      "trial_id": "T040"
+    },
+    {
+      "case_id": "S20",
+      "title": "같은 TC 중복 승인",
+      "origin": "실제 저장 Run의 독립 사본 · 승인 함수 호출",
+      "group": "자산 선택 사본",
+      "iteration": 3,
+      "expected": {
+        "outcome": "DUPLICATE_UNCHANGED",
+        "asset_contract_ok": true,
+        "srs_unchanged": true
+      },
+      "actual": {
+        "outcome": "DUPLICATE_UNCHANGED",
+        "browser_executed": false,
+        "asset_contract_ok": true,
+        "srs_unchanged": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 1.016,
+      "grades": [],
+      "evidence": [
+        {
+          "file": "records/T060.json",
+          "sha256": "1c75313613064debece8fed8bf705233b8ea2e06d2c9403e61a4f5b32b577904"
+        },
+        {
+          "file": "observations/T060.json",
+          "sha256": "08d4c5821ef840daf7e8ef0a4e892936bdb557792e1cff17c61319ffe1c7dcfc"
+        }
+      ],
+      "error": null,
+      "trial_id": "T060"
+    },
+    {
+      "case_id": "S20",
+      "title": "같은 TC 중복 승인",
+      "origin": "실제 저장 Run의 독립 사본 · 승인 함수 호출",
+      "group": "자산 선택 사본",
+      "iteration": 4,
+      "expected": {
+        "outcome": "DUPLICATE_UNCHANGED",
+        "asset_contract_ok": true,
+        "srs_unchanged": true
+      },
+      "actual": {
+        "outcome": "DUPLICATE_UNCHANGED",
+        "browser_executed": false,
+        "asset_contract_ok": true,
+        "srs_unchanged": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 1.031,
+      "grades": [],
+      "evidence": [
+        {
+          "file": "records/T080.json",
+          "sha256": "8c80e847e37e87e26cdd904991cec766d56fcc0314be705405f222dd96b38379"
+        },
+        {
+          "file": "observations/T080.json",
+          "sha256": "75bffc957d474f2c77dffde4c23b905f0d63d8d77f752effe14c3acf9ad5cb75"
+        }
+      ],
+      "error": null,
+      "trial_id": "T080"
+    },
+    {
+      "case_id": "S20",
+      "title": "같은 TC 중복 승인",
+      "origin": "실제 저장 Run의 독립 사본 · 승인 함수 호출",
+      "group": "자산 선택 사본",
+      "iteration": 5,
+      "expected": {
+        "outcome": "DUPLICATE_UNCHANGED",
+        "asset_contract_ok": true,
+        "srs_unchanged": true
+      },
+      "actual": {
+        "outcome": "DUPLICATE_UNCHANGED",
+        "browser_executed": false,
+        "asset_contract_ok": true,
+        "srs_unchanged": true
+      },
+      "status": "MATCH",
+      "duration_seconds": 0.984,
+      "grades": [],
+      "evidence": [
+        {
+          "file": "records/T100.json",
+          "sha256": "d4c856966731bb1410c83f9d0ed829b4ca7384ad2effedcf369278aa1ca9fa29"
+        },
+        {
+          "file": "observations/T100.json",
+          "sha256": "b6dbab9e220c19b5d21ddb49a37e601b48f07b7a4e93a99b73cb4a9ed3f9ec7f"
+        }
+      ],
+      "error": null,
+      "trial_id": "T100"
+    }
+  ],
+  "limitation": "준비한 TC·저장 AI 결과의 로컬 반복입니다. 새 AI 생성·의미 판단·공식 승인·현장 장비 안정성은 미평가입니다.",
+  "provenance": {
+    "source_batch": "../l1009",
+    "source_plan_sha256": "feb1c9a3df9d038bc510fd28e98deea51de9d5ec8ed0f25f273944e477df56dc",
+    "original_scores_preserved": true,
+    "recheck_date_kst": "2026-10-09",
+    "observation_reader_sha256": "8b11921c681f239eed23cdf88f4d7b74ee2fee96050d1991da5dafa0928ee9ca",
+    "note": "P1 100회 원본은 그대로. S13 5회의 A3-03만 최종 재실행 로그까지 포함하여 로컬 재대조. 새 제품/AI 실행 아님."
+  },
+  "public_export": {
+    "date_kst": "2026-10-09",
+    "original_summary_sha256": "34494412f513633004279d9d82667e399d415a29f0d2bd4f156051c88ad2f874",
+    "original_scores_changed": false,
+    "scope": "100 original record copies and selected observation extracts; full raw traces kept locally"
+  }
+}

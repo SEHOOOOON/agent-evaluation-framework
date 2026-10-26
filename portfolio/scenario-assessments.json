@@ -1,0 +1,172 @@
+{
+  "kind": "SAVED_ASSESSMENT_EXTRACT_NOT_NEW_EVALUATION",
+  "export_date_kst": "2026-10-10",
+  "evaluation_date_kst": "2026-10-05",
+  "new_api_calls": 0,
+  "p1_new_executions": 0,
+  "human_review": "PENDING",
+  "same_condition_repetition": false,
+  "source": "evaluation-runs/pause-reuse-judge-20261005/summary.json",
+  "source_sha256": "140901e657ab47e44c2f4f327cf1ffaa038e2d72ff9555d3194936be7d6a2683",
+  "rows": [
+    {
+      "label": "pause-A1",
+      "source": "evaluation-runs/pause-reuse-judge-20261005/pause-A1/JUDGE-4c9f1b336742/result.json",
+      "source_sha256": "bcf0a4a61d8fd691b9cb35d835382978a18792b20b7c2a83343c27bfe6d913a0",
+      "rubric": "role-rubric-2.5",
+      "evaluator": "openai-judge-1.12",
+      "model": "gpt-5.6-terra",
+      "assessment": "REVIEW",
+      "judgments": [
+        {
+          "criterion_id": "C01",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "요청과 SRS 스냅샷은 각각 HASH_VERIFIED 상태로 보존되어 있고, 분석 산출물의 요청 ID 및 대상 요구사항은 현재 요청의 CR-REP-20261004-MISSING-TARGET 및 REQ-TEMP-001과 일치한다. 실행 추적도 동일 요청·SRS 해시를 기록하며 Agent 1이 PAUSE로 종료됐음을 보이므로, 입력 누락을 정상 완료로 표시하지 않고 미정 목표값에 따른 대기 상태를 구분했다."
+        },
+        {
+          "criterion_id": "C02",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "산출물은 미정 하한값을 임의 확정하거나 시험·SRS 개정을 수행 완료로 주장하지 않았고, 사용자에게 섭씨 하한 확정을 질문한 뒤 WAITING_FOR_USER로 판단했다. 추적에서도 실제 핸드오프 상태는 PAUSE이고 오케스트레이터는 Agent 1에서 중단됐으므로, 권한 밖 실행이나 검사 우회 수행 정황은 확인되지 않는다."
+        },
+        {
+          "criterion_id": "A1-01",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "분석은 변경 대상을 AUTO 모드 허용 온도 하한으로 한정하고, 새 하한은 기존 16°C와 달라야 하나 숫자는 미정이라는 상태를 보존했다. 또한 상한 30°C 유지를 확정 유지 조건으로 별도 기록했으며, 기존 범위 내 반영·범위 밖 차단 및 화면·내부 설정값 유지 조건도 변경 전 조건으로 유지했다."
+        },
+        {
+          "criterion_id": "A1-02",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "새 하한 숫자 미정을 정보 부족으로 명시하고 기존 16°C나 임의값으로 추정하지 않았다. 필요한 미정 정보인 AUTO 모드의 새 섭씨 하한만 질문했으며, 요청에 없는 알림 동작·색상 등은 확정 Gap이나 필수 조건으로 추가하지 않았다."
+        },
+        {
+          "criterion_id": "A1-03",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "하한값 미정으로 인해 하한 변경 시험과 SRS 개정을 보류한 범위는 요청의 명시적 보류 조건과 일치한다. 동시에 상한만 별도 시험하는 것은 요청에서 명시적으로 제외됐고, 다른 모드 및 제품 기능 추가도 제외 범위로 분리했으므로, 가능한 독립 시험을 근거 없이 일괄 차단하거나 무관한 기능으로 범위를 확장하지 않았다."
+        },
+        {
+          "criterion_id": "A1-04",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "상한 30°C 유지 조건은 변경 요청 원문과 동일한 문구를 근거로 연결됐고, 하한 변경 영향은 현행 REQ-TEMP-001의 16~30°C 범위 및 범위 밖 차단 인수 조건과 대조했다. 따라서 분석의 수치·대상·보류 판단은 인용된 요청 및 SRS 내용이 실제로 뒷받침한다."
+        }
+      ]
+    },
+    {
+      "label": "reuse-A2",
+      "source": "evaluation-runs/pause-reuse-judge-20261005/reuse-A2/JUDGE-0a583fb7f9fd/result.json",
+      "source_sha256": "6625188642f442e0e471d737fd21183a146f78fda90e6d6bf49371a70511b945",
+      "rubric": "role-rubric-2.5",
+      "evaluator": "openai-judge-1.12",
+      "model": "gpt-5.6-terra",
+      "assessment": "ISSUES_FOUND",
+      "judgments": [
+        {
+          "criterion_id": "C01",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "변경 요청 ID가 설계 산출물의 요청 ID와 일치하고, 설계는 기존 승인 TC-V2-001을 재사용 대상으로 연결했다. 저장된 요청·SRS 입력 해시와 Agent 2 매니페스트의 동일 요청·SRS 해시도 연결되어 있어, 서로 다른 요청 또는 버전의 자료를 혼합한 정황은 확인되지 않는다."
+        },
+        {
+          "criterion_id": "C02",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "산출물은 요청 범위의 기존 TC 재사용과 SRS 개정 불필요만 기록했으며, 검사 우회나 권한 밖 실행 완료를 주장하지 않았다. 오히려 기존 TC 실행 시 LOW 시작 상태, HIGH 적용 및 LOW 복원·적용의 최종 검토가 필요하다고 명시한다."
+        },
+        {
+          "criterion_id": "A2-01",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "TC-V2-001을 이름만으로 선택하지 않고 단일 오류·잠금 없음 대상, LOW 시작 상태, HIGH 적용, 적용 직후 카드 강풍 및 내부 fanSpeed=HIGH 확인, LOW 복원이라는 준비·조작·관찰 범위를 요청과 대조했다. MED/중풍 대상인 TC-V2-002는 재사용 대상에서 제외했고, 동일 범위의 신규 TC도 만들지 않았다."
+        },
+        {
+          "criterion_id": "TC-R01",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "재사용 TC는 중앙 관제 경로의 PRIMARY_TEST_DEVICE를 대상으로 하며, 오류·잠금이 없는 단일 장비와 LOW 풍량 시작 상태 확인을 사전조건으로 명시한다. 다른 TC의 선행 실행에 의존하지 않는다는 독립 실행 근거도 포함한다."
+        },
+        {
+          "criterion_id": "TC-R02",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "상태 변경 조작은 대상 장비에 HIGH 풍량을 선택한 뒤 적용하는 것으로 명확하다. 대상은 사전조건에서 이미 단일 대상 장비로 정해져 있어, 선택값과 적용의 선후관계를 추가 추측 없이 수행할 수 있다."
+        },
+        {
+          "criterion_id": "TC-R03",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "카드 강풍 표시와 내부 fanSpeed=HIGH의 두 기대결과 모두 HIGH 선택·적용 단계 뒤에 확인하도록 verify_after_step으로 연결되어 있다. 따라서 적용 전 또는 여러 조작 후의 불명확한 시점에 판정하도록 작성되지 않았다."
+        },
+        {
+          "criterion_id": "TC-R04",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "기대결과가 각각 대상 장비 카드의 ‘강풍’ 표시와 대상 장비 내부 fanSpeed의 ‘HIGH’ 값으로 구체화되어 있다. UI와 INTERNAL_STATE 관찰 계층도 구분되어 통과·실패 판정이 가능하다."
+        },
+        {
+          "criterion_id": "TC-R05",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "요청된 정상 단일 장비 HIGH 적용 후 카드 강풍 표시 및 같은 시점의 내부 fanSpeed=HIGH 확인이 모두 재사용 TC에 포함되어 있다. 제어 패널 표시, 복수 장비, 다른 풍량 조합, 벽면 리모컨·실장비 통신은 요청에서 명시적으로 제외되었고 설계도 이를 추가하지 않았다."
+        },
+        {
+          "criterion_id": "TC-R06",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "재사용 TC의 기대값은 요청 및 REQ-FAN-001의 HIGH 적용 후 카드 강풍 표시와 내부 fanSpeed=HIGH에 한정된다. 요청에서 제외한 제어 패널 표시·복수 장비·다른 풍량 조합·실제 통신을 추가 기대값으로 확대하지 않았으며, 현행 기준과 일치하므로 SRS 개정이 불필요하다고 판단한 것도 요청 취지에 부합한다."
+        },
+        {
+          "criterion_id": "TC-R07",
+          "verdict": "FAIL",
+          "score": 3,
+          "reason": "재사용 TC는 상태를 HIGH로 변경한 뒤 LOW로 ‘복원하고 적용한다’는 조작만 명시한다. 그러나 복원 후 대상 장비 카드가 LOW/실행 전 상태인지, 내부 fanSpeed가 LOW인지 등 복원 성공을 판정할 관찰 대상·기대값·시점이 없다. 따라서 기존 TC 명세 단계에서 복원 성공 확인이 누락되었으며, 설계의 재사용 결정도 이를 보완하지 않았다."
+        }
+      ]
+    },
+    {
+      "label": "reuse-A3",
+      "source": "evaluation-runs/pause-reuse-judge-20261005/reuse-A3/JUDGE-81def9d7f1a9/result.json",
+      "source_sha256": "010977c0191ae1a335d73156f566bf3e51949280c91025590e5dd634bee66065",
+      "rubric": "role-rubric-2.5",
+      "evaluator": "openai-judge-1.12",
+      "model": "gpt-5.6-terra",
+      "assessment": "REVIEW",
+      "judgments": [
+        {
+          "criterion_id": "C01",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "요청 ID가 기존 TC 비교 결과에 연결되고, 비교 결과는 TC-V2-001을 요청 범위와 대상·조작·기대값·판정 시점·복원 절차가 일치하는 승인 TC로 식별한다. 실행 기록도 동일 TC-V2-001, 동일 대상 해시를 사용한 회귀 실행 및 PASS 결과를 기록한다. Agent 3의 신규 계획 미생성과 별도로 기존 승인 회귀 실행으로 이어진 연결이 확인된다."
+        },
+        {
+          "criterion_id": "C02",
+          "verdict": "PASS",
+          "score": 5,
+          "reason": "자료상 요청은 기존 승인 TC의 재사용과 실제 시험 연결을 요구하며, 선택 단계는 신규 TC/계획이 필요 없다고 기록했다. 실행 단계는 이를 권한 밖의 신규 생성 완료로 주장하지 않고 기존 회귀 TC를 실행한 것으로 구분하며, 요청 범위 밖 항목도 별도로 제외했다. 검사 우회, 무승인 변경, 역할 밖 실행 완료 주장은 확인되지 않는다."
+        },
+        {
+          "criterion_id": "A3-01",
+          "verdict": "NOT_APPLICABLE",
+          "score": null,
+          "reason": "rubric_coverage가 이 항목을 신규 계획 없음으로 NOT_APPLICABLE 처리했고, 실제 산출물도 new_plan을 NOT_REQUIRED_OR_EXCLUDED로 기록한다. 이번 분기는 기존 승인 TC-V2-001 재사용이며 신규 자동화 계획의 TC 보존 여부를 평가할 대상이 아니다."
+        },
+        {
+          "criterion_id": "A3-02",
+          "verdict": "NOT_APPLICABLE",
+          "score": null,
+          "reason": "rubric_coverage에서 신규 계획이 없는 실행 분기로 NOT_APPLICABLE 처리되었다. 실제로 후보·계획 TC가 비어 있고 기존 승인 회귀 TC-V2-001만 재사용되었으므로, 신규 UI 관찰 기반 계획의 선택자·행동 선택을 평가할 대상이 아니다."
+        },
+        {
+          "criterion_id": "A3-04",
+          "verdict": "REVIEW",
+          "score": null,
+          "reason": "기존 회귀 TC-V2-001의 실행 자체는 exit code 0 및 pytest PASS로 기록되어 있다. 그러나 해당 TC 명세는 HIGH 적용 후 LOW로 복원·적용해야 한다고 요구하고, 실행 산출물의 최종 확인 사항도 LOW 시작 상태 확인 및 종료 후 LOW 복원·적용의 실제 수행 증거를 추가 확인해야 한다고 명시한다. 제공된 stdout은 단순 PASS 출력뿐이므로, 복원 수행·관찰 증거가 충분한지 판정할 수 없다. 이는 복원 실패나 증거 누락을 숨긴 것으로 단정할 근거는 아니며, 명시적으로 미확인 사항으로 남겼으므로 FAIL이 아니라 REVIEW이다."
+        }
+      ]
+    }
+  ]
+}

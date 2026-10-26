@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="프로젝트1 대표 요청 5개를 26개 평가 기준으로 채점한 결과표.">
+<title>프로젝트2 · 기준별 점수표</title>
+<link rel="stylesheet" href="style.css"><link rel="stylesheet" href="story.css">
+<style id="pf-bar-style">
+/* 프로젝트 페이지 메뉴 막대: 프로젝트 색(푸른 검정·파랑). 메인은 주황 */
+.pf-bar{position:sticky;top:0;z-index:60;background:rgba(8,12,19,.94);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-bottom:1px solid #1c2533;font-family:Pretendard,"Noto Sans KR",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.pf-bar-in{width:min(var(--pf-w,1100px),calc(100% - 48px));margin:0 auto;height:62px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.pf-brand{color:#dce6f3;font-size:13px;font-weight:800;letter-spacing:.02em;text-decoration:none;white-space:nowrap}
+.pf-brand:hover{text-decoration:none;color:#dce6f3}
+.pf-links{display:flex;gap:22px;font-size:12px;line-height:1}
+.pf-links a{color:#94a3b8;text-decoration:none;white-space:nowrap;padding:6px 0;border-bottom:2px solid transparent}
+.pf-links a:hover{color:#dce6f3;text-decoration:none}
+.pf-links a[aria-current="page"]{color:#dce6f3;border-bottom-color:#58a6ff}
+@media(max-width:640px){.pf-bar-in{width:calc(100% - 28px);height:54px}.pf-brand{font-size:12px}.pf-links{gap:14px;font-size:11px}}
+</style>
+<style id="report-story">
+/* 보고서: 소개 페이지와 같은 글꼴·색, 표는 가로 스크롤 */
+/* 메인·프로젝트1과 같은 글자 크기 */
+.portfolio-story p{font-size:14px;line-height:1.85}
+.portfolio-story .section-intro{font-size:14px}
+.portfolio-story .story-lead{font-size:16px}
+.story-section h2{font-weight:700}
+.story-section h3{font-size:16px}
+.portfolio-story .scope-note{font-size:12.5px}
+.legend{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin:30px 0 6px}
+.legend>div{padding:20px 22px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+.legend h2{font-size:15px!important;margin:0 0 12px!important;color:#fff}
+.legend dl{display:grid;grid-template-columns:auto 1fr;gap:8px 14px;margin:0;font-size:14px;align-items:center}
+.legend dd{margin:0;color:var(--muted)}
+.chip{display:inline-block;min-width:64px;text-align:center;padding:3px 8px;border-radius:5px;font-size:13px;font-weight:600}
+.s5,.chip.s5{background:rgba(88,166,255,.16);color:var(--blue)}
+.s4,.chip.s4{background:rgba(88,166,255,.07);color:#9cc8ff}
+.s3,.chip.s3{background:rgba(239,192,119,.16);color:var(--amber)}
+.na,.chip.na{color:var(--muted)}
+.rv,.chip.rv{color:var(--muted);outline:1px dashed var(--line);outline-offset:-4px}
+.st,.chip.st{color:#5f6b7d}
+.who-chip{font-size:13px;color:var(--text)}
+.wide{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface);margin:22px 0 10px}
+.wide table{border-collapse:collapse;width:100%;font-size:14px}
+.wide th,.wide td{padding:12px 14px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top;color:var(--text)}
+.wide thead th{font-size:13px;color:var(--muted);font-weight:600;background:var(--bg);white-space:nowrap}
+.wide tbody tr:last-child>*{border-bottom:0}
+.wide small{display:block;color:var(--muted);font-size:12.5px;font-weight:400;margin-top:3px;line-height:1.6}
+.heatmap table{min-width:860px}
+.heatmap thead th.req{text-align:center}
+.heatmap thead th.req small{font-weight:400}
+.heatmap tbody th{font-weight:500;line-height:1.55;min-width:300px}
+.heatmap .cid{display:block;font-size:12px;color:var(--muted);font-weight:400}
+.heatmap tbody th,.heatmap tbody td{vertical-align:middle}
+.heatmap td.who{font-size:13px;color:var(--muted);white-space:nowrap}
+.heatmap td.s5,.heatmap td.s4,.heatmap td.s3,.heatmap td.na,.heatmap td.rv,.heatmap td.st{text-align:center;vertical-align:middle;font-weight:600;white-space:nowrap}
+.heatmap td.na,.heatmap td.rv,.heatmap td.st{font-weight:400;font-size:13px}
+.heatmap tr.hm-group th{background:var(--bg);color:var(--blue);font-size:13px;font-weight:600;padding:10px 14px}
+.heatmap tfoot td,.heatmap tfoot th{border-top:2px solid var(--line);border-bottom:0;font-weight:600;text-align:center}
+.heatmap tfoot th{text-align:left}
+.wide .num{font-variant-numeric:tabular-nums;white-space:nowrap}
+.tag-ok{color:var(--blue);font-weight:600}.tag-miss{color:var(--amber);font-weight:600}.tag-wait{color:var(--muted)}
+.callout{margin:22px 0;padding:20px 24px;border-left:3px solid var(--amber);background:var(--surface);font-size:15px;color:var(--text)}
+.callout b{color:#fff}
+@media(max-width:760px){.legend{grid-template-columns:1fr}}
+</style>
+</head>
+<body class="portfolio-story">
+<a class="skip" href="#main">본문 바로가기</a>
+<nav class="pf-bar" aria-label="포트폴리오 메뉴" style="--pf-w:1100px"><div class="pf-bar-in"><a class="pf-brand" href="../../qa-agent-pipeline/main.html">OH SEHOON · QA</a><div class="pf-links"><a href="../../qa-agent-pipeline/main.html">메인</a><a href="../../qa-agent-pipeline-v2/project.html">프로젝트1</a><a href="index.html" aria-current="page">프로젝트2</a><a href="../../qa-agent-pipeline/main.html#contact">Contact</a></div></div></nav>
+<main id="main" class="shell">
+<header class="story-hero">
+<p class="eyebrow">프로젝트2 · 기준별 점수표</p>
+<h1>26개 기준으로 본 대표 요청 5개</h1>
+<p class="story-lead">각 요청을 어떤 기준으로, 몇 점을 받았는지 한 표로 정리했습니다.</p>
+<p>기준은 네 역할(요구사항 분석·시험 설계·자동 실행·결과 보고)별 20개, 공통 2개, 단계 연결 4개입니다. 기준 이름은 실제 평가에서 묻는 내용을 쉬운 말로 풀었습니다.</p>
+<div class="legend">
+<div><h2>점수 읽는 법 · 0~5점</h2><dl>
+<dt><span class="chip s5">5</span></dt><dd>통과 조건과 필요한 근거를 모두 갖춤</dd>
+<dt><span class="chip s4">4</span></dt><dd>통과했지만 일부가 부족함</dd>
+<dt><span class="chip s3">3 이하</span></dt><dd>필요한 내용 일부가 빠지거나 틀림(실패로 판정)</dd>
+<dt><span class="chip na">해당 없음</span></dt><dd>그 실행에서 다룰 일이 없던 기준. 점수를 주지 않음</dd>
+<dt><span class="chip rv">보류</span></dt><dd>근거가 부족하거나 아직 판정하지 않아 사람 확인으로 넘김</dd>
+</dl></div>
+<div><h2>누가 판단했나</h2><dl>
+<dt><span class="who-chip">프로그램</span></dt><dd>개수·값·기록 대조처럼 셀 수 있는 기준. 같은 입력이면 항상 같은 결과</dd>
+<dt><span class="who-chip">AI</span></dt><dd>뜻이 맞는지 읽어야 하는 기준. 생성 AI와 다른 회사 모델로 채점</dd>
+<dt><span class="who-chip">사람</span></dt><dd>정답 기준을 정하고, AI 점수가 맞는지 다시 판단</dd>
+</dl></div>
+</div>
+</header>
+<section id="latest" class="story-section" style="border-top:0;padding-top:12px">
+<p class="eyebrow">점수표</p><h2 id="criteria">대표 요청 5개 × 26개 기준</h2>
+<p class="section-intro">기능별로 하나씩 고른 대표 요청을 실제 AI로 분석부터 보고까지 실행하고, 같은 기준으로 평가했습니다. 정답 기준은 실행 전에 사람이 정해 두었습니다.</p>
+<div class="wide heatmap" role="region" aria-label="대표 요청별 26개 기준 점수표" tabindex="0">
+<table>
+<thead><tr><th scope="col">평가 기준</th><th scope="col">판단</th><th scope="col" class="req">잠금<small>질문 후 멈춤</small></th><th scope="col" class="req">전원<small>완주·통과</small></th><th scope="col" class="req">풍량<small>완주·통과</small></th><th scope="col" class="req">모드<small>완주·통과</small></th><th scope="col" class="req">온도<small>완주·불일치 보고</small></th></tr></thead>
+<tbody>
+<tr class="hm-group"><th colspan="7" scope="rowgroup">공통</th></tr>
+<tr><th scope="row"><span class="cid">C01</span>필요한 자료를 받아 출처까지 연결했는가</th><td class="who">AI</td><td class="rv">보류</td><td class="s5">5</td><td class="s5">5</td><td class="s5">5</td><td class="s5">5</td></tr>
+<tr><th scope="row"><span class="cid">C02</span>맡은 역할을 넘는 지시를 따르지 않았는가</th><td class="who">AI</td><td class="rv">보류</td><td class="na">해당 없음</td><td class="na">해당 없음</td><td class="na">해당 없음</td><td class="na">해당 없음</td></tr>
+<tr class="hm-group"><th colspan="7" scope="rowgroup">Agent 1 · 요구사항 분석</th></tr>
+<tr><th scope="row"><span class="cid">A1-01</span>바뀌는 조건과 유지할 조건, 원문 값을 그대로 지켰는가</th><td class="who">AI</td><td class="s5">5</td><td class="s5">5</td><td class="s5">5</td><td class="s5">5</td><td class="s5">5</td></tr>
+<tr><th scope="row"><span class="cid">A1-02</span>빠진 정보를 추측하지 않고 구분했는가</th><td class="who">AI</td><td class="s5">5</td><td class="s5">5</td><td class="s5">5</td><td class="s5">5</td><td class="s5">5</td></tr>
+<tr><th scope="row"><span class="cid">A1-03</span>영향 범위를 정하고, 진행할 범위를 알맞게 나눴는가</th><td class="who">AI</td><td class="s5">5</td><td class="s5">5</td><td class="s5">5</td><td class="s5">5</td><td class="s5">5</td></tr>
+<tr><th scope="row"><span class="cid">A1-04</span>인용한 근거가 실제로 그 뜻인가</th><td class="who">AI</td><td class="s5">5</td><td class="s5">5</td><td class="s5">5</td><td class="s5">5</td><td class="s5">5</td></tr>
+<tr class="hm-group"><th colspan="7" scope="rowgroup">Agent 2 · 시험 설계</th></tr>
+<tr><th scope="row"><span class="cid">A2-01</span>기존 TC 재사용·고쳐 쓰기·새로 만들기를 맞게 골랐는가</th><td class="who">AI</td><td class="st">멈춤</td><td class="s5">5</td><td class="s5">5</td><td class="s5">5</td><td class="s5">5</td></tr>
+<tr><th scope="row"><span class="cid">TC-R01</span>시험 대상과 시작 상태, 준비가 분명한가</th><td class="who">AI</td><td class="st">멈춤</td><td class="s5">5</td><td class="s5">5</td><td class="s5">5</td><td class="s5">5</td></tr>
+<tr><th scope="row"><span class="cid">TC-R02</span>다른 사람이 같은 순서로 따라 할 수 있는가</th><td class="who">AI</td><td class="st">멈춤</td><td class="s5">5</td><td class="s5">5</td><td class="s5">5</td><td class="s5">5</td></tr>
+<tr><th scope="row"><span class="cid">TC-R03</span>언제 확인하는지가 조작과 이어져 있는가</th><td class="who">AI</td><td class="st">멈춤</td><td class="s5">5</td><td class="s5">5</td><td class="s5">5</td><td class="s5">5</td></tr>
+<tr><th scope="row"><span class="cid">TC-R04</span>어디서 무슨 값을 볼지 구체적인가</th><td class="who">AI</td><td class="st">멈춤</td><td class="s5">5</td><td class="s5">5</td><td class="s5">5</td><td class="s5">5</td></tr>
+<tr><th scope="row"><span class="cid">TC-R05</span>요청 범위의 정답 시험이 다 있는가</th><td class="who">프로그램</td><td class="st">멈춤</td><td class="s5">5</td><td class="s5">5</td><td class="s5">5</td><td class="s4">4</td></tr>
+<tr><th scope="row"><span class="cid">TC-R06</span>TC와 SRS 수정안이 요구사항에 근거하는가</th><td class="who">AI</td><td class="st">멈춤</td><td class="s5">5</td><td class="s5">5</td><td class="s5">5</td><td class="s5">5</td></tr>
+<tr><th scope="row"><span class="cid">TC-R07</span>시험 뒤 원래 상태로 돌아왔는지 확인하는가</th><td class="who">AI</td><td class="st">멈춤</td><td class="s5">5</td><td class="s5">5</td><td class="s5">5</td><td class="s3">3</td></tr>
+<tr class="hm-group"><th colspan="7" scope="rowgroup">Agent 3 · 자동 실행</th></tr>
+<tr><th scope="row"><span class="cid">A3-01</span>TC의 조작과 판정을 실행 계획이 바꾸지 않았는가</th><td class="who">AI</td><td class="st">멈춤</td><td class="s5">5</td><td class="s5">5</td><td class="s5">5</td><td class="s5">5</td></tr>
+<tr><th scope="row"><span class="cid">A3-02</span>맞는 화면 요소와 동작을 골랐는가</th><td class="who">AI</td><td class="st">멈춤</td><td class="s5">5</td><td class="s5">5</td><td class="s5">5</td><td class="s5">5</td></tr>
+<tr><th scope="row"><span class="cid">A3-03</span>계획한 검사가 실제 기록과 같은가</th><td class="who">프로그램</td><td class="st">멈춤</td><td class="s5">5</td><td class="s5">5</td><td class="s5">5</td><td class="s5">5</td></tr>
+<tr><th scope="row"><span class="cid">A3-04</span>실제로 한 것만 완료라고 했는가</th><td class="who">AI</td><td class="st">멈춤</td><td class="s5">5</td><td class="s5">5</td><td class="s5">5</td><td class="s5">5</td></tr>
+<tr class="hm-group"><th colspan="7" scope="rowgroup">Agent 4 · 결과 보고</th></tr>
+<tr><th scope="row"><span class="cid">A4-01</span>결과 개수를 원본대로 셌는가</th><td class="who">프로그램</td><td class="st">멈춤</td><td class="s5">5</td><td class="s5">5</td><td class="s5">5</td><td class="s5">5</td></tr>
+<tr><th scope="row"><span class="cid">A4-02</span>실패 원인을 증거대로 분류했는가</th><td class="who">AI</td><td class="st">멈춤</td><td class="na">해당 없음</td><td class="na">해당 없음</td><td class="na">해당 없음</td><td class="s5">5</td></tr>
+<tr><th scope="row"><span class="cid">A4-03</span>보고한 결과마다 근거를 따라갈 수 있는가</th><td class="who">프로그램</td><td class="st">멈춤</td><td class="s5">5</td><td class="s5">5</td><td class="s5">5</td><td class="s5">5</td></tr>
+<tr><th scope="row"><span class="cid">A4-04</span>확인 못 한 것과 다음 할 일을 빠뜨리지 않았는가</th><td class="who">AI</td><td class="st">멈춤</td><td class="s5">5</td><td class="s5">5</td><td class="s5">5</td><td class="s5">5</td></tr>
+<tr class="hm-group"><th colspan="7" scope="rowgroup">단계 연결 · 최종 판정 전</th></tr>
+<tr><th scope="row"><span class="cid">E01</span>요청 조건이 실제 시험까지 이어졌는가</th><td class="who">미정</td><td class="rv">보류</td><td class="rv">보류</td><td class="rv">보류</td><td class="rv">보류</td><td class="rv">보류</td></tr>
+<tr><th scope="row"><span class="cid">E02</span>빠진 정보가 다음 단계에서 사라지지 않았는가</th><td class="who">미정</td><td class="rv">보류</td><td class="rv">보류</td><td class="rv">보류</td><td class="rv">보류</td><td class="rv">보류</td></tr>
+<tr><th scope="row"><span class="cid">E03</span>실패·질문이 보고까지 전달됐는가</th><td class="who">미정</td><td class="rv">보류</td><td class="rv">보류</td><td class="rv">보류</td><td class="rv">보류</td><td class="rv">보류</td></tr>
+<tr><th scope="row"><span class="cid">E04</span>사람 승인 전에 공식 자료가 바뀌지 않았는가</th><td class="who">프로그램</td><td class="rv">보류</td><td class="rv">보류</td><td class="rv">보류</td><td class="rv">보류</td><td class="rv">보류</td></tr>
+</tbody>
+<tfoot><tr><th scope="row">평가한 기준의 평균</th><td></td><td>5.0<small>4개</small></td><td>5.0<small>20개</small></td><td>5.0<small>20개</small></td><td>5.0<small>20개</small></td><td class="s3">4.86<small>21개</small></td></tr></tfoot>
+</table>
+</div>
+<div class="callout"><b>표에서 볼 곳</b><br>대부분 5점이지만 온도 요청에서 두 곳이 깎였습니다. <b>시험 뒤 원래 상태 확인(3점)</b>은 준비에서 바꾼 운전 모드의 복원 확인이 빠진 것으로, 원인을 찾아 프로젝트1을 고쳤습니다(<a href="index.html#case-restore">사례 2</a>). <b>정답 시험(4점)</b>은 이 실행 뒤 사람이 요청서를 다듬으면서 "난방 16°C 설정"이 정답 시험에 들어갔기 때문입니다. 새 정답표로 다시 계산하면 이 시험 하나가 빠져 있습니다.</div>
+<p class="scope-note">잠금 요청은 정해지지 않은 조건을 질문하고 분석 단계에서 멈추는 것이 정답이라, 이후 단계 기준은 '멈춤'으로 표시했습니다. 단계 연결 기준 4개는 아직 최종 판정을 하지 않았습니다. 대부분 5점이라는 것만으로 잘했다고 단정하지 않기 위해, 설계 기준 12개는 사람이 다시 판단했습니다. <a href="report.html#human">사람 대조 결과 →</a></p>
+</section>
+
+<footer class="story-footer"><a href="../../qa-agent-pipeline/main.html">메인 포트폴리오 ←</a><a href="index.html">프로젝트2 소개</a><a href="report.html">평가 결과와 근거 →</a></footer>
+</main></body></html>

@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="프로젝트1 대표 요청 5개의 기준별 평가, 반복 확인, 사람 대조, 채점 모델 비교와 개선 기록.">
+<title>프로젝트2 · 평가 결과와 근거</title>
+<link rel="stylesheet" href="style.css"><link rel="stylesheet" href="story.css">
+<style id="pf-bar-style">
+/* 프로젝트 페이지 메뉴 막대: 프로젝트 색(푸른 검정·파랑). 메인은 주황 */
+.pf-bar{position:sticky;top:0;z-index:60;background:rgba(8,12,19,.94);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-bottom:1px solid #1c2533;font-family:Pretendard,"Noto Sans KR",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.pf-bar-in{width:min(var(--pf-w,1100px),calc(100% - 48px));margin:0 auto;height:62px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.pf-brand{color:#dce6f3;font-size:13px;font-weight:800;letter-spacing:.02em;text-decoration:none;white-space:nowrap}
+.pf-brand:hover{text-decoration:none;color:#dce6f3}
+.pf-links{display:flex;gap:22px;font-size:12px;line-height:1}
+.pf-links a{color:#94a3b8;text-decoration:none;white-space:nowrap;padding:6px 0;border-bottom:2px solid transparent}
+.pf-links a:hover{color:#dce6f3;text-decoration:none}
+.pf-links a[aria-current="page"]{color:#dce6f3;border-bottom-color:#58a6ff}
+@media(max-width:640px){.pf-bar-in{width:calc(100% - 28px);height:54px}.pf-brand{font-size:12px}.pf-links{gap:14px;font-size:11px}}
+</style>
+<style id="report-story">
+/* 보고서: 소개 페이지와 같은 글꼴·색, 표는 가로 스크롤 */
+/* 메인·프로젝트1과 같은 글자 크기 */
+.portfolio-story p{font-size:14px;line-height:1.85}
+.portfolio-story .section-intro{font-size:14px}
+.portfolio-story .story-lead{font-size:16px}
+.story-section h2{font-weight:700}
+.story-section h3{font-size:16px}
+.portfolio-story .scope-note{font-size:12.5px}
+.legend{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin:30px 0 6px}
+.legend>div{padding:20px 22px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+.legend h2{font-size:15px!important;margin:0 0 12px!important;color:#fff}
+.legend dl{display:grid;grid-template-columns:auto 1fr;gap:8px 14px;margin:0;font-size:14px;align-items:center}
+.legend dd{margin:0;color:var(--muted)}
+.chip{display:inline-block;min-width:64px;text-align:center;padding:3px 8px;border-radius:5px;font-size:13px;font-weight:600}
+.s5,.chip.s5{background:rgba(88,166,255,.16);color:var(--blue)}
+.s4,.chip.s4{background:rgba(88,166,255,.07);color:#9cc8ff}
+.s3,.chip.s3{background:rgba(239,192,119,.16);color:var(--amber)}
+.na,.chip.na{color:var(--muted)}
+.rv,.chip.rv{color:var(--muted);outline:1px dashed var(--line);outline-offset:-4px}
+.st,.chip.st{color:#5f6b7d}
+.who-chip{font-size:13px;color:var(--text)}
+.wide{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface);margin:22px 0 10px}
+.wide table{border-collapse:collapse;width:100%;font-size:14px}
+.wide th,.wide td{padding:12px 14px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top;color:var(--text)}
+.wide thead th{font-size:13px;color:var(--muted);font-weight:600;background:var(--bg);white-space:nowrap}
+.wide tbody tr:last-child>*{border-bottom:0}
+.wide small{display:block;color:var(--muted);font-size:12.5px;font-weight:400;margin-top:3px;line-height:1.6}
+.heatmap table{min-width:860px}
+.heatmap thead th.req{text-align:center}
+.heatmap thead th.req small{font-weight:400}
+.heatmap tbody th{font-weight:500;line-height:1.55;min-width:300px}
+.heatmap .cid{display:block;font-size:12px;color:var(--muted);font-weight:400}
+.heatmap tbody th,.heatmap tbody td{vertical-align:middle}
+.heatmap td.who{font-size:13px;color:var(--muted);white-space:nowrap}
+.heatmap td.s5,.heatmap td.s4,.heatmap td.s3,.heatmap td.na,.heatmap td.rv,.heatmap td.st{text-align:center;vertical-align:middle;font-weight:600;white-space:nowrap}
+.heatmap td.na,.heatmap td.rv,.heatmap td.st{font-weight:400;font-size:13px}
+.heatmap tr.hm-group th{background:var(--bg);color:var(--blue);font-size:13px;font-weight:600;padding:10px 14px}
+.heatmap tfoot td,.heatmap tfoot th{border-top:2px solid var(--line);border-bottom:0;font-weight:600;text-align:center}
+.heatmap tfoot th{text-align:left}
+.wide .num{font-variant-numeric:tabular-nums;white-space:nowrap}
+.tag-ok{color:var(--blue);font-weight:600}.tag-miss{color:var(--amber);font-weight:600}.tag-wait{color:var(--muted)}
+.callout{margin:22px 0;padding:20px 24px;border-left:3px solid var(--amber);background:var(--surface);font-size:15px;color:var(--text)}
+.callout b{color:#fff}
+@media(max-width:760px){.legend{grid-template-columns:1fr}}
+.score-summary{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin:24px 0 8px}
+.score-summary div{padding:18px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+.score-summary span{display:block;font-size:14px;color:var(--muted)}
+.score-summary b{display:block;margin:4px 0;font-size:30px;line-height:1.2;color:var(--blue);font-variant-numeric:tabular-nums}
+.score-summary div.warn{border-color:var(--amber)}
+.score-summary div.warn b{color:var(--amber)}
+.score-summary small{font-size:12.5px;color:var(--muted);line-height:1.6}
+@media(max-width:860px){.score-summary{grid-template-columns:repeat(2,minmax(0,1fr))}}
+</style>
+</head>
+<body class="portfolio-story">
+<a class="skip" href="#main">본문 바로가기</a>
+<nav class="pf-bar" aria-label="포트폴리오 메뉴" style="--pf-w:1100px"><div class="pf-bar-in"><a class="pf-brand" href="../../qa-agent-pipeline/main.html">OH SEHOON · QA</a><div class="pf-links"><a href="../../qa-agent-pipeline/main.html">메인</a><a href="../../qa-agent-pipeline-v2/project.html">프로젝트1</a><a href="index.html" aria-current="page">프로젝트2</a><a href="../../qa-agent-pipeline/main.html#contact">Contact</a></div></div></nav>
+<main id="main" class="shell">
+<header class="story-hero">
+<p class="eyebrow">프로젝트2 · 상세 근거</p>
+<h1>평가 결과와 근거</h1>
+<p class="story-lead">소개 페이지의 결과를 자세히 보여 주는 페이지입니다.</p>
+<p>대표 요청 5개의 평가 점수, 같은 요청을 반복했을 때의 결과, 사람이 다시 확인한 내용, 개선 기록 순서로 정리했습니다.</p>
+<div class="legend">
+<div><h2>점수 읽는 법 · 0~5점</h2><dl>
+<dt><span class="chip s5">5</span></dt><dd>통과 조건과 필요한 근거를 모두 갖춤</dd>
+<dt><span class="chip s4">4</span></dt><dd>통과했지만 일부가 부족함</dd>
+<dt><span class="chip s3">3 이하</span></dt><dd>필요한 내용 일부가 빠지거나 틀림(실패로 판정)</dd>
+<dt><span class="chip na">해당 없음</span></dt><dd>그 실행에서 다룰 일이 없던 기준. 점수를 주지 않음</dd>
+<dt><span class="chip rv">보류</span></dt><dd>근거가 부족하거나 아직 판정하지 않아 사람 확인으로 넘김</dd>
+</dl></div>
+<div><h2>누가 판단했나</h2><dl>
+<dt><span class="who-chip">프로그램</span></dt><dd>개수·값·기록 대조처럼 셀 수 있는 기준. 같은 입력이면 항상 같은 결과</dd>
+<dt><span class="who-chip">AI</span></dt><dd>뜻이 맞는지 읽어야 하는 기준. 생성 AI와 다른 회사 모델로 채점</dd>
+<dt><span class="who-chip">사람</span></dt><dd>정답 기준을 정하고, AI 점수가 맞는지 다시 판단</dd>
+</dl></div>
+</div>
+<nav class="story-nav" aria-label="페이지 안내"><a href="#latest">평가 점수</a><a href="#repeat">반복 확인</a><a href="#human">사람 대조</a><a href="#improvements">개선 기록</a></nav>
+</header>
+
+<section id="latest" class="story-section">
+<p class="eyebrow">01 · 평가 점수</p><h2>대표 요청 5개의 평균 점수</h2>
+<p class="section-intro">기능별로 하나씩 고른 대표 요청을 실제 AI로 실행하고 26개 기준으로 평가했습니다. 대부분 5점이었고, 온도 요청에서 두 기준이 깎였습니다.</p>
+<div class="score-summary">
+<div><span>잠금</span><b>5.0</b><small>질문 후 멈춤 · 4개 기준</small></div>
+<div><span>전원</span><b>5.0</b><small>완주·통과 · 20개 기준</small></div>
+<div><span>풍량</span><b>5.0</b><small>완주·통과 · 20개 기준</small></div>
+<div><span>모드</span><b>5.0</b><small>완주·통과 · 20개 기준</small></div>
+<div class="warn"><span>온도</span><b>4.86</b><small>복원 확인 3점 · 정답 시험 4점</small></div>
+</div>
+<p class="scope-note">5점이 많다고 잘했다고 단정하지 않으려고, TC 관련 기준 12개는 사람이 다시 확인했습니다(03 사람 대조).</p>
+</section>
+
+<section id="repeat" class="story-section">
+<p class="eyebrow">02 · 반복 확인</p><h2>같은 요청을 다시 넣어도 같은 설계가 나오는가</h2>
+<p class="section-intro">AI는 같은 입력에도 매번 다른 답을 낼 수 있습니다. 분석 결과는 그대로 두고, 결과가 가장 많이 달라지는 TC 설계 단계만 요청별로 3번씩 다시 실행해 비교했습니다.</p>
+<div class="wide" role="region" aria-label="시험 설계 반복 결과" tabindex="0">
+<table style="min-width:720px">
+<thead><tr><th scope="col">요청</th><th scope="col">설계 검사</th><th scope="col">기존 TC 처리</th><th scope="col">다시 쓴 횟수</th><th scope="col">대조에서 나온 문제</th></tr></thead>
+<tbody>
+<tr><th scope="row">전원</th><td class="num">3번 모두 통과</td><td>3번 모두 새로 만들기<small>정답</small></td><td class="num">0</td><td class="tag-ok">없음</td></tr>
+<tr><th scope="row">풍량</th><td class="num">3번 모두 통과</td><td>3번 모두 기존 TC 고쳐 쓰기<small>정답</small></td><td class="num">0</td><td class="tag-ok">없음</td></tr>
+<tr><th scope="row">모드</th><td class="num">3번 모두 통과</td><td>3번 모두 기존 TC 고쳐 쓰기<small>정답</small></td><td class="num">2</td><td class="tag-ok">없음</td></tr>
+<tr><th scope="row">온도 · 고치기 전</th><td class="num">3번 모두 통과</td><td>2번 고쳐 쓰기, 1번 새로 만들기</td><td class="num">2</td><td class="tag-miss">모드 복원 확인 3번 모두 누락</td></tr>
+<tr><th scope="row">온도 · 고친 뒤</th><td class="num">3번 모두 통과</td><td>3번 모두 기존 TC 고쳐 쓰기<small>정답</small></td><td class="num">1</td><td class="tag-ok">모드 복원 확인 3번 모두 포함</td></tr>
+</tbody></table>
+</div>
+<p class="scope-note"><strong>무엇을 대조했나:</strong> 설계 검사 통과, TC 개수, 기존 TC 처리, 화면 패널·장비 카드·내부값 세 곳 확인, 절차에 확인 문장이 섞였는지, 바꾼 값마다 복원 확인, 한자·일본 문자가 섞였는지. 다른 언어가 섞인 경우는 한 번도 없었습니다. 온도 요청은 전체 실행 2번을 더해 8번 모두 정답 시험 5개가 있었습니다.</p>
+<p class="scope-note"><strong>다시 쓴 횟수:</strong> 첫 TC가 자동 검사에 걸려 한 번 더 쓴 경우입니다. 모드·온도에서 6번 중 4번 있었고, 다시 쓴 TC는 모두 통과했습니다.</p>
+<p class="scope-note"><a href="scores.html">26개 기준별 점수표 보기 →</a></p>
+</section>
+
+<section id="human" class="story-section">
+<p class="eyebrow">03 · 사람 대조</p><h2>사람이 정한 정답과 AI의 판단을 비교했습니다.</h2>
+<h3 class="story-subhead">온도 범위 요청의 정답 시험</h3>
+<p>요청: 냉방은 20°C 아래로 내려가지 않게, 난방은 지금처럼 16°C까지. 실행 전에 사람이 정한 정답 시험 5개로, AI가 처음 만든 TC와 규칙을 넣은 뒤의 TC를 비교했습니다.</p>
+<div class="wide" role="region" aria-label="온도 범위 요청의 정답 시험 비교" tabindex="0">
+<table style="min-width:680px">
+<thead><tr><th scope="col">정답 시험</th><th scope="col">왜 필요한가</th><th scope="col">처음 TC</th><th scope="col">규칙 추가 후</th></tr></thead>
+<tbody>
+<tr><th scope="row">냉방 19°C 막힘</th><td>새 최저값 바로 아래가 막히는지</td><td class="tag-ok">있음</td><td class="tag-ok">있음</td></tr>
+<tr><th scope="row">냉방 20°C 설정</th><td>새 최저값이 실제로 설정되는지</td><td class="tag-miss">없음</td><td class="tag-ok">있음</td></tr>
+<tr><th scope="row">냉방 30°C 설정</th><td>최고값이 그대로 설정되는지</td><td class="tag-ok">있음</td><td class="tag-ok">있음</td></tr>
+<tr><th scope="row">냉방 31°C 막힘</th><td>최고값 바로 위가 막히는지</td><td class="tag-miss">없음</td><td class="tag-ok">있음</td></tr>
+<tr><th scope="row">난방 16°C 설정</th><td>냉방 변경이 난방에 영향을 주지 않았는지</td><td class="tag-ok">있음</td><td class="tag-ok">있음</td></tr>
+</tbody></table>
+</div>
+<p class="scope-note">처음 TC에는 프로젝트1의 검토 AI와 이 도구의 채점 AI가 모두 5점을 줬습니다. 지금은 이 기준을 프로그램이 정답표와 대조해 채점합니다. 개선 기록에는 "6개 중 3개"로 남아 있는데, 당시 정답표에 요청 범위 밖 항목 하나가 들어 있었기 때문입니다.</p>
+<h3 class="story-subhead">AI 점수가 사람과 달랐던 경우</h3>
+<p>처음 대조한 15개 중 4개가 달랐고, 모두 AI가 후하게 준 경우였습니다.</p>
+<div class="wide" role="region" aria-label="AI 점수와 사람 판단이 달랐던 유형" tabindex="0">
+<table style="min-width:720px">
+<thead><tr><th scope="col">유형</th><th scope="col">AI 점수</th><th scope="col">사람 판단</th><th scope="col">고친 것</th></tr></thead>
+<tbody>
+<tr><th scope="row">범위 양 끝 중 한쪽만 확인</th><td class="num">5</td><td>정답 시험 누락</td><td>사람이 정한 정답 시험 목록을 프로그램이 대조</td></tr>
+<tr><th scope="row">절차 한 줄에 조작과 확인을 함께 씀</th><td class="num">5</td><td>따라 하기 어려움</td><td>섞어 쓰면 3점 이하</td></tr>
+<tr><th scope="row">고쳐 쓸 기존 TC를 두고 새로 만듦</th><td class="num">5</td><td>재사용 판단 부족</td><td>고쳐 쓰기를 정답으로 명시</td></tr>
+<tr><th scope="row">그 실행에서 다룰 일이 없던 기준</th><td class="num">5</td><td>채점 대상 아님</td><td>'해당 없음'으로 처리</td></tr>
+</tbody></table>
+</div>
+<p class="scope-note">기준을 고친 뒤 대표 요청 4개(전원·풍량·모드·온도)에서 TC 관련 기준 12개(기존 TC 처리, 절차, 복원 확인)를 다시 비교했고, 모두 사람 판단과 같았습니다.</p>
+<details class="story-fold" id="models"><summary>채점 AI는 어떻게 골랐나</summary><div class="story-fold-body">
+<p>프로젝트1의 분석·설계는 OpenAI 모델이 합니다. 채점도 같은 회사 모델이 하면 같은 부분을 함께 놓칠 수 있어, 같은 자료를 두 회사 모델로 채점해 사람 판단 12개와 비교했습니다.</p>
+<div class="wide" role="region" aria-label="채점 모델 비교" tabindex="0">
+<table style="min-width:640px">
+<thead><tr><th scope="col">채점 모델</th><th scope="col">사람 판단과 일치</th><th scope="col">메모</th></tr></thead>
+<tbody>
+<tr><th scope="row">OpenAI gpt-6.1-sol</th><td class="num">12/12</td><td>생성 AI와 같은 회사</td></tr>
+<tr><th scope="row">Claude Sonnet 5.5 · 기본 설정</th><td class="num">11/12</td><td>모드 복원 누락을 놓침</td></tr>
+<tr><th scope="row">Claude Sonnet 5.5 · 깊게 생각하는 설정</th><td>놓친 항목도 맞춤</td><td>지금 쓰는 설정</td></tr>
+</tbody></table>
+</div>
+<p class="scope-note">Claude가 일부 기준에만 답하거나 이유를 한국어가 아닌 말로 쓰면 1번 다시 요청합니다. 비교한 항목이 12개로 적어 계속 확인하고 있습니다.</p>
+</div></details>
+</section>
+
+<section id="improvements" class="story-section">
+<p class="eyebrow">04 · 개선 기록</p><h2>찾은 문제를 같은 순서로 기록하고 고쳤습니다.</h2>
+<ol class="fix-steps">
+<li><b>발견 기록</b><span>어느 실행에서, 누가(AI 채점·프로그램·사람) 찾았는지 남깁니다.</span></li>
+<li><b>맞는 감점인지</b><span>원본과 대조해 평가자가 잘못 판단한 것이면 평가 도구를 고칩니다.</span></li>
+<li><b>재발 확인</b><span>한 번 나온 문제는 반복 실행으로 "4번 중 4번"처럼 횟수를 확인합니다.</span></li>
+<li><b>원인과 수정</b><span>AI 판단, 작성 지침, 데이터 형식·검사 코드 중 어디가 원인인지 찾아 고칩니다.</span></li>
+<li><b>다시 실행</b><span>합격 기준을 먼저 적고 다시 실행해 확인합니다. 고치기 전 기록은 지우지 않습니다.</span></li>
+</ol>
+<div class="wide" role="region" aria-label="주요 개선 기록" tabindex="0">
+<table style="min-width:760px">
+<thead><tr><th scope="col">문제</th><th scope="col">누가 찾았나</th><th scope="col">고친 것</th><th scope="col">확인</th></tr></thead>
+<tbody>
+<tr><th scope="row">범위가 바뀐 TC에서 정답 시험이 빠졌는데 AI가 모두 통과시킴</th><td>사람</td><td>사람 기준을 TC 작성 지침·코드 검사·정답 대조에 넣음</td><td class="tag-ok">8번 모두 충족</td></tr>
+<tr><th scope="row">AI 채점이 범위가 틀린 TC에 만점</th><td>사람</td><td>범위 기준은 사람이 정한 정답표로 프로그램이 채점</td><td class="tag-ok">같은 TC 5점 → 2점으로 바로잡힘</td></tr>
+<tr><th scope="row">AI 채점의 후한 점수 4가지 유형</th><td>사람</td><td>'해당 없음' 기준, 고쳐 쓰기 정답, 절차 기준 보완</td><td class="tag-ok">재대조 12개 모두 일치</td></tr>
+<tr><th scope="row">준비에서 바꾼 모드의 복원 확인 누락</th><td>AI 채점·프로그램·사람</td><td>프로젝트1 TC 형식에 칸을 추가하고, 빠지면 자동 검사에서 막음</td><td class="tag-ok">0/3 → 3/3</td></tr>
+<tr><th scope="row">사람이 읽는 문장에 중국어·일본어가 섞여도 통과</th><td>사람</td><td>분석·설계 모든 문장과 채점 이유까지 언어 검사</td><td class="tag-wait">저장된 결과로 확인 · 새 실행에서 확인 전</td></tr>
+<tr><th scope="row">온도 기존 TC를 고쳐 쓰지 않고 새로 만듦</th><td>프로그램</td><td>8번 중 1번이라 지켜보기로 결정</td><td class="tag-wait">관찰 중</td></tr>
+<tr><th scope="row">Claude 채점이 기준 일부에만 답함</th><td>프로그램</td><td>빠지면 1번 다시 요청</td><td class="tag-wait">재발 확인 전</td></tr>
+</tbody></table>
+</div>
+<p class="scope-note">전체 18건의 수정 전후 기록: <a href="https://github.com/SEHOOOOON/agent-evaluation-framework/blob/7a52a37/improvements/README.md">개선 기록 목록 ↗</a></p>
+</section>
+
+<footer class="story-footer"><a href="../../qa-agent-pipeline/main.html">메인 포트폴리오 ←</a><a href="index.html">프로젝트2 소개</a><a href="../../qa-agent-pipeline-v2/project.html">프로젝트1 보기 →</a></footer>
+</main></body></html>

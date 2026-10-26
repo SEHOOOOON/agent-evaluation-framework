@@ -1,0 +1,29 @@
+{
+ "case_id": "HEAT-RANGE-NARROWING",
+ "request": "examples/change_request.heat-range-narrowing.json",
+ "oracle": "full_flow.heat-range.oracle.json",
+ "generation_model": "gpt-6.1-sol",
+ "judge_model": "claude-sonnet-5-5",
+ "trials": 1,
+ "max_candidates": 3,
+ "generation_calls_per_trial": 10,
+ "generation_calls_total": 10,
+ "judge_calls_total": 4,
+ "trial_timeout_seconds": 1800,
+ "product_timeout_seconds": 90,
+ "range_key": "range_keys/heat-range-narrowing.json",
+ "expected_product_mismatches": [
+  {
+   "field": "setTemp",
+   "expected": 18,
+   "actual": 17,
+   "reason": "제품 미변경: 난방 하한 18°C가 아직 적용되지 않아 17°C로 내려감(실패 시나리오)"
+  },
+  {
+   "field": "setTemp",
+   "expected": 28,
+   "actual": 29,
+   "reason": "제품 미변경: 난방 상한 28°C가 아직 적용되지 않아 29°C로 올라감(실패 시나리오)"
+  }
+ ]
+}
