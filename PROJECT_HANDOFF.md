@@ -1,5 +1,7 @@
 # 프로젝트 2 현재 상태
 
+> GitHub에서 볼 때: 아래 작업 일지의 `runs/`·`evaluation-runs/`·저장소 밖 작업 폴더 링크는 로컬에만 있는 실행 증거라 GitHub에서는 열리지 않습니다. 공개된 평가 결과는 `portfolio/`와 `improvements/`에 있습니다.
+
 ## 요약 (2026-10-25 기준)
 
 아래 날짜별 기록은 작업 일지입니다. 처음 보는 경우 이 요약만 읽으면 됩니다.
@@ -17,7 +19,8 @@
 ## 2026-10-26 · 포트폴리오 공개 링크와 메뉴 막대 (API 0, 사용자 요청)
 
 - 소개·보고서·점수표의 메인 링크를 저장소 이름 기준(`../../qa-agent-pipeline/main.html`)으로 바꿈. 메뉴 막대는 프로젝트 색(파랑).
-- 이 저장소는 GitHub Pages가 꺼져 있어 포트폴리오 페이지가 공개 주소로 열리지 않음(켜는 것은 사용자 결정).
+- GitHub Pages를 켬(사용자 지시, main 루트): https://sehooooon.github.io/agent-evaluation-framework/portfolio/index.html. 공개 주소에서 메인↔P1↔P2·보고서·점수표 이동과 링크 67개 확인.
+- 정리: 옛 디자인 시안 `portfolio/v3/` → `archive/portfolio-v3-20261016/`, `portfolio/index.before-balance-20261011.html` → `archive/portfolio-backup/`(공개 주소에 옛 시안이 노출되지 않게). `tests/test_portfolio_v3.py` 경로 수정. `shared-nav.html`은 `tools/apply-cloud-work.ps1`이 쓰므로 유지.
 
 ## 2026-10-25 · 포트폴리오 소개·보고서 정리 (API 0, 사용자 요청)
 
