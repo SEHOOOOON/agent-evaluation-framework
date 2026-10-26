@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-V3 = Path(__file__).resolve().parents[1] / "portfolio/v3"
+V3 = Path(__file__).resolve().parents[1] / "archive/portfolio-v3-20261016"
 PAGES = ["index.html", "project1.html", "project2.html", "project2-report.html"]
 REPO = V3.parents[1]
 

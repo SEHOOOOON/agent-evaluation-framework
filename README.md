@@ -58,6 +58,11 @@ python -m eval_harness dashboard --port 8766
 
 대표 시나리오 5개(온도·모드·전원·풍량·잠금)의 실행 명세와 채점 정답 파일은 `benchmarks/v2/full_flow.*-rep.json`에 있습니다. 제품을 아직 바꾸지 않아 **실패가 나와야 정상**인 확인은 명세의 `expected_product_mismatches`에 미리 적어 두고, 예상대로 실패했는지를 따로 판정합니다.
 
+## 포트폴리오
+
+- [프로젝트 2 소개](https://sehooooon.github.io/agent-evaluation-framework/portfolio/index.html) · [평가 결과와 근거](https://sehooooon.github.io/agent-evaluation-framework/portfolio/report.html) · [기준별 점수표](https://sehooooon.github.io/agent-evaluation-framework/portfolio/scores.html) · [포트폴리오 메인](https://sehooooon.github.io/qa-agent-pipeline/main.html)
+- 옛 디자인 시안과 백업은 [archive/](archive/README.md)에 있습니다.
+
 ## 문서
 
 | 문서 | 내용 |
