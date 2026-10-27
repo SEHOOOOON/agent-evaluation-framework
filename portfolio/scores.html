@@ -70,9 +70,9 @@
 <main id="main" class="shell">
 <header class="story-hero">
 <p class="eyebrow">프로젝트2 · 기준별 점수표</p>
-<h1>26개 기준으로 본 대표 요청 5개</h1>
+<h1>해당하는 기준으로 본 대표 요청 5개</h1>
 <p class="story-lead">각 요청을 어떤 기준으로, 몇 점을 받았는지 한 표로 정리했습니다.</p>
-<p>기준은 네 역할(요구사항 분석·시험 설계·자동 실행·결과 보고)별 20개, 공통 2개, 단계 연결 4개입니다. 기준 이름은 실제 평가에서 묻는 내용을 쉬운 말로 풀었습니다.</p>
+<p>기준은 네 역할(요구사항 분석·시험 설계·자동 실행·결과 보고)별 20개, 공통 2개, 단계 연결 4개로 모두 26개이고, 요청마다 해당하는 기준만 채점했습니다. 기준 이름은 실제 평가에서 묻는 내용을 쉬운 말로 풀었습니다.</p>
 <div class="legend">
 <div><h2>점수 읽는 법 · 0~5점</h2><dl>
 <dt><span class="chip s5">5</span></dt><dd>통과 조건과 필요한 근거를 모두 갖춤</dd>
@@ -83,14 +83,14 @@
 </dl></div>
 <div><h2>누가 판단했나</h2><dl>
 <dt><span class="who-chip">프로그램</span></dt><dd>개수·값·기록 대조처럼 셀 수 있는 기준. 같은 입력이면 항상 같은 결과</dd>
-<dt><span class="who-chip">AI</span></dt><dd>뜻이 맞는지 읽어야 하는 기준. 생성 AI와 다른 회사 모델로 채점</dd>
-<dt><span class="who-chip">사람</span></dt><dd>정답 기준을 정하고, AI 점수가 맞는지 다시 판단</dd>
+<dt><span class="who-chip">AI</span></dt><dd>뜻이 맞는지 읽어야 하는 기준. 이 점수는 OpenAI gpt-6.1-sol(생성과 같은 모델)로 채점했고, 그 뒤 채점 모델을 Claude로 바꿈</dd>
+<dt><span class="who-chip">사람</span></dt><dd>필수 시험과 기대 결과를 정하고, AI 점수가 맞는지 다시 판단. 기준을 만든 본인 1명이 판단</dd>
 </dl></div>
 </div>
 </header>
 <section id="latest" class="story-section" style="border-top:0;padding-top:12px">
 <p class="eyebrow">점수표</p><h2 id="criteria">대표 요청 5개 × 26개 기준</h2>
-<p class="section-intro">기능별로 하나씩 고른 대표 요청을 실제 AI로 분석부터 보고까지 실행하고, 같은 기준으로 평가했습니다. 정답 기준은 실행 전에 사람이 정해 두었습니다.</p>
+<p class="section-intro">기능별로 하나씩 고른 대표 요청을 실제 AI로 분석부터 보고까지 실행하고 평가했습니다. 필수 시험과 기대 결과는 실행 전에 사람이 정해 두었고, AI가 판단하는 기준은 OpenAI gpt-6.1-sol(생성과 같은 모델)로 채점했습니다. 채점 모델은 그 뒤 Claude로 바꿨습니다. 단계 연결 기준 4개는 아직 판정 전이라 평균에서 뺐습니다.</p>
 <div class="wide heatmap" role="region" aria-label="대표 요청별 26개 기준 점수표" tabindex="0">
 <table>
 <thead><tr><th scope="col">평가 기준</th><th scope="col">판단</th><th scope="col" class="req">잠금<small>질문 후 멈춤</small></th><th scope="col" class="req">전원<small>완주·통과</small></th><th scope="col" class="req">풍량<small>완주·통과</small></th><th scope="col" class="req">모드<small>완주·통과</small></th><th scope="col" class="req">온도<small>완주·불일치 보고</small></th></tr></thead>
@@ -109,7 +109,7 @@
 <tr><th scope="row"><span class="cid">TC-R02</span>다른 사람이 같은 순서로 따라 할 수 있는가</th><td class="who">AI</td><td class="st">멈춤</td><td class="s5">5</td><td class="s5">5</td><td class="s5">5</td><td class="s5">5</td></tr>
 <tr><th scope="row"><span class="cid">TC-R03</span>언제 확인하는지가 조작과 이어져 있는가</th><td class="who">AI</td><td class="st">멈춤</td><td class="s5">5</td><td class="s5">5</td><td class="s5">5</td><td class="s5">5</td></tr>
 <tr><th scope="row"><span class="cid">TC-R04</span>어디서 무슨 값을 볼지 구체적인가</th><td class="who">AI</td><td class="st">멈춤</td><td class="s5">5</td><td class="s5">5</td><td class="s5">5</td><td class="s5">5</td></tr>
-<tr><th scope="row"><span class="cid">TC-R05</span>요청 범위의 정답 시험이 다 있는가</th><td class="who">프로그램</td><td class="st">멈춤</td><td class="s5">5</td><td class="s5">5</td><td class="s5">5</td><td class="s4">4</td></tr>
+<tr><th scope="row"><span class="cid">TC-R05</span>요청 범위의 필수 시험이 다 있는가</th><td class="who">프로그램</td><td class="st">멈춤</td><td class="s5">5</td><td class="s5">5</td><td class="s5">5</td><td class="s4">4</td></tr>
 <tr><th scope="row"><span class="cid">TC-R06</span>TC와 SRS 수정안이 요구사항에 근거하는가</th><td class="who">AI</td><td class="st">멈춤</td><td class="s5">5</td><td class="s5">5</td><td class="s5">5</td><td class="s5">5</td></tr>
 <tr><th scope="row"><span class="cid">TC-R07</span>시험 뒤 원래 상태로 돌아왔는지 확인하는가</th><td class="who">AI</td><td class="st">멈춤</td><td class="s5">5</td><td class="s5">5</td><td class="s5">5</td><td class="s3">3</td></tr>
 <tr class="hm-group"><th colspan="7" scope="rowgroup">Agent 3 · 자동 실행</th></tr>
@@ -128,11 +128,11 @@
 <tr><th scope="row"><span class="cid">E03</span>실패·질문이 보고까지 전달됐는가</th><td class="who">미정</td><td class="rv">보류</td><td class="rv">보류</td><td class="rv">보류</td><td class="rv">보류</td><td class="rv">보류</td></tr>
 <tr><th scope="row"><span class="cid">E04</span>사람 승인 전에 공식 자료가 바뀌지 않았는가</th><td class="who">프로그램</td><td class="rv">보류</td><td class="rv">보류</td><td class="rv">보류</td><td class="rv">보류</td><td class="rv">보류</td></tr>
 </tbody>
-<tfoot><tr><th scope="row">평가한 기준의 평균</th><td></td><td>5.0<small>4개</small></td><td>5.0<small>20개</small></td><td>5.0<small>20개</small></td><td>5.0<small>20개</small></td><td class="s3">4.86<small>21개</small></td></tr></tfoot>
+<tfoot><tr><th scope="row">평가한 기준의 평균</th><td></td><td>5.0<small>4개 · 분석만</small></td><td>5.0<small>20개</small></td><td>5.0<small>20개</small></td><td>5.0<small>20개</small></td><td class="s3">4.86<small>21개</small></td></tr></tfoot>
 </table>
 </div>
-<div class="callout"><b>표에서 볼 곳</b><br>대부분 5점이지만 온도 요청에서 두 곳이 깎였습니다. <b>시험 뒤 원래 상태 확인(3점)</b>은 준비에서 바꾼 운전 모드의 복원 확인이 빠진 것으로, 원인을 찾아 프로젝트1을 고쳤습니다(<a href="index.html#case-restore">사례 2</a>). <b>정답 시험(4점)</b>은 이 실행 뒤 사람이 요청서를 다듬으면서 "난방 16°C 설정"이 정답 시험에 들어갔기 때문입니다. 새 정답표로 다시 계산하면 이 시험 하나가 빠져 있습니다.</div>
-<p class="scope-note">잠금 요청은 정해지지 않은 조건을 질문하고 분석 단계에서 멈추는 것이 정답이라, 이후 단계 기준은 '멈춤'으로 표시했습니다. 단계 연결 기준 4개는 아직 최종 판정을 하지 않았습니다. 대부분 5점이라는 것만으로 잘했다고 단정하지 않기 위해, 설계 기준 12개는 사람이 다시 판단했습니다. <a href="report.html#human">사람 대조 결과 →</a></p>
+<div class="callout"><b>표에서 볼 곳</b><br>대부분 5점이지만 온도 요청에서 두 곳이 깎였습니다. <b>시험 뒤 원래 상태 확인(3점)</b>은 준비에서 바꾼 운전 모드의 복원 확인이 빠진 것으로, 원인을 찾아 프로젝트1을 고쳤습니다(<a href="index.html#case-restore">사례 2</a>). <b>필수 시험(4점)</b>은 필수 시험 5개는 모두 있었지만, 권장 시험(난방 31°C 막힘)이 없어 받은 점수입니다. 두 점수 모두 실행 당시 기준으로 채점한 그대로이고, 그 뒤 같은 온도 요청을 Claude로 채점한 실행에서도 같은 두 기준이 깎였습니다.</div>
+<p class="scope-note">잠금 요청은 정해지지 않은 조건을 질문하고 분석 단계에서 멈추는 것이 맞는 동작이라, 이후 단계 기준은 '멈춤'으로 표시했습니다. 단계 연결 기준 4개는 아직 최종 판정을 하지 않았습니다. 대부분 5점이라는 것만으로 잘했다고 단정하지 않기 위해, 설계 기준 12개는 사람이 다시 판단했습니다. <a href="report.html#human">사람 대조 결과 →</a></p>
 </section>
 
 <footer class="story-footer"><a href="../../qa-agent-pipeline/main.html">메인 포트폴리오 ←</a><a href="index.html">프로젝트2 소개</a><a href="report.html">평가 결과와 근거 →</a></footer>

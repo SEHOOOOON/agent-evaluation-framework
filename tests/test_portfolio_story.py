@@ -68,16 +68,17 @@ def test_scores_page_lists_all_26_criteria_for_five_requests():
 def test_intro_and_report_scores_agree():
     home = _read("index.html")
     report = _read("report.html")
-    intro = re.findall(r'<td><b(?: class="scenario-warning")?>([0-9.]+)</b>', home)
-    summary = re.findall(r'<div(?: class="warn")?><span>[^<]+</span><b>([0-9.]+)</b>', report)
-    assert intro == summary == ["5.0", "5.0", "5.0", "5.0", "4.86"]
+    # 2026-10-27: 잠금은 분석 단계까지만 평가해 평균 대신 충족 수(4/4)로 표시한다.
+    intro = re.findall(r'<td><b(?: class="scenario-warning")?>([0-9./]+)</b>', home)
+    summary = re.findall(r'<div(?: class="warn")?><span>[^<]+</span><b>([0-9./]+)</b>', report)
+    assert intro == summary == ["4/4", "5.0", "5.0", "5.0", "4.86"]
 
 
 def test_intro_keeps_core_cases_and_limits():
     text = _read("index.html")
-    for phrase in ("정답 시험 5개 중 3개", "8번 모두 5개", "4번 모두 빠짐", "3번 모두 포함",
-                   "다시 비교한 12개는 모두 같았습니다", "점수만으로 합격을 정하지 않습니다",
-                   "이 누락은 사람이 먼저 찾았고"):
+    for phrase in ("필수 시험 5개 중 3개", "8번 모두 5개", "4번 모두 빠짐", "3번 모두 포함",
+                   "12개를 다시 비교했고, 모두 같았습니다", "점수만으로 합격을 정하지 않습니다",
+                   "이 누락은 사람이 실행 결과를 검토하다 먼저 찾았고"):
         assert phrase in text, phrase
     assert text.count('class="by"') == 4
 

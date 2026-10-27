@@ -91,8 +91,8 @@
 </dl></div>
 <div><h2>누가 판단했나</h2><dl>
 <dt><span class="who-chip">프로그램</span></dt><dd>개수·값·기록 대조처럼 셀 수 있는 기준. 같은 입력이면 항상 같은 결과</dd>
-<dt><span class="who-chip">AI</span></dt><dd>뜻이 맞는지 읽어야 하는 기준. 생성 AI와 다른 회사 모델로 채점</dd>
-<dt><span class="who-chip">사람</span></dt><dd>정답 기준을 정하고, AI 점수가 맞는지 다시 판단</dd>
+<dt><span class="who-chip">AI</span></dt><dd>뜻이 맞는지 읽어야 하는 기준. 이 점수는 OpenAI gpt-6.1-sol(생성과 같은 모델)로 채점했고, 그 뒤 채점 모델을 Claude로 바꿈</dd>
+<dt><span class="who-chip">사람</span></dt><dd>필수 시험과 기대 결과를 정하고, AI 점수가 맞는지 다시 판단. 기준을 만든 본인 1명이 판단</dd>
 </dl></div>
 </div>
 <nav class="story-nav" aria-label="페이지 안내"><a href="#latest">평가 점수</a><a href="#repeat">반복 확인</a><a href="#human">사람 대조</a><a href="#improvements">개선 기록</a></nav>
@@ -100,43 +100,44 @@
 
 <section id="latest" class="story-section">
 <p class="eyebrow">01 · 평가 점수</p><h2>대표 요청 5개의 평균 점수</h2>
-<p class="section-intro">기능별로 하나씩 고른 대표 요청을 실제 AI로 실행하고 26개 기준으로 평가했습니다. 대부분 5점이었고, 온도 요청에서 두 기준이 깎였습니다.</p>
+<p class="section-intro">기능별로 하나씩 고른 대표 요청을 실제 AI로 실행하고, 26개 기준 중 요청마다 해당하는 기준으로 평가했습니다. AI가 판단하는 기준은 OpenAI gpt-6.1-sol(생성과 같은 모델)로 채점했습니다. 채점 모델은 그 뒤 Claude로 바꿨습니다. 대부분 5점이었고, 온도 요청에서 두 기준이 깎였습니다.</p>
 <div class="score-summary">
-<div><span>잠금</span><b>5.0</b><small>질문 후 멈춤 · 4개 기준</small></div>
+<div><span>잠금</span><b>4/4</b><small>분석 기준 충족 · 이후 단계 미실행</small></div>
 <div><span>전원</span><b>5.0</b><small>완주·통과 · 20개 기준</small></div>
 <div><span>풍량</span><b>5.0</b><small>완주·통과 · 20개 기준</small></div>
 <div><span>모드</span><b>5.0</b><small>완주·통과 · 20개 기준</small></div>
-<div class="warn"><span>온도</span><b>4.86</b><small>복원 확인 3점 · 정답 시험 4점</small></div>
+<div class="warn"><span>온도</span><b>4.86</b><small>복원 확인 3점 · 필수 시험 4점</small></div>
 </div>
-<p class="scope-note">5점이 많다고 잘했다고 단정하지 않으려고, TC 관련 기준 12개는 사람이 다시 확인했습니다(03 사람 대조).</p>
+<p class="scope-note">5점이 많다고 잘했다고 단정하지 않으려고, TC 관련 기준 12개는 사람이 다시 확인했습니다(03 사람 대조). 단계 연결 기준 4개는 아직 판정 전이라 평균에서 뺐습니다.</p>
 </section>
 
 <section id="repeat" class="story-section">
-<p class="eyebrow">02 · 반복 확인</p><h2>같은 요청을 다시 넣어도 같은 설계가 나오는가</h2>
-<p class="section-intro">AI는 같은 입력에도 매번 다른 답을 낼 수 있습니다. 분석 결과는 그대로 두고, 결과가 가장 많이 달라지는 TC 설계 단계만 요청별로 3번씩 다시 실행해 비교했습니다.</p>
+<p class="eyebrow">02 · 반복 확인</p><h2>같은 요청을 반복해도 필수 설계 조건을 지키는가</h2>
+<p class="section-intro">AI는 같은 입력에도 매번 다른 답을 낼 수 있습니다. 분석 결과는 그대로 두고, 결과가 달라지기 쉬운 TC 설계 단계만 요청별로 3번씩 다시 실행해 비교했습니다.</p>
 <div class="wide" role="region" aria-label="시험 설계 반복 결과" tabindex="0">
 <table style="min-width:720px">
-<thead><tr><th scope="col">요청</th><th scope="col">설계 검사</th><th scope="col">기존 TC 처리</th><th scope="col">다시 쓴 횟수</th><th scope="col">대조에서 나온 문제</th></tr></thead>
+<thead><tr><th scope="col">요청</th><th scope="col">당시 자동 검사</th><th scope="col">기존 TC 처리</th><th scope="col">첫 TC가 막힌 횟수</th><th scope="col">대조에서 나온 문제</th></tr></thead>
 <tbody>
-<tr><th scope="row">전원</th><td class="num">3번 모두 통과</td><td>3번 모두 새로 만들기<small>정답</small></td><td class="num">0</td><td class="tag-ok">없음</td></tr>
-<tr><th scope="row">풍량</th><td class="num">3번 모두 통과</td><td>3번 모두 기존 TC 고쳐 쓰기<small>정답</small></td><td class="num">0</td><td class="tag-ok">없음</td></tr>
-<tr><th scope="row">모드</th><td class="num">3번 모두 통과</td><td>3번 모두 기존 TC 고쳐 쓰기<small>정답</small></td><td class="num">2</td><td class="tag-ok">없음</td></tr>
+<tr><th scope="row">전원</th><td class="num">3번 모두 통과</td><td>3번 모두 새로 만들기<small>맞는 처리</small></td><td class="num">0</td><td class="tag-ok">없음</td></tr>
+<tr><th scope="row">풍량</th><td class="num">3번 모두 통과</td><td>3번 모두 기존 TC 고쳐 쓰기<small>맞는 처리</small></td><td class="num">0</td><td class="tag-ok">없음</td></tr>
+<tr><th scope="row">모드</th><td class="num">3번 모두 통과</td><td>3번 모두 기존 TC 고쳐 쓰기<small>맞는 처리</small></td><td class="num">2</td><td class="tag-ok">없음</td></tr>
 <tr><th scope="row">온도 · 고치기 전</th><td class="num">3번 모두 통과</td><td>2번 고쳐 쓰기, 1번 새로 만들기</td><td class="num">2</td><td class="tag-miss">모드 복원 확인 3번 모두 누락</td></tr>
-<tr><th scope="row">온도 · 고친 뒤</th><td class="num">3번 모두 통과</td><td>3번 모두 기존 TC 고쳐 쓰기<small>정답</small></td><td class="num">1</td><td class="tag-ok">모드 복원 확인 3번 모두 포함</td></tr>
+<tr><th scope="row">온도 · 고친 뒤</th><td class="num">3번 모두 통과</td><td>3번 모두 기존 TC 고쳐 쓰기<small>맞는 처리</small></td><td class="num">1</td><td class="tag-ok">모드 복원 확인 3번 모두 포함</td></tr>
 </tbody></table>
 </div>
-<p class="scope-note"><strong>무엇을 대조했나:</strong> 설계 검사 통과, TC 개수, 기존 TC 처리, 화면 패널·장비 카드·내부값 세 곳 확인, 절차에 확인 문장이 섞였는지, 바꾼 값마다 복원 확인, 한자·일본 문자가 섞였는지. 다른 언어가 섞인 경우는 한 번도 없었습니다. 온도 요청은 전체 실행 2번을 더해 8번 모두 정답 시험 5개가 있었습니다.</p>
-<p class="scope-note"><strong>다시 쓴 횟수:</strong> 첫 TC가 자동 검사에 걸려 한 번 더 쓴 경우입니다. 모드·온도에서 6번 중 4번 있었고, 다시 쓴 TC는 모두 통과했습니다.</p>
+<p class="scope-note"><strong>무엇을 대조했나:</strong> 당시 자동 검사 통과, TC 개수, 기존 TC 처리, 화면 패널·장비 카드·내부값 세 곳 확인, 절차에 확인 문장이 섞였는지, 바꾼 값마다 복원 확인, 한자·일본 문자가 섞였는지. 반복 실행 설계에서는 다른 언어가 섞인 경우가 없었습니다(중국어 제목은 점수표의 풍량 대표 실행에서 나왔고, 그 뒤 언어 검사를 넣었습니다). 온도 요청은 전체 실행 2번을 더해 8번 모두 필수 시험 5개가 있었습니다.</p>
+<p class="scope-note"><strong>당시 자동 검사:</strong> 그때의 프로젝트1 설계 검사입니다. 온도 고치기 전 3번은 이 검사를 통과했지만 모드 복원 확인이 빠져 있었고, 이 누락을 막는 검사는 그 뒤에 넣었습니다.</p>
+<p class="scope-note"><strong>첫 TC가 막힌 횟수:</strong> 첫 TC가 자동 검사에 걸려 한 번 더 쓴 경우입니다. 모드·온도(고치기 전)에서 6번 중 4번 있었고, 다시 쓴 TC는 모두 통과했습니다.</p>
 <p class="scope-note"><a href="scores.html">26개 기준별 점수표 보기 →</a></p>
 </section>
 
 <section id="human" class="story-section">
-<p class="eyebrow">03 · 사람 대조</p><h2>사람이 정한 정답과 AI의 판단을 비교했습니다.</h2>
-<h3 class="story-subhead">온도 범위 요청의 정답 시험</h3>
-<p>요청: 냉방은 20°C 아래로 내려가지 않게, 난방은 지금처럼 16°C까지. 실행 전에 사람이 정한 정답 시험 5개로, AI가 처음 만든 TC와 규칙을 넣은 뒤의 TC를 비교했습니다.</p>
-<div class="wide" role="region" aria-label="온도 범위 요청의 정답 시험 비교" tabindex="0">
+<p class="eyebrow">03 · 사람 대조</p><h2>사람이 정한 기준과 AI의 판단을 비교했습니다.</h2>
+<h3 class="story-subhead">온도 범위 요청의 필수 시험</h3>
+<p>요청: 냉방은 20°C 아래로 내려가지 않게, 난방은 지금처럼 16°C까지. 사람이 정한 필수 시험 5개로, AI가 처음 만든 TC와 규칙을 넣은 뒤의 TC를 비교했습니다. 처음 TC는 이 목록이 생기기 전에 실행됐고, 사람이 결과를 검토하다 누락을 찾은 뒤 목록을 만들었습니다. 규칙을 넣은 뒤의 실행은 목록을 실행 전에 정해 두고 대조했습니다.</p>
+<div class="wide" role="region" aria-label="온도 범위 요청의 필수 시험 비교" tabindex="0">
 <table style="min-width:680px">
-<thead><tr><th scope="col">정답 시험</th><th scope="col">왜 필요한가</th><th scope="col">처음 TC</th><th scope="col">규칙 추가 후</th></tr></thead>
+<thead><tr><th scope="col">필수 시험</th><th scope="col">왜 필요한가</th><th scope="col">처음 TC</th><th scope="col">규칙 추가 후</th></tr></thead>
 <tbody>
 <tr><th scope="row">냉방 19°C 막힘</th><td>새 최저값 바로 아래가 막히는지</td><td class="tag-ok">있음</td><td class="tag-ok">있음</td></tr>
 <tr><th scope="row">냉방 20°C 설정</th><td>새 최저값이 실제로 설정되는지</td><td class="tag-miss">없음</td><td class="tag-ok">있음</td></tr>
@@ -145,29 +146,29 @@
 <tr><th scope="row">난방 16°C 설정</th><td>냉방 변경이 난방에 영향을 주지 않았는지</td><td class="tag-ok">있음</td><td class="tag-ok">있음</td></tr>
 </tbody></table>
 </div>
-<p class="scope-note">처음 TC에는 프로젝트1의 검토 AI와 이 도구의 채점 AI가 모두 5점을 줬습니다. 지금은 이 기준을 프로그램이 정답표와 대조해 채점합니다. 개선 기록에는 "6개 중 3개"로 남아 있는데, 당시 정답표에 요청 범위 밖 항목 하나가 들어 있었기 때문입니다.</p>
+<p class="scope-note">처음 TC에는 프로젝트1의 검토 AI와 이 도구의 채점 AI가 모두 5점을 줬습니다. 지금은 이 기준을 프로그램이 필수 시험 목록과 대조해 채점합니다. 개선 기록에는 "6개 중 3개"로 남아 있는데, 당시 목록에 요청 범위 밖 항목 하나가 들어 있었기 때문입니다.</p>
 <h3 class="story-subhead">AI 점수가 사람과 달랐던 경우</h3>
 <p>처음 대조한 15개 중 4개가 달랐고, 모두 AI가 후하게 준 경우였습니다.</p>
 <div class="wide" role="region" aria-label="AI 점수와 사람 판단이 달랐던 유형" tabindex="0">
 <table style="min-width:720px">
 <thead><tr><th scope="col">유형</th><th scope="col">AI 점수</th><th scope="col">사람 판단</th><th scope="col">고친 것</th></tr></thead>
 <tbody>
-<tr><th scope="row">범위 양 끝 중 한쪽만 확인</th><td class="num">5</td><td>정답 시험 누락</td><td>사람이 정한 정답 시험 목록을 프로그램이 대조</td></tr>
+<tr><th scope="row">범위 양 끝 중 한쪽만 확인</th><td class="num">5</td><td>필수 시험 누락</td><td>사람이 정한 필수 시험 목록을 프로그램이 대조</td></tr>
 <tr><th scope="row">절차 한 줄에 조작과 확인을 함께 씀</th><td class="num">5</td><td>따라 하기 어려움</td><td>섞어 쓰면 3점 이하</td></tr>
-<tr><th scope="row">고쳐 쓸 기존 TC를 두고 새로 만듦</th><td class="num">5</td><td>재사용 판단 부족</td><td>고쳐 쓰기를 정답으로 명시</td></tr>
+<tr><th scope="row">고쳐 쓸 기존 TC를 두고 새로 만듦</th><td class="num">5</td><td>재사용 판단 부족</td><td>고쳐 쓰기가 맞는 처리라고 명시</td></tr>
 <tr><th scope="row">그 실행에서 다룰 일이 없던 기준</th><td class="num">5</td><td>채점 대상 아님</td><td>'해당 없음'으로 처리</td></tr>
 </tbody></table>
 </div>
-<p class="scope-note">기준을 고친 뒤 대표 요청 4개(전원·풍량·모드·온도)에서 TC 관련 기준 12개(기존 TC 처리, 절차, 복원 확인)를 다시 비교했고, 모두 사람 판단과 같았습니다.</p>
+<p class="scope-note">기준을 고친 뒤 새로 실행한 대표 요청 4개(전원·풍량·모드·온도)의 결과에서 TC 관련 기준 12개(기존 TC 처리, 절차, 복원 확인)를 다시 비교했고, 모두 사람 판단과 같았습니다. 요청 종류는 처음과 같아 새 종류의 요청으로는 아직 확인하지 않았고, 사람 판단은 기준을 만든 본인 1명이 했습니다.</p>
 <details class="story-fold" id="models"><summary>채점 AI는 어떻게 골랐나</summary><div class="story-fold-body">
 <p>프로젝트1의 분석·설계는 OpenAI 모델이 합니다. 채점도 같은 회사 모델이 하면 같은 부분을 함께 놓칠 수 있어, 같은 자료를 두 회사 모델로 채점해 사람 판단 12개와 비교했습니다.</p>
 <div class="wide" role="region" aria-label="채점 모델 비교" tabindex="0">
 <table style="min-width:640px">
 <thead><tr><th scope="col">채점 모델</th><th scope="col">사람 판단과 일치</th><th scope="col">메모</th></tr></thead>
 <tbody>
-<tr><th scope="row">OpenAI gpt-6.1-sol</th><td class="num">12/12</td><td>생성 AI와 같은 회사</td></tr>
-<tr><th scope="row">Claude Sonnet 5.5 · 기본 설정</th><td class="num">11/12</td><td>모드 복원 누락을 놓침</td></tr>
-<tr><th scope="row">Claude Sonnet 5.5 · 깊게 생각하는 설정</th><td>놓친 항목도 맞춤</td><td>지금 쓰는 설정</td></tr>
+<tr><th scope="row">OpenAI gpt-6.1-sol</th><td class="num">12/12</td><td>생성 AI와 같은 모델 · 위 점수표 채점에 사용</td></tr>
+<tr><th scope="row">Claude Sonnet 5.5 · 기본 설정</th><td class="num">10~11/12</td><td>같은 입력에서 판정이 흔들림 · 모드 복원 누락을 놓침</td></tr>
+<tr><th scope="row">Claude Sonnet 5.5 · 깊게 생각하는 설정</th><td class="num">12/12</td><td>지금 쓰는 설정</td></tr>
 </tbody></table>
 </div>
 <p class="scope-note">Claude가 일부 기준에만 답하거나 이유를 한국어가 아닌 말로 쓰면 1번 다시 요청합니다. 비교한 항목이 12개로 적어 계속 확인하고 있습니다.</p>
@@ -187,11 +188,11 @@
 <table style="min-width:760px">
 <thead><tr><th scope="col">문제</th><th scope="col">누가 찾았나</th><th scope="col">고친 것</th><th scope="col">확인</th></tr></thead>
 <tbody>
-<tr><th scope="row">범위가 바뀐 TC에서 정답 시험이 빠졌는데 AI가 모두 통과시킴</th><td>사람</td><td>사람 기준을 TC 작성 지침·코드 검사·정답 대조에 넣음</td><td class="tag-ok">8번 모두 충족</td></tr>
-<tr><th scope="row">AI 채점이 범위가 틀린 TC에 만점</th><td>사람</td><td>범위 기준은 사람이 정한 정답표로 프로그램이 채점</td><td class="tag-ok">같은 TC 5점 → 2점으로 바로잡힘</td></tr>
-<tr><th scope="row">AI 채점의 후한 점수 4가지 유형</th><td>사람</td><td>'해당 없음' 기준, 고쳐 쓰기 정답, 절차 기준 보완</td><td class="tag-ok">재대조 12개 모두 일치</td></tr>
+<tr><th scope="row">범위가 바뀐 TC에서 필수 시험이 빠졌는데 AI가 모두 통과시킴</th><td>사람</td><td>사람 기준을 TC 작성 지침·코드 검사·필수 시험 대조에 넣음</td><td class="tag-ok">8번 모두 충족</td></tr>
+<tr><th scope="row">AI 채점이 범위가 틀린 TC에 만점</th><td>사람</td><td>범위 기준은 사람이 정한 필수 시험 목록으로 프로그램이 채점</td><td class="tag-ok">같은 TC 5점 → 2점으로 바로잡힘</td></tr>
+<tr><th scope="row">AI 채점의 후한 점수 4가지 유형</th><td>사람</td><td>'해당 없음' 기준, 고쳐 쓰기 기준, 절차 기준 보완</td><td class="tag-ok">재대조 12개 모두 일치</td></tr>
 <tr><th scope="row">준비에서 바꾼 모드의 복원 확인 누락</th><td>AI 채점·프로그램·사람</td><td>프로젝트1 TC 형식에 칸을 추가하고, 빠지면 자동 검사에서 막음</td><td class="tag-ok">0/3 → 3/3</td></tr>
-<tr><th scope="row">사람이 읽는 문장에 중국어·일본어가 섞여도 통과</th><td>사람</td><td>분석·설계 모든 문장과 채점 이유까지 언어 검사</td><td class="tag-wait">저장된 결과로 확인 · 새 실행에서 확인 전</td></tr>
+<tr><th scope="row">사람이 읽는 문장에 중국어·일본어가 섞여도 통과<small>풍량 대표 실행의 TC 제목</small></th><td>사람</td><td>분석·설계 모든 문장과 채점 이유까지 언어 검사</td><td class="tag-wait">저장된 결과로 확인 · 새 실행에서 확인 전</td></tr>
 <tr><th scope="row">온도 기존 TC를 고쳐 쓰지 않고 새로 만듦</th><td>프로그램</td><td>8번 중 1번이라 지켜보기로 결정</td><td class="tag-wait">관찰 중</td></tr>
 <tr><th scope="row">Claude 채점이 기준 일부에만 답함</th><td>프로그램</td><td>빠지면 1번 다시 요청</td><td class="tag-wait">재발 확인 전</td></tr>
 </tbody></table>
