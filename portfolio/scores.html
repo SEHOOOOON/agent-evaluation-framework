@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="프로젝트1 대표 요청 5개를 26개 평가 기준으로 채점한 결과표.">
+<meta name="description" content="프로젝트1 대표 요청 5개를 21개 평가 기준으로 채점한 결과표.">
 <title>프로젝트2 · 기준별 점수표</title>
 <link rel="stylesheet" href="style.css"><link rel="stylesheet" href="story.css">
 <style id="pf-bar-style">
@@ -70,9 +70,9 @@
 <main id="main" class="shell">
 <header class="story-hero">
 <p class="eyebrow">프로젝트2 · 기준별 점수표</p>
-<h1>해당하는 기준으로 본 대표 요청 5개</h1>
+<h1>21개 기준으로 본 대표 요청 5개</h1>
 <p class="story-lead">각 요청을 어떤 기준으로, 몇 점을 받았는지 한 표로 정리했습니다.</p>
-<p>기준은 네 역할(요구사항 분석·시험 설계·자동 실행·결과 보고)별 20개, 공통 2개, 단계 연결 4개로 모두 26개이고, 요청마다 해당하는 기준만 채점했습니다. 기준 이름은 실제 평가에서 묻는 내용을 쉬운 말로 풀었습니다.</p>
+<p>네 역할(요구사항 분석·시험 설계·자동 실행·결과 보고)별 20개와 공통 1개, 모두 21개 기준으로 채점했습니다. 요청마다 해당하는 기준만 채점합니다. 설계한 기준은 26개이고, 나머지 5개는 아직 판정 전이라 표 맨 아래에 따로 두었습니다. C02는 대표 요청에 역할을 넘는 지시가 없어 시험할 상황이 없었고, 단계 연결 4개는 채점 방법을 아직 완성하지 못했습니다. 기준 이름은 실제 평가에서 묻는 내용을 쉬운 말로 풀었습니다.</p>
 <div class="legend">
 <div><h2>점수 읽는 법 · 0~5점</h2><dl>
 <dt><span class="chip s5">5</span></dt><dd>통과 조건과 필요한 근거를 모두 갖춤</dd>
@@ -89,15 +89,14 @@
 </div>
 </header>
 <section id="latest" class="story-section" style="border-top:0;padding-top:12px">
-<p class="eyebrow">점수표</p><h2 id="criteria">대표 요청 5개 × 26개 기준</h2>
-<p class="section-intro">기능별로 하나씩 고른 대표 요청을 실제 AI로 분석부터 보고까지 실행하고 평가했습니다. 필수 시험과 기대 결과는 실행 전에 사람이 정해 두었고, AI가 판단하는 기준은 OpenAI gpt-6.1-sol(생성과 같은 모델)로 채점했습니다. 채점 모델은 그 뒤 Claude로 바꿨습니다. 단계 연결 기준 4개는 아직 판정 전이라 평균에서 뺐습니다.</p>
-<div class="wide heatmap" role="region" aria-label="대표 요청별 26개 기준 점수표" tabindex="0">
+<p class="eyebrow">점수표</p><h2 id="criteria">대표 요청 5개 × 21개 기준</h2>
+<p class="section-intro">기능별로 하나씩 고른 대표 요청을 실제 AI로 분석부터 보고까지 실행하고 평가했습니다. 필수 시험과 기대 결과는 실행 전에 사람이 정해 두었고, AI가 판단하는 기준은 OpenAI gpt-6.1-sol(생성과 같은 모델)로 채점했습니다. 채점 모델은 그 뒤 Claude로 바꿨습니다.</p>
+<div class="wide heatmap" role="region" aria-label="대표 요청별 21개 기준 점수표와 판정 전 5개" tabindex="0">
 <table>
 <thead><tr><th scope="col">평가 기준</th><th scope="col">판단</th><th scope="col" class="req">잠금<small>질문 후 멈춤</small></th><th scope="col" class="req">전원<small>완주·통과</small></th><th scope="col" class="req">풍량<small>완주·통과</small></th><th scope="col" class="req">모드<small>완주·통과</small></th><th scope="col" class="req">온도<small>완주·불일치 보고</small></th></tr></thead>
 <tbody>
 <tr class="hm-group"><th colspan="7" scope="rowgroup">공통</th></tr>
 <tr><th scope="row"><span class="cid">C01</span>필요한 자료를 받아 출처까지 연결했는가</th><td class="who">AI</td><td class="rv">보류</td><td class="s5">5</td><td class="s5">5</td><td class="s5">5</td><td class="s5">5</td></tr>
-<tr><th scope="row"><span class="cid">C02</span>맡은 역할을 넘는 지시를 따르지 않았는가</th><td class="who">AI</td><td class="rv">보류</td><td class="na">해당 없음</td><td class="na">해당 없음</td><td class="na">해당 없음</td><td class="na">해당 없음</td></tr>
 <tr class="hm-group"><th colspan="7" scope="rowgroup">Agent 1 · 요구사항 분석</th></tr>
 <tr><th scope="row"><span class="cid">A1-01</span>바뀌는 조건과 유지할 조건, 원문 값을 그대로 지켰는가</th><td class="who">AI</td><td class="s5">5</td><td class="s5">5</td><td class="s5">5</td><td class="s5">5</td><td class="s5">5</td></tr>
 <tr><th scope="row"><span class="cid">A1-02</span>빠진 정보를 추측하지 않고 구분했는가</th><td class="who">AI</td><td class="s5">5</td><td class="s5">5</td><td class="s5">5</td><td class="s5">5</td><td class="s5">5</td></tr>
@@ -122,7 +121,8 @@
 <tr><th scope="row"><span class="cid">A4-02</span>실패 원인을 증거대로 분류했는가</th><td class="who">AI</td><td class="st">멈춤</td><td class="na">해당 없음</td><td class="na">해당 없음</td><td class="na">해당 없음</td><td class="s5">5</td></tr>
 <tr><th scope="row"><span class="cid">A4-03</span>보고한 결과마다 근거를 따라갈 수 있는가</th><td class="who">프로그램</td><td class="st">멈춤</td><td class="s5">5</td><td class="s5">5</td><td class="s5">5</td><td class="s5">5</td></tr>
 <tr><th scope="row"><span class="cid">A4-04</span>확인 못 한 것과 다음 할 일을 빠뜨리지 않았는가</th><td class="who">AI</td><td class="st">멈춤</td><td class="s5">5</td><td class="s5">5</td><td class="s5">5</td><td class="s5">5</td></tr>
-<tr class="hm-group"><th colspan="7" scope="rowgroup">단계 연결 · 최종 판정 전</th></tr>
+<tr class="hm-group"><th colspan="7" scope="rowgroup">다음 단계 · 설계했지만 아직 판정하지 못한 5개</th></tr>
+<tr><th scope="row"><span class="cid">C02</span>맡은 역할을 넘는 지시를 따르지 않았는가</th><td class="who">AI</td><td class="rv">보류</td><td class="na">해당 없음</td><td class="na">해당 없음</td><td class="na">해당 없음</td><td class="na">해당 없음</td></tr>
 <tr><th scope="row"><span class="cid">E01</span>요청 조건이 실제 시험까지 이어졌는가</th><td class="who">미정</td><td class="rv">보류</td><td class="rv">보류</td><td class="rv">보류</td><td class="rv">보류</td><td class="rv">보류</td></tr>
 <tr><th scope="row"><span class="cid">E02</span>빠진 정보가 다음 단계에서 사라지지 않았는가</th><td class="who">미정</td><td class="rv">보류</td><td class="rv">보류</td><td class="rv">보류</td><td class="rv">보류</td><td class="rv">보류</td></tr>
 <tr><th scope="row"><span class="cid">E03</span>실패·질문이 보고까지 전달됐는가</th><td class="who">미정</td><td class="rv">보류</td><td class="rv">보류</td><td class="rv">보류</td><td class="rv">보류</td><td class="rv">보류</td></tr>
@@ -132,7 +132,7 @@
 </table>
 </div>
 <div class="callout"><b>표에서 볼 곳</b><br>대부분 5점이지만 온도 요청에서 두 곳이 깎였습니다. <b>시험 뒤 원래 상태 확인(3점)</b>은 준비에서 바꾼 운전 모드의 복원 확인이 빠진 것으로, 원인을 찾아 프로젝트1을 고쳤습니다(<a href="index.html#case-restore">사례 2</a>). <b>필수 시험(4점)</b>은 필수 시험 5개는 모두 있었지만, 권장 시험(난방 31°C 막힘)이 없어 받은 점수입니다. 두 점수 모두 실행 당시 기준으로 채점한 그대로이고, 그 뒤 같은 온도 요청을 Claude로 채점한 실행에서도 같은 두 기준이 깎였습니다. 이 온도 실행에서 당시 넣었던 난방 15°C 막힘 시험에서는 제품이 15°C까지 내려가는 기존 결함도 찾았습니다(예상 목록에 없던 결과). 난방은 이번 변경 범위가 아니어서 그 뒤 난방 시험을 '16°C 설정'으로 바꿨고(H-6), 이 결함은 따로 기록했습니다.</div>
-<p class="scope-note">잠금 요청은 정해지지 않은 조건을 질문하고 분석 단계에서 멈추는 것이 맞는 동작이라, 이후 단계 기준은 '멈춤'으로 표시했습니다. 단계 연결 기준 4개는 아직 최종 판정을 하지 않았습니다. 대부분 5점이라는 것만으로 잘했다고 단정하지 않기 위해, 설계 기준 12개는 사람이 다시 판단했습니다. <a href="report.html#human">사람 대조 결과 →</a></p>
+<p class="scope-note">잠금 요청은 정해지지 않은 조건을 질문하고 분석 단계에서 멈추는 것이 맞는 동작이라, 이후 단계 기준은 '멈춤'으로 표시했습니다. 맨 아래 5개는 아직 판정하지 않아 평균에서 뺐습니다. 대부분 5점이라는 것만으로 잘했다고 단정하지 않기 위해, TC 관련 기준 12개는 사람이 다시 판단했습니다. <a href="report.html#human">사람 대조 결과 →</a></p>
 </section>
 
 <footer class="story-footer"><a href="../../qa-agent-pipeline/main.html">메인 포트폴리오 ←</a><a href="index.html">프로젝트2 소개</a><a href="report.html">평가 결과와 근거 →</a></footer>
