@@ -9,12 +9,12 @@
 /* 프로젝트 페이지 메뉴 막대: 프로젝트 색(푸른 검정·파랑). 메인은 주황 */
 .pf-bar{position:sticky;top:0;z-index:60;background:rgba(8,12,19,.94);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-bottom:1px solid #1c2533;font-family:Pretendard,"Noto Sans KR",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
 .pf-bar-in{width:min(var(--pf-w,1100px),calc(100% - 48px));margin:0 auto;height:62px;display:flex;align-items:center;justify-content:space-between;gap:16px}
-.pf-brand{color:#dce6f3;font-size:13px;font-weight:800;letter-spacing:.02em;text-decoration:none;white-space:nowrap}
-.pf-brand:hover{text-decoration:none;color:#dce6f3}
+.pf-brand{color:var(--title);font-size:13px;font-weight:800;letter-spacing:.02em;text-decoration:none;white-space:nowrap}
+.pf-brand:hover{text-decoration:none;color:var(--title)}
 .pf-links{display:flex;gap:22px;font-size:12px;line-height:1}
 .pf-links a{color:#94a3b8;text-decoration:none;white-space:nowrap;padding:6px 0;border-bottom:2px solid transparent}
-.pf-links a:hover{color:#dce6f3;text-decoration:none}
-.pf-links a[aria-current="page"]{color:#dce6f3;border-bottom-color:#58a6ff}
+.pf-links a:hover{color:var(--title);text-decoration:none}
+.pf-links a[aria-current="page"]{color:var(--title);border-bottom-color:#58a6ff}
 @media(max-width:640px){.pf-bar-in{width:calc(100% - 28px);height:54px}.pf-brand{font-size:12px}.pf-links{gap:14px;font-size:11px}}
 </style>
 <style id="report-story">
@@ -22,13 +22,13 @@
 /* 메인·프로젝트1과 같은 글자 크기 */
 .portfolio-story p{font-size:14px;line-height:1.85}
 .portfolio-story .section-intro{font-size:14px}
-.portfolio-story .story-lead{font-size:16px}
+.portfolio-story .story-lead{font-size:15px}
 .story-section h2{font-weight:700}
-.story-section h3{font-size:16px}
+.story-section h3{font-size:15px}
 .portfolio-story .scope-note{font-size:12.5px}
 .legend{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin:30px 0 6px}
 .legend>div{padding:20px 22px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
-.legend h2{font-size:15px!important;margin:0 0 12px!important;color:#fff}
+.legend h2{font-size:15px!important;margin:0 0 12px!important;color:var(--title)}
 .legend dl{display:grid;grid-template-columns:auto 1fr;gap:8px 14px;margin:0;font-size:14px;align-items:center}
 .legend dd{margin:0;color:var(--muted)}
 .chip{display:inline-block;min-width:64px;text-align:center;padding:3px 8px;border-radius:5px;font-size:13px;font-weight:600}
@@ -59,17 +59,67 @@
 .heatmap tfoot th{text-align:left}
 .wide .num{font-variant-numeric:tabular-nums;white-space:nowrap}
 .tag-ok{color:var(--blue);font-weight:600}.tag-miss{color:var(--amber);font-weight:600}.tag-wait{color:var(--muted)}
-.callout{margin:22px 0;padding:20px 24px;border-left:3px solid var(--amber);background:var(--surface);font-size:15px;color:var(--text)}
-.callout b{color:#fff}
+.callout{margin:22px 0;padding:20px 24px;border-left:3px solid var(--line);background:var(--surface);font-size:15px;color:var(--text)}
+.callout b{color:var(--title)}
 @media(max-width:760px){.legend{grid-template-columns:1fr}}
 .score-summary{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin:24px 0 8px}
 .score-summary div{padding:18px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
 .score-summary span{display:block;font-size:14px;color:var(--muted)}
 .score-summary b{display:block;margin:4px 0;font-size:30px;line-height:1.2;color:var(--blue);font-variant-numeric:tabular-nums}
-.score-summary div.warn{border-color:var(--amber)}
+.score-summary div.warn{border-color:var(--line)}
 .score-summary div.warn b{color:var(--amber)}
 .score-summary small{font-size:12.5px;color:var(--muted);line-height:1.6}
 @media(max-width:860px){.score-summary{grid-template-columns:repeat(2,minmax(0,1fr))}}
+</style>
+<style id="unify">
+/* 프로젝트1·2 디자인 통일: 프로젝트2 기준 상자·표·라벨·문단 + 메인·프로젝트1 기준 페이지 뼈대 */
+:root{--u-panel:#111824;--u-inner:#0d131e;--u-line:#28344a;--u-muted:#94a3b8}
+/* 표 */
+main table thead th{font-size:12px!important;color:var(--u-muted)!important;font-weight:500!important;background:var(--u-inner)!important}
+/* 링크 */
+main p a:not(.button):not(.btn),main li a:not(.button):not(.btn),.inline-ref{color:var(--blue)!important;text-decoration:none!important}
+/* 문단 */
+main p{line-height:1.85!important}
+
+/* 촘촘한 표 기본 11px → 12px (클래스로 따로 정한 표는 그대로) */
+main td{font-size:12px}
+/* 주석 13px */
+.scope-note{font-size:13px!important}
+.case-summary td{font-size:13px!important}
+/* 모서리 10px로 통일 */
+.evaluation-flow>li,.tc-lines>li,.bm-cell{border-radius:10px!important}
+/* 제목은 모두 제목색 */
+.portfolio-story article>h4,.case-flow li.flow-warning h3{color:var(--title)!important}
+/* 강조 줄: 3px 선 + 상자 배경 */
+.improvement-takeaway{border-left:3px solid var(--u-line)!important;background:var(--u-panel)!important;padding:12px 16px!important}
+.callout{border-left:3px solid var(--u-line)!important;background:var(--u-panel)!important}
+/* 전체 점검 반영 ① 절 구분선: 프로젝트1·메인처럼 화면 끝까지 옅은 선 */
+.story-section{border-top:1px solid transparent!important;border-image:linear-gradient(rgba(148,163,184,.14),rgba(148,163,184,.14)) 1 / 1px 0 0 0 / 0 100vw!important}
+/* ② 카드 위 작은 라벨 12px, 카드 제목 16px (프로젝트1과 같게) */
+.case-label,.evaluation-flow li>span{font-size:12px!important;font-weight:500!important;letter-spacing:0!important}
+.judge-three h3,.evaluation-flow h3,.artifact-flow h4,.graders b,.scope-columns h3,.restore-compare h4,.lesson-grid h3{font-size:16px!important}
+/* ③ 접는 부분: 프로젝트1 사례처럼 제목은 제목색, + 는 오른쪽 */
+.story-fold>summary{justify-content:space-between!important;font-size:16px!important;color:var(--title)!important}
+.story-fold>summary:before{order:2;color:var(--u-muted)!important}
+/* ④ 범위와 한계 두 칸: 프로젝트1 배운 점처럼 카드로 */
+.scope-columns>div{background:var(--u-panel);border:1px solid var(--u-line);border-radius:10px;padding:24px 26px}
+/* 페이지 뼈대: 메인·프로젝트1과 같게 */
+/* 맨 위 표시: 알약 모양 */
+.story-hero>.eyebrow{display:inline-flex!important;max-width:none!important;padding:7px 11px;border:1px solid rgba(88,166,255,.28);border-radius:999px;background:rgba(88,166,255,.098);font-size:12px!important;letter-spacing:.02em;margin:0!important}
+.story-hero h1{margin-top:18px!important}
+/* 바로가기: 회색 + "·" 구분 */
+.story-nav{gap:6px 0!important;border-top:1px solid var(--u-line);padding-top:16px!important}
+.story-nav a{color:var(--u-muted)!important;font-size:14px}
+.story-nav a+a:before{content:"·";margin:0 12px;color:var(--u-line)}
+.story-nav a:hover{color:var(--blue)!important}
+/* 절 머리 2단: 왼쪽 번호·제목, 오른쪽 설명 */
+@media(min-width:861px){
+ .story-section{display:grid!important;grid-template-columns:minmax(0,436fr) minmax(0,628fr);grid-template-rows:1fr auto;column-gap:36px}
+ .story-section>*{grid-column:1/-1}
+ .story-section>.eyebrow{grid-column:1;grid-row:1;align-self:end;margin-bottom:6px!important}
+ .story-section>h2{grid-column:1;grid-row:2;margin-bottom:24px!important}
+ .story-section>h2+p{grid-column:2;grid-row:1/3;align-self:end;max-width:none!important;margin-bottom:24px!important}
+}
 </style>
 </head>
 <body class="portfolio-story">
