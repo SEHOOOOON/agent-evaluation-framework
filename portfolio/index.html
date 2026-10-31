@@ -138,7 +138,7 @@ main td{font-size:12px}
 <p class="eyebrow">01 · 왜 필요한가</p><h2>시험이 실패한 것과, 에이전트가 실수한 것은 다릅니다.</h2>
 <p class="section-intro">FAIL 개수만 세면 틀린 결론을 내리기 쉽습니다. 같은 결과라도 원인에 따라 고칠 곳이 다릅니다.</p>
 <div class="judge-three">
-<article><span class="case-label">제품이 요구사항과 다르게 동작</span><h3>에이전트는 잘한 것</h3><p>예: 잠금을 걸었는데 온도 버튼이 계속 눌림. 에이전트가 이 차이를 찾아 근거와 함께 보고했다면 할 일을 한 것입니다.</p><p class="verdict">고칠 곳: 제품</p></article>
+<article><span class="case-label">제품이 요구사항과 다르게 동작</span><h3>제품을 고쳐야 함</h3><p>예: 잠금을 걸었는데 온도 버튼이 계속 눌림. 에이전트가 이 차이를 찾아 근거와 함께 보고했다면 할 일을 한 것입니다.</p><p class="verdict">고칠 곳: 제품</p></article>
 <article class="miss"><span class="case-label">필요한 검사를 빠뜨리고 통과</span><h3>에이전트를 고쳐야 함</h3><p>예: 냉방 최저 온도를 20°C로 바꾸는 요청인데, 20°C가 실제로 설정되는지는 시험하지 않음. 결과가 모두 PASS여도 문제입니다.</p><p class="verdict">고칠 곳: 프로젝트1</p></article>
 <article class="input"><span class="case-label">평가자가 근거를 받지 못함</span><h3>평가 도구를 고쳐야 함</h3><p>예: 복원 기록이 원본에는 있는데 평가 자료에서 빠져 낮은 점수가 나옴. 점수만 보면 정상인 시험을 고치게 됩니다.</p><p class="verdict">고칠 곳: 프로젝트2</p></article>
 </div>
@@ -239,11 +239,11 @@ main td{font-size:12px}
 <div class="story-results" role="region" aria-label="대표 요청별 평가 결과" tabindex="0">
 <table class="case-summary"><caption class="visually-hidden">대표 요청별 프로젝트1 결과와 평가 점수</caption>
 <thead><tr><th scope="col">대표 요청</th><th scope="col">프로젝트1은 어떻게 했나</th><th scope="col">평가 · 5점 만점</th></tr></thead><tbody>
-<tr><th scope="row">잠금 정책 미정<small>허용할 명령이 정해지지 않은 요청</small></th><td>추측해서 시험하지 않고, 정해지지 않은 조건을 질문으로 남긴 뒤 멈췄습니다.<small>의도한 동작이라 이후 단계는 평가하지 않음</small></td><td><b>4/4</b><small>분석 기준 충족 · 이후 단계 미실행</small></td></tr>
+<tr><th scope="row">잠금 정책 미정<small>허용할 명령이 정해지지 않은 요청</small></th><td>추측해서 시험하지 않고, 정해지지 않은 조건을 질문으로 남긴 뒤 멈췄습니다.<small>의도한 동작이라 이후 단계는 평가하지 않음</small></td><td><b>4/4</b><small>분석 기준 4개 모두 5점 · 이후 단계 미실행</small></td></tr>
 <tr><th scope="row">전원 정지<small>정지 후 다른 값 유지</small></th><td>새 TC를 만들어 시험·복원·보고까지 마쳤고, 기대결과 12개가 모두 맞았습니다.</td><td><b>5.0</b><small>기준 20개</small></td></tr>
 <tr><th scope="row">풍량 강풍<small>강풍 적용 확인</small></th><td>기존 강풍 TC를 고쳐 쓰는 쪽을 처음부터 골랐고, 화면·카드·내부값 세 곳을 확인했습니다.</td><td><b>5.0</b><small>기준 20개</small></td></tr>
 <tr><th scope="row">모드 전환<small>제습 중 온도 조작 제한</small></th><td>기존 TC를 고쳐 썼고, 확인 15개가 모두 맞았습니다.</td><td><b>5.0</b><small>기준 20개</small></td></tr>
-<tr><th scope="row">온도 범위<small>냉방 최저 20°C</small></th><td>제품이 바뀌기 전이라 냉방 19°C 불일치를 보고했습니다(예상한 결과). 당시 넣었던 난방 15°C 막힘 시험에서는 제품이 15°C까지 내려가는 기존 결함도 찾았습니다(예상 목록에 없던 결과). 난방은 이번 변경 범위가 아니어서 그 뒤 난방 시험을 '16°C 설정'으로 바꿨고(H-6), 이 결함은 따로 기록했습니다. 모드 복원 확인이 빠져 감점됐고, 사례 2로 이어졌습니다.</td><td><b class="scenario-warning">4.86</b><small>복원 확인 3점 · 필수 시험 4점</small></td></tr>
+<tr><th scope="row">온도 범위<small>냉방 최저 20°C</small></th><td>제품이 바뀌기 전이라 냉방 19°C 불일치를 보고했습니다(예상한 결과). 당시 넣었던 난방 15°C 막힘 시험에서는 제품이 15°C까지 내려가는 기존 결함도 찾았습니다(예상 목록에 없던 결과). 난방은 이번 변경 범위가 아니어서 그 뒤 난방 시험을 '16°C 설정'으로 바꿨고(H-6), 이 결함은 따로 기록했습니다. 모드 복원 확인이 빠져 감점됐고, 사례 2로 이어졌습니다.</td><td><b class="scenario-warning">4.86</b><small>복원 확인 3점 · 필수 시험 기준 4점(권장 1개 없음)</small></td></tr>
 </tbody></table>
 </div>
 <p class="scope-note">설계한 26개 기준 중 아직 판정하지 못한 5개(역할을 넘는 지시 1개, 단계 사이 연결 4개)는 점수에서 뺐습니다. <a href="scores.html">기준별 점수표 →</a></p>
