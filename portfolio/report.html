@@ -129,7 +129,7 @@ main td{font-size:12px}
 <header class="story-hero">
 <p class="eyebrow">프로젝트2 · 상세 근거</p>
 <h1>평가 결과와 근거</h1>
-<p class="story-lead">소개 페이지의 결과를 자세히 보여 주는 페이지입니다.</p>
+<p class="story-lead">소개 페이지에서 요약한 결과의 근거를 자세히 보여 줍니다.</p>
 <p>대표 요청 5개의 평가 점수, 같은 요청을 반복했을 때의 결과, 사람이 다시 확인한 내용, 개선 기록 순서로 정리했습니다.</p>
 <div class="legend">
 <div><h2>점수 읽는 법 · 0~5점</h2><dl>
@@ -152,11 +152,11 @@ main td{font-size:12px}
 <p class="eyebrow">01 · 평가 점수</p><h2>대표 요청 5개의 평가 결과</h2>
 <p class="section-intro">기능별로 하나씩 고른 대표 요청을 실제 AI로 실행하고, 21개 기준 중 요청마다 해당하는 기준으로 평가했습니다(설계한 26개 중 5개는 아직 판정 전). AI가 판단하는 기준은 OpenAI gpt-6.1-sol(생성과 같은 모델)로 채점했습니다. 채점 모델은 그 뒤 Claude로 바꿨습니다. 대부분 5점이었고, 온도 요청에서 두 기준이 깎였습니다.</p>
 <div class="score-summary">
-<div><span>잠금</span><b>4/4</b><small>분석 기준 충족 · 이후 단계 미실행</small></div>
+<div><span>잠금</span><b>4/4</b><small>분석 기준 4개 모두 5점 · 이후 단계 미실행</small></div>
 <div><span>전원</span><b>5.0</b><small>완주·통과 · 20개 기준</small></div>
 <div><span>풍량</span><b>5.0</b><small>완주·통과 · 20개 기준</small></div>
 <div><span>모드</span><b>5.0</b><small>완주·통과 · 20개 기준</small></div>
-<div class="warn"><span>온도</span><b>4.86</b><small>복원 확인 3점 · 필수 시험 4점</small></div>
+<div class="warn"><span>온도</span><b>4.86</b><small>복원 확인 3점 · 필수 시험 기준 4점(권장 1개 없음)</small></div>
 </div>
 <p class="scope-note">5점이 많다고 잘했다고 단정하지 않으려고, TC 관련 기준 12개는 사람이 다시 확인했습니다(03 사람 대조). 판정 전인 5개(역할을 넘는 지시 1개, 단계 연결 4개)는 평균에서 뺐습니다.</p>
 </section>
@@ -241,7 +241,7 @@ main td{font-size:12px}
 <tr><th scope="row">범위가 바뀐 TC에서 필수 시험이 빠졌는데 AI가 모두 통과시킴</th><td>사람</td><td>사람 기준을 TC 작성 지침·코드 검사·필수 시험 대조에 넣음</td><td class="tag-ok">8번 모두 충족</td></tr>
 <tr><th scope="row">AI 채점이 범위가 틀린 TC에 만점</th><td>사람</td><td>범위 기준은 사람이 정한 필수 시험 목록으로 프로그램이 채점</td><td class="tag-ok">같은 TC 5점 → 2점으로 바로잡힘</td></tr>
 <tr><th scope="row">AI 채점의 후한 점수 4가지 유형</th><td>사람</td><td>'해당 없음' 기준, 고쳐 쓰기 기준, 절차 기준 보완</td><td class="tag-ok">재대조 12개 모두 일치</td></tr>
-<tr><th scope="row">준비에서 바꾼 모드의 복원 확인 누락</th><td>AI 채점·프로그램·사람</td><td>프로젝트1 TC 형식에 칸을 추가하고, 빠지면 자동 검사에서 막음</td><td class="tag-ok">0/3 → 3/3</td></tr>
+<tr><th scope="row">준비에서 바꾼 모드의 복원 확인 누락</th><td>AI 채점·프로그램·사람</td><td>프로젝트1 TC 형식에 칸을 추가하고, 빠지면 자동 검사에서 막음</td><td class="tag-ok">0/4 → 3/3</td></tr>
 <tr><th scope="row">사람이 읽는 문장에 중국어·일본어가 섞여도 통과<small>풍량 대표 실행의 TC 제목</small></th><td>사람</td><td>분석·설계 모든 문장과 채점 이유까지 언어 검사</td><td class="tag-wait">저장된 결과로 확인 · 새 실행에서 확인 전</td></tr>
 <tr><th scope="row">온도 기존 TC를 고쳐 쓰지 않고 새로 만듦</th><td>프로그램</td><td>8번 중 1번이라 지켜보기로 결정</td><td class="tag-wait">관찰 중</td></tr>
 <tr><th scope="row">Claude 채점이 기준 일부에만 답함</th><td>프로그램</td><td>빠지면 1번 다시 요청</td><td class="tag-wait">재발 확인 전</td></tr>
