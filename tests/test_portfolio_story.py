@@ -77,7 +77,7 @@ def test_intro_and_report_scores_agree():
 def test_intro_keeps_core_cases_and_limits():
     text = _read("index.html")
     for phrase in ("필수 시험 5개 중 3개", "8번 모두 5개", "4번 모두 빠짐", "3번 모두 포함",
-                   "12개를 다시 비교했고, 모두 같았습니다", "점수만으로 합격을 정하지 않습니다",
+                   "12개를 다시 비교했고 모두 같았습니다", "점수만으로 합격을 정하지 않습니다",
                    "이 누락은 사람이 실행 결과를 검토하다 먼저 찾았고"):
         assert phrase in text, phrase
     assert text.count('class="by"') == 4
