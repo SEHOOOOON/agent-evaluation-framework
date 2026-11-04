@@ -144,7 +144,7 @@ main td{font-size:12px}
 <p class="section-intro">기능별로 하나씩 고른 대표 요청을 실제 AI로 분석부터 보고까지 실행하고 평가했습니다. 필수 시험과 기대 결과는 실행 전에 사람이 정해 두었고 내용을 읽어야 하는 기준은 OpenAI gpt-6.1-sol(생성과 같은 모델)이 채점했습니다. 채점 모델은 그 뒤 Claude로 바꿨습니다.</p>
 <div class="wide heatmap" role="region" aria-label="대표 요청별 21개 기준 점수표와 판정 전 5개" tabindex="0">
 <table>
-<thead><tr><th scope="col">평가 기준</th><th scope="col">판단</th><th scope="col" class="req">잠금<small>질문 후 멈춤</small></th><th scope="col" class="req">전원<small>완주·통과</small></th><th scope="col" class="req">풍량<small>완주·통과</small></th><th scope="col" class="req">모드<small>완주·통과</small></th><th scope="col" class="req">온도<small>완주·불일치 보고</small></th></tr></thead>
+<thead><tr><th scope="col">평가 기준</th><th scope="col">판단</th><th scope="col" class="req">잠금<small>질문 후 멈춤</small></th><th scope="col" class="req">전원<small>끝까지 실행·통과</small></th><th scope="col" class="req">풍량<small>끝까지 실행·통과</small></th><th scope="col" class="req">모드<small>끝까지 실행·통과</small></th><th scope="col" class="req">온도<small>끝까지 실행·불일치 보고</small></th></tr></thead>
 <tbody>
 <tr class="hm-group"><th colspan="7" scope="rowgroup">공통</th></tr>
 <tr><th scope="row"><span class="cid">C01</span>필요한 자료를 받아 출처까지 연결했는가</th><td class="who">AI</td><td class="rv">보류</td><td class="s5">5</td><td class="s5">5</td><td class="s5">5</td><td class="s5">5</td></tr>
@@ -182,8 +182,8 @@ main td{font-size:12px}
 <tfoot><tr><th scope="row">평가한 기준의 평균</th><td></td><td>5.0<small>4개 · 분석만</small></td><td>5.0<small>20개</small></td><td>5.0<small>20개</small></td><td>5.0<small>20개</small></td><td class="s3">4.86<small>21개</small></td></tr></tfoot>
 </table>
 </div>
-<div class="callout"><b>표에서 볼 곳</b><br>대부분 5점이지만 온도 요청에서 두 곳이 깎였습니다. <b>시험 뒤 원래 상태 확인(3점)</b>은 준비에서 바꾼 운전 모드의 복원 확인이 빠진 것으로, 원인을 찾아 프로젝트1을 고쳤습니다(<a href="index.html#case-restore">사례 2</a>). <b>필수 시험 기준(4점)</b>은 필수 시험 5개가 모두 있었지만 권장 시험(난방 31°C 막힘)이 없어서 받은 점수입니다. 두 점수 모두 실행 당시 기준으로 채점한 그대로이고 그 뒤 같은 온도 요청을 Claude로 채점한 실행에서도 같은 두 기준이 깎였습니다. 이 온도 실행에서 당시 넣었던 난방 15°C 막힘 시험에서는 제품이 15°C까지 내려가는 기존 결함도 찾았습니다(예상 목록에 없던 결과). 난방은 이번 변경 범위가 아니어서 그 뒤 난방 시험을 '16°C 설정'으로 바꿨고(H-6), 이 결함은 따로 기록했습니다.</div>
-<p class="scope-note">잠금 요청은 정해지지 않은 조건을 질문하고 분석 단계에서 멈추는 것이 맞는 동작이라, 이후 단계 기준은 '멈춤'으로 표시했습니다. 맨 아래 5개는 아직 판정하지 않아 평균에서 뺐습니다. 대부분 5점이라는 것만으로 잘했다고 단정하지 않기 위해, TC 관련 기준 12개는 사람이 다시 판단했습니다. <a href="report.html#human">사람 대조 결과 →</a></p>
+<div class="callout"><b>표에서 볼 곳</b><br>대부분 5점이지만 온도 요청에서 두 곳이 깎였습니다. <b>시험 뒤 원래 상태 확인(3점)</b>은 준비에서 바꾼 운전 모드의 복원 확인이 빠진 것으로, 원인을 찾아 프로젝트1을 고쳤습니다(<a href="index.html#case-restore">사례 2</a>). <b>필수 시험 기준(4점)</b>은 필수 시험 5개가 모두 있었지만 권장 시험(난방 31°C 막힘)이 없어서 받은 점수입니다. 두 점수 모두 실행 당시 기준으로 채점한 그대로이고 그 뒤 같은 온도 요청을 Claude로 채점한 실행에서도 같은 두 기준이 깎였습니다. 이 온도 실행에서 당시 넣었던 난방 15°C 막힘 시험에서는 제품이 15°C까지 내려가는 기존 결함도 찾았습니다(예상 목록에 없던 결과). 난방은 이번 변경 범위가 아니어서 그 뒤 난방 시험을 '16°C 설정'으로 바꿨고 이 결함은 따로 기록했습니다.</div>
+<p class="scope-note">잠금 요청은 정해지지 않은 조건을 질문하고 분석 단계에서 멈추는 것이 맞는 동작이라, 이후 단계 기준은 '멈춤'으로 표시했습니다. 맨 아래 5개는 아직 판정하지 않아 평균에서 뺐습니다. 대부분 5점이라는 것만으로 잘했다고 단정하지 않기 위해, TC 관련 기준 12개는 사람이 다시 판단했습니다. <a href="report.html#human">사람 재확인 결과 →</a></p>
 </section>
 
 <footer class="story-footer"><a href="../../qa-agent-pipeline/main.html">메인 포트폴리오 ←</a><a href="index.html">프로젝트2 소개</a><a href="report.html">평가 결과와 근거 →</a></footer>

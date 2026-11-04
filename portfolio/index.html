@@ -169,14 +169,14 @@ main td{font-size:12px}
 <div class="low">3점 이하</div><div>바꾼 값 중 일부만 확인한다. 예: 설정 온도는 확인하지만, 준비 때 바꾼 운전 모드는 확인하지 않는다.</div>
 <div>판단 보류</div><div>평가에 필요한 기록이 없으면 점수를 주지 않고 사람에게 넘긴다.</div>
 </div>
-<p class="scope-note">이런 기준 21개로 채점합니다(설계한 26개 중 5개는 아직 판정 전: 역할을 넘는 지시 1개, 단계 연결 4개). 지금 채점 AI는 프로젝트1의 생성 AI(OpenAI)와 다른 회사 모델(Claude)입니다. 06의 대표 요청 점수는 Claude로 바꾸기 전에 생성과 같은 OpenAI 모델로 채점한 결과입니다. <a href="scores.html">기준별 점수 보기 →</a></p>
+<p class="scope-note">이런 기준 21개로 채점합니다(설계한 26개 중 5개는 아직 판정 전: 역할을 넘는 지시 1개, 단계 연결 4개). 지금 평가 AI는 프로젝트1의 생성 AI(OpenAI)와 다른 회사 모델(Claude)입니다. 06의 대표 요청 점수는 Claude로 바꾸기 전에 생성과 같은 OpenAI 모델로 채점한 결과입니다. <a href="scores.html">기준별 점수 보기 →</a></p>
 </section>
 
 <section id="case-range" class="story-section">
 <p class="eyebrow">03 · 사례 1</p><h2>AI가 통과시킨 TC에서 빠진 경계값 시험을 찾았습니다.</h2>
-<p class="section-intro">"냉방은 20°C 아래로 내려가지 않게, 난방은 지금처럼 16°C까지" 요청을 프로젝트1로 실행했습니다. 프로젝트1의 검토 AI는 이 TC를 통과시켰고 이 도구의 채점 AI는 5점 만점을 줬습니다.</p>
+<p class="section-intro">"냉방은 20°C 아래로 내려가지 않게, 난방은 지금처럼 16°C까지" 요청을 프로젝트1로 실행했습니다. 프로젝트1의 검토 AI는 이 TC를 통과시켰고 이 도구의 평가 AI는 5점 만점을 줬습니다.</p>
 <ol class="evaluation-flow case-flow">
-<li><span>AI 판단</span><h3>통과 · 5점</h3><p>프로젝트1의 검토 AI와<br>이 도구의 채점 AI 모두 통과</p></li>
+<li><span>AI 판단</span><h3>통과 · 5점</h3><p>프로젝트1의 검토 AI와<br>이 도구의 평가 AI 모두 통과</p></li>
 <li class="flow-warning"><span>사람이 다시 확인</span><h3>필수 시험 5개 중 3개</h3><p>범위 양 끝을 반쪽씩만 확인<br>20°C 설정, 31°C 막힘이 없음</p></li>
 <li><span>규칙 추가 후</span><h3>8번 모두 5개</h3><p>같은 요청으로 TC를 8번 다시 만들어<br>8번 모두 5개가 다 있음</p></li>
 </ol>
@@ -231,7 +231,7 @@ main td{font-size:12px}
 <article><span class="case-label">평가 범위</span><h4>시험하지 않은 부분에도 만점</h4><p>실제로 다룬 경우만 채점하고 나머지는 '해당 없음'으로 두게 했습니다.</p></article>
 </div>
 <p class="improvement-takeaway"><strong>반대로 정상 시험을 깎은 적도 있습니다.</strong> 원래 상태로 되돌린 기록이 있었는데 3점이 나왔습니다. 원본을 보니 평가 자료에 그 기록이 빠져 있었고 자료 전달 방식을 고친 뒤 5점이 됐습니다.</p>
-<p class="scope-note">채점 AI는 OpenAI와 Claude를 같은 자료로 비교한 뒤 Claude로 정했습니다. <a href="report.html#models">비교 결과 →</a></p>
+<p class="scope-note">평가 AI는 OpenAI와 Claude를 같은 자료로 비교한 뒤 Claude로 정했습니다. <a href="report.html#models">비교 결과 →</a></p>
 </section>
 
 <section id="results" class="story-section result-grid">
@@ -241,10 +241,10 @@ main td{font-size:12px}
 <table class="case-summary"><caption class="visually-hidden">대표 요청별 프로젝트1 결과와 평가 점수</caption>
 <thead><tr><th scope="col">대표 요청</th><th scope="col">프로젝트1은 어떻게 했나</th><th scope="col">평가 · 5점 만점</th></tr></thead><tbody>
 <tr><th scope="row">잠금 정책 미정<small>허용할 명령이 정해지지 않은 요청</small></th><td>추측해서 시험하지 않고 정해지지 않은 조건을 질문으로 남긴 뒤 멈췄습니다.<small>의도한 동작이라 이후 단계는 평가하지 않음</small></td><td><b>4/4</b><small>분석 기준 4개 모두 5점 · 이후 단계 미실행</small></td></tr>
-<tr><th scope="row">전원 정지<small>정지 후 다른 값 유지</small></th><td>새 TC를 만들어 시험·복원·보고까지 마쳤고 기대결과 12개가 모두 맞았습니다.</td><td><b>5.0</b><small>기준 20개</small></td></tr>
+<tr><th scope="row">전원 정지<small>정지 후 다른 값 유지</small></th><td>새 TC를 만들어 시험·복원·보고까지 마쳤고 기대 결과 12개가 모두 맞았습니다.</td><td><b>5.0</b><small>기준 20개</small></td></tr>
 <tr><th scope="row">풍량 강풍<small>강풍 적용 확인</small></th><td>기존 강풍 TC를 고쳐 쓰는 쪽을 처음부터 골랐고 화면·카드·내부값 세 곳을 확인했습니다.</td><td><b>5.0</b><small>기준 20개</small></td></tr>
 <tr><th scope="row">모드 전환<small>제습 중 온도 조작 제한</small></th><td>기존 TC를 고쳐 썼고 확인 15개가 모두 맞았습니다.</td><td><b>5.0</b><small>기준 20개</small></td></tr>
-<tr><th scope="row">온도 범위<small>냉방 최저 20°C</small></th><td>제품이 바뀌기 전이라 냉방 19°C 불일치를 보고했습니다(예상한 결과). 당시 넣었던 난방 15°C 막힘 시험에서는 제품이 15°C까지 내려가는 기존 결함도 찾았습니다(예상 목록에 없던 결과). 난방은 이번 변경 범위가 아니어서 그 뒤 난방 시험을 '16°C 설정'으로 바꿨고(H-6), 이 결함은 따로 기록했습니다. 모드 복원 확인이 빠져 감점됐고 사례 2로 이어졌습니다.</td><td><b class="scenario-warning">4.86</b><small>복원 확인 3점 · 필수 시험 기준 4점(권장 1개 없음)</small></td></tr>
+<tr><th scope="row">온도 범위<small>냉방 최저 20°C</small></th><td>제품이 바뀌기 전이라 냉방 19°C 불일치를 보고했습니다(예상한 결과). 당시 넣었던 난방 15°C 막힘 시험에서는 제품이 15°C까지 내려가는 기존 결함도 찾았습니다(예상 목록에 없던 결과). 난방은 이번 변경 범위가 아니어서 그 뒤 난방 시험을 '16°C 설정'으로 바꿨고 이 결함은 따로 기록했습니다. 모드 복원 확인이 빠져 감점됐고 사례 2로 이어졌습니다.</td><td><b class="scenario-warning">4.86</b><small>복원 확인 3점 · 필수 시험 기준 4점(권장 1개 없음)</small></td></tr>
 </tbody></table>
 </div>
 <p class="scope-note">설계한 26개 기준 중 아직 판정하지 못한 5개(역할을 넘는 지시 1개, 단계 사이 연결 4개)는 점수에서 뺐습니다. <a href="scores.html">기준별 점수표 →</a></p>
@@ -255,7 +255,7 @@ main td{font-size:12px}
 <p>점수만으로 합격을 정하지 않습니다. 사람이 기준을 정한 범위 안에서, 어디를 먼저 확인할지 알려 주는 역할입니다.</p>
 <div class="scope-columns">
 <div><h3>확인한 범위</h3><ul><li>대표 요청 5개의 실제 실행을 네 단계별로 평가</li><li>전원·풍량·모드는 시험 설계를 각 3번 반복해 3번 모두 필수 조건 충족</li><li>평가에서 찾은 누락 두 가지를 프로젝트1에서 고치고 다시 실행</li><li>채점 기준을 고친 뒤 새 실행 결과 12개를 사람 판단과 다시 비교해 모두 일치</li></ul></div>
-<div><h3>아직 남은 것</h3><ul><li>필수 시험을 프로그램으로 대조하는 것은 온도 범위 요청뿐</li><li>단계 사이 연결 기준 4개는 최종 판정 전, 역할을 넘는 지시(C02)는 그런 지시가 든 요청이 없어 시험 전</li><li>사람이 다시 확인한 항목이 27개(처음 15개 + 기준 수정 후 12개)로 적음</li><li>판단은 기준을 만든 본인 1명이 해서 다른 사람과의 일치도는 확인 전</li><li>여러 장비, 새 기능 추가 같은 실제 업무 범위는 아직 평가하지 않음</li></ul></div>
+<div><h3>아직 남은 것</h3><ul><li>필수 시험을 프로그램으로 대조하는 것은 온도 범위 요청뿐</li><li>단계 사이 연결 기준 4개는 최종 판정 전, 역할을 넘는 지시는 그런 지시가 든 요청이 없어 시험 전</li><li>사람이 다시 확인한 항목이 27개(처음 15개 + 기준 수정 후 12개)로 적음</li><li>판단은 기준을 만든 본인 1명이 해서 다른 사람과의 일치도는 확인 전</li><li>여러 장비, 새 기능 추가 같은 실제 업무 범위는 아직 평가하지 않음</li></ul></div>
 </div>
 <p class="scope-note">문제를 찾으면 매번 같은 순서로 기록합니다. 발견 → 맞는 감점인지 확인 → 반복되는지 확인 → 원인 수정 → 다시 실행. 지금까지 18건을 남겼습니다. <a href="report.html#improvements">주요 개선 기록 →</a></p>
 </section>
