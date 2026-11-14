@@ -3,11 +3,16 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="description" content="프로젝트1 대표 요청 5개를 21개 평가 기준으로 채점한 결과표.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="프로젝트2 · 기준별 점수표">
+<meta property="og:description" content="프로젝트1 대표 요청 5개를 21개 평가 기준으로 채점한 결과표.">
+<meta property="og:url" content="https://sehooooon.github.io/agent-evaluation-framework/portfolio/scores.html">
+<meta property="og:locale" content="ko_KR">
+<meta name="twitter:card" content="summary">
 <title>프로젝트2 · 기준별 점수표</title>
 <link rel="icon" type="image/svg+xml" href="https://sehooooon.github.io/qa-agent-pipeline/favicon.svg">
 <link rel="stylesheet" href="style.css"><link rel="stylesheet" href="story.css">
 <style id="pf-bar-style">
-/* 프로젝트 페이지 메뉴 막대: 프로젝트 색(푸른 검정·파랑). 메인은 주황 */
 .pf-bar{position:sticky;top:0;z-index:60;background:rgba(8,12,19,.94);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-bottom:1px solid #1c2533;font-family:Pretendard,"Noto Sans KR",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
 .pf-bar-in{width:min(var(--pf-w,1100px),calc(100% - 48px));margin:0 auto;height:62px;display:flex;align-items:center;justify-content:space-between;gap:16px}
 .pf-brand{color:var(--title);font-size:13px;font-weight:800;letter-spacing:.02em;text-decoration:none;white-space:nowrap}
@@ -19,8 +24,6 @@
 @media(max-width:640px){.pf-bar-in{width:calc(100% - 28px);height:54px}.pf-brand{font-size:12px}.pf-links{gap:14px;font-size:11px}}
 </style>
 <style id="report-story">
-/* 보고서: 소개 페이지와 같은 글꼴·색, 표는 가로 스크롤 */
-/* 메인·프로젝트1과 같은 글자 크기 */
 .portfolio-story p{font-size:14px;line-height:1.85}
 .portfolio-story .section-intro{font-size:14px}
 .portfolio-story .story-lead{font-size:15px}
@@ -64,48 +67,30 @@
 .callout b{color:var(--title)}
 @media(max-width:760px){.legend{grid-template-columns:1fr}}
 </style>
-<style id="unify">
-/* 프로젝트1·2 디자인 통일: 프로젝트2 기준 상자·표·라벨·문단 + 메인·프로젝트1 기준 페이지 뼈대 */
+<style>
 :root{--u-panel:#111824;--u-inner:#0d131e;--u-line:#28344a;--u-muted:#94a3b8}
-/* 표 */
 main table thead th{font-size:12px!important;color:var(--u-muted)!important;font-weight:500!important;background:var(--u-inner)!important}
-/* 링크 */
-main p a:not(.button):not(.btn),main li a:not(.button):not(.btn),.inline-ref{color:var(--blue)!important;text-decoration:none!important}
-/* 문단 */
+main p a:not(.button):not(.btn),main li a:not(.button):not(.btn),main td a:not(.button):not(.btn),main dd a:not(.button):not(.btn),main .callout a:not(.button):not(.btn),.inline-ref{color:var(--blue)!important;text-decoration:underline!important;text-decoration-color:rgba(88,166,255,.45)!important;text-underline-offset:3px!important}
 main p{line-height:1.85!important}
-
-/* 촘촘한 표 기본 11px → 12px (클래스로 따로 정한 표는 그대로) */
 main td{font-size:12px}
-/* 주석 13px */
 .scope-note{font-size:13px!important}
 .case-summary td{font-size:13px!important}
-/* 모서리 10px로 통일 */
 .evaluation-flow>li,.tc-lines>li,.bm-cell{border-radius:10px!important}
-/* 제목은 모두 제목색 */
 .portfolio-story article>h4,.case-flow li.flow-warning h3{color:var(--title)!important}
-/* 강조 줄: 3px 선 + 상자 배경 */
 .improvement-takeaway{border-left:3px solid var(--u-line)!important;background:var(--u-panel)!important;padding:12px 16px!important}
 .callout{border-left:3px solid var(--u-line)!important;background:var(--u-panel)!important}
-/* 전체 점검 반영 ① 절 구분선: 프로젝트1·메인처럼 화면 끝까지 옅은 선 */
 .story-section{border-top:1px solid transparent!important;border-image:linear-gradient(rgba(148,163,184,.14),rgba(148,163,184,.14)) 1 / 1px 0 0 0 / 0 100vw!important}
-/* ② 카드 위 작은 라벨 12px, 카드 제목 16px (프로젝트1과 같게) */
 .case-label,.evaluation-flow li>span{font-size:12px!important;font-weight:500!important;letter-spacing:0!important}
 .judge-three h3,.evaluation-flow h3,.artifact-flow h4,.graders b,.scope-columns h3,.restore-compare h4,.lesson-grid h3{font-size:16px!important}
-/* ③ 접는 부분: 프로젝트1 사례처럼 제목은 제목색, + 는 오른쪽 */
 .story-fold>summary{justify-content:space-between!important;font-size:16px!important;color:var(--title)!important}
 .story-fold>summary:before{order:2;color:var(--u-muted)!important}
-/* ④ 범위와 한계 두 칸: 프로젝트1 배운 점처럼 카드로 */
 .scope-columns>div{background:var(--u-panel);border:1px solid var(--u-line);border-radius:10px;padding:24px 26px}
-/* 페이지 뼈대: 메인·프로젝트1과 같게 */
-/* 맨 위 표시: 알약 모양 */
 .story-hero>.eyebrow{display:inline-flex!important;max-width:none!important;padding:7px 11px;border:1px solid rgba(88,166,255,.28);border-radius:999px;background:rgba(88,166,255,.098);font-size:12px!important;letter-spacing:.02em;margin:0!important}
 .story-hero h1{margin-top:18px!important}
-/* 바로가기: 회색 + "·" 구분 */
 .story-nav{gap:6px 0!important;border-top:1px solid var(--u-line);padding-top:16px!important}
 .story-nav a{color:var(--u-muted)!important;font-size:14px}
 .story-nav a+a:before{content:"·";margin:0 12px;color:var(--u-line)}
 .story-nav a:hover{color:var(--blue)!important}
-/* 절 머리 2단: 왼쪽 번호·제목, 오른쪽 설명 */
 @media(min-width:861px){
  .story-section{display:grid!important;grid-template-columns:minmax(0,436fr) minmax(0,628fr);grid-template-rows:1fr auto;column-gap:36px}
  .story-section>*{grid-column:1/-1}
@@ -114,6 +99,8 @@ main td{font-size:12px}
  .story-section>h2+p{grid-column:2;grid-row:1/3;align-self:end;max-width:none!important;margin-bottom:24px!important}
 }
 .heatmap td.s5{background:rgba(88,166,255,.07)!important;color:#9cc8ff!important}.heatmap td.s4{background:rgba(239,192,119,.16)!important;color:var(--amber)!important;font-size:15px}.heatmap td.s3{background:rgba(239,192,119,.32)!important;color:#ffdca0!important;font-size:15px;box-shadow:inset 0 0 0 1px var(--amber)}.s3>small{color:#ffe6bd!important}
+/* 채움만 남기기 */
+#main#main#main .judge-three article,#main#main#main .lesson-grid article,#main#main#main .artifact-flow>li,#main#main#main .case-flow>li,#main#main#main .fix-steps>li,#main#main#main .scope-columns>div,#main#main#main .graders,#main#main#main .boundary-map,#main#main#main .restore-compare,#main#main#main .legend>div,#main#main#main .score-summary>div,#main#main#main .wide,#main#main#main .story-fold{border-color:rgba(148,163,184,.10)!important;box-shadow:none!important}
 </style>
 </head>
 <body class="portfolio-story">
@@ -135,14 +122,14 @@ main td{font-size:12px}
 </dl></div>
 <div><h2>누가 판단했나</h2><dl>
 <dt><span class="who-chip">프로그램</span></dt><dd>개수·값·기록 대조처럼 셀 수 있는 기준. 같은 입력이면 항상 같은 결과</dd>
-<dt><span class="who-chip">AI</span></dt><dd>뜻이 맞는지 읽어야 하는 기준. 이 점수는 OpenAI gpt-6.1-sol(생성과 같은 모델)로 채점했고 그 뒤 채점 모델을 Claude로 바꿈</dd>
+<dt><span class="who-chip">AI</span></dt><dd>뜻이 맞는지 읽어야 하는 기준. 지금은 교차 검수를 위해 결과를 만든 AI(OpenAI)와 다른 회사 모델인 Claude가 채점. 이 페이지의 점수는 그 전에 OpenAI gpt-6.1-sol이 채점한 것</dd>
 <dt><span class="who-chip">사람</span></dt><dd>필수 시험과 기대 결과를 정하고 AI 점수가 맞는지 다시 판단. 기준을 만든 본인 1명이 판단</dd>
 </dl></div>
 </div>
 </header>
 <section id="latest" class="story-section" style="border-top:0;padding-top:12px">
 <p class="eyebrow">점수표</p><h2 id="criteria">대표 요청 5개 × 21개 기준</h2>
-<p class="section-intro">기능별로 하나씩 고른 대표 요청을 실제 AI로 분석부터 보고까지 실행하고 평가했습니다. 필수 시험과 기대 결과는 실행 전에 사람이 정해 두었고 내용을 읽어야 하는 기준은 OpenAI gpt-6.1-sol(생성과 같은 모델)이 채점했습니다. 채점 모델은 그 뒤 Claude로 바꿨습니다.</p>
+<p class="section-intro">기능별로 하나씩 고른 대표 요청을 실제 AI로 분석부터 보고까지 실행하고 평가했습니다. 필수 시험과 기대 결과는 실행 전에 사람이 정해 두었습니다.</p>
 <div class="wide heatmap" role="region" aria-label="대표 요청별 21개 기준 점수표와 판정 전 5개" tabindex="0">
 <table>
 <thead><tr><th scope="col">평가 기준</th><th scope="col">판단</th><th scope="col" class="req">잠금<small>질문 후 멈춤</small></th><th scope="col" class="req">전원<small>끝까지 실행·통과</small></th><th scope="col" class="req">풍량<small>끝까지 실행·통과</small></th><th scope="col" class="req">모드<small>끝까지 실행·통과</small></th><th scope="col" class="req">온도<small>끝까지 실행·불일치 보고</small></th></tr></thead>
