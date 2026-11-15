@@ -119,13 +119,8 @@ main td{font-size:12px}
 <p class="story-lead">AI가 만든 QA 결과를 그대로 믿어도 될까요?<br>프로그램, AI, 사람이 나눠서 확인합니다.</p>
 <p>프로젝트1은 변경 요청을 받으면 AI가 요구사항을 분석하고 테스트케이스(TC)를 만든 뒤 가상 제품에서 시험하고 보고하는 QA 자동화입니다. 프로젝트2는 그 결과를 채점해 믿을 만한지 확인하는 평가 도구입니다.</p>
 <p>실무에서 테스트 결과를 볼 때 PASS·FAIL만 보지 않고 요구사항에 맞는 검사를 했는지와 근거가 충분한지도 함께 봤습니다. 이 관점을 프로젝트1에 적용해 결과를 단계별로 평가하고 문제가 나오면 프로젝트1을 고쳐 다시 실행했습니다.</p>
-<div class="judge-three" aria-label="평가로 확인한 것">
-<article><span class="case-label">찾은 문제</span><h2 class="fact">AI가 통과시킨 TC에서 누락 2가지</h2><p>범위 끝 값 시험과, 시험 뒤 원래 상태로 되돌렸는지 확인이 빠져 있었습니다.</p></article>
-<article><span class="case-label">고친 뒤</span><h2 class="fact">다시 만든 TC 8번 모두 포함</h2><p>규칙을 넣고 같은 요청으로 TC를 8번 다시 만들어 필수 시험이 다 있는지 확인했습니다.</p></article>
-<article><span class="case-label">평가 AI 점검</span><h2 class="fact">점수 15개 중 4개가 후했음</h2><p>사람이 다시 판단해 찾았고 채점 기준을 고친 뒤 12개는 모두 같았습니다.</p></article>
-</div>
 <p class="scope-note"><strong>직접 만든 것</strong> 채점 기준 26개, 필수 시험 목록과 대조 프로그램, 평가 AI 채점기(OpenAI·Claude), 반복 실행·재채점 도구 · Python, Claude API, OpenAI API, Pytest</p>
-<nav class="story-nav" aria-label="페이지 안내"><a href="#why">왜 필요한가</a><a href="#method">평가 방법</a><a href="#case-range">사례 1 · 빠진 경계값 시험</a><a href="#case-restore">사례 2 · 빠진 되돌리기 확인</a><a href="#judge">평가 AI 검증</a><a href="#results">결과와 한계</a></nav>
+<nav class="story-nav" aria-label="페이지 안내"><a href="#why">왜 필요한가</a><a href="#method">평가 방법</a><a href="#case-range">사례 1 · 빠진 경계값 시험</a><a href="#case-restore">사례 2 · 빠진 되돌리기 확인</a><a href="#judge">평가 AI 검증</a><a href="#results">평가 결과</a><a href="#scope">범위와 한계</a></nav>
 </header>
 
 <section id="why" class="story-section">
@@ -211,15 +206,30 @@ main td{font-size:12px}
 <p class="scope-note">평가 AI는 OpenAI와 Claude를 같은 자료로 비교한 뒤 Claude로 정했습니다. <a href="report.html#models">비교 결과 →</a></p>
 </section>
 
-<section id="results" class="story-section">
-<p class="eyebrow">06 · 결과와 한계</p><h2>대표 요청 5개의 결과와 남은 한계</h2>
-<p class="section-intro">기능별로 하나씩 고른 요청 5개를 실제 AI로 실행하고 평가했습니다. 전원·풍량·모드 요청은 채점한 기준이 모두 5점이었습니다. 잠금 요청은 정해지지 않은 조건을 질문하고 멈춰 분석 기준 4개만 채점했고 모두 5점이었습니다. 온도 요청은 두 기준이 깎여 평균 4.86점이었고 그 감점이 사례 2로 이어졌습니다. <a href="scores.html">기준별 점수표 →</a></p>
-<p id="scope">점수만으로 합격을 정하지 않습니다. 사람이 기준을 정한 범위 안에서, 어디를 먼저 확인할지 알려 주는 역할입니다.</p>
-<div class="scope-columns">
-<div><h3>확인한 범위</h3><ul><li>대표 요청 5개의 실제 실행을 네 단계별로 평가</li><li>평가에서 찾은 누락 두 가지를 프로젝트1에서 고치고 다시 실행</li><li>채점 기준을 고친 뒤 새 실행 결과 12개를 사람 판단과 다시 비교해 모두 일치</li></ul></div>
-<div><h3>아직 남은 것</h3><ul><li>위 점수는 교차 검수용 Claude로 바꾸기 전에, 결과를 만든 것과 같은 OpenAI 모델이 채점한 결과</li><li>판단은 기준을 만든 본인 1명이 했고 다시 확인한 항목이 27개로 적음</li><li>가상 제품의 장비 1대가 대상이고 여러 장비나 새 기능 추가 같은 실제 업무 범위는 아직 평가하지 않음</li></ul></div>
+<section id="results" class="story-section result-grid">
+<p class="eyebrow">06 · 평가 결과</p><h2>대표 요청 5개의 평가 결과</h2>
+<p class="section-intro">기능별로 하나씩 고른 요청을 실제 AI로 실행하고 평가했습니다. 필수 시험과 기대 결과는 실행 전에 사람이 정해 두었습니다.</p>
+<div class="story-results" role="region" aria-label="대표 요청별 평가 결과" tabindex="0">
+<table class="case-summary"><caption class="visually-hidden">대표 요청별 프로젝트1 결과와 평가 점수</caption>
+<thead><tr><th scope="col">대표 요청</th><th scope="col">프로젝트1은 어떻게 했나</th><th scope="col">평가 · 5점 만점</th></tr></thead><tbody>
+<tr><th scope="row">잠금 정책 미정<small>허용할 명령이 정해지지 않은 요청</small></th><td>추측해서 시험하지 않고 정해지지 않은 조건을 질문으로 남긴 뒤 멈췄습니다.<small>의도한 동작이라 이후 단계는 평가하지 않음</small></td><td><b>4/4</b><small>분석 기준 4개 모두 5점 · 이후 단계 미실행</small></td></tr>
+<tr><th scope="row">전원 정지<small>정지 후 다른 값 유지</small></th><td>새 TC를 만들어 시험·되돌리기·보고까지 마쳤고 기대 결과 12개가 모두 맞았습니다.</td><td><b>5.0</b><small>기준 20개</small></td></tr>
+<tr><th scope="row">풍량 강풍<small>강풍 적용 확인</small></th><td>기존 강풍 TC를 고쳐 쓰는 쪽을 처음부터 골랐고 화면·카드·내부값 세 곳을 확인했습니다.</td><td><b>5.0</b><small>기준 20개</small></td></tr>
+<tr><th scope="row">모드 전환<small>제습 중 온도 조작 제한</small></th><td>기존 TC를 고쳐 썼고 확인 15개가 모두 맞았습니다.</td><td><b>5.0</b><small>기준 20개</small></td></tr>
+<tr><th scope="row">온도 범위<small>냉방 최저 20°C</small></th><td>제품이 바뀌기 전이라 냉방 19°C 불일치를 보고했습니다(예상한 결과). 당시 넣었던 난방 15°C 막힘 시험에서는 제품이 15°C까지 내려가는 기존 결함도 찾았습니다(예상 목록에 없던 결과). 난방은 이번 변경 범위가 아니어서 그 뒤 난방 시험을 '16°C 설정'으로 바꿨고 이 결함은 따로 기록했습니다. 운전 모드를 되돌렸는지 확인이 빠져 감점됐고 사례 2로 이어졌습니다.</td><td><b class="scenario-warning">4.86</b><small>되돌리기 확인 3점 · 필수 시험 기준 4점(권장 1개 없음)</small></td></tr>
+</tbody></table>
 </div>
-<p class="scope-note">반복 실행 결과, 사람이 다시 확인한 내용, 개선 기록 18건은 보고서에 있습니다. <a href="report.html">평가 결과와 근거 →</a></p>
+<p class="scope-note">설계한 26개 기준 중 아직 판정하지 못한 5개는 점수에서 뺐습니다. 맡은 일 밖의 지시를 따르지 않는지 보는 기준 1개와 앞 단계 결과가 다음 단계로 그대로 넘어갔는지 보는 기준 4개입니다. <a href="scores.html">기준별 점수표 →</a></p>
+</section>
+
+<section id="scope" class="story-section">
+<p class="eyebrow">07 · 범위와 한계</p><h2>AI 평가는 사람이 먼저 볼 곳을 찾는 도구입니다.</h2>
+<p>점수만으로 합격을 정하지 않습니다. 사람이 기준을 정한 범위 안에서, 어디를 먼저 확인할지 알려 주는 역할입니다.</p>
+<div class="scope-columns">
+<div><h3>확인한 범위</h3><ul><li>대표 요청 5개의 실제 실행을 네 단계별로 평가</li><li>전원·풍량·모드는 시험 설계를 각 3번 반복해 3번 모두 필수 조건 충족</li><li>평가에서 찾은 누락 두 가지를 프로젝트1에서 고치고 다시 실행</li><li>채점 기준을 고친 뒤 새 실행 결과 12개를 사람 판단과 다시 비교해 모두 일치</li></ul></div>
+<div><h3>아직 남은 것</h3><ul><li>06의 점수는 교차 검수용 Claude로 바꾸기 전에, 결과를 만든 것과 같은 OpenAI 모델이 채점한 결과</li><li>필수 시험을 프로그램으로 대조하는 것은 온도 범위 요청뿐</li><li>앞 단계 결과가 다음 단계로 그대로 넘어갔는지 보는 기준 4개는 최종 판정 전, 맡은 일 밖의 지시를 거르는지는 그런 지시가 든 요청이 없어 시험 전</li><li>사람이 다시 확인한 항목이 27개(처음 15개 + 기준 수정 후 12개)로 적음</li><li>판단은 기준을 만든 본인 1명이 해서 다른 사람과의 일치도는 확인 전</li><li>여러 장비, 새 기능 추가 같은 실제 업무 범위는 아직 평가하지 않음</li></ul></div>
+</div>
+<p class="scope-note">문제를 찾으면 매번 같은 순서로 기록합니다. 발견 → 맞는 감점인지 확인 → 반복되는지 확인 → 원인 수정 → 다시 실행. 지금까지 18건을 남겼습니다. <a href="report.html#improvements">주요 개선 기록 →</a></p>
 </section>
 <footer class="story-footer"><a href="../../qa-agent-pipeline/main.html">메인 포트폴리오 ←</a><a href="../../qa-agent-pipeline-v2/project.html">프로젝트1 보기 →</a><a href="report.html">평가 결과 자세히 →</a></footer>
 </main></body></html>

@@ -69,10 +69,10 @@ def test_intro_and_report_scores_agree():
     home = _read("index.html")
     report = _read("report.html")
     # 2026-10-27: 잠금은 분석 단계까지만 평가해 평균 대신 충족 수(4/4)로 표시한다.
-    # 2026-11-14 사용자 결정: 소개 페이지의 요청별 점수 표는 빼고 문장으로 요약한다(표는 보고서·점수표에 있음).
+    # 2026-11-15 사용자 결정: 소개 페이지에 요청별 결과 표를 다시 둔다.
+    intro = re.findall(r'<td><b(?: class="scenario-warning")?>([0-9./]+)</b>', home)
     summary = re.findall(r'<div(?: class="warn")?><span>[^<]+</span><b>([0-9./]+)</b>', report)
-    assert summary == ["4/4", "5.0", "5.0", "5.0", "4.86"]
-    assert "평균 4.86점" in home and "분석 기준 4개만 채점" in home
+    assert intro == summary == ["4/4", "5.0", "5.0", "5.0", "4.86"]
 
 
 def test_intro_keeps_core_cases_and_limits():
