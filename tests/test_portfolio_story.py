@@ -49,7 +49,7 @@ def test_new_report_is_static_and_points_to_scores_and_detail():
     assert "script" not in page.tags
     positions = [report.index('id="' + name + '"') for name in ("latest", "repeat", "human", "improvements")]
     assert positions == sorted(positions)
-    assert '<details class="story-fold" id="models">' in report
+    assert '<details class="story-fold" id="models"' in report
     assert 'href="scores.html"' in report
     assert "story-cta" not in report
 
@@ -69,9 +69,10 @@ def test_intro_and_report_scores_agree():
     home = _read("index.html")
     report = _read("report.html")
     # 2026-10-27: 잠금은 분석 단계까지만 평가해 평균 대신 충족 수(4/4)로 표시한다.
-    intro = re.findall(r'<td><b(?: class="scenario-warning")?>([0-9./]+)</b>', home)
+    # 2026-11-14 사용자 결정: 소개 페이지의 요청별 점수 표는 빼고 문장으로 요약한다(표는 보고서·점수표에 있음).
     summary = re.findall(r'<div(?: class="warn")?><span>[^<]+</span><b>([0-9./]+)</b>', report)
-    assert intro == summary == ["4/4", "5.0", "5.0", "5.0", "4.86"]
+    assert summary == ["4/4", "5.0", "5.0", "5.0", "4.86"]
+    assert "평균 4.86점" in home and "분석 기준 4개만 채점" in home
 
 
 def test_intro_keeps_core_cases_and_limits():

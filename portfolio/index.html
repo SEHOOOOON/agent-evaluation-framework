@@ -3,11 +3,16 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="description" content="AI QA 에이전트의 결과를 프로그램·AI·사람이 나눠 검증하고 찾은 문제를 프로젝트1 수정으로 연결한 개인 프로젝트.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="프로젝트2 · 에이전트 결과 검증">
+<meta property="og:description" content="AI QA 에이전트의 결과를 프로그램·AI·사람이 나눠 검증하고 찾은 문제를 프로젝트1 수정으로 연결한 개인 프로젝트.">
+<meta property="og:url" content="https://sehooooon.github.io/agent-evaluation-framework/portfolio/index.html">
+<meta property="og:locale" content="ko_KR">
+<meta name="twitter:card" content="summary">
 <title>프로젝트2 · 에이전트 결과 검증</title>
 <link rel="icon" type="image/svg+xml" href="https://sehooooon.github.io/qa-agent-pipeline/favicon.svg">
 <link rel="stylesheet" href="style.css"><link rel="stylesheet" href="story.css">
 <style id="pf-bar-style">
-/* 프로젝트 페이지 메뉴 막대: 프로젝트 색(푸른 검정·파랑). 메인은 주황 */
 .pf-bar{position:sticky;top:0;z-index:60;background:rgba(8,12,19,.94);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-bottom:1px solid #1c2533;font-family:Pretendard,"Noto Sans KR",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
 .pf-bar-in{width:min(var(--pf-w,1100px),calc(100% - 48px));margin:0 auto;height:62px;display:flex;align-items:center;justify-content:space-between;gap:16px}
 .pf-brand{color:var(--title);font-size:13px;font-weight:800;letter-spacing:.02em;text-decoration:none;white-space:nowrap}
@@ -17,10 +22,9 @@
 .pf-links a:hover{color:var(--title);text-decoration:none}
 .pf-links a[aria-current="page"]{color:var(--title);border-bottom-color:#58a6ff}
 @media(max-width:640px){.pf-bar-in{width:calc(100% - 28px);height:54px}.pf-brand{font-size:12px}.pf-links{gap:14px;font-size:11px}}
+.story-hero .judge-three{margin:22px 0 14px}.story-hero .judge-three h2.fact{margin:0 0 8px;color:var(--title);font-size:15px;line-height:1.5;letter-spacing:0}
 </style>
 <style id="p2-readability">
-/* 처음 보는 사람을 위한 보강: 큰 글자, 단순한 그림 */
-/* 메인·프로젝트1과 같은 글자 크기 */
 .portfolio-story p{font-size:14px;line-height:1.85}
 .portfolio-story .section-intro{font-size:14px}
 .portfolio-story .story-lead{font-size:15px}
@@ -29,13 +33,10 @@
 .portfolio-story .scope-note{font-size:12.5px}
 .judge-three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:26px 0 12px}
 .judge-three article{padding:22px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
-
-
 .judge-three .case-label{display:block;font-size:13px;margin-bottom:6px}
 .judge-three h3{margin:0 0 8px!important;color:var(--title)}
 .judge-three p{font-size:14px;margin:0 0 10px}
 .judge-three .verdict{font-size:14px;color:var(--text);border-top:1px solid var(--line);padding-top:10px;margin:0}
-/* 평가하는 결과물: 왼쪽에서 오른쪽으로 이어지는 4칸 */
 .block-title{margin:34px 0 12px!important;font-size:17px!important;color:var(--title)}
 .artifact-flow{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:22px}
 .artifact-flow>li{position:relative;padding:18px 18px 16px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
@@ -43,7 +44,6 @@
 .artifact-flow .by{display:block;font-size:12px;color:var(--blue)}
 .artifact-flow h4{margin:4px 0 10px;font-size:15px;color:var(--title)}
 .artifact-flow ul{list-style:none;margin:0;padding:10px 0 0;border-top:1px solid var(--line);color:var(--muted);font-size:13.5px;line-height:1.75;display:grid;gap:4px}
-/* 누가 채점하나 */
 .graders{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;border:1px solid var(--line);border-radius:10px;overflow:hidden}
 .graders div{padding:18px 20px;background:var(--surface)}
 .graders div+div{border-left:1px solid var(--line)}
@@ -71,49 +71,32 @@
  .rubric-example{grid-template-columns:1fr}.rubric-example>div:nth-child(odd){border-bottom:0;padding-bottom:4px}
 }
 @media(max-width:520px){.artifact-flow{grid-template-columns:1fr}}
+.story-hero .judge-three{margin:22px 0 14px}.story-hero .judge-three h2.fact{margin:0 0 8px;color:var(--title);font-size:15px;line-height:1.5;letter-spacing:0}
 </style>
-<style id="unify">
-/* 프로젝트1·2 디자인 통일: 프로젝트2 기준 상자·표·라벨·문단 + 메인·프로젝트1 기준 페이지 뼈대 */
+<style>
 :root{--u-panel:#111824;--u-inner:#0d131e;--u-line:#28344a;--u-muted:#94a3b8}
-/* 표 */
 main table thead th{font-size:12px!important;color:var(--u-muted)!important;font-weight:500!important;background:var(--u-inner)!important}
-/* 링크 */
-main p a:not(.button):not(.btn),main li a:not(.button):not(.btn),.inline-ref{color:var(--blue)!important;text-decoration:none!important}
-/* 문단 */
+main p a:not(.button):not(.btn),main li a:not(.button):not(.btn),main td a:not(.button):not(.btn),main dd a:not(.button):not(.btn),main .callout a:not(.button):not(.btn),.inline-ref{color:var(--blue)!important;text-decoration:underline!important;text-decoration-color:rgba(88,166,255,.45)!important;text-underline-offset:3px!important}
 main p{line-height:1.85!important}
-
-/* 촘촘한 표 기본 11px → 12px (클래스로 따로 정한 표는 그대로) */
 main td{font-size:12px}
-/* 주석 13px */
 .scope-note{font-size:13px!important}
 .case-summary td{font-size:13px!important}
-/* 모서리 10px로 통일 */
 .evaluation-flow>li,.tc-lines>li,.bm-cell{border-radius:10px!important}
-/* 제목은 모두 제목색 */
 .portfolio-story article>h4,.case-flow li.flow-warning h3{color:var(--title)!important}
-/* 강조 줄: 3px 선 + 상자 배경 */
 .improvement-takeaway{border-left:3px solid var(--u-line)!important;background:var(--u-panel)!important;padding:12px 16px!important}
 .callout{border-left:3px solid var(--u-line)!important;background:var(--u-panel)!important}
-/* 전체 점검 반영 ① 절 구분선: 프로젝트1·메인처럼 화면 끝까지 옅은 선 */
 .story-section{border-top:1px solid transparent!important;border-image:linear-gradient(rgba(148,163,184,.14),rgba(148,163,184,.14)) 1 / 1px 0 0 0 / 0 100vw!important}
-/* ② 카드 위 작은 라벨 12px, 카드 제목 16px (프로젝트1과 같게) */
 .case-label,.evaluation-flow li>span{font-size:12px!important;font-weight:500!important;letter-spacing:0!important}
 .judge-three h3,.evaluation-flow h3,.artifact-flow h4,.graders b,.scope-columns h3,.restore-compare h4,.lesson-grid h3{font-size:16px!important}
-/* ③ 접는 부분: 프로젝트1 사례처럼 제목은 제목색, + 는 오른쪽 */
 .story-fold>summary{justify-content:space-between!important;font-size:16px!important;color:var(--title)!important}
 .story-fold>summary:before{order:2;color:var(--u-muted)!important}
-/* ④ 범위와 한계 두 칸: 프로젝트1 배운 점처럼 카드로 */
 .scope-columns>div{background:var(--u-panel);border:1px solid var(--u-line);border-radius:10px;padding:24px 26px}
-/* 페이지 뼈대: 메인·프로젝트1과 같게 */
-/* 맨 위 표시: 알약 모양 */
 .story-hero>.eyebrow{display:inline-flex!important;max-width:none!important;padding:7px 11px;border:1px solid rgba(88,166,255,.28);border-radius:999px;background:rgba(88,166,255,.098);font-size:12px!important;letter-spacing:.02em;margin:0!important}
 .story-hero h1{margin-top:18px!important}
-/* 바로가기: 회색 + "·" 구분 */
 .story-nav{gap:6px 0!important;border-top:1px solid var(--u-line);padding-top:16px!important}
 .story-nav a{color:var(--u-muted)!important;font-size:14px}
 .story-nav a+a:before{content:"·";margin:0 12px;color:var(--u-line)}
 .story-nav a:hover{color:var(--blue)!important}
-/* 절 머리 2단: 왼쪽 번호·제목, 오른쪽 설명 */
 @media(min-width:861px){
  .story-section{display:grid!important;grid-template-columns:minmax(0,436fr) minmax(0,628fr);grid-template-rows:1fr auto;column-gap:36px}
  .story-section>*{grid-column:1/-1}
@@ -121,6 +104,9 @@ main td{font-size:12px}
  .story-section>h2{grid-column:1;grid-row:2;margin-bottom:24px!important}
  .story-section>h2+p{grid-column:2;grid-row:1/3;align-self:end;max-width:none!important;margin-bottom:24px!important}
 }
+.story-hero .judge-three{margin:22px 0 14px}.story-hero .judge-three h2.fact{margin:0 0 8px;color:var(--title);font-size:15px;line-height:1.5;letter-spacing:0}
+/* 채움만 남기기 */
+#main#main#main .judge-three article,#main#main#main .lesson-grid article,#main#main#main .artifact-flow>li,#main#main#main .case-flow>li,#main#main#main .fix-steps>li,#main#main#main .scope-columns>div,#main#main#main .graders,#main#main#main .boundary-map,#main#main#main .restore-compare,#main#main#main .legend>div,#main#main#main .score-summary>div,#main#main#main .wide,#main#main#main .story-fold{border-color:rgba(148,163,184,.10)!important;box-shadow:none!important}
 </style>
 </head>
 <body class="portfolio-story">
@@ -131,8 +117,15 @@ main td{font-size:12px}
 <p class="eyebrow">개인 프로젝트 · 프로젝트1 결과 평가</p>
 <h1>에이전트 결과 검증</h1>
 <p class="story-lead">AI가 만든 QA 결과를 그대로 믿어도 될까요?<br>프로그램, AI, 사람이 나눠서 확인합니다.</p>
+<p>프로젝트1은 변경 요청을 받으면 AI가 요구사항을 분석하고 테스트케이스(TC)를 만든 뒤 가상 제품에서 시험하고 보고하는 QA 자동화입니다. 프로젝트2는 그 결과를 채점해 믿을 만한지 확인하는 평가 도구입니다.</p>
 <p>실무에서 테스트 결과를 볼 때 PASS·FAIL만 보지 않고 요구사항에 맞는 검사를 했는지와 근거가 충분한지도 함께 봤습니다. 이 관점을 프로젝트1에 적용해 결과를 단계별로 평가하고 문제가 나오면 프로젝트1을 고쳐 다시 실행했습니다.</p>
-<nav class="story-nav" aria-label="페이지 안내"><a href="#why">왜 필요한가</a><a href="#method">평가 방법</a><a href="#case-range">사례 1 · 빠진 경계값 시험</a><a href="#case-restore">사례 2 · 빠진 복원 확인</a><a href="#judge">평가 AI 검증</a><a href="#results">평가 결과</a><a href="#scope">범위와 한계</a></nav>
+<div class="judge-three" aria-label="평가로 확인한 것">
+<article><span class="case-label">찾은 문제</span><h2 class="fact">AI가 통과시킨 TC에서 누락 2가지</h2><p>범위 끝 값 시험과, 시험 뒤 원래 상태로 되돌렸는지 확인이 빠져 있었습니다.</p></article>
+<article><span class="case-label">고친 뒤</span><h2 class="fact">다시 만든 TC 8번 모두 포함</h2><p>규칙을 넣고 같은 요청으로 TC를 8번 다시 만들어 필수 시험이 다 있는지 확인했습니다.</p></article>
+<article><span class="case-label">평가 AI 점검</span><h2 class="fact">점수 15개 중 4개가 후했음</h2><p>사람이 다시 판단해 찾았고 채점 기준을 고친 뒤 12개는 모두 같았습니다.</p></article>
+</div>
+<p class="scope-note"><strong>직접 만든 것</strong> 채점 기준 26개, 필수 시험 목록과 대조 프로그램, 평가 AI 채점기(OpenAI·Claude), 반복 실행·재채점 도구 · Python, Claude API, OpenAI API, Pytest</p>
+<nav class="story-nav" aria-label="페이지 안내"><a href="#why">왜 필요한가</a><a href="#method">평가 방법</a><a href="#case-range">사례 1 · 빠진 경계값 시험</a><a href="#case-restore">사례 2 · 빠진 되돌리기 확인</a><a href="#judge">평가 AI 검증</a><a href="#results">결과와 한계</a></nav>
 </header>
 
 <section id="why" class="story-section">
@@ -141,35 +134,30 @@ main td{font-size:12px}
 <div class="judge-three">
 <article><span class="case-label">제품이 요구사항과 다르게 동작</span><h3>제품을 고쳐야 함</h3><p>예: 잠금을 걸었는데 온도 버튼이 계속 눌림. 에이전트가 이 차이를 찾아 근거와 함께 보고했다면 할 일을 한 것입니다.</p><p class="verdict">고칠 곳: 제품</p></article>
 <article class="miss"><span class="case-label">필요한 검사를 빠뜨리고 통과</span><h3>에이전트를 고쳐야 함</h3><p>예: 냉방 최저 온도를 20°C로 바꾸는 요청인데, 20°C가 실제로 설정되는지는 시험하지 않음. 결과가 모두 PASS여도 문제입니다.</p><p class="verdict">고칠 곳: 프로젝트1</p></article>
-<article class="input"><span class="case-label">평가자가 근거를 받지 못함</span><h3>평가 도구를 고쳐야 함</h3><p>예: 복원 기록이 원본에는 있는데 평가 자료에서 빠져 낮은 점수가 나옴. 점수만 보면 정상인 시험을 고치게 됩니다.</p><p class="verdict">고칠 곳: 프로젝트2</p></article>
+<article class="input"><span class="case-label">평가자가 근거를 받지 못함</span><h3>평가 도구를 고쳐야 함</h3><p>예: 원래 상태로 되돌린 기록이 원본에는 있는데 평가 AI에게 넘긴 자료에서 빠져 낮은 점수가 나옴. 점수만 보면 정상인 시험을 고치게 됩니다.</p><p class="verdict">고칠 곳: 프로젝트2</p></article>
 </div>
 <p class="scope-note">정보가 부족해 질문을 남기고 멈춘 경우는 실패가 아니라 정상 동작으로 평가합니다.</p>
 </section>
 
 <section id="method" class="story-section">
-<p class="eyebrow">02 · 평가 방법</p><h2>무엇을 평가하고, 누가 채점하나</h2>
-<p class="section-intro">프로젝트1은 요청 하나를 처리하면서 네 가지 결과물을 남깁니다. 결과물마다 확인할 질문을 정해 두고 채점합니다.</p>
-<h3 class="block-title">평가하는 결과물</h3>
+<p class="eyebrow">02 · 평가 방법</p><h2>무엇을 기준으로, 어떻게 평가하나</h2>
+<p class="section-intro">프로젝트1은 일을 네 단계(Agent 1~4)로 나눠 처리하고 단계마다 결과물을 남깁니다. 결과물마다 확인할 질문을 정해 두고 채점합니다.</p>
+<p class="improvement-takeaway"><strong>두 프로젝트가 맞물리는 순서</strong> 프로젝트1이 결과물을 만듦 → 프로젝트2가 채점 → 문제 발견 → 프로젝트1 수정 → 다시 실행해 확인</p>
+<h3 class="block-title">무엇을 기준으로 · 단계마다 꼭 지켜야 하는 것</h3>
 <ol class="artifact-flow" aria-label="프로젝트1이 남기는 결과물 네 가지와 확인하는 질문">
-<li><span class="by">Agent 1 · AI</span><h4>요구사항 분석 결과</h4><ul><li>바뀌는 조건과 그대로 둘 조건을 구분했나</li><li>정해지지 않은 값을 추측하지 않고 질문했나</li></ul></li>
-<li><span class="by">Agent 2 · AI</span><h4>테스트케이스(TC)</h4><ul><li>기존 TC를 고쳐 쓸지 먼저 봤나</li><li>꼭 필요한 시험이 다 있나</li><li>시험 뒤 원래 상태로 되돌렸는지 확인하나</li></ul></li>
-<li><span class="by">Agent 3 · 프로그램 + AI 근거 검토</span><h4>실행·복원 기록</h4><ul><li>TC에 적힌 값과 시점 그대로 시험했나</li><li>시험 전 상태로 돌아왔나</li></ul></li>
-<li><span class="by">Agent 4 · 프로그램</span><h4>결과 보고서</h4><ul><li>실제로 본 결과대로 보고했나</li><li>실패·미실행·질문을 빠뜨리지 않았나</li></ul></li>
+<li><span class="by">Agent 1 · AI</span><h4>요구사항 분석 결과</h4><ul><li>정해지지 않은 값을 추측하지 않고 질문했나</li></ul></li>
+<li><span class="by">Agent 2 · AI</span><h4>테스트케이스(TC)</h4><ul><li>꼭 필요한 시험이 다 있나</li></ul></li>
+<li><span class="by">Agent 3 · 프로그램 + AI 근거 검토</span><h4>실행·되돌리기 기록</h4><ul><li>TC에 적힌 값과 시점 그대로 시험했나</li></ul></li>
+<li><span class="by">Agent 4 · 프로그램</span><h4>결과 보고서</h4><ul><li>실패·미실행·질문을 빠뜨리지 않았나</li></ul></li>
 </ol>
-<h3 class="block-title">누가 채점하나</h3>
+<h3 class="block-title">어떻게 · 누가 채점하나</h3>
 <div class="graders">
-<div><b>프로그램</b><span>계산으로 확인할 수 있는 것</span><small>예: 필수 시험 5개가 TC에 다 있는가, 보고서 개수가 실행 기록과 같은가</small></div>
+<div><b>프로그램</b><span>계산으로 확인할 수 있는 것</span><small>예: 꼭 있어야 하는 시험(필수 시험) 5개가 TC에 다 있는가, 보고서 개수가 실행 기록과 같은가</small></div>
 <div><b>AI</b><span>내용을 읽어야 판단할 수 있는 것</span><small>예: 다른 사람이 이 절차를 그대로 따라 할 수 있는가. 0~5점과 이유를 남김</small></div>
 <div><b>사람</b><span>기준을 정하고 AI 점수를 다시 확인</span><small>예: AI가 준 5점이 맞는가. 다르면 채점 기준을 고침</small></div>
 </div>
-<h3 class="block-title">기준 하나를 예로 들면</h3>
-<div class="rubric-example" aria-label="복원 확인 기준의 점수 예시">
-<div>기준</div><div>시험 뒤 원래 상태로 돌아왔는지 확인하는가 (TC 평가)</div>
-<div class="score">5점</div><div>준비와 시험에서 바꾼 값마다 되돌렸는지 확인하는 단계가 있다.</div>
-<div class="low">3점 이하</div><div>바꾼 값 중 일부만 확인한다. 예: 설정 온도는 확인하지만, 준비 때 바꾼 운전 모드는 확인하지 않는다.</div>
-<div>판단 보류</div><div>평가에 필요한 기록이 없으면 점수를 주지 않고 사람에게 넘긴다.</div>
-</div>
-<p class="scope-note">이런 기준 21개로 채점합니다(설계한 26개 중 5개는 아직 판정 전: 역할을 넘는 지시 1개, 단계 연결 4개). 지금 평가 AI는 프로젝트1의 생성 AI(OpenAI)와 다른 회사 모델(Claude)입니다. 06의 대표 요청 점수는 Claude로 바꾸기 전에 생성과 같은 OpenAI 모델로 채점한 결과입니다. <a href="scores.html">기준별 점수 보기 →</a></p>
+<p class="scope-note">단계마다 이런 질문을 모아 기준 21개를 만들었고 기준마다 0~5점으로 채점합니다. 설계한 26개 중 나머지 5개는 아직 판정 전입니다. <a href="scores.html">기준별 점수 보기 →</a></p>
+<p class="improvement-takeaway"><strong>교차 검수</strong> 평가 AI는 프로젝트1의 결과를 만든 AI(OpenAI)와 다른 회사 모델인 Claude를 씁니다. 같은 모델이 자기가 만든 결과를 채점하지 않게 하려는 것입니다.</p>
 </section>
 
 <section id="case-range" class="story-section">
@@ -206,58 +194,32 @@ main td{font-size:12px}
 <div class="example-columns">
 <article><span class="case-label">고치기 전 · 4번 모두 빠짐</span><h4>바꾼 값 중 하나만 확인</h4>
 <ul class="tc-lines"><li>설정 온도가 시험 전 값으로 돌아옴<b class="ok">✓ 있음</b></li><li>운전 모드가 시험 전 값으로 돌아옴<b class="no">✗ 없음</b></li></ul>
-<p>채점: 복원 기준 3점</p></article>
+<p>채점: 되돌리기 확인 기준 3점</p></article>
 <article><span class="case-label">고친 뒤 · 3번 모두 포함</span><h4>준비 때 바꾼 값까지 확인</h4>
 <ul class="tc-lines"><li>설정 온도가 시험 전 값으로 돌아옴<b class="ok">✓ 있음</b></li><li>운전 모드가 시험 전 값으로 돌아옴<b class="ok">✓ 있음</b></li></ul>
 <p>실제 실행에서도 시험 뒤 원래 상태로 돌아옴</p></article>
 </div>
 </div>
-<ol class="fix-steps">
-<li><b>반복되는지 확인</b><span>바로 고치지 않고 같은 요청을 여러 번 실행했습니다. 4번 모두 같은 누락이 나왔습니다.</span></li>
-<li><b>원인 찾기</b><span>TC 데이터 형식에 "준비 때 바꾼 값"의 복원 확인을 적을 칸이 없었습니다.</span></li>
-<li><b>원인 고치기</b><span>칸을 추가하고 비어 있으면 프로젝트1의 자동 검사에서 막도록 했습니다.</span></li>
-<li><b>다시 실행</b><span>TC를 3번 다시 만들어 모두 모드 확인이 들어갔고 실제 실행에서도 원래 상태로 돌아왔습니다.</span></li>
-</ol>
-<p class="scope-note">적을 칸이 없었기 때문에, 지침 문장만 고쳐서는 해결되지 않았습니다.</p>
+<p>바로 고치지 않고 같은 요청을 여러 번 실행했고 4번 모두 같은 누락이 나왔습니다. 지침 문장만 고쳐서는 해결되지 않았습니다. TC 데이터 형식에 준비 때 바꾼 값을 되돌렸는지 적을 칸이 없던 것이 원인이었습니다. 칸을 추가하고 비어 있으면 프로젝트1의 자동 검사에서 막도록 한 뒤 다시 만든 TC 3번 모두 모드 확인이 들어갔습니다. <a href="report.html#improvements">개선 기록 →</a></p>
 </section>
 
 <section id="judge" class="story-section">
 <p class="eyebrow">05 · 평가 AI 검증</p><h2>평가 AI의 점수도 사람이 다시 확인했습니다.</h2>
 <p class="section-intro">AI 채점 점수를 사람이 하나씩 다시 판단했습니다. 처음 15개 중 4개가 달랐고 4개 모두 AI가 <strong>너무 후하게</strong> 준 경우였습니다. 기준을 고친 뒤 새로 실행한 같은 대표 요청 4개의 TC 관련 기준 12개를 다시 비교했고 모두 같았습니다.</p>
-<div class="lesson-grid">
-<article><span class="case-label">경계값</span><h4>한쪽 끝만 시험해도 만점</h4><p>필수 시험 목록을 만들어 프로그램이 대조하게 바꿨습니다.</p></article>
-<article><span class="case-label">시험 절차</span><h4>조작과 확인을 한 줄에 섞어도 만점</h4><p>한 줄에 섞어 쓰면 3점 이하로 기준을 고쳤습니다.</p></article>
-<article><span class="case-label">기존 TC</span><h4>고쳐 쓸 TC를 두고 새로 만들어도 만점</h4><p>기존 TC를 고쳐 쓰는 것이 맞는 처리라고 기준에 넣었습니다.</p></article>
-<article><span class="case-label">평가 범위</span><h4>시험하지 않은 부분에도 만점</h4><p>실제로 다룬 경우만 채점하고 나머지는 '해당 없음'으로 두게 했습니다.</p></article>
-</div>
-<p class="improvement-takeaway"><strong>반대로 정상 시험을 깎은 적도 있습니다.</strong> 원래 상태로 되돌린 기록이 있었는데 3점이 나왔습니다. 원본을 보니 평가 자료에 그 기록이 빠져 있었고 자료 전달 방식을 고친 뒤 5점이 됐습니다.</p>
+<p>후했던 네 가지는 범위의 한쪽 끝만 시험한 TC, 조작과 확인을 한 줄에 섞어 쓴 절차, 고쳐 쓸 TC를 두고 새로 만든 경우, 시험하지 않은 부분에 준 점수였습니다. 유형마다 채점 기준을 고쳤습니다. <a href="report.html#human">유형별 수정 내용 →</a></p>
+<p class="improvement-takeaway"><strong>반대로 정상 시험을 깎은 적도 있습니다.</strong> 원래 상태로 되돌린 기록이 있었는데 3점이 나왔습니다. 원본을 보니 평가 AI에게 넘긴 자료에 그 기록이 빠져 있었고 자료 전달 방식을 고친 뒤 5점이 됐습니다.</p>
 <p class="scope-note">평가 AI는 OpenAI와 Claude를 같은 자료로 비교한 뒤 Claude로 정했습니다. <a href="report.html#models">비교 결과 →</a></p>
 </section>
 
-<section id="results" class="story-section result-grid">
-<p class="eyebrow">06 · 평가 결과</p><h2>대표 요청 5개의 평가 결과</h2>
-<p class="section-intro">기능별로 하나씩 고른 요청을 실제 AI로 실행하고 평가했습니다. 필수 시험과 기대 결과는 실행 전에 사람이 정해 두었고 내용을 읽어야 하는 기준은 OpenAI gpt-6.1-sol(생성과 같은 모델)이 채점했습니다. 채점 모델은 그 뒤 Claude로 바꿨습니다.</p>
-<div class="story-results" role="region" aria-label="대표 요청별 평가 결과" tabindex="0">
-<table class="case-summary"><caption class="visually-hidden">대표 요청별 프로젝트1 결과와 평가 점수</caption>
-<thead><tr><th scope="col">대표 요청</th><th scope="col">프로젝트1은 어떻게 했나</th><th scope="col">평가 · 5점 만점</th></tr></thead><tbody>
-<tr><th scope="row">잠금 정책 미정<small>허용할 명령이 정해지지 않은 요청</small></th><td>추측해서 시험하지 않고 정해지지 않은 조건을 질문으로 남긴 뒤 멈췄습니다.<small>의도한 동작이라 이후 단계는 평가하지 않음</small></td><td><b>4/4</b><small>분석 기준 4개 모두 5점 · 이후 단계 미실행</small></td></tr>
-<tr><th scope="row">전원 정지<small>정지 후 다른 값 유지</small></th><td>새 TC를 만들어 시험·복원·보고까지 마쳤고 기대 결과 12개가 모두 맞았습니다.</td><td><b>5.0</b><small>기준 20개</small></td></tr>
-<tr><th scope="row">풍량 강풍<small>강풍 적용 확인</small></th><td>기존 강풍 TC를 고쳐 쓰는 쪽을 처음부터 골랐고 화면·카드·내부값 세 곳을 확인했습니다.</td><td><b>5.0</b><small>기준 20개</small></td></tr>
-<tr><th scope="row">모드 전환<small>제습 중 온도 조작 제한</small></th><td>기존 TC를 고쳐 썼고 확인 15개가 모두 맞았습니다.</td><td><b>5.0</b><small>기준 20개</small></td></tr>
-<tr><th scope="row">온도 범위<small>냉방 최저 20°C</small></th><td>제품이 바뀌기 전이라 냉방 19°C 불일치를 보고했습니다(예상한 결과). 당시 넣었던 난방 15°C 막힘 시험에서는 제품이 15°C까지 내려가는 기존 결함도 찾았습니다(예상 목록에 없던 결과). 난방은 이번 변경 범위가 아니어서 그 뒤 난방 시험을 '16°C 설정'으로 바꿨고 이 결함은 따로 기록했습니다. 모드 복원 확인이 빠져 감점됐고 사례 2로 이어졌습니다.</td><td><b class="scenario-warning">4.86</b><small>복원 확인 3점 · 필수 시험 기준 4점(권장 1개 없음)</small></td></tr>
-</tbody></table>
-</div>
-<p class="scope-note">설계한 26개 기준 중 아직 판정하지 못한 5개(역할을 넘는 지시 1개, 단계 사이 연결 4개)는 점수에서 뺐습니다. <a href="scores.html">기준별 점수표 →</a></p>
-</section>
-
-<section id="scope" class="story-section">
-<p class="eyebrow">07 · 범위와 한계</p><h2>AI 평가는 사람이 먼저 볼 곳을 찾는 도구입니다.</h2>
-<p>점수만으로 합격을 정하지 않습니다. 사람이 기준을 정한 범위 안에서, 어디를 먼저 확인할지 알려 주는 역할입니다.</p>
+<section id="results" class="story-section">
+<p class="eyebrow">06 · 결과와 한계</p><h2>대표 요청 5개의 결과와 남은 한계</h2>
+<p class="section-intro">기능별로 하나씩 고른 요청 5개를 실제 AI로 실행하고 평가했습니다. 전원·풍량·모드 요청은 채점한 기준이 모두 5점이었습니다. 잠금 요청은 정해지지 않은 조건을 질문하고 멈춰 분석 기준 4개만 채점했고 모두 5점이었습니다. 온도 요청은 두 기준이 깎여 평균 4.86점이었고 그 감점이 사례 2로 이어졌습니다. <a href="scores.html">기준별 점수표 →</a></p>
+<p id="scope">점수만으로 합격을 정하지 않습니다. 사람이 기준을 정한 범위 안에서, 어디를 먼저 확인할지 알려 주는 역할입니다.</p>
 <div class="scope-columns">
-<div><h3>확인한 범위</h3><ul><li>대표 요청 5개의 실제 실행을 네 단계별로 평가</li><li>전원·풍량·모드는 시험 설계를 각 3번 반복해 3번 모두 필수 조건 충족</li><li>평가에서 찾은 누락 두 가지를 프로젝트1에서 고치고 다시 실행</li><li>채점 기준을 고친 뒤 새 실행 결과 12개를 사람 판단과 다시 비교해 모두 일치</li></ul></div>
-<div><h3>아직 남은 것</h3><ul><li>필수 시험을 프로그램으로 대조하는 것은 온도 범위 요청뿐</li><li>단계 사이 연결 기준 4개는 최종 판정 전, 역할을 넘는 지시는 그런 지시가 든 요청이 없어 시험 전</li><li>사람이 다시 확인한 항목이 27개(처음 15개 + 기준 수정 후 12개)로 적음</li><li>판단은 기준을 만든 본인 1명이 해서 다른 사람과의 일치도는 확인 전</li><li>여러 장비, 새 기능 추가 같은 실제 업무 범위는 아직 평가하지 않음</li></ul></div>
+<div><h3>확인한 범위</h3><ul><li>대표 요청 5개의 실제 실행을 네 단계별로 평가</li><li>평가에서 찾은 누락 두 가지를 프로젝트1에서 고치고 다시 실행</li><li>채점 기준을 고친 뒤 새 실행 결과 12개를 사람 판단과 다시 비교해 모두 일치</li></ul></div>
+<div><h3>아직 남은 것</h3><ul><li>위 점수는 교차 검수용 Claude로 바꾸기 전에, 결과를 만든 것과 같은 OpenAI 모델이 채점한 결과</li><li>판단은 기준을 만든 본인 1명이 했고 다시 확인한 항목이 27개로 적음</li><li>가상 제품의 장비 1대가 대상이고 여러 장비나 새 기능 추가 같은 실제 업무 범위는 아직 평가하지 않음</li></ul></div>
 </div>
-<p class="scope-note">문제를 찾으면 매번 같은 순서로 기록합니다. 발견 → 맞는 감점인지 확인 → 반복되는지 확인 → 원인 수정 → 다시 실행. 지금까지 18건을 남겼습니다. <a href="report.html#improvements">주요 개선 기록 →</a></p>
+<p class="scope-note">반복 실행 결과, 사람이 다시 확인한 내용, 개선 기록 18건은 보고서에 있습니다. <a href="report.html">평가 결과와 근거 →</a></p>
 </section>
 <footer class="story-footer"><a href="../../qa-agent-pipeline/main.html">메인 포트폴리오 ←</a><a href="../../qa-agent-pipeline-v2/project.html">프로젝트1 보기 →</a><a href="report.html">평가 결과 자세히 →</a></footer>
 </main></body></html>
